@@ -84,7 +84,7 @@ const BetaLogin = () => {
           />
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-48 w-48"></div>
+              <div className="loader ease-linear rounded-full border-8 border-t-8 border-[#7b1c14] border-t-[#a03a2e] h-48 w-48"></div>
             </div>
           )}
         </div>
