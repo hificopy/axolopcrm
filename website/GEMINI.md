@@ -19,7 +19,7 @@
 
 ### Tech Stack Commitment (Locked - No Changes)
 - **Frontend:** React 18.2, Vite 5, TailwindCSS 3.3
-- **Frontend Deployment:** Vercel (automatic from main branch)
+- **Frontend Deployment:** Vercel (automatic from mastered branch)
 - **Backend:** Node.js 20+, Express 4.18 (self-hosted in Docker containers)
 - **Database:** Supabase PostgreSQL Cloud + ChromaDB (AI/ML in Docker)
 - **Authentication:** Supabase Auth with optional Auth0 integration
@@ -29,26 +29,26 @@
 ### Deployment Workflow
 1. **Development:** Local development server (npm run dev:vite)
 2. **Beta Testing:** Deploy to beta branch for team review
-3. **Production:** Deploy to main branch for Vercel production
+3. **Production:** Deploy to mastered branch for Vercel production
 4. **Always backup before major changes:** Version and document changes in backups
 
 ## Deployment Rules
 
 ### Git Branch Strategy
-- **`main` branch:** Production-ready code deployed to Vercel
-- **`beta` branch:** Testing environment, deploy here first before main
-- **`backup` branch:** Backup of important versions and changes
-- **Local backups folder:** `/backups/` for version preservation
+- **`main` branch:** General development branch for ongoing work.
+- **`backups` branch:** Backup of important versions and changes
+- **`beta` branch:** Testing environment, deploy here first before `mastered`
+- **`mastered` branch:** Production-ready code deployed to Vercel
 
 ### Deployment Process
 1. **Major Changes:** Always create backup with change documentation
-2. **Before Production:** Test on `beta` branch first
+2. **Before Production:** Test on `beta` branch first, then deploy to `mastered` for public release.
 3. **Emergency Maintenance:** Use `UNDER_CONSTRUCTION` toggle to show login page
 4. **Developer Access:** Full admin access through Supabase account when needed
 5. **No Direct Main Deploy:** Always go through beta first unless specifically instructed
 
 ## Critical Configuration Constants
-- **Frontend:** Deployed to Vercel (from main branch)
+- **Frontend:** Deployed to Vercel (from mastered branch)
 - **Backend API:** http://localhost:3001 (development) / self-hosted in production
 - **ChromaDB:** http://localhost:8001 (in Docker) / self-hosted in production
 - **Database:** Supabase PostgreSQL Cloud (CRM-specific project, not shared)
@@ -109,9 +109,9 @@
 - **Usage:** Only for emergency maintenance or before major launches
 
 ### Deployment Safety
-- **Beta First Rule:** Always deploy to beta branch before main
+- **Beta First Rule:** Always deploy to beta branch before mastered
 - **Developer Override:** Full admin access available through Supabase for emergencies
-- **No Direct Main Changes:** Use beta branch for testing unless specifically instructed
+- **No Direct Mastered Changes:** Use beta branch for testing unless specifically instructed
 - **Backup Before Everything:** Never deploy major changes without backup
 
 ## Memory Anchors
