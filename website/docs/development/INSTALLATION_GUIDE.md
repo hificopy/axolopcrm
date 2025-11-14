@@ -222,7 +222,7 @@ npm install --legacy-peer-deps
 ## Project Structure After Installation
 
 ```
-crm/
+website/
 ├── node_modules/             ✅ After npm install
 ├── database/
 │   └── schema.sql            ✅ Database schema (managed via Supabase dashboard)
@@ -341,7 +341,7 @@ npm run dev              # Start frontend + backend
 npm run dev:vite         # Frontend only
 npm run dev:backend      # Backend only
 npm run build            # Build for production
-# Database operations handled through Supabase dashboard
+# Database operations are handled directly through the Supabase dashboard, not via npm commands.
 ```
 
 ### Docker Commands

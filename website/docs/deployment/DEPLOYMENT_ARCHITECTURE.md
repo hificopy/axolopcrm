@@ -7,8 +7,8 @@ This document outlines the deployment architecture for Axolop CRM combining Verc
 
 ### Frontend (Client Side)
 - **Hosting**: Vercel 
-- **Source**: `main` branch in Git repository
-- **Deployment**: Automatic when commits are pushed to main branch
+- **Source**: `mastered` branch in Git repository
+- **Deployment**: Automatic when commits are pushed to mastered branch
 - **Function**: React frontend application, user interface
 
 ### Database & Authentication
@@ -30,25 +30,26 @@ This document outlines the deployment architecture for Axolop CRM combining Verc
 ## Git Workflow
 
 ### Branches
-- `main`: Production-ready code, automatically deployed to Vercel
+- `main`: General development branch for ongoing work.
+- `backups`: Backup branch for version preservation
 - `beta`: Testing and staging environment
-- `backup`: Backup branch for version preservation
+- `mastered`: Production-ready code, automatically deployed to Vercel
 
 ### Development Process
 1. Develop features on feature branches
 2. Test locally using development servers
 3. Merge to `beta` for team testing
-4. Deploy to `main` when ready for production
+4. Deploy to `mastered` when ready for production
 
 ## Deployment Process
 
 ### Frontend (Vercel)
-1. Push changes to `main` branch
+1. Push changes to `mastered` branch
 2. Vercel automatically builds and deploys the React application
 3. Frontend connects to backend via configured API endpoints
 
 ### Backend (Docker)
-1. Backend changes pushed to `main` branch
+1. Backend changes pushed to `mastered` branch
 2. Docker images built and deployed to cloud VPS or dedicated server
 3. Docker Compose manages all backend services
 
@@ -59,7 +60,7 @@ This document outlines the deployment architecture for Axolop CRM combining Verc
 2. Backend services: `docker-compose up` (for API, n8n, ChromaDB, Redis)
 
 ### Production Deployment
-1. Merge to `main` branch triggers Vercel deployment
+1. Merge to `mastered` branch triggers Vercel deployment
 2. Backend Docker services must be manually updated on cloud VPS/dedicated server
 
 ## Service Communication

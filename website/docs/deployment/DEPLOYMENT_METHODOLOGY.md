@@ -17,7 +17,7 @@ This document outlines the deployment methodology for the Axolop CRM application
 - **Database**: PostgreSQL (local or remote)
 - **Cache**: Redis
 - **Vector Database**: ChromaDB
-- **Reverse Proxy**: None (direct application serving)
+- **Reverse Proxy**: Nginx
 - **Containerization**: Docker (multi-stage builds)
 - **Orchestration**: Docker Compose
 
@@ -38,8 +38,8 @@ This document outlines the deployment methodology for the Axolop CRM application
 ## Deployment Process
 1. **Prerequisites**: Ensure Docker and Docker Compose are installed
 2. **Environment Setup**: Configure environment variables in `.env` file
-3. **Build**: Run `docker-compose -f docker/docker-compose.yml build` to build the application
-4. **Start**: Run `docker-compose -f docker/docker-compose.yml up -d` to start the services
+3. **Build**: Run `docker-compose build` to build the application
+4. **Start**: Run `docker-compose up -d` to start the services
 5. **Validation**: Verify all services are healthy before considering deployment successful
 
 ## Troubleshooting

@@ -34,7 +34,7 @@ This project uses a multi-container Docker setup for local development. It consi
 │  │                                       │  │
 │  └───────────────────────────────────────┘  │
 │                                             │
-│  Access Points:                             │
+│  Access Points (Local Development):         │
 │  - Backend API: http://localhost:4001       │
 │                                             │
 └─────────────────────────────────────────────┘

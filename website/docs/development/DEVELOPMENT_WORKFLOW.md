@@ -45,7 +45,7 @@ This document clarifies the development workflow to eliminate confusion about to
    - Set `DEV_MODE = false` to test the actual user flow
 
 ### Production Deployment
-1. **Frontend:** Automatically deployed to Vercel from `main` branch
+1. **Frontend:** Automatically deployed to Vercel from `mastered` branch
 2. **Backend:** Self-hosted Docker containers on cloud server
 3. **Toggles in Production:**
    - `DEV_MODE` should always be `false`
@@ -54,17 +54,18 @@ This document clarifies the development workflow to eliminate confusion about to
 ## Git Workflow (Three Branches)
 
 ### Branch Purpose
-- **`main`**: Production-ready code deployed to Vercel
+- **`main`**: General development branch for ongoing work.
+- **`backups`**: Backup of important versions
 - **`beta`**: Testing branch, can be deployed to staging environment
-- **`backup`**: Backup of important versions
+- **`mastered`**: Production-ready code deployed to Vercel
 
 ### Development Process
-1. **Feature Development:** Create feature branches from `main` or `beta`
+1. **Feature Development:** Create feature branches from `main`
 2. **Testing:** Merge to `beta` for team testing
-3. **Production:** Merge to `main` when ready for production
+3. **Production:** Merge to `mastered` when ready for production
 
 ### Toggle Settings for Each Branch
-- **`main` branch:** `DEV_MODE = false`, `UNDER_CONSTRUCTION` based on launch status
+- **`mastered` branch:** `DEV_MODE = false`, `UNDER_CONSTRUCTION` based on launch status
 - **`beta` branch:** `DEV_MODE = false` (to test auth flows), `UNDER_CONSTRUCTION` as needed
 - **Feature branches:** Usually same as `beta` or `main` depending on purpose
 

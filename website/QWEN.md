@@ -79,7 +79,7 @@
 6. **Use Row Level Security (RLS) for data protection**
 
 ### Infrastructure Configuration
-- **Frontend:** Deployed to Vercel (from main branch)
+- **Frontend:** Deployed to Vercel (from mastered branch)
 - **Backend API:** http://localhost:3001 (development) / self-hosted in production
 - **ChromaDB for AI:** http://localhost:8001 (in Docker) / self-hosted in production
 - **Database:** Supabase PostgreSQL Cloud

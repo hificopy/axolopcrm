@@ -9,7 +9,7 @@
 ## ✅ What's Been Built
 
 ### 1. Complete Infrastructure (100%)
-- ✅ **Database:** Prisma schema with 20+ CRM models
+- ✅ **Database:** Supabase PostgreSQL configured
 - ✅ **Database Connection:** Supabase PostgreSQL configured
 - ✅ **Docker:** Redis container for queues
 - ✅ **Backend:** Express server with health checks
@@ -67,21 +67,20 @@ sudo chown -R $(id -u):$(id -g) "$HOME/.npm"
 
 **Step 2: Run Deployment Script**
 ```bash
-cd ~/Desktop/CODE/macos-ai/crm
+cd ~/Desktop/CODE/axolopcrm/website
 ./deploy.sh
 ```
 
 The script automatically:
 - ✅ Installs all dependencies (~100 packages)
-- ✅ Generates Prisma client
-- ✅ Runs database migrations on Supabase
+
 - ✅ Builds Docker images (frontend + backend)
 - ✅ Starts 6 Docker containers
 - ✅ Checks health status
 
 **Step 3: Access CRM**
 ```
-Frontend: Vercel deployment (from main branch)
+Frontend: Vercel deployment (from mastered branch)
 Backend API: http://localhost:3001 (development) / self-hosted in production
 ```
 
@@ -105,12 +104,6 @@ If you want to run without Docker:
 # Install dependencies
 npm install --legacy-peer-deps
 
-# Generate Prisma client
-npm run prisma:generate
-
-# Run migrations
-npm run prisma:migrate
-
 # Start dev servers
 npm run dev
 ```
@@ -126,7 +119,7 @@ Access:
 
 ### After Starting Dev Server:
 
-1. **Login Screen** (Auth0)
+1. **Login Screen** (Supabase Auth)
    - If Auth0 configured: Real login
    - If not configured: "Sign In" button
 
@@ -187,8 +180,7 @@ Access:
 ## 📁 Project Structure
 
 ```
-crm/
-├── prisma/schema.prisma         # 20+ CRM models
+website/
 ├── server/index.js              # Express API
 ├── frontend/
 │   ├── main.jsx                 # React entry
@@ -263,20 +255,11 @@ crm/
 # Install everything
 npm install --legacy-peer-deps
 
-# Generate Prisma client
-npm run prisma:generate
-
-# Run migrations
-npm run prisma:migrate
-
 # Start Redis
 docker-compose up -d redis
 
 # Start dev servers
 npm run dev
-
-# Open Prisma Studio (DB GUI)
-npm run prisma:studio
 
 # View logs
 docker-compose logs -f redis
@@ -307,9 +290,6 @@ npm install --legacy-peer-deps
 ```bash
 # Check .env DATABASE_URL
 cat .env | grep DATABASE_URL
-
-# Test connection
-npx prisma db pull
 ```
 
 ### Redis connection error
@@ -426,10 +406,10 @@ REDIS_URL=redis://localhost:6379
 # JWT ✅
 JWT_SECRET=fcebee5dbe00842...
 
-# Auth0 (add yours)
-AUTH0_DOMAIN=
-AUTH0_CLIENT_ID=
-AUTH0_CLIENT_SECRET=
+# Auth0 (optional integration)
+# AUTH0_DOMAIN=
+# AUTH0_CLIENT_ID=
+# AUTH0_CLIENT_SECRET=
 
 # OpenAI (optional)
 OPENAI_API_KEY=
@@ -460,13 +440,11 @@ STRIPE_SECRET_KEY=
 sudo chown -R $(id -u):$(id -g) "$HOME/.npm"
 
 # 2. Install
-cd ~/Desktop/CODE/macos-ai/crm
+cd ~/Desktop/CODE/axolopcrm/website
 npm install --legacy-peer-deps
 
 # 3. Setup
 cp .env.example .env
-npm run prisma:generate
-npm run prisma:migrate
 
 # 4. Start
 docker-compose up -d redis

@@ -10,7 +10,7 @@
 
 ### ✅ Task A: Database Schema Design (Prisma)
 
-Complete CRM database schema has been designed in `/prisma/schema.prisma`:
+
 
 **Core Models:**
 - User (team members, roles, permissions)
@@ -49,12 +49,10 @@ Complete CRM database schema has been designed in `/prisma/schema.prisma`:
 **1. Project Structure Created:**
 
 ```
-crm/
-├── prisma/
-│   ├── schema.prisma          ✅ Complete database schema
-│   └── migrations/            ✅ Ready for migrations
+website/
+
 ├── server/
-│   ├── index.js              ✅ Express server with Prisma & Redis
+│   ├── index.js              ✅ Express server with Redis
 │   ├── config/               ✅ Directory structure
 │   ├── routes/               ✅ API routes structure
 │   ├── controllers/          ✅ Business logic structure
@@ -108,7 +106,7 @@ crm/
 **2. Docker Multi-Container Setup:**
 
 ✅ **4 Services Configured:**
-1. **PostgreSQL 16** (database)
+
 2. **Redis 7** (queue & cache)
 3. **Express API** (Node 20, backend)
 4. **Vite Frontend** (React 18, development server)
@@ -124,9 +122,9 @@ All services are networked and configured with health checks.
 - Vite 5.0.8
 - Express 4.18.2
 - Node 20+
-- Prisma 6.19.0 + PostgreSQL
+
 - Redis (ioredis 5.8.2) + Bull 4.16.5
-- Auth0 2.8.0 + JWT
+- Supabase Auth with optional Auth0 integration
 - TailwindCSS 3.3.6
 - Framer Motion 12.23.24
 - Axios 1.13.2
@@ -236,7 +234,7 @@ The npm install process encountered permission issues with the npm cache. This i
 **Solution:** Run the setup script which will fix permissions and install everything:
 
 ```bash
-cd ~/Desktop/CODE/macos-ai/crm
+cd ~/Desktop/CODE/axolopcrm/website
 ./scripts/setup.sh
 ```
 
@@ -260,9 +258,15 @@ Edit `.env` and add your actual credentials:
 
 ```bash
 # Essential for development
-AUTH0_DOMAIN=your-domain.auth0.com
-AUTH0_CLIENT_ID=your_client_id
-AUTH0_CLIENT_SECRET=your_client_secret
+# Supabase Auth (primary)
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# Auth0 (optional integration)
+# AUTH0_DOMAIN=your-domain.auth0.com
+# AUTH0_CLIENT_ID=your_client_id
+# AUTH0_CLIENT_SECRET=your_client_secret
 JWT_SECRET=generate_random_32_char_string
 
 # For AI features
@@ -284,7 +288,7 @@ STRIPE_SECRET_KEY=sk_test_...
 docker-compose up -d  # Start containers
 npm run dev           # Start frontend & backend
 
-# Option 2: Without Docker (requires local PostgreSQL & Redis)
+# Option 2: Without Docker (requires local Redis)
 npm run dev
 ```
 
@@ -372,13 +376,11 @@ Now start building the Close CRM UI clone:
 
 ## Project URLs & Documentation
 
-- **Project Directory:** `/Users/jdromeroherrera/Desktop/CODE/macos-ai/crm/`
-- **Database Schema:** `prisma/schema.prisma`
+- **Project Directory:** `/Users/jdromeroherrera/Desktop/CODE/axolopcrm/website/`
+- **Database Schema:** Managed via Supabase dashboard
 - **Tech Stack Doc:** `TECH_STACK.md`
 - **Close CRM UI Analysis:** `CLOSE_CRM_UI_ANALYSIS.md` (130+ pages)
-- **Integration Architecture:** `../CRM_INTEGRATION_ARCHITECTURE.md`
-- **AutoFlow Spec:** `../AUTOFLOW_COMPLETE_SPEC.md`
-- **InsightOS Spec:** `../INSIGHTOS_COMPLETE_SPEC.md`
+
 
 ---
 
@@ -415,11 +417,7 @@ npm run dev              # Start both frontend & backend
 npm run dev:vite         # Frontend only
 npm run dev:backend      # Backend only
 
-# Database
-npm run prisma:generate  # Generate Prisma client
-npm run prisma:migrate   # Run migrations
-npm run prisma:studio    # Open Prisma Studio (DB GUI)
-npm run prisma:push      # Push schema changes (dev)
+
 
 # Build
 npm run build            # Build for production
@@ -469,19 +467,7 @@ docker-compose logs postgres
 npm install --legacy-peer-deps
 ```
 
-### Prisma Issues
 
-**Problem:** "Prisma Client not generated"
-**Solution:**
-```bash
-npm run prisma:generate
-```
-
-**Problem:** Migration errors
-**Solution:** Reset database (development only):
-```bash
-npm run prisma:migrate reset
-```
 
 ---
 
@@ -545,9 +531,9 @@ UI libraries include shadcn/ui, TanStack, etc. for consistency.
 ## Success Criteria Met
 
 ✅ **Task A: Database Schema Design**
-- Complete Prisma schema with 20+ models
+- Complete database schema with 20+ models (managed via Supabase dashboard)
 - AI integration fields
-- HiFiCopy/Inbox EQ product types
+- Axolop/Inbox EQ product types
 - Email marketing capabilities
 - Form builder capabilities
 - Workflow automation capabilities

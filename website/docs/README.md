@@ -1,4 +1,4 @@
-# HiFiCopy CRM - Documentation
+# Axolop CRM - Documentation
 
 Welcome to the HiFiCopy CRM documentation. This CRM system is built with a modern tech stack designed for scalability and maintainability.
 
@@ -16,7 +16,7 @@ Welcome to the HiFiCopy CRM documentation. This CRM system is built with a moder
 
 ### [database/](./database/)
 - Supabase PostgreSQL configuration
-- Prisma ORM documentation
+
 - Database schema details
 - Port configuration
 
@@ -36,8 +36,8 @@ Welcome to the HiFiCopy CRM documentation. This CRM system is built with a moder
 - **Frontend:** React 18.2, Vite 5, TailwindCSS 3.3
 - **Backend:** Node.js 20+, Express 4.18
 - **Database:** Supabase PostgreSQL Cloud + ChromaDB (AI/ML) - Direct Supabase client (no Prisma used)
-- **Authentication:** Auth0 OAuth + JWT
-- **Infrastructure:** Multi-container Docker setup (frontend, backend, Redis)
+- **Authentication:** Supabase Auth with optional Auth0 integration
+- **Infrastructure:** Vercel (frontend) + Self-hosted Docker (backend services)
 - **AI/ML:** OpenAI, Groq, ChromaDB for vector storage
 
 ## 🚀 Getting Started

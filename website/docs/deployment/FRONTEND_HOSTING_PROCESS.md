@@ -6,7 +6,7 @@ This document outlines the process for hosting and deploying the Axolop CRM fron
 ## Architecture
 - **Frontend**: React application hosted on Vercel
 - **Git Integration**: Automatic deployment from Git branches
-- **Branch Strategy**: main branch for production, beta for testing
+- **Branch Strategy**: mastered branch for production, beta for testing, main for development
 
 ## Deployment Process
 
@@ -20,7 +20,7 @@ This document outlines the process for hosting and deploying the Axolop CRM fron
    - Root Directory: `/` or `/website` depending on setup
 
 ### Branch Configuration
-1. **Production Branch**: Set `main` as the production branch
+1. **Production Branch**: Set `mastered` as the production branch
 2. **Preview Branches**: All other branches get preview deployments
 3. **Environment Variables**: Configure API endpoints to point to your backend
 
@@ -35,15 +35,15 @@ REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key
 ## Git Workflow Integration
 
 ### Automatic Deployment
-1. Push code to `main` branch triggers new production deployment
+1. Push code to `mastered` branch triggers new production deployment
 2. Push code to other branches triggers preview deployments
-3. Preview deployments allow testing before merging to main
+3. Preview deployments allow testing before merging to mastered
 
 ### Deployment Steps
 1. Develop and test locally
 2. Push changes to `beta` branch for team review
 3. Deploy `beta` to preview URL for testing
-4. Merge `beta` to `main` for production deployment
+4. Merge `beta` to `mastered` for production deployment
 5. Vercel automatically builds and deploys the frontend
 
 ## Custom Domain Setup
@@ -84,13 +84,13 @@ The build process:
 - Git history integration for deployment tracking
 
 ## Rollback Process
-1. If main deployment has issues, visit Vercel dashboard
+1. If mastered deployment has issues, visit Vercel dashboard
 2. Navigate to deployments section
 3. Select previous successful deployment
 4. Promote to production to rollback
 
 ## Best Practices
-- Always test on beta branch before merging to main
+- Always test on beta branch before merging to mastered
 - Use preview deployments for team review
 - Keep main branch stable and production-ready
 - Monitor deployment logs for any issues

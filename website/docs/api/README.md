@@ -4,7 +4,7 @@ This directory contains documentation about the CRM's API architecture and authe
 
 ## Contents
 
-- **[AUTHENTICATION_FLOW.md](./AUTHENTICATION_FLOW.md)** - Complete OAuth implementation with Auth0
+- **[AUTHENTICATION_FLOW.md](./AUTHENTICATION_FLOW.md)** - Details on Supabase authentication flow
   - User authentication flow
   - JWT token management
   - Integration with Supabase RLS
@@ -12,7 +12,7 @@ This directory contains documentation about the CRM's API architecture and authe
 ## API Philosophy
 
 The CRM API follows RESTful principles with a focus on:
-- Security-first approach with OAuth and JWT
+- Security-first approach with Supabase Auth and JWT
 - Row Level Security integration
 - Consistent error handling
 - Comprehensive request/response logging

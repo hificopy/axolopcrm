@@ -9,9 +9,10 @@ The Axolop CRM system uses **Supabase Auth** as the primary authentication syste
 ```
 ┌─────────────────┐    OAuth Flow     ┌─────────────────┐
 │     User        │ ────────────────▶ │  Supabase Auth  │
-│   (Browser)     │                   │  Identity       │
-└─────────┬───────┘                   │  Provider       │
-          │                           └─────────┬───────┘
+│   (Browser)     │                   │  (w/ optional   │
+└─────────┬───────┘                   │   Auth0 as ext  │
+                                      │   provider)     │
+                                      └─────────┬───────┘
           │                                   │
           │ JWT Token                         │ User Info
           │                                   │
@@ -89,7 +90,6 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 # Optional: For external Auth0 integration
 # AUTH0_DOMAIN=your-domain.auth0.com
 # AUTH0_CLIENT_ID=your_client_id
-# JWT_SECRET=your_jwt_secret_min_32_chars
 
 # Frontend Vars
 VITE_SUPABASE_URL=https://your-project.supabase.co
@@ -152,7 +152,7 @@ For Gmail integration, the system also supports:
 - Fine-grained control over data access
 
 ### Session Management
-- Auth0 manages session state
+- Supabase Auth manages session state
 - Secure token refresh
 - Automatic logout after inactivity
 

@@ -3,7 +3,7 @@
 ## Summary
 
 ✅ **Prisma Removed**: Completely removed Prisma from the project
-✅ **Supabase + Auth0 Integration**: Configured Supabase as main database with Auth0 as OAuth provider
+✅ **Supabase + Auth0 Integration**: Configured Supabase Auth as main provider with optional Auth0 integration
 ✅ **Database Schema**: Created comprehensive CRM schema for Supabase
 ✅ **Backend Integration**: Updated backend to use Supabase client directly
 ✅ **Frontend Integration**: Updated frontend to use Supabase Auth (replacing Auth0)
@@ -71,13 +71,13 @@
 
 Updated `.env` file with:
 - Supabase URL and keys
-- Auth0 credentials for external provider setup
+- Auth0 credentials for optional external provider setup
 - Updated frontend variables to use Supabase
 
 ## Supabase Setup Instructions
 
 1. **Database**: Run the SQL from `supabase-schema.sql` in your Supabase SQL Editor
-2. **Auth**: Configure Auth0 as external OAuth provider in Supabase dashboard
+2. **Auth**: Configure Auth0 as optional external OAuth provider in Supabase dashboard
 3. **RLS**: Row Level Security policies are set up to protect user data
 4. **Auto-user**: New user trigger automatically creates application user profile
 
@@ -99,7 +99,7 @@ To use Auth0 as an external provider in Supabase:
 ## Testing the Setup
 
 1. Ensure your Supabase project is configured with the schema
-2. Set up Auth0 as external provider in Supabase 
+2. Set up Auth0 as optional external provider in Supabase 
 3. Update your environment variables
 4. Run `npm run dev` to start the application
 5. Try logging in via Auth0 through the Supabase flow
