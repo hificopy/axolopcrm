@@ -106,11 +106,16 @@ npm run dev
 
 This starts:
 - **Frontend (Vite):** http://localhost:3000
-- **Backend (Express):** http://localhost:3001
+- **Backend (Express dev):** http://localhost:3001
+- **Backend (Docker):** http://localhost:4001
 
 ### Step 10: Test Health Check
 ```bash
+# Development server
 curl http://localhost:3001/health
+
+# Docker container
+curl http://localhost:4001/health
 ```
 
 Expected response:

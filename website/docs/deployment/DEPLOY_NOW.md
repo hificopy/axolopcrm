@@ -66,9 +66,10 @@ docker-compose up -d
 
 ### URLs
 - **Frontend:** Vercel deployment (from main branch)
-- **Backend API:** http://localhost:3001 (development) / self-hosted in production
+- **Backend API (dev):** http://localhost:3001 (development)
+- **Backend API (Docker):** http://localhost:4001 (when running in Docker container)
 - **ChromaDB:** http://localhost:8001 (in Docker) / self-hosted in production
-- **Health Check:** http://localhost:3001/health
+- **Health Check:** http://localhost:4001/health (Docker) or http://localhost:3001/health (dev)
 
 ---
 
@@ -106,9 +107,13 @@ docker-compose up -d
 
 ### Backend Health
 ```bash
-# Check backend health
+# Check backend health (development)
 curl http://localhost:3001/health
 curl http://localhost:3001/api/health
+
+# Check backend health (Docker)
+curl http://localhost:4001/health
+curl http://localhost:4001/api/health
 ```
 
 ### All Services Running

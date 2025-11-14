@@ -117,7 +117,8 @@ npm run dev
 
 Access:
 - **Frontend:** http://localhost:3000
-- **Backend:** http://localhost:3001
+- **Backend (dev):** http://localhost:3001
+- **Backend (Docker):** http://localhost:4001
 
 ---
 

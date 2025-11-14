@@ -7,7 +7,8 @@ Complete deployment guide for Axolop CRM with Vercel for frontend and Docker for
 ### URLs
 
 **Frontend:** Deployed to Vercel (from main branch)
-**Backend API:** http://localhost:3001 (development) / self-hosted in production
+**Backend API (dev):** http://localhost:3001 (development)
+**Backend API (Docker):** http://localhost:4001 (when running in Docker container)
 **ChromaDB:** http://localhost:8001 (in Docker) / self-hosted in production
 
 ## Architecture
@@ -56,7 +57,7 @@ Complete deployment guide for Axolop CRM with Vercel for frontend and Docker for
 
 ### Docker Configuration
 The backend services run in Docker containers on self-hosted infrastructure:
-- **Backend API:** http://localhost:3001 (dev) / self-hosted (production)
+- **Backend API:** http://localhost:4001 (when running in Docker container)
 - **ChromaDB:** http://localhost:8001 (dev) / self-hosted (production)
 - **Redis:** http://localhost:6379 (dev) / self-hosted (production)
 

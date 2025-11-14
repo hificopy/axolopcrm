@@ -1,16 +1,15 @@
 # Axolop CRM - Docker Deployment Guide
 
-**Date:** 2025-11-12
-**Docker Setup:** Multi-Container Development Environment
+**Date:** 2025-11-13
+**Docker Setup:** Multi-Container Development Environment (Backend Only)
 **Database:** Supabase PostgreSQL (External)
 
 ---
 
 ## 🐳 Docker Architecture
 
-This project uses a multi-container Docker setup for local development. It consists of three services:
+This project uses a multi-container Docker setup for local development. It consists of two services:
 
--   **frontend**: Nginx serving the React application.
 -   **backend**: Node.js application for the API.
 -   **redis**: Redis instance for caching and queues.
 
@@ -22,13 +21,13 @@ This project uses a multi-container Docker setup for local development. It consi
 │  ┌───────────────────────────────────────┐  │
 │  │  Docker Network                       │  │
 │  │                                       │  │
-│  │  ┌───────────┐     ┌───────────┐     │  │
-│  │  │ frontend  │     │  backend  │     │  │
-│  │  │ (Nginx)   │     │ (Node.js) │     │  │
-│  │  └─────┬─────┘     └─────┬─────┘     │  │
-│  │        │               │             │  │
-│  │        │               │             │  │
-│  │        ▼               ▼             │  │
+│  │  ┌───────────┐                       │  │
+│  │  │  backend  │                       │  │
+│  │  │ (Node.js) │                       │  │
+│  │  └─────┬─────┘                       │  │
+│  │        │                             │  │
+│  │        │                             │  │
+│  │        ▼                             │  │
 │  │  ┌───────────────────────────┐      │  │
 │  │  │      Redis (redis:alpine) │      │  │
 │  │  └───────────────────────────┘      │  │
@@ -36,8 +35,7 @@ This project uses a multi-container Docker setup for local development. It consi
 │  └───────────────────────────────────────┘  │
 │                                             │
 │  Access Points:                             │
-│  - Frontend: http://localhost:3000          │
-│  - Backend API: http://localhost:3001       │
+│  - Backend API: http://localhost:4001       │
 │                                             │
 └─────────────────────────────────────────────┘
 ```
@@ -46,11 +44,10 @@ This project uses a multi-container Docker setup for local development. It consi
 
 To get the application running with Docker, follow these steps:
 
-1.  **Ensure Ports are Free:** Make sure ports `3000`, `3001`, and `6379` are not in use on your host machine. You can check and kill processes using these ports with:
+1.  **Ensure Ports are Free:** Make sure ports `4001` and `6379` are not in use on your host machine. You can check and kill processes using these ports with:
     ```bash
-    lsof -i :3000
-    lsof -i :3001
-    lsof -i :6379
+    lsof -i :4001  # Docker backend port
+    lsof -i :6379  # Redis port
     kill -9 <PID> # Replace <PID> with the process ID
     ```
 
@@ -59,22 +56,14 @@ To get the application running with Docker, follow these steps:
     docker-compose up --build
     ```
     This command will:
-    *   Build the `frontend` and `backend` Docker images.
-    *   Create and start the `frontend`, `backend`, and `redis` containers.
-    *   Map container ports to your host machine (3000 for frontend, 3001 for backend, 6379 for Redis).
+    *   Build the `backend` Docker image.
+    *   Create and start the `backend` and `redis` containers.
+    *   Map container ports to your host machine (4001 for backend, 6379 for Redis).
 
 3.  **Access the Application:**
-    *   **Frontend:** Open your web browser and navigate to `http://localhost:3000`
-    *   **Backend API:** The API will be available at `http://localhost:3001`
+    *   **Backend API:** The API will be available at `http://localhost:4001`
 
 ## 🛠️ Services Overview
-
-### `frontend` Service
-
-*   **Image:** `nginx:alpine`
-*   **Dockerfile:** `docker/frontend/Dockerfile`
-*   **Purpose:** Serves the built React application.
-*   **Configuration:** `docker/frontend/nginx.conf` handles serving static files and proxying API requests to the `backend` service.
 
 ### `backend` Service
 
@@ -82,6 +71,7 @@ To get the application running with Docker, follow these steps:
 *   **Dockerfile:** `docker/backend/Dockerfile`
 *   **Purpose:** Runs the Node.js Express API.
 *   **Environment Variables:** Configured via `docker-compose.yml` to connect to Supabase, Redis, and other external services.
+*   **Port Mapping:** Container port 3001 mapped to host port 4001.
 
 ### `redis` Service
 
@@ -131,9 +121,9 @@ docker stats
 
 ## 🚨 Troubleshooting
 
-*   **"Port is already allocated" error:** Ensure no other applications are using ports `3000`, `3001`, or `6379` on your host machine. Stop them using `lsof -i :<port>` and `kill -9 <PID>`.
+*   **"Port is already allocated" error:** Ensure no other applications are using ports `4001` or `6379` on your host machine. The Docker backend now runs on port 4001 to avoid conflicts with the development server on port 3001.
 *   **Container fails to start:** Check the logs for the specific service using `docker-compose logs -f <service_name>`.
-*   **Frontend not loading:** Verify the `frontend` service is running (`docker-compose ps`) and check its logs. Ensure the `backend` service is also running if the frontend relies on API calls.
+*   **Development vs Docker:** The development server runs on port 3001 while Docker container runs on port 4001, allowing both to run simultaneously.
 
 ---
 
@@ -146,4 +136,4 @@ docker stats
 
 ---
 
-**Last Updated:** 2025-11-12
+**Last Updated:** 2025-11-13
