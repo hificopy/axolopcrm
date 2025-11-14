@@ -22,12 +22,12 @@ const BetaLogin = () => {
     // Show tagline after logo moves up
     const taglineTimer = setTimeout(() => {
       setShowTagline(true);
-    }, 3500); // 3s loading + 0.5s for logo move animation
+    }, 4000); // 3s loading + 1s for logo move animation
 
     // Show password prompt after tagline appears
     const promptTimer = setTimeout(() => {
       setShowPasswordPrompt(true);
-    }, 4000); // 3s loading + 1s for logo move animation
+    }, 5000); // 3s loading + 1s logo move + 1s tagline animation
 
     return () => {
       clearTimeout(loadingTimer);
