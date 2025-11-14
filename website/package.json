@@ -11,7 +11,7 @@
     "dev:vite": "vite --host",
     "dev:backend": "nodemon backend/index.js",
     "dev:build": "npm run build && npm run start",
-    "build": "npx vite build",
+    "build": "vite build",
     "build:watch": "vite build --watch",
     "preview": "vite preview",
     "backend": "nodemon backend/index.js",

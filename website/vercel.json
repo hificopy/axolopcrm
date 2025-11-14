@@ -11,6 +11,5 @@
   ],
   "outputDirectory": "dist",
   "installCommand": "npm install",
-  "buildCommand": "npm run build",
-  "environments": ["production", "preview", "development"]
+  "buildCommand": "npx vite build"
 }
