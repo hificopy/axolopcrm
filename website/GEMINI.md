@@ -39,6 +39,9 @@
 - **`backups` branch:** Backup of important versions and changes
 - **`beta` branch:** Testing environment, deploy here first before `mastered`
 - **`mastered` branch:** Production-ready code deployed to Vercel
+- **Local `backups/` folder:** For version preservation of local files.
+- **Local `beta/` folder:** For local testing environment files.
+- **Local `mastered/` folder:** For local production-ready files.
 
 ### Deployment Process
 1. **Major Changes:** Always create backup with change documentation
@@ -95,7 +98,7 @@
 ## Backup & Maintenance Rules
 
 ### Backup Process
-1. **Before any major change:** Create a backup in the `/backups/` folder.
+1. **Before any major change:** Create a backup in the `local/backups/` folder.
 2. **Document the change:** Record what was changed and why, including a version label in the format `V.X.Y` (e.g., `V.1.0`, `V.1.1-beta`). For beta versions, clearly state what is different from the last stable version.
 3. **Version the backup:** Include the date and the `V.X.Y` version label in the backup's name or associated documentation.
 4. **Push backup to GitHub:** Under the `backup` branch for safekeeping, ensuring the commit message reflects the version and changes.
@@ -140,7 +143,7 @@ When faced with choices:
 - `/package.json` dependencies
 - `/docker/` configurations
 - Supabase database schema and configurations
-- `/backups/` folder for version preservation
+- `local/backups/` folder for version preservation
 - All environment variable usage patterns
 - Brand colors (#101010, #7b1c14) and luxurious design aesthetic
 

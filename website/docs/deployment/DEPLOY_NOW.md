@@ -9,7 +9,7 @@
 ## ✅ What's Been Built
 
 ### Frontend Infrastructure (100%)
-- ✅ **Vercel Deployment** - Frontend hosted on Vercel (automatic from main branch)
+- ✅ **Vercel Deployment** - Frontend hosted on Vercel (automatic from mastered branch)
 - ✅ **React 18.2** + Vite 5 + TailwindCSS 3.3
 - ✅ **Close CRM UI** (Sidebar + Topbar + all pages)
 - ✅ **Environment Configuration** - Vercel with proper API endpoints
@@ -65,7 +65,7 @@ docker-compose up -d
 ```
 
 ### URLs
-- **Frontend:** Vercel deployment (from main branch)
+- **Frontend:** Vercel deployment (from mastered branch)
 - **Backend API (dev):** http://localhost:3001 (development)
 - **Backend API (Docker):** http://localhost:4001 (when running in Docker container)
 - **ChromaDB:** http://localhost:8001 (in Docker) / self-hosted in production
@@ -76,12 +76,15 @@ docker-compose up -d
 ## 📋 Git Workflow
 
 ### Branch Strategy
-- **`main` branch:** Production-ready code deployed to Vercel
-- **`beta` branch:** Testing environment, deploy here first before main
+- **`mastered` branch:** Production-ready code deployed to Vercel
+- **`beta` branch:** Testing environment, deploy here first before mastered
 - **`backup` branch:** Backup of important versions
+- **Local `backups/` folder:** For version preservation of local files.
+- **Local `beta/` folder:** For local testing environment files.
+- **Local `mastered/` folder:** For local production-ready files.
 
 ### Deployment Safety
-1. **Always test on beta first** - Deploy to beta branch before main
+1. **Always test on beta first** - Deploy to beta branch before mastered
 2. **Create backups** - For major changes, backup and document changes
 3. **Emergency maintenance** - Use UNDER_CONSTRUCTION toggle for maintenance
 4. **Environment consistency** - Maintain same configs across environments

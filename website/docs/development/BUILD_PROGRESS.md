@@ -177,7 +177,7 @@ crm/
    - Notifications icon with badge
    - Help icon
 
-3. **MainLayout (MainLayout.jsx:0):**
+3. **MainLayout (MainLayout.jsx:0):
    - Sidebar fixed left (256px width)
    - Topbar fixed top (64px height)
    - Content area with scrolling

@@ -6,7 +6,7 @@ Complete deployment guide for Axolop CRM with Vercel for frontend and Docker for
 
 ### URLs
 
-**Frontend:** Deployed to Vercel (from main branch)
+**Frontend:** Deployed to Vercel (from mastered branch)
 **Backend API (dev):** http://localhost:3001 (development)
 **Backend API (Docker):** http://localhost:4001 (when running in Docker container)
 **ChromaDB:** http://localhost:8001 (in Docker) / self-hosted in production
@@ -30,7 +30,7 @@ Complete deployment guide for Axolop CRM with Vercel for frontend and Docker for
 - **Token Management**: JWT-based with refresh tokens
 
 ### Infrastructure
-- **Frontend:** Vercel (automatic from main branch)
+- **Frontend:** Vercel (automatic from mastered branch)
 - **Backend Infrastructure:** Docker containers for self-hosted services
 - **Authentication:** Supabase Auth with optional Auth0 integration
 - **Infrastructure:** Vercel (frontend) + Self-hosted Docker (backend services)
@@ -38,14 +38,17 @@ Complete deployment guide for Axolop CRM with Vercel for frontend and Docker for
 ## Deployment Process
 
 ### Git Branch Strategy
-- **`main` branch:** Production-ready code deployed to Vercel
-- **`beta` branch:** Testing environment, deploy here first before main
+- **`mastered` branch:** Production-ready code deployed to Vercel
+- **`beta` branch:** Testing environment, deploy here first before `mastered`
 - **`backup` branch:** Backup of important versions
+- **Local `backups/` folder:** For version preservation of local files.
+- **Local `beta/` folder:** For local testing environment files.
+- **Local `mastered/` folder:** For local production-ready files.
 
 ### Deployment Workflow
 1. **Development:** Local development server (npm run dev:vite)
 2. **Beta Testing:** Deploy to beta branch for team review
-3. **Production:** Deploy to main branch for Vercel production
+3. **Production:** Deploy to mastered branch for Vercel production
 
 ## Backend Services (Docker)
 
@@ -91,7 +94,7 @@ To temporarily show a login page for maintenance:
 ## Backup & Safety Procedures
 
 ### Before Major Changes
-1. Create backup in `/backups/` folder
+1. Create backup in `local/backups/` folder
 2. Document the change: record what was changed and why
 3. Version the backup: include date and description
 4. Push backup to GitHub: under backup branch for safekeeping
@@ -99,6 +102,6 @@ To temporarily show a login page for maintenance:
 
 ### Deployment Safety
 - Always deploy to beta branch first
-- Never directly push major changes to main
+- Never directly push major changes to mastered
 - Maintain proper backup procedures
 - Test all functionality before production deployment

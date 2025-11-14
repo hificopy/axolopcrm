@@ -23,7 +23,7 @@ To activate/deactivate the under construction page:
 ## Development vs Production
 - **Development**: Use the toggle in App.jsx to enable/disable the under construction page
 - **Production**: The toggle will work the same way in the deployed version
-- When deployed to Vercel, this toggle can be changed before pushing to main branch
+- When deployed to Vercel, this toggle can be changed before pushing to `mastered` branch
 
 ## Branding
 - Uses the official Axolop CRM brand colors: #101010 (black) and #7b1c14 (red accent)

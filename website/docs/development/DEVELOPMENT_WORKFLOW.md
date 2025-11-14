@@ -54,10 +54,13 @@ This document clarifies the development workflow to eliminate confusion about to
 ## Git Workflow (Three Branches)
 
 ### Branch Purpose
-- **`main`**: General development branch for ongoing work.
+- **`main`**: General development branch for ongoing work. (Note: Production deployments are from `mastered` branch)
 - **`backups`**: Backup of important versions
 - **`beta`**: Testing branch, can be deployed to staging environment
 - **`mastered`**: Production-ready code deployed to Vercel
+- **Local `backups/` folder:** For version preservation of local files.
+- **Local `beta/` folder:** For local testing environment files.
+- **Local `mastered/` folder:** For local production-ready files.
 
 ### Development Process
 1. **Feature Development:** Create feature branches from `main`

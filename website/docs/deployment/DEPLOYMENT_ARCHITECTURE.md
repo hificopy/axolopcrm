@@ -30,10 +30,13 @@ This document outlines the deployment architecture for Axolop CRM combining Verc
 ## Git Workflow
 
 ### Branches
-- `main`: General development branch for ongoing work.
+- `main`: General development branch for ongoing work. (Note: Production deployments are from `mastered` branch)
 - `backups`: Backup branch for version preservation
 - `beta`: Testing and staging environment
 - `mastered`: Production-ready code, automatically deployed to Vercel
+- **Local `backups/` folder:** For version preservation of local files.
+- **Local `beta/` folder:** For local testing environment files.
+- **Local `mastered/` folder:** For local production-ready files.
 
 ### Development Process
 1. Develop features on feature branches

@@ -12,7 +12,7 @@ This document confirms the successful resolution of the CRM deployment issues, e
 - ✅ Application is accessible at http://localhost:8085
 
 ## Key Fixes Applied
-1. **Database Connection Fix**: Application now correctly uses DATABASE_URL environment variable instead of hardcoded Supabase URL
+1. **Database Connection Fix**: Application now correctly uses DATABASE_URL environment variable instead of hardcoded Supabase project URL
 2. **Container Health**: All containers show "healthy" status in docker-compose ps
 3. **Service Communication**: Proper inter-service communication enabled
 4. **Environment Configuration**: Correct propagation of environment variables at runtime

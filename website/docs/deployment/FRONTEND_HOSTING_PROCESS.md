@@ -92,7 +92,7 @@ The build process:
 ## Best Practices
 - Always test on beta branch before merging to mastered
 - Use preview deployments for team review
-- Keep main branch stable and production-ready
+- Keep `mastered` branch stable and production-ready
 - Monitor deployment logs for any issues
 - Set up custom error pages for better UX
 
