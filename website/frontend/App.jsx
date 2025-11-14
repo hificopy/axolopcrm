@@ -2,6 +2,7 @@ import { useSupabase } from './context/SupabaseContext';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import MainLayout from './components/layout/MainLayout';
+import ProtectedRoute from './components/ProtectedRoute';
 import Inbox from './pages/Inbox';
 import Leads from './pages/Leads';
 import Contacts from './pages/Contacts';
@@ -28,7 +29,7 @@ import WorkflowBuilder from './pages/WorkflowBuilder';
 import CreateCampaign from './pages/CreateCampaign';
 import BetaLogin from './pages/BetaLogin';
 
-// Under Construction Mode - set to true to redirect home page to password page
+// Under Construction Mode - set to true to redirect all pages to password page
 const UNDER_CONSTRUCTION = true; // Simple toggle: true = redirect to password page, false = show normal app
 const DEV_MODE = false;
 const DEV_USER = {
@@ -128,12 +129,12 @@ function App() {
     );
   }
   
-  // Simple redirect to password page when under construction mode is on
-  if (UNDER_CONSTRUCTION && window.location.pathname === '/') {
+  // Redirect all routes to password page when under construction mode is on
+  if (UNDER_CONSTRUCTION && !hasBetaAccess && window.location.pathname !== '/password') {
     return (
       <ThemeProvider>
         <Routes>
-          <Route path="/" element={<Navigate to="/password" replace />} />
+          <Route path="*" element={<Navigate to="/password" replace />} />
           <Route path="/password" element={<BetaLogin />} />
         </Routes>
       </ThemeProvider>
@@ -240,16 +241,28 @@ function App() {
     );
   }
 
+  // Check if user has beta access before showing the main application
+  if (!hasBetaAccess && window.location.pathname !== '/password') {
+    return (
+      <ThemeProvider>
+        <Routes>
+          <Route path="*" element={<Navigate to="/password" replace />} />
+          <Route path="/password" element={<BetaLogin />} />
+        </Routes>
+      </ThemeProvider>
+    );
+  }
+
   return (
     <ThemeProvider>
       <div className="app">
         <Routes>
           <Route path="/" element={<MainLayout />}>
             <Route index element={<Navigate to="/inbox" replace />} />
-            <Route path="inbox" element={<Inbox />} />
-            <Route path="leads" element={<Leads />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="settings" element={<Settings />}>
+            <Route path="inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />
+            <Route path="leads" element={<ProtectedRoute><Leads /></ProtectedRoute>} />
+            <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="settings" element={<ProtectedRoute><Settings /></ProtectedRoute>}>
               <Route index element={<Navigate to="organization/general" replace />} />
               <Route path="account" element={<AccountSettings />} />
               <Route path="billing" element={<BillingSettings />} />
