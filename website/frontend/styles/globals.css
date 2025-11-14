@@ -1,0 +1,258 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Close CRM Color Variables */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    --primary: 221 100% 65%; /* #4C7FFF */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 10%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 10%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 221 100% 65%;
+
+    /* Additional Close CRM Colors */
+    --primary-blue: 221 100% 65%; /* #4C7FFF */
+    --primary-green: 137 100% 51%; /* #00D084 */
+    --primary-yellow: 48 100% 50%; /* #FFB800 */
+    --primary-black: 0 0% 6%; /* #101010 - Main black for Axolop */
+    --primary-accent: 4 85% 27%; /* #7b1c14 - Accent color for Axolop */
+    --crm-text-primary: 0 0% 6%; /* #101010 */
+    --crm-text-secondary: 0 0% 40%; /* #666666 */
+    --crm-bg-light: 0 0% 98%; /* #F7F7F7 */
+    --crm-border: 0 0% 90%; /* #E5E5E5 */
+    --crm-sidebar: 0 0% 6%; /* #101010 - Dark sidebar for Axolop */
+    --crm-sidebar-hover: 0 0% 20%;
+    --crm-sidebar-active: 221 100% 20%; /* Darker blue for active state */
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 0 0% 6%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 221 100% 65%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 221 100% 65%;
+
+    /* Dark mode specific colors */
+    --primary-blue: 221 100% 65%;
+    --primary-green: 137 100% 51%;
+    --primary-yellow: 48 100% 50%;
+    --primary-black: 0 0% 98%; /* #101010 equivalent in dark mode */
+    --primary-accent: 4 85% 70%; /* #7b1c14 lighter in dark mode */
+    --crm-text-primary: 0 0% 98%;
+    --crm-text-secondary: 0 0% 65%;
+    --crm-bg-light: 0 0% 15%;
+    --crm-border: 0 0% 25%;
+    --crm-sidebar: 0 0% 15%;
+    --crm-sidebar-hover: 0 0% 25%;
+    --crm-sidebar-active: 221 100% 30%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* Close CRM Typography */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+  }
+
+  /* Scrollbar styling (Close CRM style) */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    @apply bg-gray-700;
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-600;
+  }
+}
+
+@layer components {
+  /* Close CRM Button Styles */
+  .btn-primary {
+    @apply bg-primary-blue text-white hover:bg-blue-600 active:bg-blue-700
+           px-4 py-2 rounded-lg font-medium transition-colors duration-150
+           focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300
+           px-4 py-2 rounded-lg font-medium transition-colors duration-150
+           focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2;
+  }
+
+  .btn-success {
+    @apply bg-primary-green text-white hover:bg-green-600 active:bg-green-700
+           px-4 py-2 rounded-lg font-medium transition-colors duration-150
+           focus:outline-none focus:ring-2 focus:ring-primary-green focus:ring-offset-2;
+  }
+
+  /* Close CRM Input Styles */
+  .input-primary {
+    @apply w-full px-3 py-2 border border-crm-border rounded-lg
+           focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent
+           placeholder:text-gray-400 text-sm;
+  }
+
+  /* Close CRM Card Styles */
+  .card-crm {
+    @apply bg-white border border-crm-border rounded-lg shadow-crm-card
+           hover:shadow-crm-hover transition-shadow duration-150;
+  }
+
+  /* Close CRM Sidebar Styles */
+  .sidebar-item {
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
+           text-gray-300 hover:bg-crm-sidebar-hover hover:text-white
+           transition-colors duration-150 cursor-pointer;
+  }
+
+  .sidebar-item-active {
+    @apply bg-crm-sidebar-active text-white;
+  }
+
+  /* Close CRM Table Styles */
+  .table-crm {
+    @apply w-full text-sm text-left;
+  }
+
+  .table-crm thead {
+    @apply border-b border-crm-border bg-gray-50;
+  }
+
+  .table-crm th {
+    @apply px-4 py-3 font-semibold text-xs uppercase tracking-wider text-gray-600;
+  }
+
+  .table-crm td {
+    @apply px-4 py-3 border-b border-crm-border;
+  }
+
+  .table-crm tbody tr {
+    @apply hover:bg-gray-50 transition-colors cursor-pointer;
+  }
+
+  /* Close CRM Badge Styles */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-blue {
+    @apply bg-blue-100 text-blue-800;
+  }
+
+  .badge-green {
+    @apply bg-green-100 text-green-800;
+  }
+
+  .badge-yellow {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+
+  .badge-red {
+    @apply bg-red-100 text-red-800;
+  }
+
+  .badge-gray {
+    @apply bg-gray-100 text-gray-800;
+  }
+}
+
+@layer utilities {
+  /* Custom scrollbar utilities */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Close CRM specific utilities */
+  .crm-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .crm-section {
+    @apply py-6;
+  }
+
+  .crm-section-title {
+    @apply text-lg font-semibold text-crm-text-primary mb-4;
+  }
+}
