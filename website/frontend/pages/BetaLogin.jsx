@@ -22,12 +22,12 @@ const BetaLogin = () => {
     // Show tagline after logo moves up
     const taglineTimer = setTimeout(() => {
       setShowTagline(true);
-    }, 4000); // 3s loading + 1s for logo move animation
+    }, 3500); // 3s loading + 0.5s for logo move animation
 
     // Show password prompt after tagline appears
     const promptTimer = setTimeout(() => {
       setShowPasswordPrompt(true);
-    }, 5000); // 3s loading + 1s logo move + 1s tagline animation
+    }, 4000); // 3s loading + 1s for logo move animation
 
     return () => {
       clearTimeout(loadingTimer);
@@ -72,7 +72,7 @@ const BetaLogin = () => {
         {/* Logo and Loading Animation */}
         <div
           className={`relative transition-all duration-1000 ease-out ${
-            logoMovedUp ? '-translate-y-48' : ''
+            logoMovedUp ? '-translate-y-24' : ''
           }`}
         >
           <img
