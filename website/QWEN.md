@@ -95,11 +95,11 @@
 ## Backup & Maintenance Rules
 
 ### Backup Process
-1. **Before any major change:** Create backup in `/backups/` folder
-2. **Document the change:** Record what was changed and why
-3. **Version the backup:** Include date and description
-4. **Push backup to GitHub:** Under backup branch for safekeeping
-5. **Test the backup:** Ensure system works as expected
+1. **Before any major change:** Create a backup in the `/backups/` folder.
+2. **Document the change:** Record what was changed and why, including a version label in the format `V.X.Y` (e.g., `V.1.0`, `V.1.1-beta`). For beta versions, clearly state what is different from the last stable version.
+3. **Version the backup:** Include the date and the `V.X.Y` version label in the backup's name or associated documentation.
+4. **Push backup to GitHub:** Under the `backup` branch for safekeeping, ensuring the commit message reflects the version and changes.
+5. **Test the backup:** Ensure the system works as expected after restoration.
 
 ### Emergency Maintenance
 - **UNDER_CONSTRUCTION Mode:** Manual toggle for emergency maintenance
