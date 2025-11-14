@@ -506,5 +506,11 @@ All rights reserved.
 
 ---
 
-**Last Updated:** 2025-11-13
+**Last Updated:** 2025-11-14
 **Maintained By:** Juan D. Romero Herrera (CEO)
+
+---
+
+## Deployment Information
+
+**Latest Deployment Fix:** Vite build command issue on Vercel resolved with proper configuration in vercel.json
