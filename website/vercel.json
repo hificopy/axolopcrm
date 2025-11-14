@@ -10,6 +10,6 @@
     }
   ],
   "outputDirectory": "dist",
-  "installCommand": "npm install",
+  "installCommand": "npm ci",
   "buildCommand": "npx vite build"
 }
