@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import logo from '@branding/LOGO/transparent-logo.png';
-import background from '@branding/banner/background.png';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import logo from "@branding/LOGO/transparent-logo.png";
+import background from "@branding/banner/background.png";
 
+// UNIQUE_IDENTIFIER_V1_20251114_BETA_LOGIN_REBUILD
 const BetaLogin = () => {
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true); // Start with loading true
   const [logoMovedUp, setLogoMovedUp] = useState(false);
   const [showTagline, setShowTagline] = useState(false);
@@ -19,37 +20,32 @@ const BetaLogin = () => {
       setLogoMovedUp(true); // Move logo up after loading
     }, 3000);
 
-    // Show tagline after logo moves up
-    const taglineTimer = setTimeout(() => {
+    // Show tagline and password prompt after logo moves up
+    const appearanceTimer = setTimeout(() => {
       setShowTagline(true);
-    }, 4000); // 3s loading + 1s for logo move animation
-
-    // Show password prompt after tagline appears
-    const promptTimer = setTimeout(() => {
       setShowPasswordPrompt(true);
-    }, 5000); // 3s loading + 1s logo move + 1s tagline animation
+    }, 4500); // 3s loading + 1s logo move animation + 0.5s delay
 
     return () => {
       clearTimeout(loadingTimer);
-      clearTimeout(taglineTimer);
-      clearTimeout(promptTimer);
+      clearTimeout(appearanceTimer);
     };
   }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
+    setError("");
 
     // Simulate network request
-    await new Promise(resolve => setTimeout(resolve, 800));
+    await new Promise((resolve) => setTimeout(resolve, 800));
 
-    if (password === 'katewife') {
+    if (password === "katewife") {
       // Set a session variable or local storage to remember login state
-      sessionStorage.setItem('betaAccess', 'true');
-      navigate('/inbox'); // Go directly to CRM dashboard
+      sessionStorage.setItem("betaAccess", "true");
+      navigate("/inbox"); // Go directly to CRM dashboard
     } else {
-      setError('Incorrect password. Please try again.');
+      setError("Incorrect password. Please try again.");
     }
 
     setIsLoading(false);
@@ -60,9 +56,9 @@ const BetaLogin = () => {
       className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
       style={{
         backgroundImage: `url(${background})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
       }}
     >
       {/* Overlay for futuristic effect */}
@@ -72,34 +68,50 @@ const BetaLogin = () => {
         {/* Logo and Loading Animation */}
         <div
           className={`relative transition-all duration-1000 ease-out ${
-            logoMovedUp ? '-translate-y-24' : ''
+            logoMovedUp ? "translate-y-12" : "translate-y-90"
           }`}
         >
           <img
             src={logo}
             alt="Axolop CRM Logo"
             className={`w-40 h-40 object-contain relative z-20 ${
-              isLoading ? 'animate-pulse-slow' : ''
+              isLoading ? "animate-pulse-slow" : ""
             }`}
           />
-          {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="loader ease-linear rounded-full border-8 border-t-8 border-[#7b1c14] border-t-[#a03a2e] h-48 w-48"></div>
-            </div>
-          )}
+          {isLoading && <div className="futuristic-loader"></div>}
         </div>
 
         {/* Tagline */}
-        {showTagline && (
-          <h1 className="text-white text-4xl md:text-5xl font-bold text-center mt-8 mb-12 animate-fade-in-up">
-            The Break Up With Your Tools CRM™
-          </h1>
-        )}
+        <h1
+          className={`text-white text-4xl md:text-5xl font-bold text-center mt-8 mb-12 animate-fade-in-up transition-opacity duration-500 ${showTagline ? "opacity-100 visible" : "opacity-0 invisible"}`}
+        >
+          The Break Up With Your Tools CRM™
+        </h1>
 
         {/* Password Prompt */}
-        {showPasswordPrompt && (
-          <div className="bg-gradient-to-br from-[#101010] to-[#2a0a07] p-8 rounded-2xl shadow-2xl border border-[#7b1c14] w-full max-w-md transform transition-all duration-500 ease-out scale-95 opacity-0 animate-scale-in">
-            <p className="text-center text-gray-300 mb-6 text-lg font-light">
+        <div
+          className={`bg-gradient-to-br from-[#101010] to-[#2a0a07] p-8 rounded-2xl shadow-2xl border border-[#7b1c14] w-full max-w-md transform transition-all duration-500 ease-out scale-95 relative overflow-hidden transition-opacity duration-500 ${showPasswordPrompt ? "opacity-100 visible animate-scale-in" : "opacity-0 invisible"}`}
+        >
+          {/* Futuristic Grid Overlay */}
+          <div className="absolute inset-0 pointer-events-none z-0">
+            <div
+              className="absolute inset-0 bg-[size:20px_20px] opacity-10"
+              style={{
+                backgroundImage:
+                  "linear-gradient(to right, #7b1c14 1px, transparent 1px), linear-gradient(to bottom, #7b1c14 1px, transparent 1px)",
+              }}
+            ></div>
+            <div
+              className="absolute inset-0 bg-[size:40px_40px] opacity-5"
+              style={{
+                backgroundImage:
+                  "linear-gradient(to right, #a03a2e 1px, transparent 1px), linear-gradient(to bottom, #a03a2e 1px, transparent 1px)",
+              }}
+            ></div>
+          </div>
+
+          <div className="relative z-10">
+            <p className="text-center text-gray-300 mb-6 text-lg font-light tracking-wide">
               Secure Beta Access
             </p>
 
@@ -113,17 +125,17 @@ const BetaLogin = () => {
               <div className="mb-6">
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium text-gray-400 mb-2"
+                  className="block text-sm font-medium text-gray-400 mb-2 uppercase tracking-wider"
                 >
-                  Access Key
+                  Quantum Key
                 </label>
                 <input
                   type="password"
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-5 py-3 bg-[#0a0a0a] border border-[#7b1c14] rounded-lg focus:ring-2 focus:ring-[#7b1c14] focus:border-transparent outline-none transition-all text-white placeholder-gray-500 shadow-inner-lg"
-                  placeholder="Enter your secret access key"
+                  className="w-full px-5 py-3 bg-[#0a0a0a] border border-[#7b1c14] rounded-lg focus:ring-2 focus:ring-[#a03a2e] focus:border-transparent outline-none transition-all text-white placeholder-gray-500 shadow-inner-lg text-lg font-mono"
+                  placeholder="Enter your quantum access key"
                   required
                 />
               </div>
@@ -131,7 +143,7 @@ const BetaLogin = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-[#7b1c14] to-[#a03a2e] hover:from-[#a03a2e] hover:to-[#7b1c14] text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                className="w-full bg-gradient-to-r from-[#7b1c14] to-[#a03a2e] hover:from-[#a03a2e] hover:to-[#7b1c14] text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-lg tracking-wide"
               >
                 {isLoading ? (
                   <>
@@ -158,7 +170,7 @@ const BetaLogin = () => {
                     Verifying Access...
                   </>
                 ) : (
-                  'Unlock Axolop CRM →'
+                  "Unlock Axolop Now"
                 )}
               </button>
             </form>
@@ -172,10 +184,11 @@ const BetaLogin = () => {
               </p>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
 };
 
 export default BetaLogin;
+

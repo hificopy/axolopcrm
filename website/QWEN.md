@@ -80,6 +80,7 @@
 4. **Ensure environment variables are used instead of hardcoded values**
 5. **Use Supabase PostgreSQL directly (no Prisma mentioned in current setup)**
 6. **Use Row Level Security (RLS) for data protection**
+- **Dev Server Control:** NEVER restart the development server or change its port. This action is reserved for manual developer intervention only.
 
 ### Infrastructure Configuration
 - **Frontend:** Deployed to Vercel (from mastered branch)

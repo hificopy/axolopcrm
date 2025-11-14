@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 
 import { supabase, supabaseServer, getUserFromRequest, syncUserProfile } from './config/supabase-auth.js';
 import Redis from 'ioredis';
+import chromaService from './services/chroma-service.js';
 import AutomationEngine from './services/automation-engine.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -38,6 +39,19 @@ redis.on('connect', () => {
 redis.on('error', (err) => {
   console.error('❌ Redis connection error:', err);
 });
+
+// Initialize ChromaDB service
+let chromaInitialized = false;
+try {
+  chromaInitialized = await chromaService.initialize();
+  if (chromaInitialized) {
+    console.log('✅ ChromaDB service initialized');
+  } else {
+    console.error('❌ Failed to initialize ChromaDB service');
+  }
+} catch (error) {
+  console.error('❌ ChromaDB service initialization error:', error.message);
+}
 
 // Middleware
 app.use(helmet({
@@ -92,6 +106,9 @@ app.get('/health', async (req, res) => {
       supabaseStatus = 'not configured';
     }
 
+    // Check ChromaDB connection
+    let chromaStatus = chromaInitialized ? 'connected' : 'disconnection';
+
     res.json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
@@ -99,6 +116,7 @@ app.get('/health', async (req, res) => {
         database: 'connected',
         redis: 'connected',
         supabase: supabaseStatus,
+        chromadb: chromaStatus,
       },
     });
   } catch (error) {
@@ -111,9 +129,11 @@ app.get('/health', async (req, res) => {
 
 // API Routes will be imported here
 import emailMarketingRoutes from './routes/email-marketing.js';
+import chromadbTestRoutes from './routes/chromadb-test.js';
 
 // Mount routes
 app.use('/api/email-marketing', emailMarketingRoutes);
+app.use('/api/chromadb', chromadbTestRoutes);
 
 // 404 handler for development (API only)
 app.use((req, res) => {
@@ -154,15 +174,16 @@ process.on('SIGINT', async () => {
 // Start server
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log('');
-  console.log('╔═══════════════════════════════════════════╗');
-  console.log('║      Axolop CRM API Server Running       ║');
-  console.log('╚═══════════════════════════════════════════╝');
+  console.log('╔════════════════════════════════════════════════╗');
+  console.log('║           Axolop CRM API Server Running        ║');
+  console.log('╚════════════════════════════════════════════════╝');
   console.log('');
   console.log(`🚀 Server:    http://localhost:${PORT}`);
   console.log(`🏥 Health:    http://localhost:${PORT}/health`);
   console.log(`🌍 Env:       ${process.env.NODE_ENV || 'development'}`);
   console.log(`💾 Database:  PostgreSQL (Supabase)`);
   console.log(`🔴 Redis:     ${process.env.REDIS_URL || 'redis://localhost:6379'}`);
+  console.log(`🔷 ChromaDB:  ${process.env.CHROMADB_URL || 'http://localhost:8001'}`);
   console.log('');
 });
 
@@ -170,4 +191,4 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 const automationEngine = new AutomationEngine();
 automationEngine.start();
 
-export { redis, automationEngine };
+export { redis, chromaService, automationEngine };
