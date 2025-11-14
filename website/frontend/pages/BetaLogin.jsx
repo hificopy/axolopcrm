@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '@branding/LOGO/transparent-logo.png';
 import background from '@branding/banner/background.png';
@@ -6,8 +6,35 @@ import background from '@branding/banner/background.png';
 const BetaLogin = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Start with loading true
+  const [logoMovedUp, setLogoMovedUp] = useState(false);
+  const [showTagline, setShowTagline] = useState(false);
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Simulate initial loading for 3 seconds
+    const loadingTimer = setTimeout(() => {
+      setIsLoading(false);
+      setLogoMovedUp(true); // Move logo up after loading
+    }, 3000);
+
+    // Show tagline after logo moves up
+    const taglineTimer = setTimeout(() => {
+      setShowTagline(true);
+    }, 4000); // 3s loading + 1s for logo move animation
+
+    // Show password prompt after tagline appears
+    const promptTimer = setTimeout(() => {
+      setShowPasswordPrompt(true);
+    }, 5000); // 3s loading + 1s logo move + 1s tagline animation
+
+    return () => {
+      clearTimeout(loadingTimer);
+      clearTimeout(taglineTimer);
+      clearTimeout(promptTimer);
+    };
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -29,81 +56,123 @@ const BetaLogin = () => {
   };
 
   return (
-    <div 
-      className="min-h-screen flex items-center justify-center p-4"
+    <div
+      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
       style={{
         backgroundImage: `url(${background})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
+        backgroundRepeat: 'no-repeat',
       }}
     >
-      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 w-full max-w-md border border-gray-200">
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <img 
-              src={logo} 
-              alt="Axolop CRM Logo" 
-              className="w-32 h-32 object-contain"
-            />
-          </div>
-          <h1 className="text-3xl font-bold text-[#101010] mb-2">Axolop CRM</h1>
-          <p className="text-gray-600 font-medium">Under Construction - Beta Access</p>
+      {/* Overlay for futuristic effect */}
+      <div className="absolute inset-0 bg-black opacity-70 z-0"></div>
+
+      <div className="relative z-10 flex flex-col items-center justify-center text-white p-8 max-w-2xl w-full">
+        {/* Logo and Loading Animation */}
+        <div
+          className={`relative transition-all duration-1000 ease-out ${
+            logoMovedUp ? '-translate-y-48' : ''
+          }`}
+        >
+          <img
+            src={logo}
+            alt="Axolop CRM Logo"
+            className={`w-40 h-40 object-contain relative z-20 ${
+              isLoading ? 'animate-pulse-slow' : ''
+            }`}
+          />
+          {isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-48 w-48"></div>
+            </div>
+          )}
         </div>
 
-        <p className="text-center text-gray-700 mb-6 text-sm">
-          Welcome to the Axolop CRM beta. Please enter the access password.
-        </p>
-
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200">
-            {error}
-          </div>
+        {/* Tagline */}
+        {showTagline && (
+          <h1 className="text-white text-4xl md:text-5xl font-bold text-center mt-8 mb-12 animate-fade-in-up">
+            The Break Up With Your Tools CRM™
+          </h1>
         )}
 
-        <form onSubmit={handleLogin}>
-          <div className="mb-6">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              Beta Access Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7b1c14] focus:border-[#7b1c14] outline-none transition shadow-sm"
-              placeholder="Enter access password"
-              required
-            />
-          </div>
+        {/* Password Prompt */}
+        {showPasswordPrompt && (
+          <div className="bg-gradient-to-br from-[#101010] to-[#2a0a07] p-8 rounded-2xl shadow-2xl border border-[#7b1c14] w-full max-w-md transform transition-all duration-500 ease-out scale-95 opacity-0 animate-scale-in">
+            <p className="text-center text-gray-300 mb-6 text-lg font-light">
+              Secure Beta Access
+            </p>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-[#7b1c14] hover:bg-[#651610] text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center shadow-md hover:shadow-lg"
-          >
-            {isLoading ? (
-              <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Verifying Access...
-              </>
-            ) : (
-              'Access Dashboard →'
+            {error && (
+              <div className="mb-4 p-3 bg-red-900 text-red-300 rounded-lg text-sm border border-red-700">
+                {error}
+              </div>
             )}
-          </button>
-        </form>
 
-        <div className="mt-6 pt-6 border-t border-gray-200">
-          <p className="text-xs text-gray-500 text-center">
-            This is a private beta for authorized users only
-          </p>
-          <p className="text-xs text-gray-400 text-center mt-1">
-            Axolop CRM v1.0.0-alpha
-          </p>
-        </div>
+            <form onSubmit={handleLogin}>
+              <div className="mb-6">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-400 mb-2"
+                >
+                  Access Key
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-5 py-3 bg-[#0a0a0a] border border-[#7b1c14] rounded-lg focus:ring-2 focus:ring-[#7b1c14] focus:border-transparent outline-none transition-all text-white placeholder-gray-500 shadow-inner-lg"
+                  placeholder="Enter your secret access key"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-[#7b1c14] to-[#a03a2e] hover:from-[#a03a2e] hover:to-[#7b1c14] text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                {isLoading ? (
+                  <>
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Verifying Access...
+                  </>
+                ) : (
+                  'Unlock Axolop CRM →'
+                )}
+              </button>
+            </form>
+
+            <div className="mt-8 pt-6 border-t border-gray-800">
+              <p className="text-xs text-gray-600 text-center">
+                This is a private beta for authorized users only.
+              </p>
+              <p className="text-xs text-gray-700 text-center mt-1">
+                Axolop CRM v1.0.0-alpha
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
