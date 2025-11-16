@@ -5,6 +5,7 @@ import compression from 'compression';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import multer from 'multer'; // Import multer
 
 import { supabase, supabaseServer, getUserFromRequest, syncUserProfile } from './config/supabase-auth.js';
 import Redis from 'ioredis';
@@ -21,7 +22,8 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-
+// Configure multer for file uploads (using memory storage)
+const upload = multer({ storage: multer.memoryStorage() });
 
 // Initialize Redis
 const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
@@ -130,16 +132,48 @@ app.get('/health', async (req, res) => {
 // API Routes will be imported here
 import emailMarketingRoutes from './routes/email-marketing.js';
 import chromadbTestRoutes from './routes/chromadb-test.js';
+import formsRoutes from './routes/forms.js';
+import leadsRoutes from './routes/leads.js'; // Import leads routes
 
 // Mount routes
 app.use('/api/email-marketing', emailMarketingRoutes);
 app.use('/api/chromadb', chromadbTestRoutes);
+app.use('/api/forms', formsRoutes);
+app.use('/api/leads', upload.single('csvFile'), leadsRoutes); // Mount leads routes with multer middleware
 
-// 404 handler for development (API only)
+// 404 handler for API routes
+app.use('/api', (req, res) => {
+  console.warn(`404 - API route not found: ${req.method} ${req.path}`);
+  res.status(404).json({
+    error: 'API Route Not Found',
+    message: `The requested API endpoint ${req.method} ${req.path} does not exist`,
+    availableRoutes: [
+      'GET /health',
+      'POST /api/email-marketing/*',
+      'GET /api/chromadb/*',
+      'GET /api/forms',
+      'POST /api/forms',
+      'GET /api/forms/:id',
+      'PUT /api/forms/:id',
+      'DELETE /api/forms/:id',
+      'POST /api/forms/:id/submit',
+      'POST /api/leads/import',
+      'GET /api/leads/presets',
+      'POST /api/leads/presets',
+      'PUT /api/leads/presets/:id',
+      'DELETE /api/leads/presets/:id'
+    ],
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Catch all 404 handler
 app.use((req, res) => {
+  console.warn(`404 - Route not found: ${req.method} ${req.path}`);
   res.status(404).json({
     error: 'Not Found',
     message: `Route ${req.method} ${req.path} not found`,
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -192,3 +226,4 @@ const automationEngine = new AutomationEngine();
 automationEngine.start();
 
 export { redis, chromaService, automationEngine };
+

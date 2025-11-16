@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { getLeadStatusColor, formatDate, formatCurrency } from '@/lib/utils';
+import LeadImportModal from '@/components/LeadImportModal'; // Import LeadImportModal
 
 // Mock data for demonstration
 const mockLeads = [
@@ -47,10 +48,10 @@ export default function Leads() {
   const [selectedLead, setSelectedLead] = useState(null);
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col crm-page-wrapper">
       {/* Page Header */}
-      <div className="bg-white border-b border-crm-border px-6 py-4">
-        <div className="flex items-center justify-between">
+      <div className="bg-white border-b border-crm-border px-4 sm:px-6 py-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold text-crm-text-primary">Leads</h1>
             <p className="text-sm text-crm-text-secondary mt-1">
@@ -58,7 +59,7 @@ export default function Leads() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="crm-button-group">
             <Button variant="outline" size="default" className="gap-2">
               <Filter className="h-4 w-4" />
               <span>Filter</span>
@@ -67,10 +68,12 @@ export default function Leads() {
               <Download className="h-4 w-4" />
               <span>Export</span>
             </Button>
-            <Button variant="outline" size="default" className="gap-2">
-              <Upload className="h-4 w-4" />
-              <span>Import</span>
-            </Button>
+            <LeadImportModal> {/* Wrap the Import button with LeadImportModal */}
+              <Button variant="outline" size="default" className="gap-2">
+                <Upload className="h-4 w-4" />
+                <span>Import</span>
+              </Button>
+            </LeadImportModal>
             <Button variant="default" size="default" className="gap-2">
               <Plus className="h-4 w-4" />
               <span>New Lead</span>
@@ -79,7 +82,7 @@ export default function Leads() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-4 mt-4">
+        <div className="crm-stats-grid mt-4">
           <div className="bg-crm-bg-light rounded-lg p-4">
             <div className="text-sm text-crm-text-secondary">Total Leads</div>
             <div className="text-2xl font-semibold text-crm-text-primary mt-1">
@@ -88,7 +91,7 @@ export default function Leads() {
           </div>
           <div className="bg-crm-bg-light rounded-lg p-4">
             <div className="text-sm text-crm-text-secondary">Qualified</div>
-            <div className="text-2xl font-semibold text-primary-green mt-1">
+            <div className="2xl font-semibold text-primary-green mt-1">
               {leads.filter((l) => l.status === 'QUALIFIED').length}
             </div>
           </div>
@@ -108,8 +111,8 @@ export default function Leads() {
       </div>
 
       {/* Table */}
-      <div className="flex-1 overflow-auto p-6">
-        <div className="card-crm rounded-lg border border-crm-border">
+      <div className="flex-1 overflow-auto p-4 sm:p-6">
+        <div className="card-crm rounded-lg border border-crm-border crm-table-wrapper">
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
