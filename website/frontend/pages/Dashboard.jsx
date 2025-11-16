@@ -188,7 +188,10 @@ export default function Dashboard() {
   // Render widget based on component type
   const renderWidget = (widget) => {
     const Component = WIDGET_COMPONENTS[widget.component];
-    if (!Component) return null;
+    if (!Component) {
+      console.error(`Widget component "${widget.component}" not found in WIDGET_COMPONENTS`);
+      return null;
+    }
 
     // Prepare widget data based on component type
     let widgetData = {};
