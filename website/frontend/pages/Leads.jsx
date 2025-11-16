@@ -1,51 +1,44 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Filter, Download, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { getLeadStatusColor, formatDate, formatCurrency } from '@/lib/utils';
 import LeadImportModal from '@/components/LeadImportModal'; // Import LeadImportModal
+import axios from 'axios';
+import { useToast } from '@/components/ui/use-toast';
 
-// Mock data for demonstration
-const mockLeads = [
-  {
-    id: '1',
-    name: 'Acme Corporation',
-    email: 'contact@acme.com',
-    phone: '(555) 123-4567',
-    status: 'QUALIFIED',
-    source: 'Website',
-    value: 50000,
-    owner: 'Juan Romero',
-    createdAt: new Date('2025-11-01'),
-  },
-  {
-    id: '2',
-    name: 'TechStart Inc',
-    email: 'hello@techstart.com',
-    phone: '(555) 234-5678',
-    status: 'CONTACTED',
-    source: 'Referral',
-    value: 75000,
-    owner: 'Juan Romero',
-    createdAt: new Date('2025-11-05'),
-  },
-  {
-    id: '3',
-    name: 'Digital Ventures',
-    email: 'info@digitalventures.com',
-    phone: '(555) 345-6789',
-    status: 'NEW',
-    source: 'LinkedIn',
-    value: 35000,
-    owner: 'Juan Romero',
-    createdAt: new Date('2025-11-08'),
-  },
-];
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
 export default function Leads() {
-  const [leads] = useState(mockLeads);
+  const [leads, setLeads] = useState([]);
   const [selectedLead, setSelectedLead] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetchLeads();
+  }, []);
+
+  const fetchLeads = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('supabase.auth.token'); // Assuming token is stored here
+      const response = await axios.get(`${API_BASE_URL}/api/leads`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setLeads(response.data);
+    } catch (error) {
+      console.error('Error fetching leads:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load leads.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="h-full flex flex-col crm-page-wrapper">
@@ -91,7 +84,7 @@ export default function Leads() {
           </div>
           <div className="bg-crm-bg-light rounded-lg p-4">
             <div className="text-sm text-crm-text-secondary">Qualified</div>
-            <div className="2xl font-semibold text-primary-green mt-1">
+            <div className="text-2xl font-semibold text-primary-green mt-1">
               {leads.filter((l) => l.status === 'QUALIFIED').length}
             </div>
           </div>
@@ -104,7 +97,7 @@ export default function Leads() {
           <div className="bg-crm-bg-light rounded-lg p-4">
             <div className="text-sm text-crm-text-secondary">Total Value</div>
             <div className="text-2xl font-semibold text-crm-text-primary mt-1">
-              {formatCurrency(leads.reduce((sum, l) => sum + l.value, 0))}
+              {formatCurrency(leads.reduce((sum, l) => sum + (l.value || 0), 0))}
             </div>
           </div>
         </div>
@@ -120,44 +113,52 @@ export default function Leads() {
                 <TableHead>Email</TableHead>
                 <TableHead>Phone</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Source</TableHead>
+                <TableHead>Type</TableHead>
                 <TableHead>Value</TableHead>
-                <TableHead>Owner</TableHead>
                 <TableHead>Created</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {leads.map((lead) => (
-                <TableRow 
-                  key={lead.id}
-                  onClick={() => setSelectedLead(lead)}
-                  className="cursor-pointer hover:bg-gray-50"
-                >
-                  <TableCell className="font-medium">
-                    {lead.name}
-                  </TableCell>
-                  <TableCell>{lead.email}</TableCell>
-                  <TableCell>{lead.phone}</TableCell>
-                  <TableCell>
-                    <Badge variant={getLeadStatusColor(lead.status)}>
-                      {lead.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{lead.source}</TableCell>
-                  <TableCell className="font-medium">
-                    {formatCurrency(lead.value)}
-                  </TableCell>
-                  <TableCell>{lead.owner}</TableCell>
-                  <TableCell>
-                    {formatDate(lead.createdAt)}
-                  </TableCell>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center">Loading leads...</TableCell>
                 </TableRow>
-              ))}
+              ) : leads.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center">No leads found.</TableCell>
+                </TableRow>
+              ) : (
+                leads.map((lead) => (
+                  <TableRow 
+                    key={lead.id}
+                    onClick={() => setSelectedLead(lead)}
+                    className="cursor-pointer hover:bg-gray-50"
+                  >
+                    <TableCell className="font-medium">
+                      {lead.name}
+                    </TableCell>
+                    <TableCell>{lead.email}</TableCell>
+                    <TableCell>{lead.phone}</TableCell>
+                    <TableCell>
+                      <Badge variant={getLeadStatusColor(lead.status)}>
+                        {lead.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{lead.type}</TableCell>
+                    <TableCell className="font-medium">
+                      {formatCurrency(lead.value)}
+                    </TableCell>
+                    <TableCell>
+                      {formatDate(lead.created_at)}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
 
           {/* Empty State */}
-          {leads.length === 0 && (
+          {!loading && leads.length === 0 && (
             <div className="text-center py-12">
               <div className="text-gray-400 mb-2">No leads found</div>
               <Button variant="default" size="default" className="gap-2">
@@ -171,9 +172,14 @@ export default function Leads() {
 
       {/* Lead Detail Panel (Right Sidebar) */}
       {selectedLead && (
-        <div className="fixed right-0 top-16 bottom-0 w-96 bg-white border-l border-crm-border shadow-lg">
+        <div className="fixed right-0 top-16 bottom-0 w-96 bg-white border-l border-crm-border shadow-lg overflow-y-auto">
           <div className="p-6">
-            <h2 className="text-xl font-semibold">{selectedLead.name}</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">{selectedLead.name}</h2>
+              <Button variant="ghost" size="sm" onClick={() => setSelectedLead(null)}>
+                Close
+              </Button>
+            </div>
             <p className="text-sm text-crm-text-secondary mt-1">
               {selectedLead.email}
             </p>
@@ -190,6 +196,13 @@ export default function Leads() {
 
               <div>
                 <div className="text-xs font-semibold text-crm-text-secondary uppercase">
+                  Type
+                </div>
+                <div className="mt-1">{selectedLead.type}</div>
+              </div>
+
+              <div>
+                <div className="text-xs font-semibold text-crm-text-secondary uppercase">
                   Potential Value
                 </div>
                 <div className="text-lg font-semibold mt-1">
@@ -197,27 +210,78 @@ export default function Leads() {
                 </div>
               </div>
 
-              <div>
-                <div className="text-xs font-semibold text-crm-text-secondary uppercase">
-                  Owner
+              {selectedLead.phone && (
+                <div>
+                  <div className="text-xs font-semibold text-crm-text-secondary uppercase">
+                    Phone
+                  </div>
+                  <div className="mt-1">{selectedLead.phone}</div>
                 </div>
-                <div className="mt-1">{selectedLead.owner}</div>
-              </div>
+              )}
+
+              {selectedLead.website && (
+                <div>
+                  <div className="text-xs font-semibold text-crm-text-secondary uppercase">
+                    Website
+                  </div>
+                  <div className="mt-1">
+                    <a href={selectedLead.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                      {selectedLead.website}
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {selectedLead.address && (
+                <div>
+                  <div className="text-xs font-semibold text-crm-text-secondary uppercase">
+                    Address
+                  </div>
+                  <div className="mt-1">
+                    {selectedLead.address.street && <div>{selectedLead.address.street}</div>}
+                    {selectedLead.address.city && <div>{selectedLead.address.city}, {selectedLead.address.state} {selectedLead.address.zip}</div>}
+                    {selectedLead.address.country && <div>{selectedLead.address.country}</div>}
+                  </div>
+                </div>
+              )}
+
+              {selectedLead.owner_id && (
+                <div>
+                  <div className="text-xs font-semibold text-crm-text-secondary uppercase">
+                    Owner
+                  </div>
+                  {/* This would ideally fetch owner name from user_id */}
+                  <div className="mt-1">{selectedLead.owner_id}</div>
+                </div>
+              )}
 
               <div>
                 <div className="text-xs font-semibold text-crm-text-secondary uppercase">
                   Created
                 </div>
-                <div className="mt-1">{formatDate(selectedLead.createdAt)}</div>
+                <div className="mt-1">{formatDate(selectedLead.created_at)}</div>
               </div>
+
+              {Object.keys(selectedLead.custom_fields || {}).length > 0 && (
+                <div>
+                  <div className="text-xs font-semibold text-crm-text-secondary uppercase">
+                    Custom Fields
+                  </div>
+                  {Object.entries(selectedLead.custom_fields).map(([key, value]) => (
+                    <div key={key} className="mt-1 text-sm">
+                      <span className="font-medium capitalize">{key.replace(/_/g, ' ')}:</span> {value}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="mt-6 flex gap-2">
               <Button variant="default" className="flex-1">
-                Convert to Contact
+                Convert to Opportunity
               </Button>
-              <Button variant="outline" onClick={() => setSelectedLead(null)}>
-                Close
+              <Button variant="outline" className="flex-1">
+                Add Contact
               </Button>
             </div>
           </div>

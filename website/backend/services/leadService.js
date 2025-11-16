@@ -28,10 +28,36 @@ const parseCsv = (csvBuffer) => {
   });
 };
 
+// Helper function to create a contact
+const createContact = async (userId, leadId, firstName, lastName, email, phone, title, isPrimaryContact, customFields) => {
+  const { data, error } = await supabase
+    .from('contacts')
+    .insert({
+      user_id: userId,
+      lead_id: leadId,
+      first_name: firstName,
+      last_name: lastName,
+      email: email,
+      phone: phone,
+      title: title,
+      is_primary_contact: isPrimaryContact,
+      custom_fields: customFields,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Supabase create contact error:', error);
+    throw new Error(`Failed to create contact: ${error.message}`);
+  }
+  return data;
+};
+
 // Function to import leads from CSV
 const importLeadsFromCsv = async (userId, csvBuffer, presetId = null, dynamicMapping = null) => {
   const records = await parseCsv(csvBuffer);
   const leadsToInsert = [];
+  const contactsToInsert = [];
 
   let mapping = {};
   if (presetId) {
@@ -50,11 +76,17 @@ const importLeadsFromCsv = async (userId, csvBuffer, presetId = null, dynamicMap
     mapping = dynamicMapping;
   } else {
     // Default mapping if no preset or dynamic mapping is provided
-    // Assumes CSV headers are 'Name', 'Email', 'Website'
+    // Assumes CSV headers are 'Name', 'Email', 'Website', 'Phone', 'Address', 'Type', 'Status', 'Value', 'Owner Email'
     mapping = {
       'Name': 'name',
       'Email': 'email',
-      'Website': 'website'
+      'Website': 'website',
+      'Phone': 'phone',
+      'Address': 'address',
+      'Type': 'type',
+      'Status': 'status',
+      'Value': 'value',
+      'Owner Email': 'owner_email' // Assuming owner is identified by email for import
     };
   }
 
@@ -64,12 +96,35 @@ const importLeadsFromCsv = async (userId, csvBuffer, presetId = null, dynamicMap
       name: record[Object.keys(mapping).find(key => mapping[key] === 'name')] || record['Name'],
       email: record[Object.keys(mapping).find(key => mapping[key] === 'email')] || record['Email'],
       website: record[Object.keys(mapping).find(key => mapping[key] === 'website')] || record['Website'],
+      phone: record[Object.keys(mapping).find(key => mapping[key] === 'phone')] || record['Phone'],
+      address: record[Object.keys(mapping).find(key => mapping[key] === 'address')] ? JSON.parse(record[Object.keys(mapping).find(key => mapping[key] === 'address')]) : null,
+      type: record[Object.keys(mapping).find(key => mapping[key] === 'type')] || 'B2B_COMPANY',
+      status: record[Object.keys(mapping).find(key => mapping[key] === 'status')] || 'NEW',
+      value: record[Object.keys(mapping).find(key => mapping[key] === 'value')] ? parseFloat(record[Object.keys(mapping).find(key => mapping[key] === 'value')]) : 0,
       custom_fields: {}
     };
 
+    // Resolve owner_id from owner_email if provided
+    const ownerEmail = record[Object.keys(mapping).find(key => mapping[key] === 'owner_email')] || record['Owner Email'];
+    if (ownerEmail) {
+      const { data: ownerData, error: ownerError } = await supabase
+        .from('users') // Assuming 'users' table in public schema or auth.users
+        .select('id')
+        .eq('email', ownerEmail)
+        .single();
+      if (ownerData) {
+        lead.owner_id = ownerData.id;
+      } else {
+        console.warn(`Owner with email ${ownerEmail} not found for lead ${lead.name}`);
+      }
+    } else {
+      lead.owner_id = userId; // Default to the user importing the lead
+    }
+
+
     // Map custom fields
     for (const csvHeader in record) {
-      if (!Object.keys(mapping).includes(csvHeader) && record[csvHeader]) {
+      if (!Object.values(mapping).includes(csvHeader) && record[csvHeader]) { // Check if not already mapped to a standard field
         lead.custom_fields[csvHeader] = record[csvHeader];
       }
     }
@@ -77,17 +132,52 @@ const importLeadsFromCsv = async (userId, csvBuffer, presetId = null, dynamicMap
   }
 
   // Insert leads into Supabase
-  const { data, error } = await supabase
+  const { data: insertedLeads, error: leadsError } = await supabase
     .from('leads')
     .insert(leadsToInsert)
     .select(); // Return the inserted data
 
-  if (error) {
-    console.error('Supabase insert error:', error);
-    throw new Error(`Failed to insert leads into database: ${error.message}`);
+  if (leadsError) {
+    console.error('Supabase insert leads error:', leadsError);
+    throw new Error(`Failed to insert leads into database: ${leadsError.message}`);
   }
 
-  return data;
+  // For B2C_CUSTOMER leads, create a corresponding contact
+  for (const insertedLead of insertedLeads) {
+    if (insertedLead.type === 'B2C_CUSTOMER') {
+      // Assuming for B2C, lead name is customer name, and email is customer email
+      const [firstName, ...lastNameParts] = insertedLead.name.split(' ');
+      const lastName = lastNameParts.join(' ') || firstName; // If only one name, use it for both
+
+      contactsToInsert.push({
+        user_id: userId,
+        lead_id: insertedLead.id,
+        first_name: firstName,
+        last_name: lastName,
+        email: insertedLead.email,
+        phone: insertedLead.phone,
+        title: 'Customer', // Default title for B2C customer
+        is_primary_contact: true,
+        custom_fields: insertedLead.custom_fields, // Inherit custom fields from lead
+      });
+    }
+  }
+
+  if (contactsToInsert.length > 0) {
+    const { data: insertedContacts, error: contactsError } = await supabase
+      .from('contacts')
+      .insert(contactsToInsert)
+      .select();
+
+    if (contactsError) {
+      console.error('Supabase insert contacts error:', contactsError);
+      // Decide whether to rollback leads or just log and continue
+      // For now, we'll just log and let leads be inserted
+      console.warn('Failed to insert some contacts for B2C leads.');
+    }
+  }
+
+  return insertedLeads;
 };
 
 // Function to get lead import presets for a user
@@ -157,4 +247,5 @@ module.exports = {
   createLeadImportPreset,
   updateLeadImportPreset,
   deleteLeadImportPreset,
+  createContact, // Export createContact for potential use in other services
 };

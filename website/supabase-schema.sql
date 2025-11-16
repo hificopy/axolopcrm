@@ -1,3 +1,6 @@
+-- Enable UUID generation
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 -- Helper functions for Supabase
 
 -- Function to increment a column value
@@ -15,6 +18,12 @@ CREATE TABLE public.leads (
   name TEXT NOT NULL,
   email TEXT UNIQUE NOT NULL,
   website TEXT,
+  phone TEXT,
+  address JSONB, -- For company address or B2C customer address
+  type TEXT NOT NULL DEFAULT 'B2B_COMPANY', -- 'B2B_COMPANY' or 'B2C_CUSTOMER'
+  status TEXT NOT NULL DEFAULT 'NEW', -- e.g., 'NEW', 'QUALIFIED', 'CONTACTED', 'DISQUALIFIED'
+  value NUMERIC DEFAULT 0,
+  owner_id UUID REFERENCES auth.users(id) ON DELETE SET NULL, -- Lead owner
   custom_fields JSONB DEFAULT '{}'::jsonb,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
@@ -37,6 +46,74 @@ CREATE POLICY "Authenticated users can update their own leads" ON public.leads
 
 -- Policy for leads: authenticated users can delete their own leads
 CREATE POLICY "Authenticated users can delete their own leads" ON public.leads
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- Table for Contacts
+CREATE TABLE public.contacts (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  phone TEXT,
+  title TEXT, -- Job title
+  lead_id UUID REFERENCES public.leads(id) ON DELETE SET NULL, -- Associated company lead
+  is_primary_contact BOOLEAN DEFAULT FALSE,
+  custom_fields JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- Enable Row Level Security for contacts table
+ALTER TABLE public.contacts ENABLE ROW LEVEL SECURITY;
+
+-- Policy for contacts: authenticated users can view their own contacts
+CREATE POLICY "Authenticated users can view their own contacts" ON public.contacts
+  FOR SELECT USING (auth.uid() = user_id);
+
+-- Policy for contacts: authenticated users can insert their own contacts
+CREATE POLICY "Authenticated users can insert their own contacts" ON public.contacts
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Policy for contacts: authenticated users can update their own contacts
+CREATE POLICY "Authenticated users can update their own contacts" ON public.contacts
+  FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+-- Policy for contacts: authenticated users can delete their own contacts" ON public.contacts
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- Table for Opportunities
+CREATE TABLE public.opportunities (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  lead_id UUID REFERENCES public.leads(id) ON DELETE CASCADE NOT NULL,
+  name TEXT NOT NULL,
+  stage TEXT NOT NULL DEFAULT 'PROSPECTING', -- e.g., 'PROSPECTING', 'QUALIFICATION', 'PROPOSAL', 'CLOSED_WON', 'CLOSED_LOST'
+  amount NUMERIC DEFAULT 0,
+  close_date DATE,
+  description TEXT,
+  custom_fields JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- Enable Row Level Security for opportunities table
+ALTER TABLE public.opportunities ENABLE ROW LEVEL SECURITY;
+
+-- Policy for opportunities: authenticated users can view their own opportunities
+CREATE POLICY "Authenticated users can view their own opportunities" ON public.opportunities
+  FOR SELECT USING (auth.uid() = user_id);
+
+-- Policy for opportunities: authenticated users can insert their own opportunities
+CREATE POLICY "Authenticated users can insert their own opportunities" ON public.opportunities
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Policy for opportunities: authenticated users can update their own opportunities
+CREATE POLICY "Authenticated users can update their own opportunities" ON public.opportunities
+  FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+-- Policy for opportunities: authenticated users can delete their own opportunities
+CREATE POLICY "Authenticated users can delete their own opportunities" ON public.opportunities
   FOR DELETE USING (auth.uid() = user_id);
 
 -- Table for Lead Import Presets

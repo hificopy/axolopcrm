@@ -5,6 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import axios from 'axios';
+import { useToast } from '@/components/ui/use-toast';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
 const Contacts = () => {
   const [contacts, setContacts] = useState([]);
@@ -12,122 +16,33 @@ const Contacts = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedContact, setSelectedContact] = useState(null);
   const [viewMode, setViewMode] = useState('table'); // 'table' or 'cards'
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  // Mock data for demonstration
   useEffect(() => {
-    const mockContacts = [
-      {
-        id: '1',
-        name: 'Sarah Johnson',
-        firstName: 'Sarah',
-        lastName: 'Johnson',
-        email: 'sarah@acmecorp.com',
-        phone: '(555) 123-4567',
-        mobilePhone: '(555) 987-6543',
-        title: 'Marketing Director',
-        company: 'Acme Corporation',
-        companySize: '500-1000',
-        industry: 'Technology',
-        address: '123 Business Ave',
-        city: 'San Francisco',
-        state: 'CA',
-        country: 'USA',
-        zipCode: '94105',
-        tags: ['Hot Lead', 'Enterprise'],
-        lastContactedAt: new Date('2025-10-28'),
-        lastEmailSent: new Date('2025-10-25'),
-        lastEmailReceived: new Date('2025-10-20'),
-        lastMeeting: new Date('2025-10-15'),
-        totalInteractions: 12,
-        isActive: true,
-        createdAt: new Date('2025-08-15'),
-        convertedFromLeadId: 'lead_1',
-      },
-      {
-        id: '2',
-        name: 'Michael Chen',
-        firstName: 'Michael',
-        lastName: 'Chen',
-        email: 'michael@techstart.io',
-        phone: '(555) 234-5678',
-        mobilePhone: '(555) 876-5432',
-        title: 'CTO',
-        company: 'TechStart Inc',
-        companySize: '100-500',
-        industry: 'Software',
-        address: '456 Innovation Blvd',
-        city: 'Austin',
-        state: 'TX',
-        country: 'USA',
-        zipCode: '78701',
-        tags: ['Product Qualified', 'Startup'],
-        lastContactedAt: new Date('2025-10-29'),
-        lastEmailSent: new Date('2025-10-28'),
-        lastEmailReceived: new Date('2025-10-26'),
-        lastMeeting: new Date('2025-10-18'),
-        totalInteractions: 8,
-        isActive: true,
-        createdAt: new Date('2025-09-01'),
-        convertedFromLeadId: 'lead_2',
-      },
-      {
-        id: '3',
-        name: 'Emma Rodriguez',
-        firstName: 'Emma',
-        lastName: 'Rodriguez',
-        email: 'emma@digitalventures.com',
-        phone: '(555) 345-6789',
-        mobilePhone: '(555) 765-4321',
-        title: 'Head of Sales',
-        company: 'Digital Ventures',
-        companySize: '1000+',
-        industry: 'Digital Marketing',
-        address: '789 Strategy St',
-        city: 'New York',
-        state: 'NY',
-        country: 'USA',
-        zipCode: '10001',
-        tags: ['Hot Lead', 'Enterprise'],
-        lastContactedAt: new Date('2025-10-27'),
-        lastEmailSent: new Date('2025-10-22'),
-        lastEmailReceived: new Date('2025-10-20'),
-        lastMeeting: new Date('2025-10-10'),
-        totalInteractions: 15,
-        isActive: true,
-        createdAt: new Date('2025-08-20'),
-        convertedFromLeadId: 'lead_3',
-      },
-      {
-        id: '4',
-        name: 'David Kim',
-        firstName: 'David',
-        lastName: 'Kim',
-        email: 'david@innovate.com',
-        phone: '(555) 456-7890',
-        mobilePhone: '(555) 654-3210',
-        title: 'Product Manager',
-        company: 'Innovate Solutions',
-        companySize: '50-100',
-        industry: 'SaaS',
-        address: '321 Progress Ave',
-        city: 'Seattle',
-        state: 'WA',
-        country: 'USA',
-        zipCode: '98101',
-        tags: ['Warm Lead'],
-        lastContactedAt: new Date('2025-10-25'),
-        lastEmailSent: new Date('2025-10-18'),
-        lastEmailReceived: new Date('2025-10-15'),
-        lastMeeting: new Date('2025-10-05'),
-        totalInteractions: 6,
-        isActive: true,
-        createdAt: new Date('2025-09-10'),
-        convertedFromLeadId: 'lead_4',
-      },
-    ];
-    setContacts(mockContacts);
-    setFilteredContacts(mockContacts);
+    fetchContacts();
   }, []);
+
+  const fetchContacts = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('supabase.auth.token');
+      const response = await axios.get(`${API_BASE_URL}/api/contacts`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setContacts(response.data);
+      setFilteredContacts(response.data);
+    } catch (error) {
+      console.error('Error fetching contacts:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load contacts.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Filter contacts based on search term
   useEffect(() => {
@@ -135,17 +50,30 @@ const Contacts = () => {
       setFilteredContacts(contacts);
     } else {
       const filtered = contacts.filter(contact =>
-        contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        contact.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        contact.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        contact.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        contact.title.toLowerCase().includes(searchTerm.toLowerCase())
+        (contact.title && contact.title.toLowerCase().includes(searchTerm.toLowerCase()))
       );
       setFilteredContacts(filtered);
     }
   }, [searchTerm, contacts]);
 
-  const handleContactSelect = (contact) => {
-    setSelectedContact(contact);
+  const handleContactSelect = async (contactId) => {
+    try {
+      const token = localStorage.getItem('supabase.auth.token');
+      const response = await axios.get(`${API_BASE_URL}/api/contacts/${contactId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setSelectedContact(response.data);
+    } catch (error) {
+      console.error('Error fetching contact details:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load contact details.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleCreateContact = () => {
@@ -217,21 +145,21 @@ const Contacts = () => {
           <div className="bg-crm-bg-light rounded-lg p-4">
             <div className="text-sm text-crm-text-secondary">Active This Month</div>
             <div className="text-2xl font-semibold text-primary-green mt-1">
-              {contacts.filter(c => new Date(c.lastContactedAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)).length}
+              {/* This stat needs actual activity data from backend */}
+              0
             </div>
           </div>
           <div className="bg-crm-bg-light rounded-lg p-4">
             <div className="text-sm text-crm-text-secondary">Companies</div>
             <div className="text-2xl font-semibold text-primary-yellow mt-1">
-              {[...new Set(contacts.map(c => c.company))].length}
+              {[...new Set(contacts.map(c => c.lead_id))].filter(Boolean).length}
             </div>
           </div>
           <div className="bg-crm-bg-light rounded-lg p-4">
             <div className="text-sm text-crm-text-secondary">Avg. Interactions</div>
             <div className="text-2xl font-semibold text-crm-text-primary mt-1">
-              {contacts.length > 0 
-                ? (contacts.reduce((sum, c) => sum + c.totalInteractions, 0) / contacts.length).toFixed(1) 
-                : '0'}
+              {/* This stat needs actual interaction data from backend */}
+              0
             </div>
           </div>
         </div>
@@ -263,7 +191,25 @@ const Contacts = () => {
 
       {/* Content Area */}
       <div className="flex-1 overflow-auto p-6">
-        {viewMode === 'table' ? (
+        {loading ? (
+          <div className="text-center py-12">Loading contacts...</div>
+        ) : filteredContacts.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="p-4 rounded-full bg-crm-bg-light mx-auto mb-4">
+              <User className="h-12 w-12 text-crm-text-secondary mx-auto" />
+            </div>
+            <h3 className="text-lg font-semibold text-crm-text-primary mb-2">No contacts found</h3>
+            <p className="text-crm-text-secondary mb-6">
+              {searchTerm 
+                ? 'No contacts match your search. Try different keywords.' 
+                : 'Get started by creating your first contact.'}
+            </p>
+            <Button variant="default" size="default" className="gap-2" onClick={handleCreateContact}>
+              <Plus className="h-4 w-4" />
+              <span>Create Your First Contact</span>
+            </Button>
+          </div>
+        ) : viewMode === 'table' ? (
           <div className="card-crm rounded-lg border border-crm-border">
             <Table>
               <TableHeader>
@@ -273,30 +219,29 @@ const Contacts = () => {
                   <TableHead>Title</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Phone</TableHead>
-                  <TableHead>Last Contacted</TableHead>
-                  <TableHead>Tags</TableHead>
+                  <TableHead>Created At</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredContacts.map((contact) => (
                   <TableRow
                     key={contact.id}
-                    onClick={() => handleContactSelect(contact)}
+                    onClick={() => handleContactSelect(contact.id)}
                     className="cursor-pointer hover:bg-gray-50"
                   >
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-full bg-primary-blue/10 flex items-center justify-center text-primary-blue font-semibold">
-                          {contact.firstName?.charAt(0)}
-                          {contact.lastName?.charAt(0)}
+                          {contact.first_name?.charAt(0)}
+                          {contact.last_name?.charAt(0)}
                         </div>
-                        <span>{contact.name}</span>
+                        <span>{contact.first_name} {contact.last_name}</span>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Building2 className="h-4 w-4 text-crm-text-secondary" />
-                        <span>{contact.company}</span>
+                        <span>{contact.lead_id || 'N/A'}</span> {/* Display lead_id for now */}
                       </div>
                     </TableCell>
                     <TableCell>{contact.title}</TableCell>
@@ -312,39 +257,11 @@ const Contacts = () => {
                         <span>{contact.phone}</span>
                       </div>
                     </TableCell>
-                    <TableCell>{formatDate(contact.lastContactedAt)}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {contact.tags.map((tag, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    </TableCell>
+                    <TableCell>{formatDate(contact.created_at)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-
-            {/* Empty State */}
-            {filteredContacts.length === 0 && (
-              <div className="text-center py-12">
-                <div className="p-4 rounded-full bg-crm-bg-light mx-auto mb-4">
-                  <User className="h-12 w-12 text-crm-text-secondary mx-auto" />
-                </div>
-                <h3 className="text-lg font-semibold text-crm-text-primary mb-2">No contacts found</h3>
-                <p className="text-crm-text-secondary mb-6">
-                  {searchTerm 
-                    ? 'No contacts match your search. Try different keywords.' 
-                    : 'Get started by creating your first contact.'}
-                </p>
-                <Button variant="default" size="default" className="gap-2" onClick={handleCreateContact}>
-                  <Plus className="h-4 w-4" />
-                  <span>Create Your First Contact</span>
-                </Button>
-              </div>
-            )}
           </div>
         ) : (
           // Cards view
@@ -353,17 +270,17 @@ const Contacts = () => {
               <Card 
                 key={contact.id} 
                 className="hover:shadow-crm-hover transition-shadow cursor-pointer"
-                onClick={() => handleContactSelect(contact)}
+                onClick={() => handleContactSelect(contact.id)}
               >
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-3">
                       <div className="h-12 w-12 rounded-full bg-primary-blue/10 flex items-center justify-center text-primary-blue font-semibold text-lg">
-                        {contact.firstName?.charAt(0)}
-                        {contact.lastName?.charAt(0)}
+                        {contact.first_name?.charAt(0)}
+                        {contact.last_name?.charAt(0)}
                       </div>
                       <div>
-                        <CardTitle className="text-lg">{contact.name}</CardTitle>
+                        <CardTitle className="text-lg">{contact.first_name} {contact.last_name}</CardTitle>
                         <p className="text-sm text-crm-text-secondary">{contact.title}</p>
                       </div>
                     </div>
@@ -373,7 +290,7 @@ const Contacts = () => {
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 text-sm">
                       <Building2 className="h-4 w-4 text-crm-text-secondary" />
-                      <span>{contact.company}</span>
+                      <span>{contact.lead_id || 'N/A'}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Mail className="h-4 w-4 text-crm-text-secondary" />
@@ -386,21 +303,9 @@ const Contacts = () => {
                     
                     <div className="pt-3 border-t">
                       <div className="flex justify-between text-sm">
-                        <span className="text-crm-text-secondary">Last Contacted</span>
-                        <span className="font-medium">{formatDate(contact.lastContactedAt)}</span>
+                        <span className="text-crm-text-secondary">Created At</span>
+                        <span className="font-medium">{formatDate(contact.created_at)}</span>
                       </div>
-                      <div className="flex justify-between text-sm mt-1">
-                        <span className="text-crm-text-secondary">Interactions</span>
-                        <span className="font-medium">{contact.totalInteractions}</span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-1 pt-2">
-                      {contact.tags.map((tag, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
                     </div>
                   </div>
                   
@@ -423,18 +328,18 @@ const Contacts = () => {
 
       {/* Contact Detail Panel (Right Sidebar) */}
       {selectedContact && (
-        <div className="fixed right-0 top-16 bottom-0 w-96 bg-white border-l border-crm-border shadow-lg z-50">
+        <div className="fixed right-0 top-16 bottom-0 w-96 bg-white border-l border-crm-border shadow-lg z-50 overflow-y-auto">
           <div className="p-6">
             <div className="flex justify-between items-start mb-6">
               <div className="flex items-center gap-4">
                 <div className="h-16 w-16 rounded-full bg-primary-blue/10 flex items-center justify-center text-primary-blue font-semibold text-2xl">
-                  {selectedContact.firstName?.charAt(0)}
-                  {selectedContact.lastName?.charAt(0)}
+                  {selectedContact.first_name?.charAt(0)}
+                  {selectedContact.last_name?.charAt(0)}
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold">{selectedContact.name}</h2>
+                  <h2 className="text-xl font-semibold">{selectedContact.first_name} {selectedContact.last_name}</h2>
                   <p className="text-sm text-crm-text-secondary">{selectedContact.title}</p>
-                  <p className="text-sm text-crm-text-secondary">{selectedContact.company}</p>
+                  {selectedContact.lead_id && <p className="text-sm text-crm-text-secondary">Lead ID: {selectedContact.lead_id}</p>}
                 </div>
               </div>
               <Button variant="ghost" size="sm" onClick={() => setSelectedContact(null)}>
@@ -460,62 +365,26 @@ const Contacts = () => {
                       {selectedContact.phone}
                     </a>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-crm-text-secondary">Mobile</span>
-                    <a href={`tel:${selectedContact.mobilePhone}`} className="text-sm text-primary-blue hover:underline">
-                      {selectedContact.mobilePhone}
-                    </a>
-                  </div>
                 </div>
               </div>
 
-              <div>
-                <h3 className="text-sm font-semibold text-crm-text-secondary uppercase mb-3">
-                  Company Details
-                </h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-crm-text-secondary">Company</span>
-                    <span className="text-sm">{selectedContact.company}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-crm-text-secondary">Industry</span>
-                    <span className="text-sm">{selectedContact.industry}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-crm-text-secondary">Company Size</span>
-                    <span className="text-sm">{selectedContact.companySize}</span>
+              {selectedContact.lead_id && (
+                <div>
+                  <h3 className="text-sm font-semibold text-crm-text-secondary uppercase mb-3">
+                    Associated Lead
+                  </h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-crm-text-secondary">Lead ID</span>
+                      <span className="text-sm">{selectedContact.lead_id}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-crm-text-secondary">Primary Contact</span>
+                      <span className="text-sm">{selectedContact.is_primary_contact ? 'Yes' : 'No'}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              <div>
-                <h3 className="text-sm font-semibold text-crm-text-secondary uppercase mb-3">
-                  Location
-                </h3>
-                <div className="space-y-2">
-                  <div>
-                    <span className="text-sm text-crm-text-secondary">Address</span>
-                    <p className="text-sm">{selectedContact.address}</p>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-crm-text-secondary">City</span>
-                    <span className="text-sm">{selectedContact.city}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-crm-text-secondary">State</span>
-                    <span className="text-sm">{selectedContact.state}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-crm-text-secondary">Country</span>
-                    <span className="text-sm">{selectedContact.country}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-crm-text-secondary">ZIP Code</span>
-                    <span className="text-sm">{selectedContact.zipCode}</span>
-                  </div>
-                </div>
-              </div>
+              )}
 
               <div>
                 <h3 className="text-sm font-semibold text-crm-text-secondary uppercase mb-3">
@@ -523,32 +392,28 @@ const Contacts = () => {
                 </h3>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-sm text-crm-text-secondary">Last Contacted</span>
-                    <span className="text-sm">{formatDate(selectedContact.lastContactedAt)}</span>
+                    <span className="text-sm text-crm-text-secondary">Created At</span>
+                    <span className="text-sm">{formatDate(selectedContact.created_at)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-crm-text-secondary">Last Email Sent</span>
-                    <span className="text-sm">{formatDate(selectedContact.lastEmailSent)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-crm-text-secondary">Total Interactions</span>
-                    <span className="text-sm">{selectedContact.totalInteractions}</span>
+                    <span className="text-sm text-crm-text-secondary">Updated At</span>
+                    <span className="text-sm">{formatDate(selectedContact.updated_at)}</span>
                   </div>
                 </div>
               </div>
 
-              <div>
-                <h3 className="text-sm font-semibold text-crm-text-secondary uppercase mb-3">
-                  Tags
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {selectedContact.tags.map((tag, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs">
-                      {tag}
-                    </Badge>
+              {Object.keys(selectedContact.custom_fields || {}).length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-crm-text-secondary uppercase mb-3">
+                    Custom Fields
+                  </h3>
+                  {Object.entries(selectedContact.custom_fields).map(([key, value]) => (
+                    <div key={key} className="mt-1 text-sm">
+                      <span className="font-medium capitalize">{key.replace(/_/g, ' ')}:</span> {value}
+                    </div>
                   ))}
                 </div>
-              </div>
+              )}
 
               <div className="flex gap-2">
                 <Button variant="default" className="flex-1">

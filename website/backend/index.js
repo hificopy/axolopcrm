@@ -134,12 +134,16 @@ import emailMarketingRoutes from './routes/email-marketing.js';
 import chromadbTestRoutes from './routes/chromadb-test.js';
 import formsRoutes from './routes/forms.js';
 import leadsRoutes from './routes/leads.js'; // Import leads routes
+import contactsRoutes from './routes/contacts.js'; // Import contacts routes
+import opportunitiesRoutes from './routes/opportunities.js'; // Import opportunities routes
 
 // Mount routes
 app.use('/api/email-marketing', emailMarketingRoutes);
 app.use('/api/chromadb', chromadbTestRoutes);
 app.use('/api/forms', formsRoutes);
 app.use('/api/leads', upload.single('csvFile'), leadsRoutes); // Mount leads routes with multer middleware
+app.use('/api/contacts', contactsRoutes); // Mount contacts routes
+app.use('/api/opportunities', opportunitiesRoutes); // Mount opportunities routes
 
 // 404 handler for API routes
 app.use('/api', (req, res) => {
@@ -161,7 +165,17 @@ app.use('/api', (req, res) => {
       'GET /api/leads/presets',
       'POST /api/leads/presets',
       'PUT /api/leads/presets/:id',
-      'DELETE /api/leads/presets/:id'
+      'DELETE /api/leads/presets/:id',
+      'GET /api/contacts',
+      'GET /api/contacts/:id',
+      'POST /api/contacts',
+      'PUT /api/contacts/:id',
+      'DELETE /api/contacts/:id',
+      'GET /api/opportunities',
+      'GET /api/opportunities/:id',
+      'POST /api/opportunities',
+      'PUT /api/opportunities/:id',
+      'DELETE /api/opportunities/:id'
     ],
     timestamp: new Date().toISOString(),
   });
