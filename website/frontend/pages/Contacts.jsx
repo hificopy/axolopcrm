@@ -241,7 +241,7 @@ const Contacts = () => {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Building2 className="h-4 w-4 text-crm-text-secondary" />
-                        <span>{contact.lead_id || 'N/A'}</span> {/* Display lead_id for now */}
+                        <span>{contact.leads?.name || 'N/A'}</span> {/* Display lead name */}
                       </div>
                     </TableCell>
                     <TableCell>{contact.title}</TableCell>
@@ -339,7 +339,7 @@ const Contacts = () => {
                 <div>
                   <h2 className="text-xl font-semibold">{selectedContact.first_name} {selectedContact.last_name}</h2>
                   <p className="text-sm text-crm-text-secondary">{selectedContact.title}</p>
-                  {selectedContact.lead_id && <p className="text-sm text-crm-text-secondary">Lead ID: {selectedContact.lead_id}</p>}
+                  {selectedContact.leads?.name && <p className="text-sm text-crm-text-secondary">Company: {selectedContact.leads.name}</p>}
                 </div>
               </div>
               <Button variant="ghost" size="sm" onClick={() => setSelectedContact(null)}>
@@ -368,15 +368,15 @@ const Contacts = () => {
                 </div>
               </div>
 
-              {selectedContact.lead_id && (
+              {selectedContact.leads?.name && (
                 <div>
                   <h3 className="text-sm font-semibold text-crm-text-secondary uppercase mb-3">
                     Associated Lead
                   </h3>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-sm text-crm-text-secondary">Lead ID</span>
-                      <span className="text-sm">{selectedContact.lead_id}</span>
+                      <span className="text-sm text-crm-text-secondary">Lead Name</span>
+                      <span className="text-sm">{selectedContact.leads.name}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-crm-text-secondary">Primary Contact</span>
