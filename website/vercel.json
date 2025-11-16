@@ -9,6 +9,15 @@
       }
     }
   ],
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
   "outputDirectory": "dist",
   "installCommand": "npm ci",
   "buildCommand": "npx vite build"

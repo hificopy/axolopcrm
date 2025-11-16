@@ -179,7 +179,7 @@ Axolop CRM is built to be the best CRM on the planet for ECOMMERCE, SALES/MARKET
 - When in doubt about any change, prioritize project stability and user experience
 
 ## LLM Rules
-- **Synchronization:** When updating LLM rules, `GEMINI.md` and `QWEN.md` must be kept in sync. `GEMINI.md` is the source of truth.
+- **Synchronization:** When updating LLM rules, `GEMINI.md`, `QWEN.md`, and `CLAUDE.md` must be kept in sync. `GEMINI.md` is the source of truth.
 
 Last Updated: November 13, 2025
 Project Maintainer: Juan D. Romero Herrera

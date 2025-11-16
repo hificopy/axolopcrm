@@ -1,4 +1,4 @@
-# Axolop CRM - Gemini AI Assistant Guidelines & Project Rules
+# Axolop CRM - Claude AI Assistant Guidelines & Project Rules
 
 ## Project Overview
 

@@ -89,3 +89,7 @@ Temporary Items
 *.backup
 *.bak
 *.old
+
+# Claude Code Configuration (preserve for persistent rules)
+# DO NOT ignore .claude directory - it contains project-specific AI assistant rules
+# .claude/
