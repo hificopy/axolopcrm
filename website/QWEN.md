@@ -98,10 +98,27 @@
 
 ## Backup & Maintenance Rules
 
+### Mandatory Backup Requirements
+**CRITICAL: Before ANY commit to ANY branch OR deployment to GitHub:**
+1. **ALWAYS create a local backup** in the appropriate folder:
+   - Commits to `mastered` branch → backup to `../mastered/` folder
+   - Commits to `beta` branch → backup to `../beta/` folder
+   - Commits to `backup` branch → backup to `../backups/` folder
+   - Commits to `main` or any other branch → backup to `../backups/` folder
+
+2. **Backup naming convention:** `backup-YYYYMMDD-HHMMSS-description`
+   - Example: `backup-20251116-140545-update-llm-rules`
+   - Description should be brief but clear about what changed
+
+3. **What to include in backup:**
+   - All project files EXCEPT: `.git`, `node_modules`, `dist`, `build`
+   - Use rsync or similar tool to preserve file structure
+   - Command template: `rsync -av --exclude='.git' --exclude='node_modules' --exclude='dist' --exclude='build' . ../[folder]/backup-[timestamp]-[description]/`
+
 ### Backup Process
-1. **Before any major change:** Create a backup in the `local/backups/` folder.
+1. **Before any commit or deployment:** Create a backup in the appropriate local folder as specified above.
 2. **Document the change:** Record what was changed and why, including a version label in the format `V.X.Y` (e.g., `V.1.0`, `V.1.1-beta`). For beta versions, clearly state what is different from the last stable version.
-3. **Version the backup:** Include the date and the `V.X.Y` version label in the backup's name or associated documentation.
+3. **Version the backup:** Include the date, time, and descriptive label in the backup's folder name.
 4. **Push backup to GitHub:** Under the `backup` branch for safekeeping, ensuring the commit message reflects the version and changes.
 5. **Test the backup:** Ensure the system works as expected after restoration.
 
@@ -180,6 +197,12 @@ Axolop CRM is built to be the best CRM on the planet for ECOMMERCE, SALES/MARKET
 
 ## LLM Rules
 - **Synchronization:** When updating LLM rules, `GEMINI.md`, `QWEN.md`, and `CLAUDE.md` must be kept in sync. `GEMINI.md` is the source of truth.
+- **Critical Sections to Sync:** Always ensure these sections are identical across all three files:
+  - Mandatory Backup Requirements
+  - Backup Process
+  - Git Branch Strategy
+  - Deployment Process
+  - All deployment and version control rules
 
 Last Updated: November 13, 2025
 Project Maintainer: Juan D. Romero Herrera
