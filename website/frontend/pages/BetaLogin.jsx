@@ -75,7 +75,7 @@ const BetaLogin = () => {
         {/* Logo and Loading Animation */}
         <div
           className={`relative transition-all duration-1000 ease-out ${
-            logoMovedUp ? "translate-y-[10px]" : "translate-y-0"
+            logoMovedUp ? "translate-y-[10px]" : "translate-y-[50px]"
           }`}
         >
           <img
