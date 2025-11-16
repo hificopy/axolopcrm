@@ -146,3 +146,76 @@ CREATE POLICY "Authenticated users can update their own lead import presets" ON 
 -- Policy for lead_import_presets: authenticated users can delete their own lead import presets
 CREATE POLICY "Authenticated users can delete their own lead import presets" ON public.lead_import_presets
   FOR DELETE USING (auth.uid() = user_id);
+
+-- Table for Emails (Inbox)
+CREATE TABLE public.emails (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  sender TEXT NOT NULL,
+  sender_email TEXT NOT NULL,
+  subject TEXT,
+  body TEXT,
+  received_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  read BOOLEAN DEFAULT FALSE,
+  starred BOOLEAN DEFAULT FALSE,
+  labels TEXT[] DEFAULT ARRAY['inbox'], -- e.g., ['inbox', 'starred', 'archive']
+  potential JSONB, -- Stores identified potential lead/contact info
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+ALTER TABLE public.emails ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Authenticated users can view their own emails" ON public.emails
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Authenticated users can insert their own emails" ON public.emails
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Authenticated users can update their own emails" ON public.emails
+  FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Authenticated users can delete their own emails" ON public.emails
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- Table for Email Identification Keywords
+CREATE TABLE public.identification_keywords (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE, -- Optional, for shared/global keywords if NULL
+  keyword TEXT NOT NULL,
+  type TEXT NOT NULL, -- 'Lead' or 'Contact'
+  industry TEXT, -- e.g., 'Real Estate', 'E-commerce', 'B2B Business', 'General'
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  UNIQUE (keyword, type, industry, user_id) -- Ensure unique keywords per type, industry and user
+);
+
+ALTER TABLE public.identification_keywords ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Authenticated users can view their own identification keywords" ON public.identification_keywords
+  FOR SELECT USING (auth.uid() = user_id OR user_id IS NULL);
+
+CREATE POLICY "Authenticated users can manage their own identification keywords" ON public.identification_keywords
+  FOR ALL USING (auth.uid() = user_id);
+
+-- Table for Gmail API Tokens
+CREATE TABLE public.gmail_tokens (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  access_token TEXT NOT NULL,
+  refresh_token TEXT, -- Refresh token might not always be provided or needed for short-lived access
+  scope TEXT,
+  token_type TEXT,
+  expiry_date TIMESTAMP WITH TIME ZONE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  UNIQUE (user_id) -- Each user should only have one set of Gmail tokens
+);
+
+ALTER TABLE public.gmail_tokens ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Authenticated users can manage their own gmail tokens" ON public.gmail_tokens
+  FOR ALL USING (auth.uid() = user_id);
+
+-- Include forms schema
+\i backend/db/forms-schema.sql

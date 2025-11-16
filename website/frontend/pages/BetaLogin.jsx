@@ -43,9 +43,8 @@ const BetaLogin = () => {
     if (password === "katewife") {
       // Set a session variable or local storage to remember login state
       sessionStorage.setItem("betaAccess", "true");
-      // SITE LOCKDOWN: Don't navigate anywhere, just stay on password page
-      // navigate("/inbox"); // DISABLED: Keep site locked to password page only
-      setError("Access verified. Site is currently under construction.");
+      // Navigate to dashboard
+      navigate("/inbox");
     } else {
       setError("Incorrect password. Please try again.");
     }

@@ -24,6 +24,7 @@ import {
   DollarSign,
   Send,
   Headset,
+  LayoutDashboard,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -49,6 +50,7 @@ const mainCategories = [
     icon: DollarSign,
     expanded: true,
     items: [
+      { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
       { name: 'Leads', href: '/leads', icon: UserPlus },
       { name: 'Contacts', href: '/contacts', icon: Users },
       { name: 'Pipeline', href: '/pipeline', icon: Target },
@@ -122,10 +124,20 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="fixed left-0 top-0 h-screen w-64 bg-crm-sidebar border-r border-gray-800 flex flex-col">
+    <div className="fixed left-0 top-0 h-screen w-64 bg-gradient-to-br from-[hsl(var(--crm-sidebar-gradient-start))] via-[hsl(var(--crm-sidebar-gradient-mid))] to-[hsl(var(--crm-sidebar-gradient-end))] border-r border-gray-800/50 flex flex-col shadow-2xl">
       {/* Logo */}
-      <div className="h-16 flex items-center px-6 border-b border-gray-800">
-        <h1 className="text-xl font-bold text-white">Axolop CRM</h1>
+      <div className="h-24 flex items-center justify-center px-6 border-b border-gray-800/30 bg-gradient-to-b from-black/40 to-transparent backdrop-blur-md">
+        <div className="relative group">
+          {/* Subtle Accent Glow */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#7b1c14]/0 via-[#7b1c14]/10 to-[#7b1c14]/0 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+          {/* Logo */}
+          <img
+            src="/axolop-logo.png"
+            alt="Axolop"
+            className="h-[4.5rem] w-auto object-contain relative z-10 transition-transform duration-300 group-hover:scale-105"
+          />
+        </div>
       </div>
 
       {/* Navigation */}
@@ -138,15 +150,15 @@ export default function Sidebar() {
             return (
               <div key={category.name}>
                 {/* Category Header */}
-                <div 
+                <div
                   className={`flex items-center justify-between cursor-pointer rounded-lg mb-1 transition-all duration-300 ${
-                    isExpanded 
-                      ? (category.name === 'Sales' 
-                          ? 'bg-gradient-to-r from-gray-700/60 to-gray-800/60 shadow-md border-l-4 border-primary-blue' 
-                          : category.name === 'Marketing' 
-                            ? 'bg-gradient-to-r from-gray-700/60 to-gray-800/60 shadow-md border-l-4 border-primary-green' 
-                            : 'bg-gradient-to-r from-gray-700/60 to-gray-800/60 shadow-md border-l-4 border-primary-yellow') 
-                      : 'hover:bg-gray-800/70 hover:shadow-sm'
+                    isExpanded
+                      ? (category.name === 'Sales'
+                          ? 'bg-gradient-to-r from-gray-700/40 via-gray-800/50 to-[hsl(var(--crm-sidebar-hover))]/30 shadow-lg border-l-4 border-primary-blue backdrop-blur-sm'
+                          : category.name === 'Marketing'
+                            ? 'bg-gradient-to-r from-gray-700/40 via-gray-800/50 to-[hsl(var(--crm-sidebar-hover))]/30 shadow-lg border-l-4 border-primary-green backdrop-blur-sm'
+                            : 'bg-gradient-to-r from-gray-700/40 via-gray-800/50 to-[hsl(var(--crm-sidebar-hover))]/30 shadow-lg border-l-4 border-primary-yellow backdrop-blur-sm')
+                      : 'hover:bg-[hsl(var(--crm-sidebar-hover))]/50 hover:shadow-sm hover:backdrop-blur-sm'
                   }`}
                   onClick={() => toggleCategory(category.name)}
                 >
@@ -180,7 +192,7 @@ export default function Sidebar() {
 
                 {/* Category Items */}
                 {isExpanded && (
-                  <div className="ml-3 space-y-1 mt-1 pl-2 border-l-2 border-gray-700/60 pb-2">
+                  <div className="ml-3 space-y-1 mt-1 pl-2 border-l-2 border-[hsl(var(--crm-sidebar-hover))]/40 pb-2">
                     {category.items.map((item) => {
                       const ItemIcon = item.icon;
                       const isActive = location.pathname === item.href;
@@ -190,13 +202,13 @@ export default function Sidebar() {
                           key={item.name}
                           to={item.href}
                           className={`flex items-center py-2 px-3 rounded-lg transition-all duration-200 ml-2 ${
-                            isActive 
-                              ? (category.name === 'Sales' 
-                                  ? 'bg-gradient-to-r from-primary-blue/10 to-primary-blue/5 text-primary-blue border-r-2 border-primary-blue shadow-inner' 
-                                  : category.name === 'Marketing' 
-                                    ? 'bg-gradient-to-r from-primary-green/10 to-primary-green/5 text-primary-green border-r-2 border-primary-green shadow-inner' 
-                                    : 'bg-gradient-to-r from-primary-yellow/10 to-primary-yellow/5 text-primary-yellow border-r-2 border-primary-yellow shadow-inner') 
-                              : 'text-gray-400 hover:bg-gray-700/70 hover:text-white hover:translate-x-1'
+                            isActive
+                              ? (category.name === 'Sales'
+                                  ? 'bg-gradient-to-r from-primary-blue/15 via-primary-blue/10 to-transparent text-primary-blue border-r-2 border-primary-blue shadow-inner backdrop-blur-sm'
+                                  : category.name === 'Marketing'
+                                    ? 'bg-gradient-to-r from-primary-green/15 via-primary-green/10 to-transparent text-primary-green border-r-2 border-primary-green shadow-inner backdrop-blur-sm'
+                                    : 'bg-gradient-to-r from-primary-yellow/15 via-primary-yellow/10 to-transparent text-primary-yellow border-r-2 border-primary-yellow shadow-inner backdrop-blur-sm')
+                              : 'text-gray-400 hover:bg-[hsl(var(--crm-sidebar-hover))]/50 hover:text-white hover:translate-x-1 hover:backdrop-blur-sm'
                           }`}
                         >
                           <ItemIcon className="h-4 w-4 mr-3" />
@@ -212,14 +224,17 @@ export default function Sidebar() {
         </div>
 
         {/* Divider */}
-        <div className="my-4 border-t border-gray-800"></div>
+        <div className="my-4 relative">
+          <div className="border-t border-gray-800/50"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[hsl(var(--primary-accent))]/20 to-transparent blur-sm"></div>
+        </div>
 
         {/* Settings */}
         <Link
           to="/settings"
           className={`sidebar-item ${
             location.pathname === '/settings' ? 'sidebar-item-active' : ''
-          } flex items-center`}
+          } flex items-center hover:bg-[hsl(var(--crm-sidebar-hover))]/50 hover:text-white`}
         >
           <Settings className="h-5 w-5 mr-3" />
           <span>Settings</span>
@@ -227,11 +242,11 @@ export default function Sidebar() {
       </nav>
 
       {/* User Profile Dropdown */}
-      <div className="h-16 border-t border-gray-800 px-3 flex items-center">
+      <div className="h-16 border-t border-gray-800/50 px-3 flex items-center bg-black/30 backdrop-blur-sm">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-3 w-full hover:bg-gray-800 rounded-lg p-2 transition-colors">
-              <div className="h-10 w-10 rounded-full bg-primary-blue flex items-center justify-center text-white font-semibold">
+            <button className="flex items-center gap-3 w-full hover:bg-[hsl(var(--crm-sidebar-hover))] rounded-lg p-2 transition-all duration-200">
+              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[hsl(var(--primary-accent))] to-red-900 flex items-center justify-center text-white font-semibold shadow-lg ring-2 ring-[hsl(var(--primary-accent))]/30">
                 JD
               </div>
               <div className="flex-1 min-w-0 text-left">

@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import { supabaseServer } from '../config/supabase-auth.js';
+import { supabaseServer, supabase } from '../config/supabase-auth.js';
 import EmailCampaignService from '../services/email-campaign-service.js';
 const emailCampaignService = new EmailCampaignService();
 import { authenticateUser } from '../middleware/auth.js';
@@ -764,6 +764,186 @@ router.get('/recipients', async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching recipients:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get form submissions as campaign recipients
+router.get('/recipients/forms/:formId', async (req, res) => {
+  try {
+    const { formId } = req.params;
+    const { page = 1, limit = 50, qualifiedOnly = false } = req.query;
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch form submissions that can be used as email recipients
+    const { data: responses, error } = await supabase
+      .from('form_responses')
+      .select(`
+        id,
+        contact_email,
+        contact_name,
+        contact_phone,
+        lead_score,
+        lead_score_breakdown,
+        responses,
+        submitted_at
+      `)
+      .eq('form_id', formId)
+      .not('contact_email', 'is', null);
+
+    if (error) {
+      console.error('Error fetching form responses:', error);
+      return res.status(500).json({ error: 'Failed to fetch form responses' });
+    }
+
+    // Filter for qualified leads if requested
+    let filteredResponses = responses;
+    if (qualifiedOnly === 'true') {
+      filteredResponses = responses.filter(r => r.lead_score && r.lead_score > 0);
+    }
+
+    const paginatedResponses = filteredResponses.slice(skip, skip + parseInt(limit));
+
+    // Format responses as recipients
+    const recipients = paginatedResponses.map(response => ({
+      id: response.id,
+      email: response.contact_email,
+      name: response.contact_name,
+      phone: response.contact_phone,
+      leadScore: response.lead_score,
+      submittedAt: response.submitted_at,
+      source: 'form',
+      sourceId: formId,
+      additionalData: {
+        responses: response.responses,
+        leadScoreBreakdown: response.lead_score_breakdown
+      }
+    }));
+
+    res.json({
+      recipients,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total: filteredResponses.length,
+        pages: Math.ceil(filteredResponses.length / parseInt(limit))
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching form recipients:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Add form responses to an email campaign
+router.post('/campaigns/:campaignId/add-form-recipients/:formId', async (req, res) => {
+  try {
+    const { campaignId, formId } = req.params;
+    const { qualifiedOnly = false } = req.body;
+
+    // Fetch form responses that have email addresses
+    const { data: responses, error } = await supabase
+      .from('form_responses')
+      .select(`
+        id,
+        contact_email,
+        contact_name,
+        contact_phone,
+        lead_score,
+        responses,
+        submitted_at
+      `)
+      .eq('form_id', formId)
+      .not('contact_email', 'is', null);
+
+    if (error) {
+      console.error('Error fetching form responses:', error);
+      return res.status(500).json({ error: 'Failed to fetch form responses' });
+    }
+
+    // Filter for qualified leads if requested
+    let filteredResponses = responses;
+    if (qualifiedOnly) {
+      filteredResponses = responses.filter(r => r.lead_score && r.lead_score > 0);
+    }
+
+    // Add each response as a recipient to the campaign
+    for (const response of filteredResponses) {
+      await supabase
+        .from('campaign_emails')
+        .insert({
+          campaign_id: campaignId,
+          recipient_email: response.contact_email,
+          recipient_name: response.contact_name,
+          status: 'SUBSCRIBED',
+          form_id: formId,
+          form_response_id: response.id,
+          form_responses: JSON.stringify(response.responses),
+          lead_score: response.lead_score
+        });
+    }
+
+    res.json({
+      message: `Successfully added ${filteredResponses.length} form responses to campaign ${campaignId}`,
+      addedCount: filteredResponses.length
+    });
+  } catch (error) {
+    console.error('Error adding form recipients to campaign:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get campaign statistics by form source
+router.get('/campaigns/:id/stats/by-form', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Get campaign statistics broken down by form source
+    const { data: stats, error } = await supabase
+      .from('campaign_emails')
+      .select(`
+        form_id,
+        count(*) as total,
+        count(*) filter (where opened_at IS NOT NULL) as opened,
+        count(*) filter (where clicked_at IS NOT NULL) as clicked,
+        avg(lead_score) as avg_lead_score
+      `)
+      .eq('campaign_id', id)
+      .group('form_id');
+
+    if (error) {
+      console.error('Error fetching campaign stats by form:', error);
+      return res.status(500).json({ error: 'Failed to fetch campaign stats by form' });
+    }
+
+    // Get form names to include in response
+    const formIds = stats.map(s => s.form_id).filter(id => id);
+    if (formIds.length > 0) {
+      const { data: forms, error: formError } = await supabase
+        .from('forms')
+        .select('id, title')
+        .in('id', formIds);
+
+      if (formError) {
+        console.error('Error fetching form titles:', formError);
+      } else {
+        // Map form titles to the stats
+        stats.forEach(stat => {
+          if (stat.form_id) {
+            const form = forms.find(f => f.id === stat.form_id);
+            stat.form_title = form ? form.title : 'Unknown Form';
+          }
+        });
+      }
+    }
+
+    res.json({
+      campaignId: id,
+      stats: stats || []
+    });
+  } catch (error) {
+    console.error('Error getting campaign stats by form:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

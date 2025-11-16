@@ -136,6 +136,8 @@ import formsRoutes from './routes/forms.js';
 import leadsRoutes from './routes/leads.js'; // Import leads routes
 import contactsRoutes from './routes/contacts.js'; // Import contacts routes
 import opportunitiesRoutes from './routes/opportunities.js'; // Import opportunities routes
+import inboxRoutes from './routes/inbox.js'; // Import inbox routes
+import gmailRoutes from './routes/gmail.js'; // Import gmail routes
 
 // Mount routes
 app.use('/api/email-marketing', emailMarketingRoutes);
@@ -144,6 +146,8 @@ app.use('/api/forms', formsRoutes);
 app.use('/api/leads', upload.single('csvFile'), leadsRoutes); // Mount leads routes with multer middleware
 app.use('/api/contacts', contactsRoutes); // Mount contacts routes
 app.use('/api/opportunities', opportunitiesRoutes); // Mount opportunities routes
+app.use('/api/inbox', inboxRoutes); // Mount inbox routes
+app.use('/api/gmail', gmailRoutes); // Mount gmail routes
 
 // 404 handler for API routes
 app.use('/api', (req, res) => {
@@ -175,7 +179,16 @@ app.use('/api', (req, res) => {
       'GET /api/opportunities/:id',
       'POST /api/opportunities',
       'PUT /api/opportunities/:id',
-      'DELETE /api/opportunities/:id'
+      'DELETE /api/opportunities/:id',
+      'GET /api/inbox',
+      'GET /api/inbox/:id',
+      'POST /api/inbox/ingest',
+      'PUT /api/inbox/:id',
+      'DELETE /api/inbox/:id',
+      'GET /api/gmail/auth',
+      'GET /api/gmail/callback',
+      'GET /api/gmail/profile',
+      'GET /api/gmail/signature'
     ],
     timestamp: new Date().toISOString(),
   });

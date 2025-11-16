@@ -1,16 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { 
-  Type, 
-  ListOrdered, 
-  Minus, 
-  MessageSquare, 
-  Mail, 
-  Phone, 
-  Calendar, 
-  Star 
+import {
+  Type,
+  ListOrdered,
+  Minus,
+  MessageSquare,
+  Mail,
+  Phone,
+  Calendar,
+  Star,
+  XCircle,
+  CheckCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { getNextQuestion, calculateLeadScore } from '@/utils/formLogicEngine';
+import formsApi from '@/services/formsApi';
 
 // Mock form data for demo purposes - in real app this would come from API
 const mockForms = {
@@ -118,16 +122,32 @@ export default function FormPreview() {
   const [responses, setResponses] = useState({});
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [showThankYou, setShowThankYou] = useState(false);
+  const [showDisqualified, setShowDisqualified] = useState(false);
+  const [disqualificationReason, setDisqualificationReason] = useState('');
+  const [leadScore, setLeadScore] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [questionHistory, setQuestionHistory] = useState([0]); // Track navigation history for back button
 
   useEffect(() => {
-    // In a real app, this would fetch from the API
-    // formsApi.getForm(formId).then(setForm).catch(setError);
-    // For demo purposes, using mock data
-    const formData = mockForms[formId] || mockForms['1'];
-    setForm(formData);
-    setLoading(false);
+    // Fetch form from the API
+    formsApi.getForm(formId)
+      .then(formData => {
+        // Parse questions if they're stored as JSON string
+        const parsedForm = {
+          ...formData,
+          questions: typeof formData.questions === 'string'
+            ? JSON.parse(formData.questions)
+            : formData.questions
+        };
+        setForm(parsedForm);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Error loading form:', err);
+        setError(err);
+        setLoading(false);
+      });
   }, [formId]);
 
   const handleResponseChange = (questionId, value) => {
@@ -138,31 +158,76 @@ export default function FormPreview() {
   };
 
   const handleNextQuestion = () => {
-    if (currentQuestion < form.questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
-    } else {
+    // Use conditional logic engine to determine next question
+    const nextResult = getNextQuestion(currentQuestion, form.questions, responses);
+
+    if (nextResult.action === 'disqualify') {
+      // Show disqualification screen
+      const currentQ = form.questions[currentQuestion];
+      const reason = currentQ.disqualificationMessage || 'Unfortunately, you do not meet the criteria for this form.';
+      setDisqualificationReason(reason);
+      setShowDisqualified(true);
+      return;
+    }
+
+    if (nextResult.nextIndex === -1 || nextResult.action === 'submit') {
       // Submit form
       handleSubmit();
+      return;
     }
+
+    // Update history and move to next question
+    setQuestionHistory([...questionHistory, nextResult.nextIndex]);
+    setCurrentQuestion(nextResult.nextIndex);
   };
 
   const handlePrevQuestion = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion(currentQuestion - 1);
+    if (questionHistory.length > 1) {
+      // Go back to previous question in history
+      const newHistory = [...questionHistory];
+      newHistory.pop(); // Remove current
+      const prevIndex = newHistory[newHistory.length - 1];
+      setQuestionHistory(newHistory);
+      setCurrentQuestion(prevIndex);
     }
   };
 
   const handleSubmit = async () => {
-    // In a real app, this would submit to the API
-    // await formsApi.submitForm(form.id, responses);
-    console.log('Form submitted:', { formId: form.id, responses });
-    setShowThankYou(true);
+    // Calculate lead score if applicable
+    const scoreResult = calculateLeadScore(form.questions, responses);
+    setLeadScore(scoreResult);
+
+    try {
+      // Submit to the API
+      await formsApi.submitForm(form.id, {
+        responses,
+        metadata: {
+          user_agent: navigator.userAgent,
+          referrer: document.referrer
+        }
+      });
+
+      console.log('Form submitted successfully:', {
+        formId: form.id,
+        responses,
+        leadScore: scoreResult
+      });
+
+      setShowThankYou(true);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert(`Error submitting form: ${error.message}`);
+    }
   };
 
   const handleRestart = () => {
     setResponses({});
     setCurrentQuestion(0);
     setShowThankYou(false);
+    setShowDisqualified(false);
+    setDisqualificationReason('');
+    setLeadScore(null);
+    setQuestionHistory([0]);
   };
 
   const renderQuestionInput = (question) => {
@@ -348,19 +413,54 @@ export default function FormPreview() {
     );
   }
 
+  if (showDisqualified) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-xl shadow-sm p-8 text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <XCircle className="w-8 h-8 text-red-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-crm-text-primary mb-2">Not Qualified</h2>
+          <p className="text-crm-text-secondary mb-6">
+            {disqualificationReason}
+          </p>
+          <Button onClick={handleRestart} variant="outline" className="w-full">
+            Start Over
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   if (showThankYou) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-xl shadow-sm p-8 text-center">
-          <div className="w-16 h-16 bg-primary-green/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-primary-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-            </svg>
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle className="w-8 h-8 text-green-600" />
           </div>
           <h2 className="text-2xl font-bold text-crm-text-primary mb-2">Thank You!</h2>
-          <p className="text-crm-text-secondary mb-6">
+          <p className="text-crm-text-secondary mb-4">
             Your responses have been recorded. We appreciate your feedback!
           </p>
+
+          {leadScore && leadScore.total > 0 && (
+            <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+              <div className="text-sm text-blue-800 font-medium mb-2">Lead Score</div>
+              <div className="text-3xl font-bold text-blue-600">{leadScore.total} points</div>
+              {Object.keys(leadScore.breakdown).length > 0 && (
+                <div className="mt-3 text-xs text-left space-y-1">
+                  {Object.values(leadScore.breakdown).map((item, idx) => (
+                    <div key={idx} className="flex justify-between">
+                      <span className="text-crm-text-secondary">{item.title}</span>
+                      <span className="text-blue-600 font-medium">+{item.score}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           <Button onClick={handleRestart} className="w-full">
             Take Again
           </Button>
@@ -402,11 +502,11 @@ export default function FormPreview() {
             <Button
               variant="outline"
               onClick={handlePrevQuestion}
-              disabled={currentQuestion === 0}
+              disabled={questionHistory.length <= 1}
             >
               Back
             </Button>
-            
+
             <Button
               onClick={handleNextQuestion}
               disabled={currentQ.required && !responses[currentQ.id] && responses[currentQ.id] !== 0}

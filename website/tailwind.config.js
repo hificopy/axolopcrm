@@ -22,13 +22,14 @@ export default {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
+          DEFAULT: 'hsl(var(--primary))',       // #7b1c14 - Brand Accent Red (NOW DEFAULT!)
           foreground: 'hsl(var(--primary-foreground))',
-          blue: '#4C7FFF',
-          green: '#00D084',
-          yellow: '#FFB800',
-          black: '#101010',
-          accent: '#7b1c14',
+          // Triadic Color Theory Colors (Light & Vibrant)
+          blue: 'hsl(var(--primary-blue))',     // #5BB9F5 - Bright Sky Blue (Sales Category)
+          green: 'hsl(var(--primary-green))',   // #2DCE89 - Emerald Green (Marketing Category)
+          yellow: 'hsl(var(--primary-yellow))', // #F5A623 - Bright Saffron (Service Category)
+          black: 'hsl(var(--primary-black))',   // #101010 - Main Black
+          accent: 'hsl(var(--primary-accent))', // #7b1c14 - Brand Red (same as DEFAULT)
         },
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',

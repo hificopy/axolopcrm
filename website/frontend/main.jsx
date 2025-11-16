@@ -20,17 +20,15 @@ const queryClient = new QueryClient({
 });
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <HelmetProvider>
-      <SupabaseProvider>
-        <BrowserRouter>
-          <QueryClientProvider client={queryClient}>
-            <ErrorBoundary>
-              <App />
-            </ErrorBoundary>
-          </QueryClientProvider>
-        </BrowserRouter>
-      </SupabaseProvider>
-    </HelmetProvider>
-  </React.StrictMode>
+  <HelmetProvider>
+    <SupabaseProvider>
+      <BrowserRouter>
+        <QueryClientProvider client={queryClient}>
+          <ErrorBoundary>
+            <App />
+          </ErrorBoundary>
+        </QueryClientProvider>
+      </BrowserRouter>
+    </SupabaseProvider>
+  </HelmetProvider>
 );

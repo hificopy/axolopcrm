@@ -50,13 +50,23 @@ Custom CRM system built to replace iClosed, HubSpot, and Close CRM with a unifie
 
 ### Development & Productivity
 - **UI Components:** shadcn/ui (Radix UI + Tailwind)
+  - @radix-ui/react-scroll-area (scrollable containers)
+  - @radix-ui/react-dialog (modals)
+  - @radix-ui/react-dropdown-menu (dropdowns)
+  - @radix-ui/react-select (select inputs)
+  - @radix-ui/react-tabs (tabbed interfaces)
 - **State Management:** Zustand + TanStack Query
 - **Forms:** React Hook Form + Zod validation
 - **Data Tables:** TanStack Table with virtualization
 - **Rich Text:** Tiptap editor
 - **Drag & Drop:** @dnd-kit
+- **Dashboard:**
+  - react-grid-layout (drag-and-drop dashboard widgets)
+  - react-resizable (resizable components)
+  - framer-motion (smooth animations)
 - **Email Builder:** react-email
 - **Charts & Analytics:** Recharts
+- **Date Management:** date-fns (date manipulation and formatting)
 - **AI/ML:** OpenAI, Groq, Xenova Transformers, ChromaDB
 - **Email Integration:** Gmail API, Nodemailer, SendGrid
 - **Queue System:** Bull + Redis

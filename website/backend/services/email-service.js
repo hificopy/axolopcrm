@@ -1,5 +1,6 @@
 import { createTransport } from 'nodemailer';
 import { createClient } from '@supabase/supabase-js';
+import AWSService from './aws-ses-service.js';
 
 // Initialize Supabase client
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -8,38 +9,53 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 class EmailService {
   constructor() {
-    this.transporter = createTransport({
-      // This would be configured based on environment variables
-      // For now, using a generic setup - in production, would use GMAIL_API, SendGrid, etc.
-      host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-      port: process.env.EMAIL_PORT || 587,
-      secure: false, // true for 465, false for other ports
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS, // App password for Gmail
-      },
-    });
+    // Check if AWS SES is configured
+    if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+      // Use AWS SES for email sending
+      this.emailProvider = 'aws';
+      this.awsService = new AWSService();
+    } else {
+      // Fallback to nodemailer SMTP
+      this.emailProvider = 'smtp';
+      this.transporter = createTransport({
+        // This would be configured based on environment variables
+        // For now, using a generic setup - in production, would use GMAIL_API, SendGrid, etc.
+        host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+        port: process.env.EMAIL_PORT || 587,
+        secure: false, // true for 465, false for other ports
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS, // App password for Gmail
+        },
+      });
+    }
   }
 
   async sendEmail(options) {
     try {
-      const mailOptions = {
-        from: options.from || process.env.DEFAULT_EMAIL_FROM,
-        to: options.to,
-        cc: options.cc,
-        bcc: options.bcc,
-        subject: options.subject,
-        text: options.text,
-        html: options.html,
-        replyTo: options.replyTo,
-      };
+      if (this.emailProvider === 'aws') {
+        // Use AWS SES to send the email
+        return await this.awsService.sendEmail(options);
+      } else {
+        // Use nodemailer SMTP to send the email
+        const mailOptions = {
+          from: options.from || process.env.DEFAULT_EMAIL_FROM,
+          to: options.to,
+          cc: options.cc,
+          bcc: options.bcc,
+          subject: options.subject,
+          text: options.text,
+          html: options.html,
+          replyTo: options.replyTo,
+        };
 
-      const result = await this.transporter.sendMail(mailOptions);
-      return {
-        success: true,
-        messageId: result.messageId,
-        response: result.response,
-      };
+        const result = await this.transporter.sendMail(mailOptions);
+        return {
+          success: true,
+          messageId: result.messageId,
+          response: result.response,
+        };
+      }
     } catch (error) {
       console.error('Error sending email:', error);
       throw error;

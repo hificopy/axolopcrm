@@ -1,56 +1,50 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, Share2, Eye, Edit3, Trash2, BarChart3, Calendar, Users, FileText, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import formsApi from '@/services/formsApi';
 
 export default function Forms() {
+  const navigate = useNavigate();
   const [forms, setForms] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const loadForms = async () => {
+    setLoading(true);
+    try {
+      const fetchedForms = await formsApi.getForms({
+        status: statusFilter !== 'all' ? statusFilter : undefined,
+        search: searchTerm || undefined
+      });
+
+      // Transform API data to match component format
+      const transformedForms = fetchedForms.map(form => ({
+        id: form.id,
+        name: form.title,
+        description: form.description || '',
+        responses: form.total_responses || 0,
+        conversionRate: form.conversion_rate || 0,
+        status: form.is_active ? 'active' : 'inactive',
+        createdAt: new Date(form.created_at),
+        lastUpdated: new Date(form.updated_at),
+        thumbnail: null,
+      }));
+
+      setForms(transformedForms);
+      setError(null);
+    } catch (err) {
+      console.error('Error loading forms:', err);
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    // In a real app, this would fetch from API
-    // formsApi.getForms().then(setForms).finally(() => setLoading(false));
-    // For demo purposes, using mock data
-    const mockForms = [
-      {
-        id: '1',
-        name: 'Customer Feedback Survey',
-        description: 'Gather feedback on our products and services',
-        responses: 42,
-        conversionRate: 68.5,
-        status: 'active',
-        createdAt: new Date('2025-10-15'),
-        lastUpdated: new Date('2025-11-10'),
-        thumbnail: null,
-      },
-      {
-        id: '2',
-        name: 'Lead Qualification Form',
-        description: 'Qualify potential customers and leads',
-        responses: 18,
-        conversionRate: 45.2,
-        status: 'active',
-        createdAt: new Date('2025-10-22'),
-        lastUpdated: new Date('2025-11-08'),
-        thumbnail: null,
-      },
-      {
-        id: '3',
-        name: 'Event Registration',
-        description: 'Register attendees for our upcoming webinar',
-        responses: 7,
-        conversionRate: 82.1,
-        status: 'inactive',
-        createdAt: new Date('2025-11-01'),
-        lastUpdated: new Date('2025-11-05'),
-        thumbnail: null,
-      },
-    ];
-    setForms(mockForms);
-    setLoading(false);
+    loadForms();
   }, []);
 
   const filteredForms = forms.filter(form => {
@@ -63,55 +57,30 @@ export default function Forms() {
   });
 
   const handleCreateForm = async () => {
-    try {
-      // In a real app, this would create a new form via API
-      // const newForm = await formsApi.createForm({ 
-      //   name: 'Untitled Form',
-      //   title: 'Untitled Form',
-      //   description: 'New form created',
-      //   fields: [],
-      //   isActive: false,
-      //   isPublished: false
-      // });
-      // window.location.href = `/forms/builder/${newForm.id}`;
-      
-      // For now, redirect to form builder with new form ID (which will create it on load)
-      const newFormId = 'new-' + Date.now(); // Simulate a new form ID
-      window.location.href = `/forms/builder/${newFormId}`;
-    } catch (error) {
-      console.error('Error creating form:', error);
-      alert('Error creating form. Please try again.');
-    }
+    navigate('/forms/builder/new');
   };
 
   const handleEditForm = (formId) => {
-    // In a real app, this would navigate to the form builder
-    window.location.href = `/forms/builder/${formId}`;
+    navigate(`/forms/builder/${formId}`);
   };
 
-
-
   const handleShareForm = (formId) => {
-    // In a real app, this would generate and copy a shareable form link
-    const formUrl = `${window.location.origin}/forms/preview/${formId}`;
-    navigator.clipboard.writeText(formUrl);
-    alert(`Form link copied to clipboard: ${formUrl}`);
+    const embedCode = formsApi.generateEmbedCode(formId);
+    navigator.clipboard.writeText(embedCode.directLink);
+    alert(`Form link copied to clipboard!\n\n${embedCode.directLink}`);
   };
 
   const handleDeleteForm = async (formId) => {
     if (window.confirm('Are you sure you want to delete this form? This action cannot be undone.')) {
       try {
-        // In a real app, this would delete the form via API
-        // await formsApi.deleteForm(formId);
-        
-        // For demo, just show success
-        alert(`Form ${formId} deleted successfully`);
-        
-        // Update local state to remove the form
-        setForms(forms.filter(form => form.id !== formId));
+        await formsApi.deleteForm(formId);
+        alert('Form deleted successfully');
+
+        // Reload forms
+        loadForms();
       } catch (error) {
         console.error('Error deleting form:', error);
-        alert('Error deleting form. Please try again.');
+        alert(`Error deleting form: ${error.message}`);
       }
     }
   };

@@ -14,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
 
-    --primary: 221 100% 65%; /* #4C7FFF */
+    --primary: 4 85% 27%; /* #7b1c14 - Brand Accent Red */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 96%;
@@ -31,12 +31,14 @@
 
     --border: 0 0% 90%;
     --input: 0 0% 90%;
-    --ring: 221 100% 65%;
+    --ring: 4 85% 27%; /* Brand Accent Red for focus rings */
 
-    /* Additional Close CRM Colors */
-    --primary-blue: 221 100% 65%; /* #4C7FFF */
-    --primary-green: 137 100% 51%; /* #00D084 */
-    --primary-yellow: 48 100% 50%; /* #FFB800 */
+    /* Additional Close CRM Colors - Triadic Color Theory (Light & Vibrant) */
+    /* Base: Red-Orange #7b1c14 (4° 85% 27%) */
+    /* Triadic harmony with high lightness for readability */
+    --primary-blue: 204 90% 58%; /* #5BB9F5 - Bright Sky Blue (triadic, light & readable) */
+    --primary-green: 142 65% 50%; /* #2DCE89 - Emerald Green (triadic, vibrant & distinct) */
+    --primary-yellow: 38 92% 58%; /* #F5A623 - Bright Saffron (analogous, warm & visible) */
     --primary-black: 0 0% 6%; /* #101010 - Main black for Axolop */
     --primary-accent: 4 85% 27%; /* #7b1c14 - Accent color for Axolop */
     --crm-text-primary: 0 0% 6%; /* #101010 */
@@ -44,8 +46,11 @@
     --crm-bg-light: 0 0% 98%; /* #F7F7F7 */
     --crm-border: 0 0% 90%; /* #E5E5E5 */
     --crm-sidebar: 0 0% 6%; /* #101010 - Dark sidebar for Axolop */
-    --crm-sidebar-hover: 0 0% 20%;
-    --crm-sidebar-active: 221 100% 20%; /* Darker blue for active state */
+    --crm-sidebar-gradient-start: 4 85% 8%; /* Deep burgundy-black */
+    --crm-sidebar-gradient-mid: 0 0% 6%; /* Main black #101010 */
+    --crm-sidebar-gradient-end: 4 60% 10%; /* Warm dark accent */
+    --crm-sidebar-hover: 4 70% 15%; /* Warm hover with red undertones */
+    --crm-sidebar-active: 4 85% 27%; /* Accent red #7b1c14 */
 
     --radius: 0.5rem;
   }
@@ -60,7 +65,7 @@
     --popover: 0 0% 6%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 221 100% 65%;
+    --primary: 4 85% 50%; /* #7b1c14 lighter for dark mode */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 15%;
@@ -77,21 +82,24 @@
 
     --border: 0 0% 15%;
     --input: 0 0% 15%;
-    --ring: 221 100% 65%;
+    --ring: 4 85% 50%; /* Brand Accent Red for dark mode focus rings */
 
-    /* Dark mode specific colors */
-    --primary-blue: 221 100% 65%;
-    --primary-green: 137 100% 51%;
-    --primary-yellow: 48 100% 50%;
+    /* Dark mode specific colors - Triadic Color Theory (Light & Vibrant) */
+    --primary-blue: 204 90% 65%; /* Brighter sky blue for dark mode */
+    --primary-green: 142 65% 58%; /* Brighter emerald green for dark mode */
+    --primary-yellow: 38 92% 65%; /* Brighter saffron for dark mode */
     --primary-black: 0 0% 98%; /* #101010 equivalent in dark mode */
-    --primary-accent: 4 85% 70%; /* #7b1c14 lighter in dark mode */
+    --primary-accent: 4 85% 50%; /* #7b1c14 lighter in dark mode */
     --crm-text-primary: 0 0% 98%;
     --crm-text-secondary: 0 0% 65%;
     --crm-bg-light: 0 0% 15%;
     --crm-border: 0 0% 25%;
     --crm-sidebar: 0 0% 15%;
-    --crm-sidebar-hover: 0 0% 25%;
-    --crm-sidebar-active: 221 100% 30%;
+    --crm-sidebar-gradient-start: 4 85% 12%;
+    --crm-sidebar-gradient-mid: 0 0% 15%;
+    --crm-sidebar-gradient-end: 4 60% 18%;
+    --crm-sidebar-hover: 4 70% 20%;
+    --crm-sidebar-active: 4 85% 35%;
   }
 }
 
@@ -100,15 +108,36 @@
     @apply border-border;
   }
 
+  html,
+  body,
+  #root {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
-  /* Close CRM Typography */
-  h1, h2, h3, h4, h5, h6 {
+  /* Close CRM Typography - Premium Hierarchy */
+  h1 {
+    @apply font-bold tracking-tight;
+  }
+
+  h2 {
+    @apply font-bold;
+  }
+
+  h3, h4 {
     @apply font-semibold;
+  }
+
+  h5, h6 {
+    @apply font-medium;
   }
 
   /* Scrollbar styling (Close CRM style) */
@@ -182,25 +211,29 @@
     @apply bg-crm-sidebar-active text-white;
   }
 
-  /* Close CRM Table Styles */
+  /* Close CRM Table Styles - Premium Edition */
   .table-crm {
     @apply w-full text-sm text-left;
   }
 
   .table-crm thead {
-    @apply border-b border-crm-border bg-gray-50;
+    @apply border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white;
   }
 
   .table-crm th {
-    @apply px-4 py-3 font-semibold text-xs uppercase tracking-wider text-gray-600;
+    @apply px-4 py-3.5 font-semibold text-xs uppercase tracking-wider text-gray-600 border-b border-gray-100;
   }
 
   .table-crm td {
-    @apply px-4 py-3 border-b border-crm-border;
+    @apply px-4 py-3.5 border-b border-gray-100;
   }
 
   .table-crm tbody tr {
-    @apply hover:bg-gray-50 transition-colors cursor-pointer;
+    @apply hover:bg-gray-50/50 transition-all duration-200 cursor-pointer border-l-2 border-l-transparent hover:border-l-[#7b1c14] hover:shadow-sm;
+  }
+
+  .table-crm tbody tr:last-child td {
+    @apply border-b-0;
   }
 
   /* Close CRM Badge Styles */
@@ -254,6 +287,27 @@
 
   .crm-section-title {
     @apply text-lg font-semibold text-crm-text-primary mb-4;
+  }
+
+  /* Responsive layout utilities */
+  .crm-page-wrapper {
+    @apply w-full max-w-full overflow-x-hidden;
+  }
+
+  .crm-grid-responsive {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+  }
+
+  .crm-stats-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4;
+  }
+
+  .crm-table-wrapper {
+    @apply w-full overflow-x-auto;
+  }
+
+  .crm-button-group {
+    @apply flex flex-wrap items-center gap-2;
   }
 }
 
@@ -344,6 +398,72 @@
   border: 2px solid #a03a2e; /* Slightly lighter red */
   animation: futuristic-pulse 2s infinite ease-in-out 0.5s; /* Delayed pulse */
   z-index: -1;
+}
+
+/* React Grid Layout Customizations */
+.react-grid-layout {
+  position: relative;
+  transition: height 200ms ease;
+}
+
+.react-grid-item {
+  transition: all 200ms ease;
+  transition-property: left, top;
+}
+
+.react-grid-item.cssTransforms {
+  transition-property: transform;
+}
+
+.react-grid-item.resizing {
+  z-index: 100;
+  will-change: width, height;
+}
+
+.react-grid-item.react-draggable-dragging {
+  transition: none;
+  z-index: 100;
+  will-change: transform;
+}
+
+.react-grid-item.react-grid-placeholder {
+  background: rgba(123, 28, 20, 0.2);
+  opacity: 0.5;
+  transition-duration: 100ms;
+  z-index: 2;
+  border-radius: 8px;
+  border: 2px dashed #7b1c14;
+}
+
+.react-grid-item > .react-resizable-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+}
+
+.react-grid-item > .react-resizable-handle::after {
+  content: "";
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 5px;
+  height: 5px;
+  border-right: 2px solid rgba(0, 0, 0, 0.4);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.4);
+}
+
+.react-resizable-hide > .react-resizable-handle {
+  display: none;
+}
+
+.dashboard-widget {
+  position: relative;
+  height: 100%;
+  border-radius: 8px;
+}
+
+.drag-handle {
+  cursor: move;
 }
 
 
