@@ -43,7 +43,9 @@ const BetaLogin = () => {
     if (password === "katewife") {
       // Set a session variable or local storage to remember login state
       sessionStorage.setItem("betaAccess", "true");
-      navigate("/inbox"); // Go directly to CRM dashboard
+      // SITE LOCKDOWN: Don't navigate anywhere, just stay on password page
+      // navigate("/inbox"); // DISABLED: Keep site locked to password page only
+      setError("Access verified. Site is currently under construction.");
     } else {
       setError("Incorrect password. Please try again.");
     }
