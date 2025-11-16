@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { getLeadStatusColor, formatDate, formatCurrency } from '@/lib/utils';
 import LeadImportModal from '@/components/LeadImportModal'; // Import LeadImportModal
-import CreateLeadModal from '@/components/CreateLeadModal'; // Import CreateLeadModal
 import axios from 'axios';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -15,7 +14,6 @@ export default function Leads() {
   const [leads, setLeads] = useState([]);
   const [selectedLead, setSelectedLead] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // State for CreateLeadModal
   const { toast } = useToast();
 
   useEffect(() => {
@@ -40,10 +38,6 @@ export default function Leads() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleLeadCreated = (newLead) => {
-    setLeads((prevLeads) => [newLead, ...prevLeads]);
   };
 
   return (
@@ -73,7 +67,7 @@ export default function Leads() {
                 <span>Import</span>
               </Button>
             </LeadImportModal>
-            <Button variant="default" size="default" className="gap-2" onClick={() => setIsCreateModalOpen(true)}>
+            <Button variant="default" size="default" className="gap-2">
               <Plus className="h-4 w-4" />
               <span>New Lead</span>
             </Button>
@@ -84,25 +78,25 @@ export default function Leads() {
         <div className="crm-stats-grid mt-4">
           <div className="bg-crm-bg-light rounded-lg p-4">
             <div className="text-sm text-crm-text-secondary">Total Leads</div>
-            <div className="2xl font-semibold text-crm-text-primary mt-1">
+            <div className="text-2xl font-semibold text-crm-text-primary mt-1">
               {leads.length}
             </div>
           </div>
           <div className="bg-crm-bg-light rounded-lg p-4">
             <div className="text-sm text-crm-text-secondary">Qualified</div>
-            <div className="2xl font-semibold text-primary-green mt-1">
+            <div className="text-2xl font-semibold text-primary-green mt-1">
               {leads.filter((l) => l.status === 'QUALIFIED').length}
             </div>
           </div>
           <div className="bg-crm-bg-light rounded-lg p-4">
             <div className="text-sm text-crm-text-secondary">Contacted</div>
-            <div className="2xl font-semibold text-primary-yellow mt-1">
+            <div className="text-2xl font-semibold text-primary-yellow mt-1">
               {leads.filter((l) => l.status === 'CONTACTED').length}
             </div>
           </div>
           <div className="bg-crm-bg-light rounded-lg p-4">
             <div className="text-sm text-crm-text-secondary">Total Value</div>
-            <div className="2xl font-semibold text-crm-text-primary mt-1">
+            <div className="text-2xl font-semibold text-crm-text-primary mt-1">
               {formatCurrency(leads.reduce((sum, l) => sum + (l.value || 0), 0))}
             </div>
           </div>
@@ -167,7 +161,7 @@ export default function Leads() {
           {!loading && leads.length === 0 && (
             <div className="text-center py-12">
               <div className="text-gray-400 mb-2">No leads found</div>
-              <Button variant="default" size="default" className="gap-2" onClick={() => setIsCreateModalOpen(true)}>
+              <Button variant="default" size="default" className="gap-2">
                 <Plus className="h-4 w-4" />
                 <span>Add Your First Lead</span>
               </Button>
@@ -293,12 +287,6 @@ export default function Leads() {
           </div>
         </div>
       )}
-
-      <CreateLeadModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onLeadCreated={handleLeadCreated}
-      />
     </div>
   );
 }

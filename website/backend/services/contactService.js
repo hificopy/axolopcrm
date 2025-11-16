@@ -8,7 +8,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 const getContacts = async (userId) => {
   const { data, error } = await supabase
     .from('contacts')
-    .select('*, leads(name)') // Select all contact fields and the name from the associated lead
+    .select('*')
     .eq('user_id', userId);
 
   if (error) {
@@ -22,7 +22,7 @@ const getContacts = async (userId) => {
 const getContactById = async (userId, contactId) => {
   const { data, error } = await supabase
     .from('contacts')
-    .select('*, leads(name)') // Select all contact fields and the name from the associated lead
+    .select('*')
     .eq('id', contactId)
     .eq('user_id', userId)
     .single();
