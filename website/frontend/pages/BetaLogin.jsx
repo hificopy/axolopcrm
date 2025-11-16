@@ -55,12 +55,17 @@ const BetaLogin = () => {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
+      className="min-h-screen h-screen flex items-center justify-center p-4 relative overflow-hidden"
       style={{
         backgroundImage: `url(${background})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
       }}
     >
       {/* Overlay for futuristic effect */}
@@ -70,7 +75,7 @@ const BetaLogin = () => {
         {/* Logo and Loading Animation */}
         <div
           className={`relative transition-all duration-1000 ease-out ${
-            logoMovedUp ? "translate-y-12" : "translate-y-90"
+            logoMovedUp ? "translate-y-[-8vh]" : "translate-y-0"
           }`}
         >
           <img
