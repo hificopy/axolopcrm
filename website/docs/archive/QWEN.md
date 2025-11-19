@@ -1,12 +1,23 @@
-# Axolop CRM - Gemini AI Assistant Guidelines & Project Rules
+# Axolop CRM - Qwen AI Assistant Guidelines & Project Rules
 
 ## Project Overview
 
 ### Core Identity
 - **Project Name:** Axolop CRM
-- **Purpose:** Premium all-in-one CRM for ECOMMERCE, B2B BUSINESS, REAL ESTATE
-- **Goal:** HubSpot competitor with typeform, jotform, perspective funnels, manychat automations, active campaign email flow builder, klaviyo, beehive newsletter, close crm sales section functionalities
-- **Status:** Active development, Phase 1.1
+- **Purpose:** Premium all-in-one business management platform that REPLACES Slack, Monday.com, Typeform, Miro, Notion, and traditional CRM systems for ANY INDUSTRY
+- **Core Value Proposition:** One unified platform for communication, project management, forms, knowledge management, visual collaboration, and customer relationship management
+- **Target:** Universal solution for businesses of all sizes and industries (Ecommerce, B2B, Real Estate, Insurance, SaaS, Agencies, and more)
+- **Replaces:**
+  - **Slack** → Built-in team communication and chat
+  - **Monday.com** → Project management, workflows, and automation
+  - **Typeform/Jotform** → Advanced form builder with AI lead scoring
+  - **Miro** → Visual collaboration, whiteboarding, and mind mapping
+  - **Notion/Roam/Obsidian** → Second brain knowledge management and note-taking
+  - **HubSpot/Salesforce** → CRM with sales, marketing, and service tools
+  - **Close CRM** → Premium sales dialer and call management
+  - **Klaviyo** → Email marketing and automation
+  - **ActiveCampaign** → Marketing automation workflows
+- **Status:** Active development with Live Calls feature complete
 - **Brand Colors:** Main Black: #101010, Accent Red: #7b1c14
 
 ### Design Philosophy

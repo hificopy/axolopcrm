@@ -1,12 +1,23 @@
-# Axolop CRM - Gemini AI Assistant Guidelines & Project Rules
+# Axolop CRM - Claude AI Assistant Guidelines & Project Rules
 
 ## Project Overview
 
 ### Core Identity
 - **Project Name:** Axolop CRM
-- **Purpose:** Premium all-in-one CRM for ECOMMERCE, B2B BUSINESS, REAL ESTATE
-- **Goal:** HubSpot competitor with typeform, jotform, perspective funnels, manychat automations, active campaign email flow builder, klaviyo, beehive newsletter, close crm sales section functionalities
-- **Status:** Active development, Phase 1.1
+- **Purpose:** Premium all-in-one business management platform that REPLACES Slack, Monday.com, Typeform, Miro, Notion, and traditional CRM systems for ANY INDUSTRY
+- **Core Value Proposition:** One unified platform for communication, project management, forms, knowledge management, visual collaboration, and customer relationship management
+- **Target:** Universal solution for businesses of all sizes and industries (Ecommerce, B2B, Real Estate, Insurance, SaaS, Agencies, and more)
+- **Replaces:**
+  - **Slack** → Built-in team communication and chat
+  - **Monday.com** → Project management, workflows, and automation
+  - **Typeform/Jotform** → Advanced form builder with AI lead scoring
+  - **Miro** → Visual collaboration, whiteboarding, and mind mapping
+  - **Notion/Roam/Obsidian** → Second brain knowledge management and note-taking
+  - **HubSpot/Salesforce** → CRM with sales, marketing, and service tools
+  - **Close CRM** → Premium sales dialer and call management
+  - **Klaviyo** → Email marketing and automation
+  - **ActiveCampaign** → Marketing automation workflows
+- **Status:** Active development with Live Calls feature complete
 - **Brand Colors:** Main Black: #101010, Accent Red: #7b1c14
 
 ### Design Philosophy
@@ -135,6 +146,69 @@
 - **No Direct Mastered Changes:** Use beta branch for testing unless specifically instructed
 - **Backup Before Everything:** Never deploy major changes without backup
 
+## Key Features Implemented
+
+### Communication & Collaboration
+- **Team Chat** - Slack-style messaging and collaboration (in development)
+- **Live Calls** - Professional call dialer with AI assistance (✅ COMPLETE)
+  - Full-featured WebRTC/Twilio integration
+  - AI-powered call transcription and analysis
+  - Real-time sales coaching
+  - Call recording and playback
+  - Smart call queue management
+  - Sales script templates
+  - Voicemail drops
+  - Call analytics and performance tracking
+
+### Project Management
+- **Workflows** - Visual automation builder (Active Campaign style)
+- **Tasks & Activities** - Track all customer interactions
+- **Calendar Integration** - Google Calendar sync with booking links
+- **Pipeline Management** - Visual deal stages and tracking
+
+### Forms & Lead Generation
+- **Form Builder** - Drag-and-drop form creator (Typeform/Jotform replacement)
+- **AI Lead Scoring** - Automatic qualification based on responses
+- **Form Analytics** - Detailed conversion tracking
+- **Multi-step Forms** - Conditional logic and branching
+
+### CRM Core
+- **Leads Management** - Complete lead lifecycle tracking
+- **Contacts** - Unlimited contact management
+- **Deals/Opportunities** - Sales pipeline management
+- **Important Dates** - Birthday tracking, policy renewals, follow-ups
+
+### Marketing Automation
+- **Email Campaigns** - SendGrid integration for bulk email
+- **Email Sequences** - Automated drip campaigns
+- **Workflow Automation** - Trigger-based actions
+- **Analytics** - Campaign performance tracking
+
+### Sales Tools
+- **Call Queue** - Prioritized calling campaigns
+- **Sales Scripts** - Dynamic template system
+- **Lead Scoring** - AI-powered qualification
+- **Performance Metrics** - Individual and team analytics
+
+### Service & Support
+- **Ticketing System** - Customer support management (in development)
+- **Knowledge Base** - Self-service documentation
+- **Customer Portal** - Client access to their data
+
+### Knowledge Management & Collaboration (Miro + Notion Replacement)
+- **Second Brain System** - Personal and team knowledge management (planned)
+  - Hierarchical note organization
+  - Bi-directional linking
+  - Rich text editor with markdown support
+  - AI-powered search and suggestions
+  - Templates and databases
+- **Visual Collaboration** - Whiteboarding and mind mapping (planned)
+  - Infinite canvas for brainstorming
+  - Real-time collaboration
+  - Visual workflow mapping
+  - Diagramming tools
+  - Integration with CRM data
+
 ## Memory Anchors
 
 ### This Project Has:
@@ -144,7 +218,13 @@
 - ChromaDB as integral part of architecture for AI features
 - Supabase Auth with optional Auth0 integration and Supabase RLS as the security model
 - Luxurious and sexy design theme with #101010 and #7b1c14 brand colors
-- Focus on ECOMMERCE, B2B BUSINESS, REAL ESTATE markets
+- Universal platform for ANY INDUSTRY (replaces Slack + Monday + Typeform + CRM)
+- Complete Live Calls feature with AI-powered sales assistance
+- Comprehensive API with validation and error handling
+- Twilio webhook integration for real-time call management
+- Advanced form builder with lead scoring and analytics
+- Email marketing with SendGrid integration
+- Workflow automation engine for complex business processes
 - Content Calendar functionality is currently locked and will be unlocked in v1.5
 
 ### Decision Framework
@@ -185,7 +265,13 @@ If you're tempted to suggest major changes to structure, tech stack, or architec
 - Always backup and test on beta before production changes
 
 ## Project Mission
-Axolop CRM is built to be the best CRM on the planet for ECOMMERCE, SALES/MARKETING, and REAL ESTATE. Every change should enhance this mission while maintaining the luxurious, professional, and sexy design aesthetic that sets it apart from competitors. The system should feel premium, perform reliably, and provide powerful functionality for business-critical operations.
+Axolop CRM is built to be the ultimate all-in-one business management platform that REPLACES multiple expensive SaaS tools (Slack, Monday, Typeform, Miro, Notion, HubSpot, Close CRM, and more) for businesses across ALL INDUSTRIES. Every change should enhance this mission while maintaining the luxurious, professional, and sexy design aesthetic that sets it apart from competitors. The system should:
+- Feel premium and luxurious at every touchpoint
+- Perform reliably for business-critical operations
+- Provide powerful functionality that replaces 5-10+ separate tools
+- Work seamlessly across sales, marketing, service, project management, and collaboration
+- Scale from solopreneurs to enterprise teams
+- Deliver exceptional value by consolidating tool costs into one platform
 
 ## Critical Reminders
 - This CRM system is actively used and maintained for high-stakes business operations
@@ -205,5 +291,6 @@ Axolop CRM is built to be the best CRM on the planet for ECOMMERCE, SALES/MARKET
   - Deployment Process
   - All deployment and version control rules
 
-Last Updated: November 13, 2025
+Last Updated: November 17, 2025
 Project Maintainer: Juan D. Romero Herrera
+Version: 1.2.0 - Live Calls Feature Complete
