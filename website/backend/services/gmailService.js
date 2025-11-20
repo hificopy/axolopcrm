@@ -1,6 +1,6 @@
-const { google } = require('googleapis');
-const { createClient } = require('@supabase/supabase-js');
-const { Base64 } = require('js-base64');
+import { google } from 'googleapis';
+import { createClient } from '@supabase/supabase-js';
+import { Base64 } from 'js-base64';
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -233,7 +233,7 @@ const sendEmail = async (userId, { to, subject, body, inReplyToMessageId = null 
 };
 
 
-module.exports = {
+export default {
   getAuthUrl,
   handleOAuthCallback,
   getGmailClient,
@@ -242,6 +242,6 @@ module.exports = {
   listGmailMessages,
   getGmailMessage,
   parseGmailMessage,
-  sendEmail, // Export the new sendEmail function
+  sendEmail,
 };
 

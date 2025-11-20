@@ -43,8 +43,8 @@ api.interceptors.response.use(
       const { status, data } = error.response;
 
       if (status === 401) {
-        // Unauthorized - redirect to login
-        window.location.href = '/';
+        // Unauthorized - redirect to sign in
+        window.location.href = '/signin';
       }
 
       console.error('API Error:', data.error || data.message);

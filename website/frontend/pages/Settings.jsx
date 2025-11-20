@@ -1,21 +1,22 @@
 import { useState } from 'react';
-import { 
-  User, 
-  Building, 
-  Users, 
-  Shield, 
-  Settings as SettingsIcon, 
-  Zap, 
-  Mail, 
-  Phone, 
-  Plug, 
-  CreditCard, 
+import {
+  User,
+  Building,
+  Users,
+  Shield,
+  Settings as SettingsIcon,
+  Zap,
+  Mail,
+  Phone,
+  Plug,
+  CreditCard,
   Bell,
   LayoutDashboard,
   Code,
   Key,
   Clock,
-  BarChart3
+  BarChart3,
+  Lock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, Outlet, useLocation } from 'react-router-dom';
@@ -26,7 +27,7 @@ const settingsNavigation = [
     icon: User,
     sections: [
       { name: 'Profile', href: '/settings/account', icon: User },
-      { name: 'Appearance', href: '/settings/account?tab=appearance', icon: LayoutDashboard },
+      { name: 'Appearance', href: '/settings/account?tab=appearance', icon: LayoutDashboard, locked: true },
       { name: 'Memberships', href: '/settings/account?tab=membership', icon: Key },
     ]
   },
@@ -43,24 +44,24 @@ const settingsNavigation = [
     name: 'Customization',
     icon: LayoutDashboard,
     sections: [
-      { name: 'Custom Fields', href: '/settings/customization/fields', icon: LayoutDashboard },
+      { name: 'Custom Fields', href: '/app/settings/custom-fields', icon: LayoutDashboard },
       { name: 'Integration Links', href: '/settings/customization/links', icon: Zap },
       { name: 'Scheduling Links', href: '/settings/customization/scheduling', icon: Clock },
       { name: 'Statuses & Pipelines', href: '/settings/customization/statuses', icon: Zap },
-      { name: 'AI Knowledge Sources', href: '/settings/customization/ai', icon: Code },
+      { name: 'AI Knowledge Sources', href: '/settings/customization/ai', icon: Code, locked: true },
     ]
   },
   {
     name: 'Communication',
     icon: Mail,
     sections: [
-      { name: 'Phone & Voicemail', href: '/settings/communication/phone', icon: Phone },
-      { name: 'Dialer', href: '/settings/communication/dialer', icon: Phone },
-      { name: 'Outcomes', href: '/settings/communication/outcomes', icon: Zap },
-      { name: 'Notetaker BETA', href: '/settings/communication/notetaker', icon: Bell },
-      { name: 'Email', href: '/settings/communication/email', icon: Mail },
-      { name: 'Templates & Snippets', href: '/settings/communication/templates', icon: Mail },
-      { name: 'Send As', href: '/settings/communication/sendas', icon: Mail },
+      { name: 'Phone & Voicemail', href: '/settings/communication/phone', icon: Phone, locked: true },
+      { name: 'Dialer', href: '/settings/communication/dialer', icon: Phone, locked: true },
+      { name: 'Outcomes', href: '/settings/communication/outcomes', icon: Zap, locked: true },
+      { name: 'Notetaker BETA', href: '/settings/communication/notetaker', icon: Bell, locked: true },
+      { name: 'Email', href: '/settings/communication/email', icon: Mail, locked: true },
+      { name: 'Templates & Snippets', href: '/settings/communication/templates', icon: Mail, locked: true },
+      { name: 'Send As', href: '/settings/communication/sendas', icon: Mail, locked: true },
     ]
   },
   {
@@ -99,7 +100,7 @@ export default function Settings() {
   return (
     <div className="h-full flex flex-col">
       {/* Page Header */}
-      <div className="bg-white border-b border-crm-border px-6 py-4">
+      <div className="bg-white dark:bg-[#1a1d24] border-b border-crm-border px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-crm-text-primary">Settings</h1>
@@ -112,7 +113,7 @@ export default function Settings() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Settings Navigation */}
-        <div className="w-64 flex-shrink-0 bg-white border-r border-crm-border p-4 overflow-y-auto">
+        <div className="w-64 flex-shrink-0 bg-white dark:bg-[#1a1d24] border-r border-crm-border p-4 overflow-y-auto">
           <nav className="space-y-2">
             {settingsNavigation.map((category) => {
               const Icon = category.icon;
@@ -146,14 +147,36 @@ export default function Settings() {
                       {category.sections.map((section) => {
                         const SectionIcon = section.icon;
                         const isActive = currentPath === section.href;
-                        
+
+                        // Render locked items
+                        if (section.locked) {
+                          return (
+                            <div key={section.href} className="relative group">
+                              <div
+                                className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm cursor-not-allowed text-gray-400 bg-gray-100/50 dark:bg-gray-800/30"
+                              >
+                                <SectionIcon className="h-4 w-4 text-gray-400" />
+                                <span className="text-gray-400">{section.name}</span>
+                                <Lock className="h-3 w-3 ml-auto text-gray-400" />
+                              </div>
+                              {/* Tooltip */}
+                              <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                <div className="bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                                  Coming in V1.1
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        // Render unlocked items
                         return (
                           <Link
                             key={section.href}
                             to={section.href}
                             className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                               isActive
-                                ? 'bg-primary-blue text-white'
+                                ? 'bg-primary text-white'
                                 : 'hover:bg-gray-100 text-crm-text-secondary'
                             }`}
                           >

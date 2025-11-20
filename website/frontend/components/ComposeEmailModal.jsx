@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002';
 
 const ComposeEmailModal = ({ isOpen, onClose, onEmailSent, initialTo = '', initialSubject = '', initialBody = '' }) => {
   const [to, setTo] = useState(initialTo);

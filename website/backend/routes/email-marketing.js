@@ -1,983 +1,997 @@
 import express from 'express';
+import { createClient } from '@supabase/supabase-js';
+import EmailService from '../services/email-service.js';
+import SendGridAnalyticsSync from '../services/sendgrid-analytics-sync.js';
+
 const router = express.Router();
-import { supabaseServer, supabase } from '../config/supabase-auth.js';
-import EmailCampaignService from '../services/email-campaign-service.js';
-const emailCampaignService = new EmailCampaignService();
-import { authenticateUser } from '../middleware/auth.js';
-import { 
-  emailTemplateDb, 
-  emailCampaignDb, 
-  workflowDb 
-} from '../utils/db-helpers.js';
 
-// Email Templates API
-router.get('/templates', authenticateUser, async (req, res) => {
+// Initialize Supabase
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Initialize services
+const emailService = new EmailService();
+const analyticsSync = new SendGridAnalyticsSync();
+
+// ==========================================
+// DASHBOARD & ANALYTICS
+// ==========================================
+
+/**
+ * @route GET /api/email-marketing/dashboard
+ * @desc Get email marketing dashboard stats
+ */
+router.get('/dashboard', async (req, res) => {
   try {
-    const { page = 1, limit = 10, search, category } = req.query;
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    
-    const where = {};
-    if (search) where.name = { contains: search, mode: 'insensitive' };
-    if (category) where.category = category;
+    const { days = 30 } = req.query;
 
-    const [templates, total] = await Promise.all([
-      prisma.emailTemplate.findMany({
-        where,
-        skip,
-        take: parseInt(limit),
-        orderBy: { createdAt: 'desc' },
-        include: {
-          createdBy: {
-            select: { id: true, name: true, email: true }
-          }
-        }
-      }),
-      prisma.emailTemplate.count({ where })
-    ]);
+    // Get engagement metrics
+    const metrics = await analyticsSync.getEngagementMetrics();
+
+    // Get top campaigns
+    const topCampaigns = await analyticsSync.getTopCampaigns(5);
+
+    // Get recent campaigns
+    const { data: recentCampaigns } = await supabase
+      .from('campaign_performance')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(10);
 
     res.json({
-      templates,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        pages: Math.ceil(total / parseInt(limit))
-      }
+      success: true,
+      metrics: metrics.metrics,
+      topCampaigns: topCampaigns.campaigns,
+      recentCampaigns
     });
+
   } catch (error) {
-    console.error('Error fetching email templates:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Dashboard error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-router.post('/templates', authenticateUser, async (req, res) => {
+/**
+ * @route GET /api/email-marketing/analytics
+ * @desc Get detailed email analytics
+ */
+router.get('/analytics', async (req, res) => {
   try {
-    const { name, subject, htmlContent, textContent, previewText, description, category, tags, variables } = req.body;
-    const userId = req.user?.id; // Assuming user authentication middleware is in place
+    const { days = 30, startDate, endDate } = req.query;
 
-    const template = await prisma.emailTemplate.create({
-      data: {
-        name,
-        subject,
-        htmlContent,
-        textContent,
-        previewText,
-        description,
-        category,
-        tags: tags || [],
-        variables,
-        createdById: userId
-      }
+    const analytics = await analyticsSync.getCachedAnalytics({
+      days: parseInt(days),
+      startDate,
+      endDate
     });
 
-    res.status(201).json(template);
+    res.json({
+      success: true,
+      ...analytics
+    });
+
   } catch (error) {
-    console.error('Error creating email template:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Analytics error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-router.get('/templates/:id', async (req, res) => {
+/**
+ * @route GET /api/email-marketing/analytics/performance
+ * @desc Get performance summary
+ */
+router.get('/analytics/performance', async (req, res) => {
   try {
-    const { id } = req.params;
-    const template = await prisma.emailTemplate.findUnique({
-      where: { id },
-      include: {
-        createdBy: {
-          select: { id: true, name: true, email: true }
-        }
-      }
+    const { days = 30 } = req.query;
+
+    const performance = await analyticsSync.getPerformanceSummary(parseInt(days));
+
+    res.json({
+      success: true,
+      ...performance
     });
 
-    if (!template) {
-      return res.status(404).json({ error: 'Template not found' });
+  } catch (error) {
+    console.error('Performance analytics error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ==========================================
+// CAMPAIGNS
+// ==========================================
+
+/**
+ * @route GET /api/email-marketing/campaigns
+ * @desc Get all campaigns with stats
+ */
+router.get('/campaigns', async (req, res) => {
+  try {
+    const { page = 1, limit = 10, status, type, search } = req.query;
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+
+    let query = supabase
+      .from('campaign_performance')
+      .select('*', { count: 'exact' });
+
+    if (status) {
+      query = query.eq('status', status);
     }
 
-    res.json(template);
-  } catch (error) {
-    console.error('Error fetching email template:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+    if (search) {
+      query = query.ilike('name', `%${search}%`);
+    }
 
-router.put('/templates/:id', authenticateUser, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { name, subject, htmlContent, textContent, previewText, description, category, tags, variables, isActive } = req.body;
+    const { data: campaigns, error, count } = await query
+      .range(offset, offset + parseInt(limit) - 1)
+      .order('created_at', { ascending: false });
 
-    const template = await prisma.emailTemplate.update({
-      where: { id },
-      data: {
-        name,
-        subject,
-        htmlContent,
-        textContent,
-        previewText,
-        description,
-        category,
-        tags: tags || [],
-        variables,
-        isActive
-      }
-    });
-
-    res.json(template);
-  } catch (error) {
-    console.error('Error updating email template:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-router.delete('/templates/:id', authenticateUser, async (req, res) => {
-  try {
-    const { id } = req.params;
-    await prisma.emailTemplate.delete({
-      where: { id }
-    });
-
-    res.status(204).send();
-  } catch (error) {
-    console.error('Error deleting email template:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Email Campaigns API
-router.get('/campaigns', authenticateUser, async (req, res) => {
-  try {
-    const { page = 1, limit = 10, search, status, type } = req.query;
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    
-    const where = {};
-    if (search) where.name = { contains: search, mode: 'insensitive' };
-    if (status) where.status = status;
-    if (type) where.type = type;
-
-    const [campaigns, total] = await Promise.all([
-      prisma.emailCampaign.findMany({
-        where,
-        skip,
-        take: parseInt(limit),
-        orderBy: { createdAt: 'desc' },
-        include: {
-          createdBy: {
-            select: { id: true, name: true, email: true }
-          },
-          emails: {
-            select: {
-              status: true,
-              sentAt: true,
-              openedAt: true,
-              clickedAt: true
-            }
-          }
-        }
-      }),
-      prisma.emailCampaign.count({ where })
-    ]);
-
-    // Add calculated stats
-    const campaignsWithStats = campaigns.map(campaign => {
-      const stats = {
-        sent: campaign.emails.filter(email => email.status !== 'PENDING' && email.status !== 'FAILED').length,
-        opened: campaign.emails.filter(email => email.openedAt).length,
-        clicked: campaign.emails.filter(email => email.clickedAt).length,
-        openRate: campaign.totalSent > 0 ? (campaign.totalOpened / campaign.totalSent) * 100 : 0,
-        clickRate: campaign.totalSent > 0 ? (campaign.totalClicked / campaign.totalSent) * 100 : 0
-      };
-      
-      return {
-        ...campaign,
-        stats
-      };
-    });
+    if (error) throw error;
 
     res.json({
-      campaigns: campaignsWithStats,
+      success: true,
+      campaigns,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        total,
-        pages: Math.ceil(total / parseInt(limit))
+        total: count,
+        pages: Math.ceil(count / parseInt(limit))
       }
     });
+
   } catch (error) {
-    console.error('Error fetching email campaigns:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Get campaigns error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-router.post('/campaigns', authenticateUser, async (req, res) => {
+/**
+ * @route POST /api/email-marketing/campaigns
+ * @desc Create a new email campaign
+ */
+router.post('/campaigns', async (req, res) => {
   try {
-    const { 
-      name, 
-      subject, 
-      previewText, 
-      htmlContent, 
-      textContent, 
-      type, 
-      fromName, 
-      fromEmail, 
-      replyToEmail, 
-      targetSegment, 
-      testRecipients,
-      scheduledAt 
+    const {
+      name,
+      subject,
+      previewText,
+      htmlContent,
+      textContent,
+      fromName,
+      fromEmail,
+      replyToEmail,
+      type = 'ONE_TIME',
+      targetSegment
     } = req.body;
-    const userId = req.user?.id;
 
-    const campaign = await prisma.emailCampaign.create({
-      data: {
+    // Create campaign in database
+    const { data: campaign, error } = await supabase
+      .from('email_campaigns')
+      .insert({
         name,
         subject,
-        previewText,
-        htmlContent,
-        textContent,
+        preview_text: previewText,
+        html_content: htmlContent,
+        text_content: textContent,
+        from_name: fromName || process.env.SENDGRID_FROM_NAME,
+        from_email: fromEmail || process.env.SENDGRID_FROM_EMAIL,
+        reply_to_email: replyToEmail || fromEmail,
         type,
-        fromName,
-        fromEmail,
-        replyToEmail,
-        targetSegment,
-        testRecipients: testRecipients || [],
-        scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
-        createdById: userId
-      }
+        target_segment: targetSegment,
+        status: 'DRAFT'
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.status(201).json({
+      success: true,
+      campaign
     });
 
-    res.status(201).json(campaign);
   } catch (error) {
-    console.error('Error creating email campaign:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Create campaign error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
+/**
+ * @route GET /api/email-marketing/campaigns/:id
+ * @desc Get campaign details with stats
+ */
 router.get('/campaigns/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const campaign = await prisma.emailCampaign.findUnique({
-      where: { id },
-      include: {
-        createdBy: {
-          select: { id: true, name: true, email: true }
-        },
-        emails: true,
-        sequences: true
-      }
-    });
+
+    const { data: campaign, error } = await supabase
+      .from('campaign_performance')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
 
     if (!campaign) {
-      return res.status(404).json({ error: 'Campaign not found' });
+      return res.status(404).json({ success: false, error: 'Campaign not found' });
     }
 
-    // Calculate stats
-    const stats = {
-      sent: campaign.emails.filter(email => email.status !== 'PENDING' && email.status !== 'FAILED').length,
-      opened: campaign.emails.filter(email => email.openedAt).length,
-      clicked: campaign.emails.filter(email => email.clickedAt).length,
-      openRate: campaign.totalSent > 0 ? (campaign.totalOpened / campaign.totalSent) * 100 : 0,
-      clickRate: campaign.totalSent > 0 ? (campaign.totalClicked / campaign.totalSent) * 100 : 0
-    };
-
     res.json({
-      ...campaign,
-      stats
+      success: true,
+      campaign
     });
+
   } catch (error) {
-    console.error('Error fetching email campaign:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Get campaign error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
+/**
+ * @route PUT /api/email-marketing/campaigns/:id
+ * @desc Update campaign
+ */
 router.put('/campaigns/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { 
-      name, 
-      subject, 
-      previewText, 
-      htmlContent, 
-      textContent, 
-      status, 
-      fromName, 
-      fromEmail, 
-      replyToEmail, 
-      targetSegment, 
-      testRecipients,
-      scheduledAt 
+    const {
+      name,
+      subject,
+      previewText,
+      htmlContent,
+      textContent,
+      fromName,
+      fromEmail,
+      replyToEmail,
+      status
     } = req.body;
 
-    const campaign = await prisma.emailCampaign.update({
-      where: { id },
-      data: {
-        name,
-        subject,
-        previewText,
-        htmlContent,
-        textContent,
-        status,
-        fromName,
-        fromEmail,
-        replyToEmail,
-        targetSegment,
-        testRecipients: testRecipients || [],
-        scheduledAt: scheduledAt ? new Date(scheduledAt) : null
-      }
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (subject !== undefined) updateData.subject = subject;
+    if (previewText !== undefined) updateData.preview_text = previewText;
+    if (htmlContent !== undefined) updateData.html_content = htmlContent;
+    if (textContent !== undefined) updateData.text_content = textContent;
+    if (fromName !== undefined) updateData.from_name = fromName;
+    if (fromEmail !== undefined) updateData.from_email = fromEmail;
+    if (replyToEmail !== undefined) updateData.reply_to_email = replyToEmail;
+    if (status !== undefined) updateData.status = status;
+
+    const { data: campaign, error } = await supabase
+      .from('email_campaigns')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      campaign
     });
 
-    res.json(campaign);
   } catch (error) {
-    console.error('Error updating email campaign:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Update campaign error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
+/**
+ * @route DELETE /api/email-marketing/campaigns/:id
+ * @desc Delete campaign
+ */
 router.delete('/campaigns/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await prisma.emailCampaign.delete({
-      where: { id }
+
+    const { error } = await supabase
+      .from('email_campaigns')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      message: 'Campaign deleted successfully'
     });
 
-    res.status(204).send();
   } catch (error) {
-    console.error('Error deleting email campaign:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Delete campaign error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// Send campaign
+/**
+ * @route POST /api/email-marketing/campaigns/:id/recipients
+ * @desc Add recipients to campaign
+ */
+router.post('/campaigns/:id/recipients', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { recipients } = req.body; // Array of { email, name, customFields }
+
+    if (!Array.isArray(recipients) || recipients.length === 0) {
+      return res.status(400).json({ success: false, error: 'Recipients array is required' });
+    }
+
+    // Add recipients to campaign_emails table
+    const campaignEmails = recipients.map(recipient => ({
+      campaign_id: id,
+      recipient_email: recipient.email,
+      recipient_name: recipient.name || '',
+      status: 'PENDING',
+      custom_fields: recipient.customFields || {}
+    }));
+
+    const { data, error } = await supabase
+      .from('campaign_emails')
+      .insert(campaignEmails)
+      .select();
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      message: `Added ${data.length} recipients to campaign`,
+      recipients: data
+    });
+
+  } catch (error) {
+    console.error('Add recipients error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * @route POST /api/email-marketing/campaigns/:id/send
+ * @desc Send campaign to all recipients
+ */
 router.post('/campaigns/:id/send', async (req, res) => {
   try {
     const { id } = req.params;
     const { scheduleFor } = req.body;
 
-    if (scheduleFor) {
-      // Schedule the campaign
-      const scheduledCampaign = await emailCampaignService.scheduleCampaign(id, scheduleFor);
-      res.json(scheduledCampaign);
-    } else {
-      // Send the campaign immediately
-      const result = await emailCampaignService.sendCampaign(id);
-      res.json(result);
+    // Get campaign
+    const { data: campaign, error: campaignError } = await supabase
+      .from('email_campaigns')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (campaignError) throw campaignError;
+
+    if (!campaign) {
+      return res.status(404).json({ success: false, error: 'Campaign not found' });
     }
+
+    if (scheduleFor) {
+      // Schedule campaign
+      const { error: updateError } = await supabase
+        .from('email_campaigns')
+        .update({
+          scheduled_at: new Date(scheduleFor),
+          status: 'SCHEDULED'
+        })
+        .eq('id', id);
+
+      if (updateError) throw updateError;
+
+      return res.json({
+        success: true,
+        message: 'Campaign scheduled successfully',
+        scheduledAt: scheduleFor
+      });
+    }
+
+    // Send immediately
+    // Update campaign status
+    await supabase
+      .from('email_campaigns')
+      .update({
+        status: 'SENDING',
+        sent_at: new Date()
+      })
+      .eq('id', id);
+
+    // Get recipients
+    const { data: recipients, error: recipientsError } = await supabase
+      .from('campaign_emails')
+      .select('*')
+      .eq('campaign_id', id)
+      .eq('status', 'PENDING');
+
+    if (recipientsError) throw recipientsError;
+
+    // Send emails asynchronously
+    let sentCount = 0;
+    let failedCount = 0;
+
+    for (const recipient of recipients) {
+      try {
+        await emailService.sendCampaignEmail(
+          id,
+          {
+            email: recipient.recipient_email,
+            name: recipient.recipient_name,
+            ...recipient.custom_fields
+          },
+          recipient.lead_id,
+          recipient.contact_id
+        );
+        sentCount++;
+      } catch (error) {
+        console.error(`Failed to send to ${recipient.recipient_email}:`, error);
+        failedCount++;
+
+        // Mark as failed
+        await supabase
+          .from('campaign_emails')
+          .update({ status: 'FAILED' })
+          .eq('id', recipient.id);
+      }
+    }
+
+    // Update campaign status
+    await supabase
+      .from('email_campaigns')
+      .update({
+        status: 'SENT',
+        total_sent: sentCount
+      })
+      .eq('id', id);
+
+    res.json({
+      success: true,
+      message: 'Campaign sent successfully',
+      sentCount,
+      failedCount
+    });
+
   } catch (error) {
-    console.error('Error sending campaign:', error);
-    res.status(500).json({ error: error.message || 'Internal server error' });
+    console.error('Send campaign error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// Send test email for campaign
-router.post('/campaigns/:id/send-test', async (req, res) => {
+/**
+ * @route POST /api/email-marketing/campaigns/:id/test
+ * @desc Send test email
+ */
+router.post('/campaigns/:id/test', async (req, res) => {
   try {
     const { id } = req.params;
     const { testEmails } = req.body;
 
-    // In a real implementation, you would send actual test emails here
-    // For now, we'll just return a success response
-    console.log(`Sending test emails for campaign ${id} to:`, testEmails);
+    if (!Array.isArray(testEmails) || testEmails.length === 0) {
+      return res.status(400).json({ success: false, error: 'testEmails array is required' });
+    }
 
-    res.json({ message: 'Test emails sent successfully' });
+    // Get campaign
+    const { data: campaign, error } = await supabase
+      .from('email_campaigns')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+
+    // Send test emails
+    for (const email of testEmails) {
+      await emailService.sendEmail({
+        to: email,
+        subject: `[TEST] ${campaign.subject}`,
+        html: campaign.html_content,
+        text: campaign.text_content,
+        from: campaign.from_email,
+        fromName: campaign.from_name,
+        replyTo: campaign.reply_to_email,
+        categories: ['test', 'campaign'],
+        customArgs: {
+          campaignId: id,
+          isTest: 'true'
+        }
+      });
+    }
+
+    res.json({
+      success: true,
+      message: `Test emails sent to ${testEmails.length} recipients`
+    });
+
   } catch (error) {
-    console.error('Error sending test emails:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Send test email error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// Get campaign statistics
+/**
+ * @route GET /api/email-marketing/campaigns/:id/stats
+ * @desc Get campaign statistics
+ */
 router.get('/campaigns/:id/stats', async (req, res) => {
   try {
     const { id } = req.params;
-    
-    const stats = await emailCampaignService.getCampaignStats(id);
-    
-    res.json(stats);
-  } catch (error) {
-    console.error('Error getting campaign stats:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
 
-// Update campaign statistics
-router.post('/campaigns/:id/stats/update', async (req, res) => {
-  try {
-    const { id } = req.params;
-    
-    const stats = await emailCampaignService.updateCampaignStats(id);
-    
-    res.json(stats);
-  } catch (error) {
-    console.error('Error updating campaign stats:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Automation Workflows API
-router.get('/workflows', async (req, res) => {
-  try {
-    const { page = 1, limit = 10, search, isActive } = req.query;
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    
-    const where = {};
-    if (search) where.name = { contains: search, mode: 'insensitive' };
-    if (isActive !== undefined) where.isActive = isActive === 'true';
-
-    const [workflows, total] = await Promise.all([
-      prisma.automationWorkflow.findMany({
-        where,
-        skip,
-        take: parseInt(limit),
-        orderBy: { createdAt: 'desc' },
-        include: {
-          createdBy: {
-            select: { id: true, name: true, email: true }
-          },
-          steps: {
-            orderBy: { position: 'asc' }
-          }
-        }
-      }),
-      prisma.automationWorkflow.count({ where })
-    ]);
+    const analytics = await analyticsSync.getCampaignAnalytics(id);
 
     res.json({
+      success: true,
+      ...analytics
+    });
+
+  } catch (error) {
+    console.error('Get campaign stats error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ==========================================
+// TEMPLATES
+// ==========================================
+
+/**
+ * @route GET /api/email-marketing/templates
+ * @desc Get all email templates
+ */
+router.get('/templates', async (req, res) => {
+  try {
+    const { page = 1, limit = 10, category, search } = req.query;
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+
+    let query = supabase
+      .from('email_templates')
+      .select('*', { count: 'exact' });
+
+    if (category) {
+      query = query.eq('category', category);
+    }
+
+    if (search) {
+      query = query.ilike('name', `%${search}%`);
+    }
+
+    const { data: templates, error, count } = await query
+      .range(offset, offset + parseInt(limit) - 1)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      templates,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total: count,
+        pages: Math.ceil(count / parseInt(limit))
+      }
+    });
+
+  } catch (error) {
+    console.error('Get templates error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * @route POST /api/email-marketing/templates
+ * @desc Create email template
+ */
+router.post('/templates', async (req, res) => {
+  try {
+    const {
+      name,
+      subject,
+      htmlContent,
+      textContent,
+      category,
+      description
+    } = req.body;
+
+    // Create template in Supabase
+    const { data: template, error: dbError } = await supabase
+      .from('email_templates')
+      .insert({
+        name,
+        subject,
+        html_content: htmlContent,
+        text_content: textContent,
+        category,
+        description
+      })
+      .select()
+      .single();
+
+    if (dbError) throw dbError;
+
+    // Create template in SendGrid
+    const sendgridResult = await emailService.createEmailTemplate({
+      name,
+      subject,
+      htmlContent,
+      textContent
+    });
+
+    // Update template with SendGrid template ID
+    if (sendgridResult.success) {
+      await supabase
+        .from('sendgrid_template_sync')
+        .insert({
+          template_id: template.id,
+          sendgrid_template_id: sendgridResult.templateId,
+          sync_status: 'synced',
+          last_synced_at: new Date()
+        });
+    }
+
+    res.status(201).json({
+      success: true,
+      template,
+      sendgridTemplateId: sendgridResult.templateId
+    });
+
+  } catch (error) {
+    console.error('Create template error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * @route GET /api/email-marketing/templates/:id
+ * @desc Get template by ID
+ */
+router.get('/templates/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data: template, error } = await supabase
+      .from('email_templates')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+
+    if (!template) {
+      return res.status(404).json({ success: false, error: 'Template not found' });
+    }
+
+    res.json({
+      success: true,
+      template
+    });
+
+  } catch (error) {
+    console.error('Get template error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * @route PUT /api/email-marketing/templates/:id
+ * @desc Update template
+ */
+router.put('/templates/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      name,
+      subject,
+      htmlContent,
+      textContent,
+      category,
+      description
+    } = req.body;
+
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (subject !== undefined) updateData.subject = subject;
+    if (htmlContent !== undefined) updateData.html_content = htmlContent;
+    if (textContent !== undefined) updateData.text_content = textContent;
+    if (category !== undefined) updateData.category = category;
+    if (description !== undefined) updateData.description = description;
+
+    const { data: template, error } = await supabase
+      .from('email_templates')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      template
+    });
+
+  } catch (error) {
+    console.error('Update template error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * @route DELETE /api/email-marketing/templates/:id
+ * @desc Delete template
+ */
+router.delete('/templates/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { error } = await supabase
+      .from('email_templates')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      message: 'Template deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Delete template error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ==========================================
+// WORKFLOWS
+// ==========================================
+
+/**
+ * @route GET /api/email-marketing/workflows
+ * @desc Get all automation workflows
+ */
+router.get('/workflows', async (req, res) => {
+  try {
+    const { page = 1, limit = 10, isActive } = req.query;
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+
+    let query = supabase
+      .from('automation_workflows')
+      .select('*', { count: 'exact' });
+
+    if (isActive !== undefined) {
+      query = query.eq('is_active', isActive === 'true');
+    }
+
+    const { data: workflows, error, count } = await query
+      .range(offset, offset + parseInt(limit) - 1)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
       workflows,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        total,
-        pages: Math.ceil(total / parseInt(limit))
+        total: count,
+        pages: Math.ceil(count / parseInt(limit))
       }
     });
+
   } catch (error) {
-    console.error('Error fetching automation workflows:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Get workflows error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
+/**
+ * @route POST /api/email-marketing/workflows
+ * @desc Create automation workflow
+ */
 router.post('/workflows', async (req, res) => {
   try {
-    const { name, description, triggerType, triggerConfig, flowData } = req.body;
-    const userId = req.user?.id;
+    const {
+      name,
+      description,
+      nodes,
+      edges,
+      isActive
+    } = req.body;
 
-    const workflow = await prisma.automationWorkflow.create({
-      data: {
+    const { data: workflow, error } = await supabase
+      .from('automation_workflows')
+      .insert({
         name,
         description,
-        triggerType,
-        triggerConfig,
-        flowData,
-        createdById: userId
-      }
+        flow_data: { nodes, edges },
+        is_active: isActive || false
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.status(201).json({
+      success: true,
+      workflow
     });
 
-    res.status(201).json(workflow);
   } catch (error) {
-    console.error('Error creating automation workflow:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Create workflow error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
+/**
+ * @route GET /api/email-marketing/workflows/:id
+ * @desc Get workflow by ID
+ */
 router.get('/workflows/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const workflow = await prisma.automationWorkflow.findUnique({
-      where: { id },
-      include: {
-        createdBy: {
-          select: { id: true, name: true, email: true }
-        },
-        steps: {
-          orderBy: { position: 'asc' }
-        }
-      }
-    });
+
+    const { data: workflow, error } = await supabase
+      .from('automation_workflows')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
 
     if (!workflow) {
-      return res.status(404).json({ error: 'Workflow not found' });
+      return res.status(404).json({ success: false, error: 'Workflow not found' });
     }
 
-    res.json(workflow);
+    res.json({
+      success: true,
+      workflow
+    });
+
   } catch (error) {
-    console.error('Error fetching automation workflow:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Get workflow error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
+/**
+ * @route PUT /api/email-marketing/workflows/:id
+ * @desc Update workflow
+ */
 router.put('/workflows/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, triggerType, triggerConfig, flowData, isActive, isPaused } = req.body;
+    const {
+      name,
+      description,
+      nodes,
+      edges,
+      isActive
+    } = req.body;
 
-    const workflow = await prisma.automationWorkflow.update({
-      where: { id },
-      data: {
-        name,
-        description,
-        triggerType,
-        triggerConfig,
-        flowData,
-        isActive,
-        isPaused
-      }
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (description !== undefined) updateData.description = description;
+    if (nodes !== undefined || edges !== undefined) {
+      updateData.flow_data = { nodes, edges };
+    }
+    if (isActive !== undefined) updateData.is_active = isActive;
+
+    const { data: workflow, error } = await supabase
+      .from('automation_workflows')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      workflow
     });
 
-    res.json(workflow);
   } catch (error) {
-    console.error('Error updating automation workflow:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Update workflow error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
+/**
+ * @route DELETE /api/email-marketing/workflows/:id
+ * @desc Delete workflow
+ */
 router.delete('/workflows/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await prisma.automationWorkflow.delete({
-      where: { id }
-    });
 
-    res.status(204).send();
-  } catch (error) {
-    console.error('Error deleting automation workflow:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+    const { error } = await supabase
+      .from('automation_workflows')
+      .delete()
+      .eq('id', id);
 
-// Toggle workflow active status
-router.post('/workflows/:id/toggle', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const workflow = await prisma.automationWorkflow.findUnique({
-      where: { id }
-    });
-
-    if (!workflow) {
-      return res.status(404).json({ error: 'Workflow not found' });
-    }
-
-    const updatedWorkflow = await prisma.automationWorkflow.update({
-      where: { id },
-      data: {
-        isActive: !workflow.isActive
-      }
-    });
-
-    res.json(updatedWorkflow);
-  } catch (error) {
-    console.error('Error toggling workflow status:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Get workflow execution history
-router.get('/workflows/:id/executions', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { page = 1, limit = 10, status } = req.query;
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    
-    const where = { workflowId: id };
-    if (status) where.status = status;
-
-    const [executions, total] = await Promise.all([
-      prisma.automationExecution.findMany({
-        where,
-        skip,
-        take: parseInt(limit),
-        orderBy: { createdAt: 'desc' }
-      }),
-      prisma.automationExecution.count({ where })
-    ]);
+    if (error) throw error;
 
     res.json({
-      executions,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        pages: Math.ceil(total / parseInt(limit))
-      }
+      success: true,
+      message: 'Workflow deleted successfully'
     });
+
   } catch (error) {
-    console.error('Error fetching workflow executions:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Delete workflow error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// Trigger workflow manually
-router.post('/workflows/:id/trigger', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { triggerEntityId, triggerEntityType } = req.body;
-
-    // Create execution record
-    const execution = await prisma.automationExecution.create({
-      data: {
-        workflowId: id,
-        triggerEntityId,
-        triggerEntityType,
-        status: 'PENDING',
-        startedAt: new Date()
-      }
-    });
-
-    // In a real implementation, you would queue the execution here
-    // For now, we'll just return the execution record
-
-    res.status(201).json(execution);
-  } catch (error) {
-    console.error('Error triggering workflow:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Segmentation endpoints
-router.get('/segments', authenticateUser, async (req, res) => {
-  try {
-    // Get all saved segments
-    const segments = await prisma.segment.findMany({
-      where: {
-        createdById: req.user?.id // Assuming user authentication
-      }
-    });
-    
-    res.json(segments);
-  } catch (error) {
-    console.error('Error fetching segments:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-router.post('/segments', async (req, res) => {
-  try {
-    const { name, description, criteria } = req.body;
-    const userId = req.user?.id;
-    
-    const segment = await prisma.segment.create({
-      data: {
-        name,
-        description,
-        criteria,
-        createdById: userId
-      }
-    });
-    
-    res.status(201).json(segment);
-  } catch (error) {
-    console.error('Error creating segment:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// A/B Testing endpoints
-router.post('/campaigns/:id/ab-test', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { variants, testPercentage } = req.body;
-    
-    // Update campaign to be an A/B test
-    const updatedCampaign = await prisma.emailCampaign.update({
-      where: { id },
-      data: {
-        isABTest: true,
-        abTestVariants: variants,
-        status: 'DRAFT' // Keep in draft until user decides to send
-      }
-    });
-    
-    res.json(updatedCampaign);
-  } catch (error) {
-    console.error('Error creating A/B test:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Get A/B test results
-router.get('/campaigns/:id/ab-results', async (req, res) => {
-  try {
-    const { id } = req.params;
-    
-    // Get the campaign and its email performance data grouped by variant
-    const campaign = await prisma.emailCampaign.findUnique({
-      where: { id },
-      include: {
-        emails: {
-          select: {
-            status: true,
-            openedAt: true,
-            clickedAt: true,
-            // In a real implementation, we'd track which variant was sent
-          }
-        }
-      }
-    });
-    
-    if (!campaign || !campaign.isABTest) {
-      return res.status(404).json({ error: 'Campaign not found or not an A/B test' });
-    }
-    
-    // Calculate results per variant (simplified logic)
-    // In a real implementation, we'd need to track which emails were sent with which variant
-    const results = campaign.abTestVariants?.map((variant, index) => ({
-      variantId: variant.id || `variant-${index}`,
-      subject: variant.subject,
-      openRate: 0, // Would be calculated from actual data
-      clickRate: 0, // Would be calculated from actual data
-      sentCount: 0 // Would be calculated from actual data
-    })) || [];
-    
-    res.json({
-      campaignId: id,
-      results,
-      winner: results.length > 0 ? results[0] : null
-    });
-  } catch (error) {
-    console.error('Error getting A/B test results:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Get all recipients for campaign targeting
-router.get('/recipients', async (req, res) => {
-  try {
-    const { search, tags, status, industry, companySize, dateRange, page = 1, limit = 50 } = req.query;
-    
-    const filters = {};
-    if (search) filters.search = search;
-    if (tags) filters.tags = tags.split(',');
-    if (status) filters.status = status;
-    if (industry) filters.industry = industry;
-    if (companySize) filters.companySize = companySize;
-    if (dateRange) filters.dateRange = JSON.parse(dateRange);
-    
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    
-    const allRecipients = await emailCampaignService.getAllRecipients(filters);
-    const paginatedRecipients = allRecipients.slice(skip, skip + parseInt(limit));
-    
-    res.json({
-      recipients: paginatedRecipients,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total: allRecipients.length,
-        pages: Math.ceil(allRecipients.length / parseInt(limit))
-      }
-    });
-  } catch (error) {
-    console.error('Error fetching recipients:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Get form submissions as campaign recipients
-router.get('/recipients/forms/:formId', async (req, res) => {
-  try {
-    const { formId } = req.params;
-    const { page = 1, limit = 50, qualifiedOnly = false } = req.query;
-
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-
-    // Fetch form submissions that can be used as email recipients
-    const { data: responses, error } = await supabase
-      .from('form_responses')
-      .select(`
-        id,
-        contact_email,
-        contact_name,
-        contact_phone,
-        lead_score,
-        lead_score_breakdown,
-        responses,
-        submitted_at
-      `)
-      .eq('form_id', formId)
-      .not('contact_email', 'is', null);
-
-    if (error) {
-      console.error('Error fetching form responses:', error);
-      return res.status(500).json({ error: 'Failed to fetch form responses' });
-    }
-
-    // Filter for qualified leads if requested
-    let filteredResponses = responses;
-    if (qualifiedOnly === 'true') {
-      filteredResponses = responses.filter(r => r.lead_score && r.lead_score > 0);
-    }
-
-    const paginatedResponses = filteredResponses.slice(skip, skip + parseInt(limit));
-
-    // Format responses as recipients
-    const recipients = paginatedResponses.map(response => ({
-      id: response.id,
-      email: response.contact_email,
-      name: response.contact_name,
-      phone: response.contact_phone,
-      leadScore: response.lead_score,
-      submittedAt: response.submitted_at,
-      source: 'form',
-      sourceId: formId,
-      additionalData: {
-        responses: response.responses,
-        leadScoreBreakdown: response.lead_score_breakdown
-      }
-    }));
-
-    res.json({
-      recipients,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total: filteredResponses.length,
-        pages: Math.ceil(filteredResponses.length / parseInt(limit))
-      }
-    });
-  } catch (error) {
-    console.error('Error fetching form recipients:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Add form responses to an email campaign
-router.post('/campaigns/:campaignId/add-form-recipients/:formId', async (req, res) => {
-  try {
-    const { campaignId, formId } = req.params;
-    const { qualifiedOnly = false } = req.body;
-
-    // Fetch form responses that have email addresses
-    const { data: responses, error } = await supabase
-      .from('form_responses')
-      .select(`
-        id,
-        contact_email,
-        contact_name,
-        contact_phone,
-        lead_score,
-        responses,
-        submitted_at
-      `)
-      .eq('form_id', formId)
-      .not('contact_email', 'is', null);
-
-    if (error) {
-      console.error('Error fetching form responses:', error);
-      return res.status(500).json({ error: 'Failed to fetch form responses' });
-    }
-
-    // Filter for qualified leads if requested
-    let filteredResponses = responses;
-    if (qualifiedOnly) {
-      filteredResponses = responses.filter(r => r.lead_score && r.lead_score > 0);
-    }
-
-    // Add each response as a recipient to the campaign
-    for (const response of filteredResponses) {
-      await supabase
-        .from('campaign_emails')
-        .insert({
-          campaign_id: campaignId,
-          recipient_email: response.contact_email,
-          recipient_name: response.contact_name,
-          status: 'SUBSCRIBED',
-          form_id: formId,
-          form_response_id: response.id,
-          form_responses: JSON.stringify(response.responses),
-          lead_score: response.lead_score
-        });
-    }
-
-    res.json({
-      message: `Successfully added ${filteredResponses.length} form responses to campaign ${campaignId}`,
-      addedCount: filteredResponses.length
-    });
-  } catch (error) {
-    console.error('Error adding form recipients to campaign:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Get campaign statistics by form source
-router.get('/campaigns/:id/stats/by-form', async (req, res) => {
+/**
+ * @route PUT /api/email-marketing/workflows/:id/toggle
+ * @desc Toggle workflow active status
+ */
+router.put('/workflows/:id/toggle', async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Get campaign statistics broken down by form source
-    const { data: stats, error } = await supabase
-      .from('campaign_emails')
-      .select(`
-        form_id,
-        count(*) as total,
-        count(*) filter (where opened_at IS NOT NULL) as opened,
-        count(*) filter (where clicked_at IS NOT NULL) as clicked,
-        avg(lead_score) as avg_lead_score
-      `)
-      .eq('campaign_id', id)
-      .group('form_id');
+    // Get current status
+    const { data: workflow, error: getError } = await supabase
+      .from('automation_workflows')
+      .select('is_active')
+      .eq('id', id)
+      .single();
 
-    if (error) {
-      console.error('Error fetching campaign stats by form:', error);
-      return res.status(500).json({ error: 'Failed to fetch campaign stats by form' });
-    }
+    if (getError) throw getError;
 
-    // Get form names to include in response
-    const formIds = stats.map(s => s.form_id).filter(id => id);
-    if (formIds.length > 0) {
-      const { data: forms, error: formError } = await supabase
-        .from('forms')
-        .select('id, title')
-        .in('id', formIds);
+    // Toggle status
+    const { data: updated, error: updateError } = await supabase
+      .from('automation_workflows')
+      .update({ is_active: !workflow.is_active })
+      .eq('id', id)
+      .select()
+      .single();
 
-      if (formError) {
-        console.error('Error fetching form titles:', formError);
-      } else {
-        // Map form titles to the stats
-        stats.forEach(stat => {
-          if (stat.form_id) {
-            const form = forms.find(f => f.id === stat.form_id);
-            stat.form_title = form ? form.title : 'Unknown Form';
-          }
-        });
-      }
-    }
+    if (updateError) throw updateError;
 
     res.json({
-      campaignId: id,
-      stats: stats || []
+      success: true,
+      workflow: updated
     });
+
   } catch (error) {
-    console.error('Error getting campaign stats by form:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Toggle workflow error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// Analytics endpoints
-router.get('/analytics', async (req, res) => {
-  try {
-    const { dateRange, campaignType } = req.query;
-    
-    const filters = {};
-    if (dateRange) {
-      filters.dateRange = JSON.parse(dateRange);
-    }
-    if (campaignType) {
-      filters.campaignType = campaignType;
-    }
-    
-    const analytics = await emailCampaignService.getCampaignAnalytics(filters);
-    
-    res.json(analytics);
-  } catch (error) {
-    console.error('Error getting analytics:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+// ==========================================
+// CONTACTS SYNC
+// ==========================================
 
-router.get('/analytics/engagement', async (req, res) => {
+/**
+ * @route POST /api/email-marketing/contacts/sync
+ * @desc Sync contacts from Supabase to SendGrid
+ */
+router.post('/contacts/sync', async (req, res) => {
   try {
-    const engagementStats = await emailCampaignService.getContactEngagementAnalytics();
-    
-    res.json(engagementStats);
+    const { limit = 100 } = req.query;
+
+    // Get contacts that haven't been synced or need update
+    const { data: contacts, error } = await supabase
+      .from('contacts')
+      .select('*')
+      .limit(parseInt(limit));
+
+    if (error) throw error;
+
+    // Sync to SendGrid
+    const result = await emailService.syncContactsToSendGrid(contacts);
+
+    res.json({
+      success: true,
+      message: `Synced ${contacts.length} contacts to SendGrid`,
+      ...result
+    });
+
   } catch (error) {
-    console.error('Error getting engagement analytics:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Sync contacts error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

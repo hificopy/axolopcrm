@@ -16,6 +16,15 @@ import {
   ChevronRight,
   RefreshCcw,
   Link,
+  Phone,
+  MessageSquare,
+  CheckSquare,
+  Bell,
+  Users,
+  Filter,
+  Calendar,
+  Settings,
+  Inbox as InboxIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,18 +43,31 @@ import {
 import { useToast } from '@/components/ui/use-toast';
 import axios from 'axios';
 import ComposeEmailModal from '@/components/ComposeEmailModal'; // Import ComposeEmailModal
+import MeetingsPanel from '@/components/MeetingsPanel'; // Import MeetingsPanel
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002';
 
 const Inbox = () => {
   const [emails, setEmails] = useState([]);
   const [selectedEmail, setSelectedEmail] = useState(null);
   const [activeFolder, setActiveFolder] = useState('inbox');
+  const [activeTab, setActiveTab] = useState('primary'); // New tab state
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [isGmailConnected, setIsGmailConnected] = useState(false);
   const [isComposeModalOpen, setIsComposeModalOpen] = useState(false); // State for compose modal
   const { toast } = useToast();
+
+  // Tab configuration
+  const tabs = [
+    { id: 'primary', label: 'Primary', count: 48, icon: InboxIcon },
+    { id: 'emails', label: 'Emails', count: 3, icon: Mail },
+    { id: 'calls', label: 'Calls', count: 0, icon: Phone },
+    { id: 'messages', label: 'Messages', count: 0, icon: MessageSquare },
+    { id: 'tasks', label: 'Tasks', count: 0, icon: CheckSquare },
+    { id: 'reminders', label: 'Reminders', count: 0, icon: Bell },
+    { id: 'potential', label: 'Potential Contacts', count: 46, icon: Users },
+  ];
 
   const checkGmailConnection = useCallback(async () => {
     try {
@@ -85,7 +107,7 @@ const Inbox = () => {
   useEffect(() => {
     checkGmailConnection();
     fetchEmails();
-  }, [fetchEmails, checkGmailConnection]);
+  }, [checkGmailConnection, fetchEmails]);
 
   // Filter emails based on active folder and search term
   const filteredEmails = emails.filter((email) => {
@@ -136,7 +158,7 @@ const Inbox = () => {
       case 'star':
         updateData = { starred: !emailToUpdate.starred };
         successMessage = emailToUpdate.starred ? 'Email unstarred.' : 'Email starred.';
-        errorMessage = 'Failed to star/unstar email.';
+        errorMessage = 'Failed to star or unstar email.';
         break;
       case 'archive':
         updateData = { labels: [...emailToUpdate.labels.filter(label => label !== 'inbox'), 'archive'] };
@@ -267,7 +289,7 @@ const Inbox = () => {
         title: 'Sync Complete',
         description: `${response.data.count} emails synced from Gmail.`,
       });
-      fetchEmails(); // Re-fetch emails to update the list
+      await fetchEmails(); // Await to ensure emails are fetched before loading state changes
     } catch (error) {
       console.error('Error syncing Gmail emails:', error);
       toast({
@@ -289,11 +311,14 @@ const Inbox = () => {
   const getUnreadCount = (folder) => emails.filter((email) => email.labels.includes(folder) && !email.read).length;
 
   return (
-    <div className="flex h-full bg-crm-bg-light">
-      {/* Sidebar */}
-      <div className="w-64 border-r border-crm-border bg-white flex flex-col">
-        <div className="p-4">
-          <Button className="w-full flex items-center justify-center gap-2" onClick={() => setIsComposeModalOpen(true)}>
+    <div className="flex h-full bg-[#0f1014]">
+      {/* Left Sidebar - Folders */}
+      <div className="w-48 md:w-52 border-r border-gray-800 bg-[#13151a] flex flex-col hidden sm:flex">
+        <div className="p-3">
+          <Button
+            className="w-full flex items-center justify-center gap-2 bg-[#7b1c14] hover:bg-[#6b1a12] text-white"
+            onClick={() => setIsComposeModalOpen(true)}
+          >
             <Plus className="h-4 w-4" /> Compose
           </Button>
         </div>
@@ -383,17 +408,59 @@ const Inbox = () => {
         </ScrollArea>
       </div>
 
-      {/* Email List */}
-      <div className="flex-1 max-w-sm border-r border-crm-border bg-white flex flex-col">
-        <div className="p-4 border-b border-crm-border">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-crm-text-secondary" />
-            <Input
-              placeholder="Search emails..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 w-full"
-            />
+      {/* Center - Email List */}
+      <div className="flex-1 md:max-w-2xl border-r border-gray-800 bg-[#13151a] flex flex-col">
+        {/* Top Bar - Tabs and Actions */}
+        <div className="border-b border-gray-800 bg-[#13151a]">
+          {/* Tabs */}
+          <div className="flex items-center gap-1 px-4 pt-3 overflow-x-auto">
+            {tabs.map((tab) => {
+              const TabIcon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-t-lg transition-all whitespace-nowrap ${
+                    activeTab === tab.id
+                      ? 'bg-[#1e2128] text-white border-t border-x border-gray-700'
+                      : 'text-gray-400 hover:text-gray-300 hover:bg-[#1a1c22]'
+                  }`}
+                >
+                  <TabIcon className="h-4 w-4" />
+                  <span className="text-sm font-medium">{tab.label}</span>
+                  {tab.count > 0 && (
+                    <Badge className="ml-1 bg-[#7b1c14] text-white text-xs px-1.5 py-0">
+                      {tab.count}
+                    </Badge>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Search and Actions */}
+          <div className="flex items-center gap-3 px-4 py-3 bg-[#1e2128]">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 w-full bg-[#13151a] border-gray-700 text-white placeholder:text-gray-500"
+              />
+            </div>
+            <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+              <Settings className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+              <Calendar className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+              <Trash2 className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+              <Archive className="h-4 w-4" />
+            </Button>
           </div>
         </div>
         <div className="flex items-center justify-between p-3 border-b border-crm-border">
@@ -435,7 +502,7 @@ const Inbox = () => {
                 <p className="text-sm truncate">{email.subject}</p>
                 {email.potential && (
                   <div className="flex gap-1 mt-1">
-                    <Badge variant="outline" className="bg-primary-blue/10 text-primary-blue">
+                    <Badge variant="outline" className="bg-primary/10 text-primary">
                       <Briefcase className="h-3 w-3 mr-1" /> Potential {email.potential.type}
                     </Badge>
                     <Badge variant="outline" className="bg-primary-green/10 text-primary-green">
@@ -450,7 +517,7 @@ const Inbox = () => {
       </div>
 
       {/* Email Detail View */}
-      <div className="flex-1 bg-white flex flex-col">
+      <div className="flex-1 bg-white dark:bg-[#1a1d24] flex flex-col">
         {selectedEmail ? (
           <>
             <div className="p-4 border-b border-crm-border flex items-center justify-between">
@@ -477,7 +544,7 @@ const Inbox = () => {
             </div>
             <ScrollArea className="flex-1 p-4">
               <div className="flex items-center gap-3 mb-4">
-                <div className="h-10 w-10 rounded-full bg-primary-blue/10 flex items-center justify-center text-primary-blue font-semibold">
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
                   {selectedEmail.sender.charAt(0)}
                 </div>
                 <div>
@@ -490,12 +557,12 @@ const Inbox = () => {
               </div>
 
               {selectedEmail.potential && (
-                <Card className="mt-6 border-primary-blue">
+                <Card className="mt-6 border-primary">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-primary-blue flex items-center gap-2">
+                    <CardTitle className="text-sm font-medium text-primary flex items-center gap-2">
                       <Briefcase className="h-4 w-4" /> Potential {selectedEmail.potential.type} Identified
                     </CardTitle>
-                    <Tag className="h-4 w-4 text-primary-blue" />
+                    <Tag className="h-4 w-4 text-primary" />
                   </CardHeader>
                   <CardContent>
                     <p className="text-2xl font-bold text-crm-text-primary">
@@ -523,6 +590,10 @@ const Inbox = () => {
           </div>
         )}
       </div>
+
+      {/* Meetings Panel on the Right */}
+      <MeetingsPanel />
+
       <ComposeEmailModal
         isOpen={isComposeModalOpen}
         onClose={() => setIsComposeModalOpen(false)}

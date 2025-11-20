@@ -1,4 +1,4 @@
-import { supabase } from '../config/supabase-auth.js';
+import { supabaseServer } from '../config/supabase-auth.js';
 
 // Authentication middleware
 const authenticateUser = async (req, res, next) => {
@@ -13,9 +13,9 @@ const authenticateUser = async (req, res, next) => {
     }
 
     const token = authHeader.substring(7);
-    
-    // Get user using supabase client
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+
+    // Get user using supabase server client (service role) for better security
+    const { data: { user }, error } = await supabaseServer.auth.getUser(token);
     if (error || !user) {
       console.error('Authentication error:', error?.message || 'No user found');
       return res.status(401).json({
@@ -53,9 +53,9 @@ const optionalAuth = async (req, res, next) => {
     }
 
     const token = authHeader.substring(7);
-    
-    // Get user using supabase client
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+
+    // Get user using supabase server client (service role)
+    const { data: { user }, error } = await supabaseServer.auth.getUser(token);
     if (!error && user) {
       // User authenticated, attach to request
       req.user = {

@@ -1,526 +1,363 @@
-# Axolop CRM - Custom All-in-One CRM
+# Axolop CRM
 
-**Version:** 1.0.0-alpha
-**Status:** Development
-**Built For:** Axolop LLC & Axolop (ECOMMERCE, B2B BUSINESS, REAL ESTATE)
+**The New Age CRM with Local AI Second Brain**
 
----
+Tired of juggling GoHighLevel, ClickUp, Notion, Miro, and 10+ disconnected tools?
 
-## Overview
-
-Custom CRM system built to replace iClosed, HubSpot, and Close CRM with a unified platform optimized for Axolop (hubspot competitor with typeform, jotform, perspective funnels, manychat automations, active campaign email flow builder, klaviyo, beehive newsletter, close crm sales section functionalities) business operations.
-
-**Goals:**
-- Reduce OPEX by eliminating 3+ SaaS subscriptions
-- Clone Close CRM UI/UX exactly
-- Add HubSpot-level email marketing features
-- Optimize for Axolop (ECOMMERCE, B2B BUSINESS, REAL ESTATE) client onboarding workflows
-- Integrate with AutoFlow (automation) and InsightOS (analytics)
+Built with React, Node.js, PostgreSQL (Supabase), Redis, and ChromaDB.
 
 ---
 
-## Database Architecture
+## 🚀 Quick Start
 
-### Primary Database: Supabase PostgreSQL
-- **Purpose**: Main CRM data storage (leads, contacts, deals, activities)
-- **Authentication**: Supabase Auth with OAuth providers (Google, GitHub, etc.) integrated with Auth0 as external identity provider
-- **Database Access**: Direct Supabase client with TypeScript support
-- **Features**: ACID transactions, complex queries, real-time subscriptions
+### Prerequisites
+- Node.js 18+ & npm
+- PostgreSQL (via Supabase)
+- Redis
+- ChromaDB (optional, for AI features)
 
-### Vector Database: ChromaDB  
-- **Purpose**: AI/ML vector storage for semantic search and embeddings
-- **Integration**: Semantic search, document embeddings, AI chat memory
-- **Access**: Direct API calls from backend services
+### Installation
 
-### Authentication & Security
-- **Authentication**: Supabase Auth with OAuth providers (Google, GitHub, etc.) and integration with Auth0 as external provider
-- **Database Security**: Supabase Row Level Security (RLS) policies
-- **Token Management**: JWT-based with refresh tokens
+```bash
+# 1. Install dependencies
+npm install
 
----
+# 2. Configure environment
+cp .env.example .env
+# Edit .env with your Supabase and API credentials
 
-## Current Tech Stack
+# 3. Deploy database schemas (in Supabase SQL Editor)
+# - Run: backend/db/users-schema.sql
+# - Run: scripts/onboarding-schema.sql
+# - Run: supabase-complete-setup.sql
 
-### Core Technologies
-- **Frontend:** React 18.2, Vite 5, TailwindCSS 3.3
-- **Deployment:** Vercel (frontend), Docker containers (backend services)
-- **Database:** Supabase PostgreSQL Cloud + ChromaDB (AI/ML) in Docker
-- **Authentication:** Supabase Auth with OAuth providers (Google, GitHub, etc.) and optional Auth0 integration as external provider
-- **Infrastructure:** Docker containers for backend services (API, n8n, Redis, ChromaDB)
+# 4. Start Redis
+redis-server
 
-### Development & Productivity
-- **UI Components:** shadcn/ui (Radix UI + Tailwind)
-  - @radix-ui/react-scroll-area (scrollable containers)
-  - @radix-ui/react-dialog (modals)
-  - @radix-ui/react-dropdown-menu (dropdowns)
-  - @radix-ui/react-select (select inputs)
-  - @radix-ui/react-tabs (tabbed interfaces)
-- **State Management:** Zustand + TanStack Query
-- **Forms:** React Hook Form + Zod validation
-- **Data Tables:** TanStack Table with virtualization
-- **Rich Text:** Tiptap editor
-- **Drag & Drop:** @dnd-kit
-- **Dashboard:**
-  - react-grid-layout (drag-and-drop dashboard widgets)
-  - react-resizable (resizable components)
-  - framer-motion (smooth animations)
-- **Email Builder:** react-email
-- **Charts & Analytics:** Recharts
-- **Date Management:** date-fns (date manipulation and formatting)
-- **AI/ML:** OpenAI, Groq, Xenova Transformers, ChromaDB
-- **Email Integration:** Gmail API, Nodemailer, SendGrid
-- **Queue System:** Bull + Redis
-- **Analytics:** PostHog, Sentry
-- **Payments:** Stripe
+# 5. Start ChromaDB (optional)
+chroma run --host localhost --port 8001
 
-### Infrastructure & Security
-- **Database Host:** Supabase PostgreSQL (CRM-specific project)
-- **File Storage:** Supabase Storage
-- **Real-time:** Supabase Realtime subscriptions
-- **Authentication:** Supabase Auth with JWT tokens from OAuth providers and optional Auth0 integration
-- **Security:** Helmet.js, CORS, Rate limiting
-- **Caching:** Redis with ioredis
-- **Monitoring:** Autoheal, Watchtower for auto-updates
-
-See: [TECH_STACK.md](./docs/architecture/TECH_STACK.md) for complete technology overview.
-
-## Branding & Color Scheme
-
-### Primary Colors
-- **Main Black:** #101010 (for all black elements)
-- **Accent Color:** #7b1c14 (for highlights and calls to action)
-
-### Visual Design Principles
-The three-category CRM implements a sophisticated visual design with:
-
-- **Color-Coded Categories**: Each category has a distinct visual identity
-  - Sales: Blue theme (#4C7FFF primary blue)
-  - Marketing: Green theme (#00D084 primary green)
-  - Service: Yellow theme (#FFB800 primary yellow)
-- **Gradient Backgrounds**: Smooth gradient transitions for depth
-- **Smooth Animations**: 300ms transitions for polished interactions
-- **Interactive Elements**: Hover effects, border transitions, and visual feedback
-- **Visual Hierarchy**: Clear distinction between category headers and items
-- **Consistent Styling**: Uniform design patterns across all categories
-
-## 📁 Project Structure
-
+# 6. Start application
+npm run dev              # Starts both frontend and backend
+# OR run separately:
+npm run dev:backend      # Backend API (port 3002)
+npm run dev:vite         # Frontend (port 3000)
 ```
-crm/                        # Root project directory
-├── backend/                # Server-side code, API routes, services
-│   ├── controllers/        # Request handlers
-│   ├── middleware/         # Authentication, validation
-│   ├── routes/             # API route definitions
-│   ├── services/           # Business logic
-│   └── utils/              # Helper functions
-├── frontend/               # Client-side React application
-│   ├── components/         # React components
-│   ├── pages/              # Route components
-│   ├── lib/                # API clients and utilities
-│   └── styles/             # CSS and styling
-├── config/                 # Configuration files
-├── docker/                 # Docker configurations
-├── docs/                   # Comprehensive documentation
-│   ├── api/                # Authentication and API docs
-│   ├── architecture/       # System design and tech stack
-│   ├── database/           # Database configuration
-│   ├── deployment/         # Deployment guides
-│   └── development/        # Development guides
-├── config/                 # Configuration files for Supabase
-├── public/                 # Static assets
-├── scripts/                # Build and utility scripts
-└── tests/                  # Unit and integration tests
+
+### Access
+- **Frontend:** http://localhost:3000
+- **Backend API:** http://localhost:3002
+- **Health Check:** http://localhost:3002/health
+
+### Quick Commands
+```bash
+npm run verify:schema    # Verify database schema deployment
+npm run test:auth        # Test authentication system
+npm run deploy:schema    # Get schema deployment instructions
+```
+
+---
+
+## 📊 Current System Status
+
+### ✅ Complete & Working
+- **Authentication:** Sign in/up, Google OAuth, password reset
+- **Onboarding:** 4-step user onboarding flow
+- **User Management:** Profiles, settings, activity tracking
+- **Backend API:** Express server with full CRUD operations
+- **Frontend:** React 18 + Vite with TailwindCSS
+- **Database:** PostgreSQL via Supabase
+- **Cache:** Redis integration
+- **Email:** SendGrid integration
+- **Workflows:** Automation engine
+- **Forms:** Form builder v2
+- **Second Brain:** AI-powered knowledge management
+
+### ⚠️ Deployment Required
+
+**1. Database Schemas** (10 minutes)
+```bash
+# Deploy in Supabase SQL Editor:
+# https://supabase.com/dashboard/project/fuclpfhitgwugxogxkmw/sql/new
+
+# Deploy these files in order:
+1. backend/db/users-schema.sql         # User profiles and auth
+2. scripts/onboarding-schema.sql       # Onboarding system
+3. supabase-complete-setup.sql         # Complete CRM tables
+```
+
+**2. Environment Variables**
+```bash
+# Required in .env:
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+SENDGRID_API_KEY=your_sendgrid_key
+```
+
+### 🧪 Health Check
+```bash
+node scripts/system-health-check.js
+# OR
+curl http://localhost:3002/health
 ```
 
 ---
 
 ## 📚 Documentation
 
-Comprehensive documentation is organized in the `/docs/` directory:
+### 🎯 Start Here
 
-- [Getting Started](./docs/development/START_HERE.md) - Initial setup and project overview
-- [Development Workflow](./docs/development/DEVELOPMENT_WORKFLOW.md) - Development process and toggle explanations
-- [Database Configuration](./docs/database/SUPABASE_CONFIGURATION.md) - Supabase setup
-- [API Documentation](./docs/api/AUTHENTICATION_FLOW.md) - Authentication and API specs
-- [Deployment Guide](./docs/deployment/README.md) - Docker and production setup
-- [Deployment Methodology](./docs/deployment/DEPLOYMENT_METHODOLOGY.md) - Best practices and prevention strategies
-- [Deployment Architecture](./docs/deployment/DEPLOYMENT_ARCHITECTURE.md) - Frontend/Backend hosting architecture
-- [Backend Hosting Options](./docs/deployment/BACKEND_HOSTING_OPTIONS.md) - Self-hosting solutions for Docker containers
-- [Frontend Hosting Process](./docs/deployment/FRONTEND_HOSTING_PROCESS.md) - Vercel deployment process
-- [Under Construction Page](./docs/deployment/UNDER_CONSTRUCTION_PAGE.md) - Beta login and construction mode setup
-- [Architecture](./docs/architecture/TECH_STACK.md) - Technical architecture overview
+**For New Users:**
+1. **[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)** - Quick start guide
+2. **[docs/README.md](docs/README.md)** - Master documentation index
+3. **[docs/authentication/AUTH_SYSTEM_STATUS.md](docs/authentication/AUTH_SYSTEM_STATUS.md)** - Auth setup
 
----
+**For Developers:**
+1. **[docs/development/START_HERE.md](docs/development/START_HERE.md)** - Dev setup
+2. **[docs/development/INSTALLATION_GUIDE.md](docs/development/INSTALLATION_GUIDE.md)** - Detailed setup
+3. **[docs/development/DEVELOPMENT_WORKFLOW.md](docs/development/DEVELOPMENT_WORKFLOW.md)** - Git workflow
 
-## Current Features
+**For Deployment:**
+1. **[docs/deployment/DEPLOY_NOW.md](docs/deployment/DEPLOY_NOW.md)** - Production deployment
+2. **[docs/deployment/DOCKER_DEPLOYMENT.md](docs/deployment/DOCKER_DEPLOYMENT.md)** - Docker setup
 
-### Core CRM Functionality
-- ✅ **Leads Management** - Complete lead tracking with qualification levels
-- ✅ **Contacts Management** - Full contact details and relationship mapping  
-- ✅ **Deals & Pipeline** - Opportunity tracking with customizable stages
-- ✅ **Activity Tracking** - Complete activity timeline for all entities
-- ✅ **Task Management** - To-dos with assignments and due dates
-- ✅ **Interaction Logging** - Email, call, and meeting tracking
-- ✅ **User Management** - Team member roles and permissions
-- **Visual Design**: Category-specific color coding (Sales: Blue, Marketing: Green, Service: Yellow)
+### 📁 Documentation Structure
 
-### Phase 2: Email Marketing (Next)
-- Email campaigns
-- Email templates builder
-- Drip campaigns / sequences
-- A/B testing
-- Email analytics
-
-### Phase 3: Forms & Landing Pages
-- Form builder (drag & drop)
-- Lead capture forms
-- Embedded forms
-- Landing page builder
-- Form submissions tracking
-
-### Phase 4: Advanced Features
-- Workflows automation
-- Lead scoring (AI)
-- Client health monitoring (AI)
-- Custom fields
-- API & webhooks
-- Mobile app
+- **[docs/](docs/)** - Master documentation index
+- **[docs/authentication/](docs/authentication/)** - Auth & onboarding docs
+- **[docs/api/](docs/api/)** - API endpoints and integration
+- **[docs/architecture/](docs/architecture/)** - System design and tech stack
+- **[docs/database/](docs/database/)** - Database schema and setup
+- **[docs/deployment/](docs/deployment/)** - Deployment guides
+- **[docs/development/](docs/development/)** - Development workflow
+- **[docs/features/](docs/features/)** - Feature documentation
+- **[docs/setup/](docs/setup/)** - Integration setup guides
+- **[docs/sendgrid/](docs/sendgrid/)** - Email service docs
+- **[docs/troubleshooting/](docs/troubleshooting/)** - Debugging guides
+- **[docs/archive/](docs/archive/)** - Historical documentation
 
 ---
 
-## UI/UX Theming
+## 🔑 Key Features
 
-### Visual Design Principles
-The three-category CRM implements a sophisticated visual design with:
+### Core CRM
+- ✅ **Lead Management** - Capture, track, and nurture leads
+- ✅ **Contact Management** - Centralized contact database
+- ✅ **Opportunities** - Sales pipeline and deal tracking
+- ✅ **Activities & History** - Complete interaction timeline
+- ✅ **Reports & Analytics** - Business intelligence
 
-- **Color-Coded Categories**: Each category has a distinct visual identity
-  - Sales: Blue theme (#4C7FFF primary blue)
-  - Marketing: Green theme (#00D084 primary green) 
-  - Service: Yellow theme (#FFB800 primary yellow)
-- **Gradient Backgrounds**: Smooth gradient transitions for depth
-- **Smooth Animations**: 300ms transitions for polished interactions
-- **Interactive Elements**: Hover effects, border transitions, and visual feedback
-- **Visual Hierarchy**: Clear distinction between category headers and items
-- **Consistent Styling**: Uniform design patterns across all categories
+### Advanced Features
+- ✅ **Second Brain** - AI-powered knowledge management
+  - Logic View - Thought organization
+  - Maps View - Visual mind mapping
+  - Notes View - Rich text notes
+- ✅ **Master Search** - Universal search across all data
+- ✅ **Form Builder** - Drag-and-drop form creation
+- ✅ **Workflow Automation** - Visual workflow builder
+- ✅ **Email Marketing** - Campaign management
+- ✅ **Calendar & Scheduling** - Meeting management
+- ✅ **Inbox** - Gmail integration
 
-### Design Features
-- **Collapsible Categories**: Animated chevron indicators with rotation
-- **Dynamic Color Accents**: Background colors that match category themes
-- **Shadow Effects**: Subtle shadows for depth and focus states
-- **Hover Transitions**: Smooth state changes with movement effects
-- **Gradient Accents**: Enhanced visual appeal with gradient backgrounds
-
-## Project Status
-
-### Current Phase: Core CRM Development
-- **Status**: Active development, Phase 1.1
-- **Focus**: Completing core sales CRM features
-- **Progress**: Approximately 45% complete
-
-### Completed Features
-- ✅ Complete database schema with 20+ models
-- ✅ Supabase PostgreSQL integration with Row Level Security
-- ✅ Auth0 OAuth authentication system
-- ✅ Docker containerization with direct application serving
-- ✅ React frontend with Close CRM UI styling
-- ✅ Supabase Client with PostgreSQL
-- ✅ Redis for caching and queues
-- ✅ Lead management system
-- ✅ Contact management system
-- ✅ Deal/opportunity tracking
-- ✅ Activity and interaction logging
-- ✅ Task management system
-- ✅ User role management
-- ✅ Basic reporting capabilities
-- ✅ ChromaDB integration for AI features
-
-### In Development
-- 🔄 Email marketing features
-- 🔄 Forms builder functionality
-- 🔄 Advanced workflow automation
-- 🔄 AI-powered lead scoring
-- 🔄 Complete reporting dashboard
-- 🔄 Customer support ticket system
-
-### Upcoming Features
-- 📋 Advanced analytics and insights
-- 📋 Customer portal
-- 📋 Mobile application
-- 📋 API webhooks
-- 📋 Custom field management
-- 📋 Advanced workflow builder
-
-For complete development progress, see [Build Progress](./docs/development/BUILD_PROGRESS.md) and [Setup Complete](./docs/development/SETUP_COMPLETE.md).
+### User Experience
+- ✅ **4-Step Onboarding** - Personalized setup flow
+- ✅ **Dark Mode** - Full dark theme support
+- ✅ **Mobile Responsive** - Works on all devices
+- ✅ **Keyboard Shortcuts** - Power user features
+- ✅ **Drag & Drop** - Intuitive interfaces
 
 ---
 
-## Getting Started
+## 🛠️ Tech Stack
 
-### Prerequisites
-- Node.js 20+
-- Supabase account (PostgreSQL database - already configured)
-- Docker Desktop (required for production deployment)
-- Git
+### Frontend
+- **React 18** - UI framework
+- **Vite** - Build tool
+- **TailwindCSS** - Styling
+- **Framer Motion** - Animations
+- **Radix UI** - Component library
+- **React Router** - Routing
+- **Zustand** - State management
+- **Recharts** - Data visualization
 
-### Quick Start
+### Backend
+- **Node.js** - Runtime
+- **Express** - Web framework
+- **Supabase** - PostgreSQL database
+- **Redis** - Caching & queues
+- **ChromaDB** - Vector database (optional)
+- **SendGrid** - Email delivery
+- **JWT** - Authentication
 
-1. **Set up environment variables:**
-   ```bash
-   cp .env.example .env
-   # Update with your Supabase credentials and other API keys
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Set up Supabase database:**
-   ```bash
-   # Supabase database is configured via dashboard and environment variables
-   # No local migration needed - managed through Supabase dashboard
-   ```
-
-4. **Start the application:**
-   ```bash
-   # Development mode
-   npm run dev
-   
-   # Or with Docker
-   docker-compose up --build
-   ```
-
-**Access:**
-- **Development:** http://localhost:3000 (frontend), http://localhost:3001 (backend)
-- **Docker Production:** http://localhost:3001
-
-### Running Services:
-- **crm-app** - Express.js backend API server (handles port 3001)
-- **crm-redis** - Redis for caching and queues  
-- **crm-chromadb** - ChromaDB vector database for AI features
-- **watchtower-crm** - Automatic Docker image updates
-- **autoheal-crm** - Container health monitoring
+### Infrastructure
+- **Supabase** - Database & Auth
+- **Vercel** - Frontend hosting (recommended)
+- **Railway** - Backend hosting (recommended)
+- **Upstash** - Redis hosting
+- **GitHub** - Version control
 
 ---
 
-## Development Commands
+## 👥 User Accounts
 
-### Application Management
+### Admin Account
+- **Email:** axolopcrm@gmail.com
+- **Access:** Full system privileges
+- **Onboarding:** Automatically bypassed
+
+### Test Accounts
+- **Kate Violet (Business Tier)**
+  - Email: kate@kateviolet.com
+  - Password: Katewife1
+  - Purpose: Testimonials and demos
+  - Features: Unlimited access to all features
+
+See [TESTIMONIALS_DATABASE.md](TESTIMONIALS_DATABASE.md) for details.
+
+---
+
+## 📝 Development
+
+### Available Scripts
+
 ```bash
-# Development mode (frontend + backend)
-npm run dev
+# Development
+npm run dev                 # Start frontend + backend
+npm run dev:vite            # Frontend only
+npm run dev:backend         # Backend only
 
-# Individual services
-npm run dev:vite         # Frontend only
-npm run dev:backend      # Backend only
+# Testing
+npm run test:auth           # Test auth system
+npm run verify:schema       # Verify database schema
 
-# Production build
-npm run build            # Build for production
-npm run preview          # Preview production build locally
+# Deployment
+npm run build               # Build for production
+npm run preview             # Preview production build
+
+# Database
+npm run deploy:schema       # Get schema deployment instructions
+
+# Utilities
+npm run lint                # Lint code
+npm run format              # Format code
 ```
 
-### Supabase Management
+### Project Structure
+
+```
+website/
+├── frontend/              # React frontend
+│   ├── components/        # Reusable components
+│   ├── pages/             # Route pages
+│   ├── context/           # React contexts
+│   ├── lib/               # Utilities
+│   └── styles/            # Global styles
+├── backend/               # Express backend
+│   ├── routes/            # API routes
+│   ├── services/          # Business logic
+│   ├── middleware/        # Express middleware
+│   ├── db/                # Database schemas
+│   └── utils/             # Helper functions
+├── docs/                  # Documentation
+├── scripts/               # Utility scripts
+└── public/                # Static assets
+```
+
+---
+
+## 🔐 Environment Variables
+
+See [.env.example](.env.example) for all required environment variables.
+
+**Critical Variables:**
 ```bash
-# Supabase operations
-# Database schema managed through Supabase dashboard
-# Use Supabase SQL Editor for direct database operations
+# Supabase
+SUPABASE_URL=
+SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# Frontend (Vite)
+VITE_API_URL=http://localhost:3002
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+
+# SendGrid (Email)
+SENDGRID_API_KEY=
+SENDGRID_FROM_EMAIL=
+
+# Redis
+REDIS_PORT=6379
+REDIS_URL=redis://localhost:6379
+
+# OpenAI (Optional)
+OPENAI_API_KEY=
 ```
 
-### Code Quality
+---
+
+## 🆘 Troubleshooting
+
+### Common Issues
+
+**Database Connection Failed**
 ```bash
-npm run lint             # Lint code with ESLint
-npm run format           # Format code with Prettier
-npm run type-check       # Run TypeScript type checking
+# Verify environment variables
+cat .env | grep SUPABASE
+
+# Check Supabase dashboard
+https://supabase.com/dashboard/project/fuclpfhitgwugxogxkmw
 ```
 
-### Docker Operations
+**Redis Connection Failed**
 ```bash
-# Docker services
-docker-compose up -d                 # Start all services in background
-docker-compose down                  # Stop all services
-docker-compose logs -f               # Follow logs from all services
-docker-compose logs -f crm-app       # View backend logs
-docker-compose restart               # Restart all services
+# Start Redis server
+redis-server
 
-# Rebuild when Dockerfile changes
-docker-compose up -d --build         # Rebuild and start services
+# Test connection
+redis-cli ping  # Should return "PONG"
 ```
 
----
+**Authentication Not Working**
+```bash
+# Verify schema deployment
+npm run verify:schema
 
-## Environment Variables
-
-See `.env.example` for complete configuration. Required variables include:
-
-```env
-# Database (Supabase PostgreSQL - CRM-specific project)
-DATABASE_URL="postgresql://postgres.YOUR_PROJECT_REF:YOUR_DB_PASSWORD@aws-1-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
-SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
-SUPABASE_ANON_KEY=your_crm_project_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_crm_project_service_role_key
-
-# Authentication (Supabase with OAuth providers, optionally with Auth0)
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-
-# For external Auth0 integration (optional):
-# AUTH0_DOMAIN=your-domain.auth0.com
-# AUTH0_CLIENT_ID=your_client_id
-# JWT_SECRET=your_jwt_secret_min_32_chars
-
-# Email Integration
-GMAIL_CLIENT_ID=your_gmail_client_id
-GMAIL_CLIENT_SECRET=your_gmail_client_secret
-SENDGRID_API_KEY=your_sendgrid_api_key
-
-# AI Services
-OPENAI_API_KEY=your_openai_api_key
-GROQ_API_KEY=your_groq_api_key
-
-# Redis (for caching and queues)
-REDIS_URL="redis://localhost:6379"
-REDIS_PASSWORD=crm_redis_password
-
-# Application
-NODE_ENV=development
-API_PORT=3001
-FRONTEND_URL=http://localhost:3000
-CRM_PORT=3001
+# Check auth system status
+# Read: docs/authentication/AUTH_SYSTEM_STATUS.md
 ```
 
-For detailed setup instructions, see [Supabase Configuration](./docs/database/SUPABASE_CONFIGURATION.md) and [Installation Guide](./docs/development/INSTALLATION_GUIDE.md).
+**Port Already in Use**
+```bash
+# Find process using port
+lsof -ti:3002  # Backend
+lsof -ti:3000  # Frontend
 
----
-
-## Integration with AutoFlow & InsightOS
-
-### AutoFlow Integration
-CRM emits events to AutoFlow for automation:
-```javascript
-// Example: New lead created
-crm.events.emit('lead.created', {
-  lead_id: 'lead_123',
-  source: 'website_form',
-  qualification: 'hot'
-});
-
-// AutoFlow responds with workflow
+# Kill process
+kill -9 $(lsof -ti:3002)
 ```
 
-### InsightOS Integration
-CRM provides data to InsightOS for analytics:
-```javascript
-// Example: Lead scoring
-const score = await insightOS.calculateLeadScore({
-  lead_id: 'lead_123',
-  interactions: [...],
-  context: {...}
-});
-```
-
-See: [CRM_INTEGRATION_ARCHITECTURE.md](../CRM_INTEGRATION_ARCHITECTURE.md)
+For more help, see [docs/troubleshooting/](docs/troubleshooting/).
 
 ---
 
-## Roadmap
+## 📞 Support & Resources
 
-### Phase 1: Core CRM - Sales Category (Weeks 1-4) - CURRENT
-- [x] Tech stack setup
-- [x] Close CRM UI analysis
-- [x] Database schema design
-- [x] Basic layout (sidebar + main content) with Sales, Marketing, Service categories
-- [x] Leads management
-- [ ] Contacts management
-- [ ] Pipeline (Kanban board)
-- [ ] Basic interactions tracking
-
-### Phase 2: Marketing Category (Weeks 5-8)
-- [ ] Email template builder
-- [ ] Campaign management
-- [ ] Email sequences/drips
-- [ ] A/B testing
-- [ ] Email analytics
-- [ ] Form builder
-- [ ] Lead capture forms
-- [ ] Workflow automation
-
-### Phase 3: Service Category (Weeks 9-12)
-- [ ] Customer support tickets
-- [ ] Knowledge base management
-- [ ] Customer self-service portal
-- [ ] Support analytics and reporting
-- [ ] Client health monitoring (AI)
-
-### Phase 4: Enhanced Features (Weeks 13-16)
-- [ ] Activities feed
-- [ ] Tasks & reminders
-- [ ] Email integration (Gmail)
-- [ ] Call logging
-- [ ] Reports & dashboards
-- [ ] Search & filters
-
-### Phase 5: Migration & Launch (Weeks 17-18)
-- [ ] Data migration from iClosed/HubSpot/Close
-- [ ] Testing & QA
-- [ ] Documentation
-- [ ] Training
-- [ ] Production deployment
-- [ ] Old CRM cancellation
-
-**Total: 18 weeks (4.5 months)**
+- **Documentation:** [docs/README.md](docs/README.md)
+- **Issues:** Check [docs/ISSUES_TO_FIX.md](docs/ISSUES_TO_FIX.md)
+- **Updates:** See [docs/TECHNICAL_UPDATES.md](docs/TECHNICAL_UPDATES.md)
+- **Changelog:** See [TO-DOS.md](TO-DOS.md)
 
 ---
 
-## Contributing
+## 📄 License
 
-This is a private project for Axolop LLC & Axolop. Internal contributors only.
+**PROPRIETARY** - Axolop LLC
 
----
-
-## 🚀 Quick Start
-
-1. **Clone and setup environment**:
-   ```bash
-   # Copy environment template
-   cp .env.example .env
-   # Update with your Supabase credentials
-   ```
-
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-
-3. **Run the application**:
-   ```bash
-   npm run dev
-   ```
-
-4. **Access the CRM**:
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:3001
-   - Health check: http://localhost:3001/health
-
-## License
-
-Proprietary - Axolop LLC & Axolop
-All rights reserved.
+Copyright © 2025 Axolop LLC. All rights reserved.
 
 ---
 
-## Reference Projects
+**Built with ❤️ by the Axolop team**
 
-- **AutoFlow:** `/Users/jdromeroherrera/Desktop/CODE/macos-ai/AUTOFLOW_COMPLETE_SPEC.md`
-- **InsightOS:** `/Users/jdromeroherrera/Desktop/CODE/macos-ai/INSIGHTOS_COMPLETE_SPEC.md`
-
----
-
-**Last Updated:** 2025-11-14
-**Maintained By:** Juan D. Romero Herrera (CEO)
-
----
-
-## Deployment Information
-
-**Latest Deployment Fix:** Vite build command issue on Vercel resolved with proper configuration in vercel.json
+Last Updated: 2025-01-19

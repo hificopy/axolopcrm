@@ -115,7 +115,7 @@ const Newsletter = () => {
                 <div className="border rounded-lg p-4 bg-gray-50 min-h-[400px]">
                   <div 
                     contentEditable
-                    className="min-h-[350px] p-2 bg-white border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="min-h-[350px] p-2 bg-white dark:bg-[#15171d] border rounded dark:border-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     onBlur={(e) => handleInputChange('content', e.target.innerHTML)}
                   >
                     {newsletterData.content}

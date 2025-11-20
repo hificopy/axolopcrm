@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LayoutDashboard, Zap, Clock, Code } from 'lucide-react';
+import { LayoutDashboard, Zap, Clock, Code, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -9,7 +9,7 @@ export default function CustomizationSettings() {
   return (
     <div className="h-full flex flex-col">
       {/* Page Header */}
-      <div className="bg-white border-b border-crm-border px-6 py-4">
+      <div className="bg-white dark:bg-[#1a1d24] border-b border-crm-border px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-crm-text-primary">Customization Settings</h1>
@@ -26,13 +26,13 @@ export default function CustomizationSettings() {
           <div className="flex gap-6">
             {/* Sidebar Navigation */}
             <div className="w-64 flex-shrink-0">
-              <nav className="bg-white rounded-lg border border-crm-border p-4">
+              <nav className="bg-white dark:bg-[#1a1d24] rounded-lg border border-crm-border p-4">
                 <div className="space-y-1">
                   <button
                     onClick={() => setActiveTab('fields')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       activeTab === 'fields'
-                        ? 'bg-primary-blue text-white'
+                        ? 'bg-primary text-white'
                         : 'hover:bg-gray-100 text-crm-text-primary'
                     }`}
                   >
@@ -43,7 +43,7 @@ export default function CustomizationSettings() {
                     onClick={() => setActiveTab('links')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       activeTab === 'links'
-                        ? 'bg-primary-blue text-white'
+                        ? 'bg-primary text-white'
                         : 'hover:bg-gray-100 text-crm-text-primary'
                     }`}
                   >
@@ -54,7 +54,7 @@ export default function CustomizationSettings() {
                     onClick={() => setActiveTab('scheduling')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       activeTab === 'scheduling'
-                        ? 'bg-primary-blue text-white'
+                        ? 'bg-primary text-white'
                         : 'hover:bg-gray-100 text-crm-text-primary'
                     }`}
                   >
@@ -65,31 +65,36 @@ export default function CustomizationSettings() {
                     onClick={() => setActiveTab('statuses')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       activeTab === 'statuses'
-                        ? 'bg-primary-blue text-white'
+                        ? 'bg-primary text-white'
                         : 'hover:bg-gray-100 text-crm-text-primary'
                     }`}
                   >
                     <Zap className="h-4 w-4" />
                     <span>Statuses & Pipelines</span>
                   </button>
-                  <button
-                    onClick={() => setActiveTab('ai')}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                      activeTab === 'ai'
-                        ? 'bg-primary-blue text-white'
-                        : 'hover:bg-gray-100 text-crm-text-primary'
-                    }`}
-                  >
-                    <Code className="h-4 w-4" />
-                    <span>AI Knowledge Sources</span>
-                  </button>
+                  {/* Locked AI Knowledge Sources Tab */}
+                  <div className="relative group">
+                    <div
+                      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-400 bg-gray-100/50 dark:bg-gray-800/30"
+                    >
+                      <Code className="h-4 w-4 text-gray-400" />
+                      <span className="text-gray-400">AI Knowledge Sources</span>
+                      <Lock className="h-3 w-3 ml-auto text-gray-400" />
+                    </div>
+                    {/* Tooltip */}
+                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                      <div className="bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                        Coming in V1.1
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </nav>
             </div>
 
             {/* Settings Content */}
             <div className="flex-1">
-              <div className="bg-white rounded-lg border border-crm-border p-6">
+              <div className="bg-white dark:bg-[#1a1d24] rounded-lg border border-crm-border p-6">
                 {/* Custom Fields */}
                 {activeTab === 'fields' && (
                   <div>

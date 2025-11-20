@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { Phone, Mail, MessageSquare, Bell, Settings, Edit3 } from 'lucide-react';
+import { Phone, Mail, MessageSquare, Bell, Settings, Edit3, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function CommunicationSettings() {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('email');
 
   const [emailSettings, setEmailSettings] = useState({
@@ -72,17 +74,20 @@ export default function CommunicationSettings() {
   };
 
   const handleSave = (tab) => {
-    console.log(`${tab} communication settings saved:`, 
-      tab === 'email' ? emailSettings : 
-      tab === 'phone' ? phoneSettings : 
+    console.warn(`${tab} communication settings saved:`,
+      tab === 'email' ? emailSettings :
+      tab === 'phone' ? phoneSettings :
       tab === 'templates' ? templateSettings : {});
-    alert(`${tab.charAt(0).toUpperCase() + tab.slice(1)} settings saved successfully!`);
+    toast({
+      title: "Settings Saved",
+      description: `${tab.charAt(0).toUpperCase() + tab.slice(1)} settings have been saved successfully.`,
+    });
   };
 
   return (
     <div className="h-full flex flex-col">
       {/* Page Header */}
-      <div className="bg-white border-b border-crm-border px-6 py-4">
+      <div className="bg-white dark:bg-[#1a1d24] border-b border-crm-border px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-crm-text-primary">Communication Settings</h1>
@@ -97,402 +102,131 @@ export default function CommunicationSettings() {
       <div className="flex-1 overflow-auto p-6">
         <div className="max-w-6xl mx-auto">
           <div className="flex gap-6">
-            {/* Sidebar Navigation */}
+            {/* Sidebar Navigation - ALL LOCKED FOR V1.0 */}
             <div className="w-64 flex-shrink-0">
-              <nav className="bg-white rounded-lg border border-crm-border p-4">
+              <nav className="bg-white dark:bg-[#1a1d24] rounded-lg border border-crm-border p-4">
                 <div className="space-y-1">
-                  <button
-                    onClick={() => setActiveTab('phone')}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                      activeTab === 'phone'
-                        ? 'bg-primary-blue text-white'
-                        : 'hover:bg-gray-100 text-crm-text-primary'
-                    }`}
-                  >
-                    <Phone className="h-4 w-4" />
-                    <span>Phone & Voicemail</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('dialer')}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                      activeTab === 'dialer'
-                        ? 'bg-primary-blue text-white'
-                        : 'hover:bg-gray-100 text-crm-text-primary'
-                    }`}
-                  >
-                    <Phone className="h-4 w-4" />
-                    <span>Dialer</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('outcomes')}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                      activeTab === 'outcomes'
-                        ? 'bg-primary-blue text-white'
-                        : 'hover:bg-gray-100 text-crm-text-primary'
-                    }`}
-                  >
-                    <Settings className="h-4 w-4" />
-                    <span>Outcomes</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('notetaker')}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                      activeTab === 'notetaker'
-                        ? 'bg-primary-blue text-white'
-                        : 'hover:bg-gray-100 text-crm-text-primary'
-                    }`}
-                  >
-                    <Bell className="h-4 w-4" />
-                    <span>Notetaker BETA</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('email')}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                      activeTab === 'email'
-                        ? 'bg-primary-blue text-white'
-                        : 'hover:bg-gray-100 text-crm-text-primary'
-                    }`}
-                  >
-                    <Mail className="h-4 w-4" />
-                    <span>Email</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('templates')}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                      activeTab === 'templates'
-                        ? 'bg-primary-blue text-white'
-                        : 'hover:bg-gray-100 text-crm-text-primary'
-                    }`}
-                  >
-                    <Edit3 className="h-4 w-4" />
-                    <span>Templates & Snippets</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('sendas')}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                      activeTab === 'sendas'
-                        ? 'bg-primary-blue text-white'
-                        : 'hover:bg-gray-100 text-crm-text-primary'
-                    }`}
-                  >
-                    <Mail className="h-4 w-4" />
-                    <span>Send As</span>
-                  </button>
+                  {/* Locked Phone & Voicemail */}
+                  <div className="relative group">
+                    <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-400 bg-gray-100/50 dark:bg-gray-800/30">
+                      <Phone className="h-4 w-4 text-gray-400" />
+                      <span className="text-gray-400">Phone & Voicemail</span>
+                      <Lock className="h-3 w-3 ml-auto text-gray-400" />
+                    </div>
+                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                      <div className="bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                        Coming in V1.1
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Locked Dialer */}
+                  <div className="relative group">
+                    <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-400 bg-gray-100/50 dark:bg-gray-800/30">
+                      <Phone className="h-4 w-4 text-gray-400" />
+                      <span className="text-gray-400">Dialer</span>
+                      <Lock className="h-3 w-3 ml-auto text-gray-400" />
+                    </div>
+                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                      <div className="bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                        Coming in V1.1
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Locked Outcomes */}
+                  <div className="relative group">
+                    <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-400 bg-gray-100/50 dark:bg-gray-800/30">
+                      <Settings className="h-4 w-4 text-gray-400" />
+                      <span className="text-gray-400">Outcomes</span>
+                      <Lock className="h-3 w-3 ml-auto text-gray-400" />
+                    </div>
+                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                      <div className="bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                        Coming in V1.1
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Locked Notetaker BETA */}
+                  <div className="relative group">
+                    <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-400 bg-gray-100/50 dark:bg-gray-800/30">
+                      <Bell className="h-4 w-4 text-gray-400" />
+                      <span className="text-gray-400">Notetaker BETA</span>
+                      <Lock className="h-3 w-3 ml-auto text-gray-400" />
+                    </div>
+                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                      <div className="bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                        Coming in V1.1
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Locked Email */}
+                  <div className="relative group">
+                    <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-400 bg-gray-100/50 dark:bg-gray-800/30">
+                      <Mail className="h-4 w-4 text-gray-400" />
+                      <span className="text-gray-400">Email</span>
+                      <Lock className="h-3 w-3 ml-auto text-gray-400" />
+                    </div>
+                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                      <div className="bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                        Coming in V1.1
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Locked Templates & Snippets */}
+                  <div className="relative group">
+                    <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-400 bg-gray-100/50 dark:bg-gray-800/30">
+                      <Edit3 className="h-4 w-4 text-gray-400" />
+                      <span className="text-gray-400">Templates & Snippets</span>
+                      <Lock className="h-3 w-3 ml-auto text-gray-400" />
+                    </div>
+                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                      <div className="bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                        Coming in V1.1
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Locked Send As */}
+                  <div className="relative group">
+                    <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-400 bg-gray-100/50 dark:bg-gray-800/30">
+                      <Mail className="h-4 w-4 text-gray-400" />
+                      <span className="text-gray-400">Send As</span>
+                      <Lock className="h-3 w-3 ml-auto text-gray-400" />
+                    </div>
+                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                      <div className="bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                        Coming in V1.1
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </nav>
             </div>
 
-            {/* Settings Form */}
+            {/* Settings Form - Locked Content */}
             <div className="flex-1">
-              <div className="bg-white rounded-lg border border-crm-border p-6">
-                {/* Email Settings */}
-                {activeTab === 'email' && (
-                  <div>
-                    <h2 className="text-xl font-semibold text-crm-text-primary mb-6">Email Settings</h2>
-
-                    <div className="space-y-6">
-                      <div>
-                        <Label className="block text-sm font-medium text-crm-text-secondary mb-2">
-                          Default Email Address
-                        </Label>
-                        <Input
-                          name="defaultEmail"
-                          value={emailSettings.defaultEmail}
-                          onChange={handleEmailChange}
-                          className="w-full"
-                        />
-                      </div>
-
-                      <div>
-                        <Label className="block text-sm font-medium text-crm-text-secondary mb-2">
-                          Send As Name
-                        </Label>
-                        <Input
-                          name="sendAsName"
-                          value={emailSettings.sendAsName}
-                          onChange={handleEmailChange}
-                          className="w-full"
-                        />
-                      </div>
-
-                      <div>
-                        <Label className="block text-sm font-medium text-crm-text-secondary mb-2">
-                          Email Signature
-                        </Label>
-                        <Textarea
-                          name="signature"
-                          value={emailSettings.signature}
-                          onChange={handleEmailChange}
-                          rows={4}
-                          className="w-full"
-                        />
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-medium text-crm-text-primary">Auto Reply</h3>
-                          <p className="text-sm text-crm-text-secondary">
-                            Send an automatic reply for all incoming emails
-                          </p>
-                        </div>
-                        <Switch
-                          name="autoReply"
-                          checked={emailSettings.autoReply}
-                          onCheckedChange={(checked) => setEmailSettings(prev => ({...prev, autoReply: checked}))}
-                        />
-                      </div>
-
-                      {emailSettings.autoReply && (
-                        <div className="ml-7">
-                          <Label className="block text-sm font-medium text-crm-text-secondary mb-2">
-                            Auto Reply Message
-                          </Label>
-                          <Textarea
-                            name="autoReplyMessage"
-                            value={emailSettings.autoReplyMessage}
-                            onChange={handleEmailChange}
-                            rows={3}
-                            className="w-full"
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex justify-end mt-6">
-                      <Button variant="default" onClick={() => handleSave('email')}>
-                        Save Changes
-                      </Button>
-                    </div>
+              <div className="bg-white dark:bg-[#1a1d24] rounded-lg border border-crm-border p-6">
+                {/* Locked Communication Features */}
+                <div className="flex flex-col items-center justify-center py-16">
+                  <div className="bg-gray-100 dark:bg-gray-800/30 rounded-full p-6 mb-4">
+                    <Lock className="h-12 w-12 text-gray-400" />
                   </div>
-                )}
-
-                {/* Phone & Voicemail Settings */}
-                {activeTab === 'phone' && (
-                  <div>
-                    <h2 className="text-xl font-semibold text-crm-text-primary mb-6">Phone & Voicemail Settings</h2>
-
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-medium text-crm-text-primary">Voicemail Enabled</h3>
-                          <p className="text-sm text-crm-text-secondary">
-                            Enable voicemail for your phone number
-                          </p>
-                        </div>
-                        <Switch
-                          name="voicemailEnabled"
-                          checked={phoneSettings.voicemailEnabled}
-                          onCheckedChange={(checked) => setPhoneSettings(prev => ({...prev, voicemailEnabled: checked}))}
-                        />
-                      </div>
-
-                      {phoneSettings.voicemailEnabled && (
-                        <div className="ml-7">
-                          <Label className="block text-sm font-medium text-crm-text-secondary mb-2">
-                            Voicemail Greeting
-                          </Label>
-                          <Textarea
-                            name="voicemailGreeting"
-                            value={phoneSettings.voicemailGreeting}
-                            onChange={handlePhoneChange}
-                            rows={3}
-                            className="w-full"
-                          />
-                        </div>
-                      )}
-
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-medium text-crm-text-primary">Call Recording</h3>
-                          <p className="text-sm text-crm-text-secondary">
-                            Record all calls for quality assurance
-                          </p>
-                        </div>
-                        <Switch
-                          name="callRecording"
-                          checked={phoneSettings.callRecording}
-                          onCheckedChange={(checked) => setPhoneSettings(prev => ({...prev, callRecording: checked}))}
-                        />
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-medium text-crm-text-primary">Call Recording Consent</h3>
-                          <p className="text-sm text-crm-text-secondary">
-                            Inform callers that calls are being recorded
-                          </p>
-                        </div>
-                        <Switch
-                          name="callRecordingConsent"
-                          checked={phoneSettings.callRecordingConsent}
-                          onCheckedChange={(checked) => setPhoneSettings(prev => ({...prev, callRecordingConsent: checked}))}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex justify-end mt-6">
-                      <Button variant="default" onClick={() => handleSave('phone')}>
-                        Save Changes
-                      </Button>
-                    </div>
+                  <h2 className="text-2xl font-semibold text-crm-text-primary mb-2">Communication Features</h2>
+                  <p className="text-crm-text-secondary text-center max-w-md mb-6">
+                    All communication features including phone, email, dialer, and templates are currently locked and will be available in V1.1.
+                  </p>
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 max-w-md">
+                    <p className="text-sm text-blue-800 dark:text-blue-200 text-center">
+                      <span className="font-semibold">Coming in V1.1:</span> Full email integration, call recording, dialer, templates, and more!
+                    </p>
                   </div>
-                )}
+                </div>
 
-                {/* Templates & Snippets */}
-                {activeTab === 'templates' && (
-                  <div>
-                    <h2 className="text-xl font-semibold text-crm-text-primary mb-6">Email Templates & Snippets</h2>
 
-                    <div className="space-y-8">
-                      {/* Email Templates */}
-                      <div>
-                        <h3 className="text-lg font-medium text-crm-text-primary mb-4">Email Templates</h3>
-                        
-                        <div className="space-y-4">
-                          {templateSettings.templates.map((template) => (
-                            <Card key={template.id} className="border border-crm-border">
-                              <CardContent className="p-4">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                  <div>
-                                    <Label className="text-sm font-medium text-crm-text-secondary">Template Name</Label>
-                                    <Input
-                                      value={template.name}
-                                      onChange={(e) => handleTemplateChange(template.id, 'name', e.target.value)}
-                                      className="mt-1"
-                                    />
-                                  </div>
-                                  <div>
-                                    <Label className="text-sm font-medium text-crm-text-secondary">Subject</Label>
-                                    <Input
-                                      value={template.subject}
-                                      onChange={(e) => handleTemplateChange(template.id, 'subject', e.target.value)}
-                                      className="mt-1"
-                                    />
-                                  </div>
-                                  <div className="md:col-span-3">
-                                    <Label className="text-sm font-medium text-crm-text-secondary">Content</Label>
-                                    <Textarea
-                                      value={template.content}
-                                      onChange={(e) => handleTemplateChange(template.id, 'content', e.target.value)}
-                                      rows={5}
-                                      className="mt-1 font-mono text-sm"
-                                    />
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
-                        </div>
-
-                        <Button variant="outline" className="mt-4">
-                          + Add New Template
-                        </Button>
-                      </div>
-
-                      {/* Quick Snippets */}
-                      <div>
-                        <h3 className="text-lg font-medium text-crm-text-primary mb-4">Quick Snippets</h3>
-                        
-                        <div className="space-y-4">
-                          {templateSettings.snippets.map((snippet) => (
-                            <Card key={snippet.id} className="border border-crm-border">
-                              <CardContent className="p-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <div>
-                                    <Label className="text-sm font-medium text-crm-text-secondary">Snippet Name</Label>
-                                    <Input
-                                      value={snippet.name}
-                                      onChange={(e) => setTemplateSettings(prev => ({
-                                        ...prev,
-                                        snippets: prev.snippets.map(s => 
-                                          s.id === snippet.id ? {...s, name: e.target.value} : s
-                                        )
-                                      }))}
-                                      className="mt-1"
-                                    />
-                                  </div>
-                                  <div>
-                                    <Label className="text-sm font-medium text-crm-text-secondary">Content</Label>
-                                    <Textarea
-                                      value={snippet.content}
-                                      onChange={(e) => setTemplateSettings(prev => ({
-                                        ...prev,
-                                        snippets: prev.snippets.map(s => 
-                                          s.id === snippet.id ? {...s, content: e.target.value} : s
-                                        )
-                                      }))}
-                                      rows={3}
-                                      className="mt-1 font-mono text-sm"
-                                    />
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
-                        </div>
-
-                        <Button variant="outline" className="mt-4">
-                          + Add New Snippet
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-end mt-6">
-                      <Button variant="default" onClick={() => handleSave('templates')}>
-                        Save Changes
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Other tabs will be implemented similarly */}
-                {activeTab === 'dialer' && (
-                  <div>
-                    <h2 className="text-xl font-semibold text-crm-text-primary mb-6">Dialer Settings</h2>
-                    <p className="text-crm-text-secondary">Dialer configuration options will be implemented here.</p>
-                    <div className="flex justify-end mt-6">
-                      <Button variant="default" onClick={() => handleSave('dialer')}>
-                        Save Changes
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'outcomes' && (
-                  <div>
-                    <h2 className="text-xl font-semibold text-crm-text-primary mb-6">Outcomes Settings</h2>
-                    <p className="text-crm-text-secondary">Call outcomes configuration will be implemented here.</p>
-                    <div className="flex justify-end mt-6">
-                      <Button variant="default" onClick={() => handleSave('outcomes')}>
-                        Save Changes
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'notetaker' && (
-                  <div>
-                    <h2 className="text-xl font-semibold text-crm-text-primary mb-6">Notetaker BETA Settings</h2>
-                    <p className="text-crm-text-secondary">Notetaker configuration will be implemented here.</p>
-                    <div className="flex justify-end mt-6">
-                      <Button variant="default" onClick={() => handleSave('notetaker')}>
-                        Save Changes
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'sendas' && (
-                  <div>
-                    <h2 className="text-xl font-semibold text-crm-text-primary mb-6">Send As Settings</h2>
-                    <p className="text-crm-text-secondary">Send as configuration will be implemented here.</p>
-                    <div className="flex justify-end mt-6">
-                      <Button variant="default" onClick={() => handleSave('sendas')}>
-                        Save Changes
-                      </Button>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </div>

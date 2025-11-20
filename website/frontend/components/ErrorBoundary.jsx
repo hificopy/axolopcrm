@@ -87,7 +87,7 @@ class ErrorBoundary extends Component {
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <button
                 onClick={this.handleReset}
-                className="flex items-center justify-center gap-2 px-6 py-3 bg-primary-blue hover:bg-primary-blue/90 text-white rounded-lg transition-colors"
+                className="flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors"
               >
                 <RefreshCw className="w-4 h-4" />
                 Try Again
@@ -107,7 +107,7 @@ class ErrorBoundary extends Component {
                 If this problem persists, please contact our support team at{' '}
                 <a
                   href="mailto:support@axolop.com"
-                  className="text-primary-blue hover:underline"
+                  className="text-primary hover:underline"
                 >
                   support@axolop.com
                 </a>

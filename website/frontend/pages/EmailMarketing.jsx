@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Mail, 
-  Activity, 
-  Zap, 
-  LayoutDashboard, 
-  Settings, 
-  Plus, 
+import {
+  Mail,
+  Activity,
+  Zap,
+  LayoutDashboard,
+  Settings,
+  Plus,
   Search,
   Filter,
   Calendar,
@@ -19,140 +19,122 @@ import {
   Trash2,
   Copy,
   Download,
-  BookOpen
+  BookOpen,
+  Workflow as WorkflowIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/components/ui/use-toast';
 import Newsletter from '../components/email-marketing/Newsletter';
 import EmailAnalytics from '../components/email-marketing/EmailAnalytics';
+import FlowBuilder from '../components/email-marketing/FlowBuilder';
+import axios from 'axios';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002';
 
 const EmailMarketing = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [campaigns, setCampaigns] = useState([]);
   const [workflows, setWorkflows] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [showWorkflowBuilder, setShowWorkflowBuilder] = useState(false);
+  const [selectedWorkflowId, setSelectedWorkflowId] = useState(null);
 
-  // Mock data for demonstration
+  // Fetch data from API
+  const fetchEmailMarketingData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('supabase.auth.token');
+      const headers = { Authorization: `Bearer ${token}` };
+
+      // Fetch campaigns, workflows, and templates in parallel
+      const [campaignsRes, workflowsRes, templatesRes] = await Promise.all([
+        axios.get(`${API_BASE_URL}/api/email-marketing/campaigns`, { headers }).catch(() => ({ data: [] })),
+        axios.get(`${API_BASE_URL}/api/email-marketing/workflows`, { headers }).catch(() => ({ data: [] })),
+        axios.get(`${API_BASE_URL}/api/email-marketing/templates`, { headers }).catch(() => ({ data: [] })),
+      ]);
+
+      setCampaigns(campaignsRes.data || []);
+      setWorkflows(workflowsRes.data || []);
+      setTemplates(templatesRes.data || []);
+    } catch (error) {
+      console.error('Error fetching email marketing data:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load email marketing data.',
+        variant: 'destructive',
+      });
+
+      // Set empty arrays on error
+      setCampaigns([]);
+      setWorkflows([]);
+      setTemplates([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
   useEffect(() => {
-    // Simulate API calls to get data
-    setCampaigns([
-      {
-        id: 'camp_1',
-        name: 'Welcome Series',
-        subject: 'Welcome to our platform!',
-        status: 'SENT',
-        sent: 1245,
-        opened: 420,
-        clicked: 180,
-        openRate: 33.7,
-        clickRate: 14.4,
-        createdAt: '2025-01-15',
-        stats: { sent: 1245, opened: 420, clicked: 180, openRate: 33.7, clickRate: 14.4 }
-      },
-      {
-        id: 'camp_2',
-        name: 'Product Update',
-        subject: 'New features available',
-        status: 'SCHEDULED',
-        sent: 0,
-        opened: 0,
-        clicked: 0,
-        openRate: 0,
-        clickRate: 0,
-        createdAt: '2025-01-20',
-        stats: { sent: 0, opened: 0, clicked: 0, openRate: 0, clickRate: 0 }
-      },
-      {
-        id: 'camp_3',
-        name: 'Abandoned Cart',
-        subject: 'Don\'t forget your items!',
-        status: 'DRAFT',
-        sent: 0,
-        opened: 0,
-        clicked: 0,
-        openRate: 0,
-        clickRate: 0,
-        createdAt: '2025-01-22',
-        stats: { sent: 0, opened: 0, clicked: 0, openRate: 0, clickRate: 0 }
-      }
-    ]);
-
-    setWorkflows([
-      {
-        id: 'wf_1',
-        name: 'Lead Nurturing Sequence',
-        description: 'Automated follow-up sequence for new leads',
-        isActive: true,
-        executionCount: 125,
-        successCount: 120,
-        failureCount: 5,
-        createdAt: '2025-01-10'
-      },
-      {
-        id: 'wf_2',
-        name: 'Post-Purchase Journey',
-        description: 'Onboarding sequence for new customers',
-        isActive: true,
-        executionCount: 89,
-        successCount: 87,
-        failureCount: 2,
-        createdAt: '2025-01-18'
-      },
-      {
-        id: 'wf_3',
-        name: 'Re-engagement Campaign',
-        description: 'Win back inactive subscribers',
-        isActive: false,
-        executionCount: 42,
-        successCount: 38,
-        failureCount: 4,
-        createdAt: '2025-01-25'
-      }
-    ]);
-
-    setTemplates([
-      {
-        id: 'temp_1',
-        name: 'Welcome Template',
-        subject: 'Welcome aboard!',
-        category: 'Onboarding',
-        usageCount: 45,
-        createdAt: '2025-01-05'
-      },
-      {
-        id: 'temp_2',
-        name: 'Promotional Template',
-        subject: 'Special offer inside!',
-        category: 'Promotion',
-        usageCount: 23,
-        createdAt: '2025-01-12'
-      },
-      {
-        id: 'temp_3',
-        name: 'Newsletter Template',
-        subject: 'Weekly digest',
-        category: 'Newsletter',
-        usageCount: 31,
-        createdAt: '2025-01-19'
-      }
-    ]);
-  }, []);
+    fetchEmailMarketingData();
+  }, [fetchEmailMarketingData]);
 
   const handleCreateCampaign = () => {
-    navigate('/email-marketing/campaigns/create');
+    navigate('/app/email-marketing/campaigns/create');
   };
 
   const handleCreateWorkflow = () => {
-    navigate('/email-marketing/workflows/create');
+    setSelectedWorkflowId(null);
+    setShowWorkflowBuilder(true);
+  };
+
+  const handleEditWorkflow = (workflowId) => {
+    setSelectedWorkflowId(workflowId);
+    setShowWorkflowBuilder(true);
+  };
+
+  const handleSaveWorkflow = async (workflowData) => {
+    try {
+      const token = localStorage.getItem('supabase.auth.token');
+      const headers = { Authorization: `Bearer ${token}` };
+
+      if (workflowData.id) {
+        // Update existing workflow
+        await axios.put(`${API_BASE_URL}/api/email-marketing/workflows/${workflowData.id}`, workflowData, { headers });
+        toast({
+          title: 'Success',
+          description: 'Workflow updated successfully.',
+        });
+      } else {
+        // Create new workflow
+        await axios.post(`${API_BASE_URL}/api/email-marketing/workflows`, workflowData, { headers });
+        toast({
+          title: 'Success',
+          description: 'Workflow created successfully.',
+        });
+      }
+
+      // Refresh workflows list
+      fetchEmailMarketingData();
+      setShowWorkflowBuilder(false);
+    } catch (error) {
+      console.error('Error saving workflow:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save workflow.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleCreateTemplate = () => {
-    navigate('/email-marketing/templates/create');
+    navigate('/app/email-marketing/templates/create');
   };
 
   const getStatusBadgeVariant = (status) => {
@@ -173,6 +155,30 @@ const EmailMarketing = () => {
   const getWorkflowStatusVariant = (isActive) => {
     return isActive ? 'success' : 'outline';
   };
+
+  if (loading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7b1c14] mx-auto mb-4"></div>
+          <p className="text-crm-text-secondary">Loading email marketing...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If workflow builder is shown, render it full-screen
+  if (showWorkflowBuilder) {
+    return (
+      <div className="h-full flex flex-col">
+        <FlowBuilder
+          workflowId={selectedWorkflowId}
+          onSave={handleSaveWorkflow}
+          onBack={() => setShowWorkflowBuilder(false)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 p-6">
@@ -200,8 +206,8 @@ const EmailMarketing = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-4">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Mail className="w-6 h-6 text-blue-600" />
+            <div className="p-2 bg-red-100 rounded-lg">
+              <Mail className="w-6 h-6 text-red-600" />
             </div>
             <div>
               <p className="text-sm text-crm-text-secondary">Total Campaigns</p>
@@ -256,7 +262,7 @@ const EmailMarketing = () => {
             Campaigns
           </TabsTrigger>
           <TabsTrigger value="workflows" className="flex items-center gap-2">
-            <Zap className="w-4 h-4" />
+            <WorkflowIcon className="w-4 h-4" />
             Workflows
           </TabsTrigger>
           <TabsTrigger value="templates" className="flex items-center gap-2">
@@ -293,7 +299,7 @@ const EmailMarketing = () => {
                         <div className="flex items-center gap-4 mt-2 text-sm">
                           <span>{campaign.sent} sent</span>
                           <span className="text-green-600">{campaign.openRate}% open</span>
-                          <span className="text-blue-600">{campaign.clickRate}% click</span>
+                          <span className="text-primary">{campaign.clickRate}% click</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -469,12 +475,17 @@ const EmailMarketing = () => {
                         </div>
                       </div>
                       <div className="flex gap-2 mt-4">
-                        <Button variant="outline" size="sm" className="flex-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => handleEditWorkflow(workflow.id)}
+                        >
                           <Edit className="w-4 h-4 mr-2" />
                           Edit
                         </Button>
-                        <Button 
-                          variant={workflow.isActive ? "outline" : "default"} 
+                        <Button
+                          variant={workflow.isActive ? "outline" : "default"}
                           size="sm"
                           className="flex-1"
                         >

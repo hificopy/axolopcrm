@@ -1,4 +1,4 @@
-const { createClient } = require('@supabase/supabase-js');
+import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -8,8 +8,18 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 const getOpportunities = async (userId) => {
   const { data, error } = await supabase
     .from('opportunities')
-    .select('*')
-    .eq('user_id', userId);
+    .select(`
+      *,
+      lead:lead_id (
+        id,
+        name,
+        email,
+        company,
+        phone
+      )
+    `)
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
 
   if (error) {
     console.error('Supabase fetch opportunities error:', error);
@@ -22,7 +32,17 @@ const getOpportunities = async (userId) => {
 const getOpportunityById = async (userId, opportunityId) => {
   const { data, error } = await supabase
     .from('opportunities')
-    .select('*')
+    .select(`
+      *,
+      lead:lead_id (
+        id,
+        name,
+        email,
+        company,
+        phone,
+        website
+      )
+    `)
     .eq('id', opportunityId)
     .eq('user_id', userId)
     .single();
@@ -81,7 +101,7 @@ const deleteOpportunity = async (userId, opportunityId) => {
   return true;
 };
 
-module.exports = {
+export default {
   getOpportunities,
   getOpportunityById,
   createOpportunity,

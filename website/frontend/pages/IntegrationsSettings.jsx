@@ -30,7 +30,7 @@ export default function IntegrationsSettings() {
   return (
     <div className="h-full flex flex-col">
       {/* Page Header */}
-      <div className="bg-white border-b border-crm-border px-6 py-4">
+      <div className="bg-white dark:bg-[#1a1d24] border-b border-crm-border px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-crm-text-primary">Integrations</h1>
@@ -47,13 +47,13 @@ export default function IntegrationsSettings() {
           <div className="flex gap-6">
             {/* Sidebar Navigation */}
             <div className="w-64 flex-shrink-0">
-              <nav className="bg-white rounded-lg border border-crm-border p-4">
+              <nav className="bg-white dark:bg-[#1a1d24] rounded-lg border border-crm-border p-4">
                 <div className="space-y-1">
                   <button
                     onClick={() => setActiveTab('integrations')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       activeTab === 'integrations'
-                        ? 'bg-primary-blue text-white'
+                        ? 'bg-primary text-white'
                         : 'hover:bg-gray-100 text-crm-text-primary'
                     }`}
                   >
@@ -64,7 +64,7 @@ export default function IntegrationsSettings() {
                     onClick={() => setActiveTab('accounts')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       activeTab === 'accounts'
-                        ? 'bg-primary-blue text-white'
+                        ? 'bg-primary text-white'
                         : 'hover:bg-gray-100 text-crm-text-primary'
                     }`}
                   >
@@ -75,7 +75,7 @@ export default function IntegrationsSettings() {
                     onClick={() => setActiveTab('developer')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       activeTab === 'developer'
-                        ? 'bg-primary-blue text-white'
+                        ? 'bg-primary text-white'
                         : 'hover:bg-gray-100 text-crm-text-primary'
                     }`}
                   >
@@ -88,7 +88,7 @@ export default function IntegrationsSettings() {
 
             {/* Settings Content */}
             <div className="flex-1">
-              <div className="bg-white rounded-lg border border-crm-border p-6">
+              <div className="bg-white dark:bg-[#1a1d24] rounded-lg border border-crm-border p-6">
                 {/* Integrations */}
                 {activeTab === 'integrations' && (
                   <div>
@@ -99,7 +99,7 @@ export default function IntegrationsSettings() {
                         <input
                           type="text"
                           placeholder="Search integrations..."
-                          className="w-full pl-10 pr-4 py-2 border border-crm-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent bg-transparent"
+                          className="w-full pl-10 pr-4 py-2 border border-crm-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-transparent"
                         />
                         <Globe
                           className="absolute left-3 top-2.5 h-5 w-5 text-crm-text-secondary"
@@ -166,8 +166,8 @@ export default function IntegrationsSettings() {
                             <tr className="border-b border-gray-100">
                               <td className="py-3 px-4">
                                 <div className="flex items-center gap-3">
-                                  <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                                    <span className="text-blue-800 font-semibold text-sm">G</span>
+                                  <div className="h-8 w-8 rounded-lg bg-red-100 flex items-center justify-center">
+                                    <span className="text-red-800 font-semibold text-sm">G</span>
                                   </div>
                                   <div>
                                     <p className="font-medium text-crm-text-primary">Google Workspace</p>

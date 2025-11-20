@@ -14,7 +14,7 @@ export default function FormSubmissionsWidget({ data }) {
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white border border-crm-border rounded-lg shadow-lg p-3">
+        <div className="bg-white dark:bg-gray-800 border border-crm-border rounded-lg shadow-lg p-3">
           <p className="text-sm text-crm-text-secondary">{payload[0].payload.name}</p>
           <p className="text-lg font-semibold text-crm-text-primary">{payload[0].value} submissions</p>
         </div>
@@ -28,38 +28,64 @@ export default function FormSubmissionsWidget({ data }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.4 }}
+      whileHover={{ y: -4, scale: 1.01, transition: { duration: 0.2 } }}
       className="h-full"
     >
-      <Card className="h-full flex flex-col">
-        <CardHeader>
+      <Card className="h-full flex flex-col border-2 hover:border-opacity-60 hover:shadow-xl hover:shadow-amber-500/20 transition-all duration-300 relative group overflow-hidden">
+        {/* Animated background gradient on hover */}
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-50/50 to-yellow-50/50 dark:from-amber-950/10 dark:to-yellow-950/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+        <CardHeader className="relative z-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-yellow to-yellow-600 flex items-center justify-center">
+            <motion.div
+              className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-yellow to-yellow-600 flex items-center justify-center shadow-lg"
+              whileHover={{ rotate: 12, scale: 1.1 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
               <FileText className="h-5 w-5 text-white" />
-            </div>
+            </motion.div>
             <div>
               <CardTitle className="text-lg">Form Submissions</CardTitle>
               <CardDescription className="text-xs">Lead Generation Performance</CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="flex-1 space-y-4">
-          {/* Stats */}
+        <CardContent className="flex-1 space-y-4 relative z-10">
+          {/* Stats with Enhanced Animations */}
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-yellow-50 rounded-lg p-3 text-center">
-              <FileText className="h-5 w-5 text-primary-yellow mx-auto mb-1" />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.5 }}
+              whileHover={{ scale: 1.05, y: -2 }}
+              className="bg-amber-50/50 dark:bg-amber-950/20 border border-amber-100/50 dark:border-amber-900/30 backdrop-blur-sm rounded-lg p-3 text-center hover:shadow-md transition-shadow"
+            >
+              <FileText className="h-5 w-5 text-amber-600 dark:text-amber-400 mx-auto mb-1" />
               <div className="text-xs text-crm-text-secondary mb-1">Total</div>
               <div className="text-lg font-bold text-crm-text-primary">{total}</div>
-            </div>
-            <div className="bg-green-50 rounded-lg p-3 text-center">
-              <Users className="h-5 w-5 text-primary-green mx-auto mb-1" />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.6 }}
+              whileHover={{ scale: 1.05, y: -2 }}
+              className="bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100/50 dark:border-emerald-900/30 backdrop-blur-sm rounded-lg p-3 text-center hover:shadow-md transition-shadow"
+            >
+              <Users className="h-5 w-5 text-emerald-600 dark:text-emerald-400 mx-auto mb-1" />
               <div className="text-xs text-crm-text-secondary mb-1">Converted</div>
               <div className="text-lg font-bold text-crm-text-primary">{converted}</div>
-            </div>
-            <div className="bg-blue-50 rounded-lg p-3 text-center">
-              <TrendingUp className="h-5 w-5 text-primary-blue mx-auto mb-1" />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.7 }}
+              whileHover={{ scale: 1.05, y: -2 }}
+              className="bg-red-50/50 dark:bg-red-950/20 border border-red-100/50 dark:border-red-900/30 backdrop-blur-sm rounded-lg p-3 text-center hover:shadow-md transition-shadow"
+            >
+              <TrendingUp className="h-5 w-5 text-[#7b1c14] dark:text-[#d4463c] mx-auto mb-1" />
               <div className="text-xs text-crm-text-secondary mb-1">Rate</div>
               <div className="text-lg font-bold text-crm-text-primary">{conversionRate.toFixed(1)}%</div>
-            </div>
+            </motion.div>
           </div>
 
           {/* Trend Chart */}
@@ -93,6 +119,9 @@ export default function FormSubmissionsWidget({ data }) {
             </div>
           )}
         </CardContent>
+
+        {/* Decorative corner accent */}
+        <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500 to-yellow-500 opacity-5 blur-3xl rounded-full -mb-12 -mr-12" />
       </Card>
     </motion.div>
   );

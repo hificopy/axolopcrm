@@ -238,7 +238,7 @@ EMAIL_PORT=587
 EMAIL_USER=your-email@company.com
 EMAIL_PASS=your-app-password
 DEFAULT_EMAIL_FROM=Your Company Name <your-email@company.com>
-API_BASE_URL=http://localhost:3001
+API_BASE_URL=http://localhost:3002
 ```
 
 ### Required Dependencies

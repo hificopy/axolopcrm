@@ -3,18 +3,18 @@ import { cn } from '@/lib/utils';
 
 function Badge({ className, variant = 'default', ...props }) {
   const variants = {
-    default: 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100',
-    blue: 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100',
-    green: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100',
-    yellow: 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100',
-    red: 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100',
+    default: 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700',
+    blue: 'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900',
+    green: 'bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900',
+    yellow: 'bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900',
+    red: 'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900',
     // Premium Accent Variants
-    accent: 'bg-[#7b1c14]/10 text-[#7b1c14] border-[#7b1c14]/20 hover:bg-[#7b1c14]/15 font-semibold',
-    'accent-solid': 'bg-[#7b1c14] text-white border-[#7b1c14] hover:bg-[#6b1a12] shadow-sm',
-    success: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100',
-    warning: 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100',
-    danger: 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100',
-    info: 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100',
+    accent: 'bg-[#7b1c14]/10 dark:bg-[#7b1c14]/20 text-[#7b1c14] dark:text-[#d4463c] border-[#7b1c14]/20 dark:border-[#7b1c14]/40 hover:bg-[#7b1c14]/15 dark:hover:bg-[#7b1c14]/30 font-semibold',
+    'accent-solid': 'bg-[#7b1c14] dark:bg-[#6b1a12] text-white border-[#7b1c14] dark:border-[#6b1a12] hover:bg-[#6b1a12] dark:hover:bg-[#5b1810] shadow-sm',
+    success: 'bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900',
+    warning: 'bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900',
+    danger: 'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900',
+    info: 'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900',
   };
 
   return (

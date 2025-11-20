@@ -7,7 +7,6 @@
 export const VALID_ROUTES = {
   public: [
     '/',
-    '/password',
   ],
   protected: [
     '/inbox',
@@ -149,12 +148,12 @@ export function logNavigation(from, to, success) {
   if (process.env.NODE_ENV === 'development') {
     const timestamp = new Date().toISOString();
     const status = success ? '✅' : '❌';
-    console.log(`[Navigation ${timestamp}] ${status} ${from} → ${to}`);
+    console.warn(`[Navigation ${timestamp}] ${status} ${from} → ${to}`);
 
     if (!success) {
       const suggestions = getSuggestedRoutes(to);
       if (suggestions.length > 0) {
-        console.log('Did you mean:', suggestions);
+        console.warn('Did you mean:', suggestions);
       }
     }
   }

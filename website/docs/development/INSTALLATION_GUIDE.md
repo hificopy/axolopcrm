@@ -106,13 +106,13 @@ npm run dev
 
 This starts:
 - **Frontend (Vite):** http://localhost:3000
-- **Backend (Express dev):** http://localhost:3001
+- **Backend (Express dev):** http://localhost:3002
 - **Backend (Docker):** http://localhost:4001
 
 ### Step 10: Test Health Check
 ```bash
 # Development server
-curl http://localhost:3001/health
+curl http://localhost:3002/health
 
 # Docker container
 curl http://localhost:4001/health
@@ -202,7 +202,7 @@ brew services start redis
 ```bash
 # Kill processes on ports
 lsof -ti:3000 | xargs kill -9
-lsof -ti:3001 | xargs kill -9
+lsof -ti:3002 | xargs kill -9
 
 # Or use different ports
 PORT=3002 npm run dev:backend
@@ -287,7 +287,7 @@ npm run dev
 
 # 3. Open browser
 # - Frontend: http://localhost:3000
-# - API: http://localhost:3001/health
+# - API: http://localhost:3002/health
 
 # 4. Make changes (hot reload enabled)
 

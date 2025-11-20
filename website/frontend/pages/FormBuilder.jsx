@@ -24,7 +24,8 @@ import {
   CheckCircle2,
   XCircle,
   Building,
-  Bell
+  Bell,
+  Copy
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,7 +34,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { validateFormLogic } from '@/utils/formLogicEngine';
 import formsApi from '@/services/formsApi';
 
-// Available question types based on TypeForm inspiration
+// Available question types for conversational forms
 const questionTypes = [
   { id: 'short-text', name: 'Short Text', icon: Type, description: 'Ask for short text responses' },
   { id: 'long-text', name: 'Long Text', icon: MessageSquare, description: 'Ask for detailed text responses' },
@@ -222,7 +223,7 @@ export default function FormBuilder() {
     return (
       <div className="h-full flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary-blue border-t-transparent"></div>
+          <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
           <p className="text-crm-text-secondary">Loading form...</p>
         </div>
       </div>
@@ -281,7 +282,7 @@ export default function FormBuilder() {
                     setForm(newForm);
 
                     // Navigate to the new form's edit page
-                    navigate(`/forms/builder/${newForm.id}`, { replace: true });
+                    navigate(`/app/forms/builder/${newForm.id}`, { replace: true });
 
                     alert(`New form "${form.title}" created successfully!`);
                   }
@@ -299,7 +300,7 @@ export default function FormBuilder() {
               size="sm"
               onClick={() => {
                 if (form.id && form.id !== 'new-form' && !form.id.toString().startsWith('new-')) {
-                  navigate(`/forms/preview/${form.id}`);
+                  window.open(`${window.location.origin}/forms/preview/${form.id}`, '_blank');
                 } else {
                   alert('Please save the form first before previewing.');
                 }
@@ -307,6 +308,22 @@ export default function FormBuilder() {
             >
               <Eye className="h-4 w-4 mr-2" />
               Preview
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (form.id && form.id !== 'new-form' && !form.id.toString().startsWith('new-')) {
+                  const formUrl = `${window.location.origin}/forms/preview/${form.id}`;
+                  navigator.clipboard.writeText(formUrl);
+                  alert('Form link copied to clipboard!');
+                } else {
+                  alert('Please save the form first to get a shareable link.');
+                }
+              }}
+            >
+              <Copy className="h-4 w-4 mr-2" />
+              Copy Link
             </Button>
             <Button
               variant="outline"
@@ -366,7 +383,7 @@ export default function FormBuilder() {
                     onClick={() => addQuestion(type)}
                     className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 text-left transition-colors"
                   >
-                    <Icon className="h-5 w-5 text-primary-blue" />
+                    <Icon className="h-5 w-5 text-primary" />
                     <div>
                       <div className="font-medium text-sm">{type.name}</div>
                       <div className="text-xs text-crm-text-secondary">{type.description}</div>
@@ -445,7 +462,7 @@ export default function FormBuilder() {
                 <button
                   className={`px-3 py-1.5 text-xs ${
                     previewMode === 'desktop'
-                      ? 'bg-primary-blue text-white' 
+                      ? 'bg-primary text-white' 
                       : 'bg-white text-crm-text-secondary hover:bg-gray-50'
                   }`}
                   onClick={() => setPreviewMode('desktop')}
@@ -456,7 +473,7 @@ export default function FormBuilder() {
                 <button
                   className={`px-3 py-1.5 text-xs ${
                     previewMode === 'mobile'
-                      ? 'bg-primary-blue text-white' 
+                      ? 'bg-primary text-white' 
                       : 'bg-white text-crm-text-secondary hover:bg-gray-50'
                   }`}
                   onClick={() => setPreviewMode('mobile')}
@@ -510,7 +527,7 @@ export default function FormBuilder() {
                               }));
                             }}
                             placeholder={selectedQuestion.settings.placeholder || 'Type your answer'}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                           />
                         )}
 
@@ -525,7 +542,7 @@ export default function FormBuilder() {
                             }}
                             placeholder={selectedQuestion.settings.placeholder || 'Type your answer'}
                             rows="4"
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                           />
                         )}
 
@@ -540,7 +557,7 @@ export default function FormBuilder() {
                               }));
                             }}
                             placeholder={selectedQuestion.settings.placeholder || 'your.email@example.com'}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                           />
                         )}
 
@@ -554,7 +571,7 @@ export default function FormBuilder() {
                                 [selectedQuestion.id]: e.target.value
                               }));
                             }}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                           />
                         )}
 
@@ -620,7 +637,7 @@ export default function FormBuilder() {
                                 [selectedQuestion.id]: e.target.value
                               }));
                             }}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-blue focus:border-transparent"
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                           />
                         )}
 
@@ -662,7 +679,7 @@ export default function FormBuilder() {
                             />
                             <label 
                               htmlFor={`file-upload-${selectedQuestion.id}`}
-                              className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-primary-blue text-white rounded-lg hover:bg-primary-blue/90"
+                              className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
                             >
                               <Plus className="h-4 w-4" />
                               Choose File
@@ -699,7 +716,7 @@ export default function FormBuilder() {
                           } else {
                             // Calculate lead score and submit form
                             const totalScore = calculateLeadScore();
-                            console.log('Form submitted with responses:', responses, 'Lead Score:', totalScore);
+                            console.warn('Form submitted with responses:', responses, 'Lead Score:', totalScore);
                             
                             // In a real application, this would save to the CRM
                             // formsApi.submitForm(form.id, responses, totalScore);
@@ -716,7 +733,7 @@ export default function FormBuilder() {
                     <div className="mt-6">
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
-                          className="bg-primary-blue h-2 rounded-full transition-all duration-300"
+                          className="bg-primary h-2 rounded-full transition-all duration-300"
                           style={{ width: `${((questions.findIndex(q => q.id === selectedQuestion.id) + 1) / questions.length) * 100}%` }}
                         ></div>
                       </div>
@@ -743,7 +760,7 @@ export default function FormBuilder() {
             <button
               className={`flex-1 py-3 text-sm font-medium ${
                 !selectedQuestion 
-                  ? 'text-primary-blue border-b-2 border-primary-blue' 
+                  ? 'text-primary border-b-2 border-primary' 
                   : 'text-crm-text-secondary hover:text-crm-text-primary'
               }`}
               onClick={() => setSelectedQuestion(null)}
@@ -753,7 +770,7 @@ export default function FormBuilder() {
             <button
               className={`flex-1 py-3 text-sm font-medium ${
                 selectedQuestion 
-                  ? 'text-primary-blue border-b-2 border-primary-blue' 
+                  ? 'text-primary border-b-2 border-primary' 
                   : 'text-crm-text-secondary hover:text-crm-text-primary'
               }`}
               onClick={() => {
@@ -782,12 +799,12 @@ export default function FormBuilder() {
                   </Button>
                 </div>
                 
-                <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="flex items-center gap-2 text-blue-800 text-sm">
+                <div className="mb-4 p-3 bg-red-50 rounded-lg border border-red-200">
+                  <div className="flex items-center gap-2 text-red-800 text-sm">
                     <Target className="h-4 w-4" />
                     <span className="font-medium">{selectedQuestion.title}</span>
                   </div>
-                  <div className="text-xs text-blue-600 mt-1">
+                  <div className="text-xs text-red-600 mt-1">
                     Question {questions.findIndex(q => q.id === selectedQuestion.id) + 1} of {questions.length}
                   </div>
                 </div>
@@ -1060,17 +1077,17 @@ export default function FormBuilder() {
                   
                   {/* Detailed Scoring Popup */}
                   {selectedQuestion.lead_scoring_enabled && (
-                    <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="mt-4 p-3 bg-red-50 rounded-lg border border-red-200">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-blue-800 text-sm">
+                        <div className="flex items-center gap-2 text-red-800 text-sm">
                           <Target className="h-4 w-4" />
                           <span className="font-medium">Lead Scoring</span>
                         </div>
-                        <span className="text-xs font-medium text-blue-700">
+                        <span className="text-xs font-medium text-red-700">
                           {Object.values(selectedQuestion.lead_scoring || {}).reduce((sum, score) => sum + (score || 0), 0)} pts possible
                         </span>
                       </div>
-                      <div className="mt-2 text-xs text-blue-600">
+                      <div className="mt-2 text-xs text-red-600">
                         {selectedQuestion.lead_scoring && Object.keys(selectedQuestion.lead_scoring).length > 0 
                           ? 'Scoring configured' 
                           : 'Configure scoring for this question'}
@@ -1190,7 +1207,7 @@ export default function FormBuilder() {
                           }}
                           className="rounded"
                         />
-                        <GitBranch className="h-4 w-4 text-primary-blue" />
+                        <GitBranch className="h-4 w-4 text-primary" />
                         <span>Enable Logic Jumps</span>
                       </Label>
                     </div>
@@ -1202,9 +1219,9 @@ export default function FormBuilder() {
                         </div>
 
                         {selectedQuestion.conditional_logic?.map((rule, idx) => (
-                          <div key={idx} className="space-y-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                          <div key={idx} className="space-y-2 p-3 bg-red-50 border border-red-200 rounded-lg">
                             <div className="flex items-center justify-between mb-2">
-                              <div className="text-xs font-semibold text-blue-900 flex items-center gap-1">
+                              <div className="text-xs font-semibold text-red-900 flex items-center gap-1">
                                 <GitBranch className="h-3 w-3" />
                                 Logic Rule #{idx + 1}
                               </div>
@@ -1229,7 +1246,7 @@ export default function FormBuilder() {
 
                             {/* Condition Type */}
                             <div className="space-y-2">
-                              <div className="text-xs text-blue-800 font-medium">If answer:</div>
+                              <div className="text-xs text-red-800 font-medium">If answer:</div>
                               <div className="grid grid-cols-2 gap-2">
                                 <select
                                   value={rule.condition?.operator || rule.operator || 'equals'}
@@ -1250,7 +1267,7 @@ export default function FormBuilder() {
                                     updateQuestion(selectedQuestion.id, newQuestion);
                                     setSelectedQuestion(newQuestion);
                                   }}
-                                  className="text-xs p-2 border border-blue-300 rounded bg-white"
+                                  className="text-xs p-2 border border-red-300 rounded bg-white"
                                 >
                                   <option value="equals">Is equal to</option>
                                   <option value="not_equals">Is not equal to</option>
@@ -1286,7 +1303,7 @@ export default function FormBuilder() {
                                           updateQuestion(selectedQuestion.id, newQuestion);
                                           setSelectedQuestion(newQuestion);
                                         }}
-                                        className="text-xs p-2 border border-blue-300 rounded bg-white"
+                                        className="text-xs p-2 border border-red-300 rounded bg-white"
                                       >
                                         <option value="">Select option...</option>
                                         {selectedQuestion.options.map((opt, optIdx) => (
@@ -1316,7 +1333,7 @@ export default function FormBuilder() {
                                           setSelectedQuestion(newQuestion);
                                         }}
                                         placeholder="Enter value..."
-                                        className="text-xs p-2 border border-blue-300 rounded bg-white"
+                                        className="text-xs p-2 border border-red-300 rounded bg-white"
                                       />
                                     )}
                                   </>
@@ -1326,7 +1343,7 @@ export default function FormBuilder() {
 
                             {/* Action */}
                             <div className="space-y-2">
-                              <div className="text-xs text-blue-800 font-medium">Then:</div>
+                              <div className="text-xs text-red-800 font-medium">Then:</div>
                               <select
                                 value={rule.action || 'jump'}
                                 onChange={(e) => {
@@ -1339,7 +1356,7 @@ export default function FormBuilder() {
                                   updateQuestion(selectedQuestion.id, newQuestion);
                                   setSelectedQuestion(newQuestion);
                                 }}
-                                className="w-full text-xs p-2 border border-blue-300 rounded bg-white"
+                                className="w-full text-xs p-2 border border-red-300 rounded bg-white"
                               >
                                 <option value="jump">Jump to question</option>
                                 <option value="submit">Submit form (qualified)</option>
@@ -1350,7 +1367,7 @@ export default function FormBuilder() {
                             {/* Target Question (only show for 'jump' action) */}
                             {rule.action === 'jump' && (
                               <div className="space-y-2">
-                                <div className="text-xs text-blue-800 font-medium">Jump to:</div>
+                                <div className="text-xs text-red-800 font-medium">Jump to:</div>
                                 <select
                                   value={rule.thenGoTo || ''}
                                   onChange={(e) => {
@@ -1363,7 +1380,7 @@ export default function FormBuilder() {
                                     updateQuestion(selectedQuestion.id, newQuestion);
                                     setSelectedQuestion(newQuestion);
                                   }}
-                                  className="w-full text-xs p-2 border border-blue-300 rounded bg-white"
+                                  className="w-full text-xs p-2 border border-red-300 rounded bg-white"
                                 >
                                   <option value="">Next question (default)</option>
                                   {questions
@@ -1380,7 +1397,7 @@ export default function FormBuilder() {
                             {/* Disqualification Message (only show for 'disqualify' action) */}
                             {rule.action === 'disqualify' && (
                               <div className="space-y-2">
-                                <div className="text-xs text-blue-800 font-medium">Disqualification Message:</div>
+                                <div className="text-xs text-red-800 font-medium">Disqualification Message:</div>
                                 <textarea
                                   value={selectedQuestion.disqualificationMessage || ''}
                                   onChange={(e) => {
@@ -1393,7 +1410,7 @@ export default function FormBuilder() {
                                   }}
                                   placeholder="Unfortunately, you do not meet the criteria..."
                                   rows="2"
-                                  className="w-full text-xs p-2 border border-blue-300 rounded bg-white"
+                                  className="w-full text-xs p-2 border border-red-300 rounded bg-white"
                                 />
                               </div>
                             )}
@@ -1403,7 +1420,7 @@ export default function FormBuilder() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="w-full border-blue-300 text-blue-700 hover:bg-blue-50"
+                          className="w-full border-red-300 text-red-700 hover:bg-red-50"
                           onClick={() => {
                             if (!selectedQuestion) return;
                             const newRule = {
@@ -1447,7 +1464,7 @@ export default function FormBuilder() {
                     <button
                       className={`flex-1 py-1.5 text-xs ${
                         formMode === 'standard' 
-                          ? 'bg-primary-blue text-white' 
+                          ? 'bg-primary text-white' 
                           : 'bg-white text-crm-text-secondary hover:bg-gray-50'
                       }`}
                       onClick={() => setFormMode('standard')}
@@ -1458,7 +1475,7 @@ export default function FormBuilder() {
                     <button
                       className={`flex-1 py-1.5 text-xs ${
                         formMode === 'lead-qualification' 
-                          ? 'bg-primary-blue text-white' 
+                          ? 'bg-primary text-white' 
                           : 'bg-white text-crm-text-secondary hover:bg-gray-50'
                       }`}
                       onClick={() => setFormMode('lead-qualification')}
@@ -1500,16 +1517,16 @@ export default function FormBuilder() {
                         key={question.id}
                         className={`p-3 rounded-lg border cursor-pointer transition-colors ${
                           selectedQuestion?.id === question.id
-                            ? 'border-primary-blue bg-primary-blue/5'
+                            ? 'border-primary bg-primary/5'
                             : 'border-gray-200 hover:bg-gray-50'
                         }`}
                         onClick={() => setSelectedQuestion(question)}
                       >
                         <div className="flex items-start gap-3">
                           <div className="flex flex-col items-center gap-1">
-                            <Icon className="h-4 w-4 mt-0.5 text-primary-blue flex-shrink-0" />
+                            <Icon className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
                             {hasConditionalLogic && (
-                              <GitBranch className="h-3 w-3 text-blue-600" title="Has conditional logic" />
+                              <GitBranch className="h-3 w-3 text-red-600" title="Has conditional logic" />
                             )}
                             {formMode === 'lead-qualification' && question.lead_scoring_enabled && (
                               <Target className="h-3 w-3 text-green-600" title="Lead scoring enabled" />
@@ -1526,7 +1543,7 @@ export default function FormBuilder() {
                                 <span className="ml-1 text-green-600">• Scored</span>
                               )}
                               {hasConditionalLogic && (
-                                <span className="ml-1 text-blue-600">• Logic</span>
+                                <span className="ml-1 text-red-600">• Logic</span>
                               )}
                             </div>
                           </div>
@@ -1583,7 +1600,7 @@ export default function FormBuilder() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-sm flex items-center gap-2">
-                      <Target className="h-4 w-4 text-primary-blue" />
+                      <Target className="h-4 w-4 text-primary" />
                       Lead Scoring
                     </CardTitle>
                   </CardHeader>
@@ -1601,7 +1618,7 @@ export default function FormBuilder() {
                               .map(([option, score]) => (
                                 <div key={option} className="flex justify-between">
                                   <span className="truncate max-w-[120px]">{option}</span>
-                                  <span className="font-medium text-primary-blue">{score} pts</span>
+                                  <span className="font-medium text-primary">{score} pts</span>
                                 </div>
                               ))}
                           </div>
@@ -1627,7 +1644,7 @@ export default function FormBuilder() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-sm flex items-center gap-2">
-                      <Filter className="h-4 w-4 text-primary-blue" />
+                      <Filter className="h-4 w-4 text-primary" />
                       Conditional Logic
                     </CardTitle>
                   </CardHeader>
@@ -1654,7 +1671,7 @@ export default function FormBuilder() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-sm flex items-center gap-2">
-                      <Building className="h-4 w-4 text-primary-blue" />
+                      <Building className="h-4 w-4 text-primary" />
                       CRM Actions
                     </CardTitle>
                   </CardHeader>
@@ -1683,7 +1700,7 @@ export default function FormBuilder() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-sm flex items-center gap-2">
-                      <Bell className="h-4 w-4 text-primary-blue" />
+                      <Bell className="h-4 w-4 text-primary" />
                       Notifications
                     </CardTitle>
                   </CardHeader>

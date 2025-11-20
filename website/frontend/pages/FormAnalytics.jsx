@@ -116,7 +116,7 @@ export default function FormAnalytics() {
   return (
     <div className="h-full flex flex-col">
       {/* Page Header */}
-      <div className="bg-white border-b border-crm-border px-6 py-4">
+      <div className="bg-white dark:bg-[#1a1d24] border-b border-crm-border px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-crm-text-primary">
@@ -144,8 +144,8 @@ export default function FormAnalytics() {
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary-blue/10">
-                  <Users className="h-5 w-5 text-primary-blue" />
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Users className="h-5 w-5 text-primary" />
                 </div>
                 <div>
                   <div className="text-sm text-crm-text-secondary">Total Responses</div>
@@ -192,8 +192,8 @@ export default function FormAnalytics() {
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary-blue/10">
-                  <Target className="h-5 w-5 text-primary-blue" />
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Target className="h-5 w-5 text-primary" />
                 </div>
                 <div>
                   <div className="text-sm text-crm-text-secondary">Conversion Rate</div>
@@ -223,7 +223,7 @@ export default function FormAnalytics() {
                 {displayAnalytics.responsesByDay?.map((day, index) => (
                   <div key={index} className="flex flex-col items-center flex-1">
                     <div
-                      className="w-full bg-primary-blue rounded-t hover:bg-blue-600 transition-colors"
+                      className="w-full bg-primary rounded-t hover:bg-red-600 transition-colors"
                       style={{ height: `${(day.count / Math.max(...displayAnalytics.responsesByDay.map(d => d.count))) * 80}%` }}
                     ></div>
                     <div className="text-xs text-crm-text-secondary mt-2">
@@ -253,7 +253,7 @@ export default function FormAnalytics() {
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
-                        className="bg-primary-blue h-2 rounded-full"
+                        className="bg-primary h-2 rounded-full"
                         style={{ width: `${qp.completion}%` }}
                       ></div>
                     </div>
@@ -276,7 +276,7 @@ export default function FormAnalytics() {
                 {displayAnalytics.topResponses?.map((option, index) => (
                   <div key={index} className="flex items-center justify-between">
                     <div className="flex items-center gap-3 flex-1">
-                      <div className="w-2 h-2 bg-primary-blue rounded-full"></div>
+                      <div className="w-2 h-2 bg-primary rounded-full"></div>
                       <span className="font-medium">{option.option}</span>
                     </div>
                     <div className="flex items-center gap-3">
@@ -285,7 +285,7 @@ export default function FormAnalytics() {
                       </div>
                       <div className="w-24 bg-gray-200 rounded-full h-2">
                         <div
-                          className="bg-primary-blue h-2 rounded-full"
+                          className="bg-primary h-2 rounded-full"
                           style={{ width: `${option.percentage}%` }}
                         ></div>
                       </div>
@@ -309,7 +309,7 @@ export default function FormAnalytics() {
                 {displayAnalytics.satisfactionDistribution?.map((rating, index) => (
                   <div key={index} className="text-center">
                     <div className="text-lg font-bold text-crm-text-primary">{rating.rating}★</div>
-                    <div className="text-2xl font-bold text-primary-blue my-1">
+                    <div className="text-2xl font-bold text-primary my-1">
                       {rating.count}
                     </div>
                     <div className="text-xs text-crm-text-secondary">

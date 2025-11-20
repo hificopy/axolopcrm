@@ -1,27 +1,53 @@
-import { useState } from 'react';
-import { Camera, MapPin, Mail, Phone, Calendar, Globe } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Camera, MapPin, Mail, Phone, Calendar, Globe, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { useSupabase } from '../context/SupabaseContext';
+import { useDemoMode } from '../contexts/DemoModeContext';
 
 export default function Profile() {
+  const { user: supabaseUser } = useSupabase();
+  const { isDemoMode, disableDemoMode } = useDemoMode();
+
   const [user, setUser] = useState({
-    id: '1',
-    name: 'Juan D. Romero',
-    email: 'juan@axolop.com',
-    title: 'CEO',
-    company: 'Axolop LLC',
-    phone: '+1 813-536-3540',
-    location: 'Tampa, FL',
-    timezone: 'America/New_York',
+    id: supabaseUser?.id || '1',
+    name: supabaseUser?.user_metadata?.full_name || supabaseUser?.user_metadata?.name || 'Juan D. Romero',
+    email: supabaseUser?.email || 'axolopcrm@gmail.com',
+    title: supabaseUser?.user_metadata?.title || 'CEO',
+    company: supabaseUser?.user_metadata?.company || 'Axolop LLC',
+    phone: supabaseUser?.user_metadata?.phone || supabaseUser?.phone || '+1 813-536-3540',
+    location: supabaseUser?.user_metadata?.location || 'Tampa, FL',
+    timezone: supabaseUser?.user_metadata?.timezone || 'America/New_York',
     role: 'Admin',
-    joinDate: '2024-01-15',
-    bio: 'Passionate entrepreneur focused on building innovative CRM solutions and AI-powered systems for businesses.',
-    avatar: null,
-    website: 'https://axolop.com',
+    joinDate: supabaseUser?.created_at ? new Date(supabaseUser.created_at).toISOString().split('T')[0] : '2024-01-15',
+    bio: supabaseUser?.user_metadata?.bio || 'Passionate entrepreneur focused on building innovative CRM solutions and AI-powered systems for businesses.',
+    avatar: supabaseUser?.user_metadata?.avatar_url || null,
+    website: supabaseUser?.user_metadata?.website || 'https://axolop.com',
   });
+
+  // Update user state when supabaseUser changes
+  useEffect(() => {
+    if (supabaseUser) {
+      setUser({
+        id: supabaseUser.id,
+        name: supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0],
+        email: supabaseUser.email,
+        title: supabaseUser.user_metadata?.title || 'CEO',
+        company: supabaseUser.user_metadata?.company || 'Axolop LLC',
+        phone: supabaseUser.user_metadata?.phone || supabaseUser.phone || '+1 813-536-3540',
+        location: supabaseUser.user_metadata?.location || 'Tampa, FL',
+        timezone: supabaseUser.user_metadata?.timezone || 'America/New_York',
+        role: 'Admin',
+        joinDate: supabaseUser.created_at ? new Date(supabaseUser.created_at).toISOString().split('T')[0] : '2024-01-15',
+        bio: supabaseUser.user_metadata?.bio || 'Passionate entrepreneur focused on building innovative CRM solutions and AI-powered systems for businesses.',
+        avatar: supabaseUser.user_metadata?.avatar_url || null,
+        website: supabaseUser.user_metadata?.website || 'https://axolop.com',
+      });
+    }
+  }, [supabaseUser]);
 
   const [formData, setFormData] = useState({ ...user });
   const [isEditing, setIsEditing] = useState(false);
@@ -48,7 +74,7 @@ export default function Profile() {
   return (
     <div className="h-full flex flex-col">
       {/* Page Header */}
-      <div className="bg-white border-b border-crm-border px-6 py-4">
+      <div className="bg-white dark:bg-[#1a1d24] border-b border-crm-border px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-crm-text-primary">Profile</h1>
@@ -56,6 +82,25 @@ export default function Profile() {
               Manage your personal account information
             </p>
           </div>
+
+          {/* Biz Tester Mode Exit Button - Only for axolopcrm@gmail.com */}
+          {supabaseUser?.email === 'axolopcrm@gmail.com' && isDemoMode && (
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-100 text-emerald-800 text-xs font-medium rounded-full">
+                <div className="h-2 w-2 bg-emerald-500 rounded-full"></div>
+                <span>Biz Tester Mode</span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={disableDemoMode}
+                className="text-xs py-1.5 px-3 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+              >
+                <X className="h-4 w-4 mr-1" />
+                Exit Mode
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -66,11 +111,11 @@ export default function Profile() {
           <div className="bg-white rounded-lg border border-crm-border p-6 mb-6">
             <div className="flex items-start gap-6">
               <div className="relative">
-                <div className="h-24 w-24 rounded-full bg-primary-blue flex items-center justify-center text-white text-2xl font-semibold">
+                <div className="h-24 w-24 rounded-full bg-primary flex items-center justify-center text-white text-2xl font-semibold">
                   {user.name.split(' ').map(n => n[0]).join('')}
                 </div>
                 {isEditing && (
-                  <button className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-primary-blue flex items-center justify-center text-white hover:bg-blue-600 transition-colors">
+                  <button className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white hover:bg-red-600 transition-colors">
                     <Camera className="h-4 w-4" />
                   </button>
                 )}
@@ -85,7 +130,7 @@ export default function Profile() {
                           name="name"
                           value={formData.name}
                           onChange={handleInputChange}
-                          className="text-xl font-semibold text-crm-text-primary bg-transparent border-b border-gray-300 focus:border-primary-blue focus:ring-0 -ml-2 -mr-2 -mt-1 -mb-1"
+                          className="text-xl font-semibold text-crm-text-primary bg-transparent border-b border-gray-300 focus:border-primary focus:ring-0 -ml-2 -mr-2 -mt-1 -mb-1"
                         />
                       ) : (
                         user.name
@@ -97,7 +142,7 @@ export default function Profile() {
                           name="title"
                           value={formData.title}
                           onChange={handleInputChange}
-                          className="text-crm-text-secondary bg-transparent border-b border-gray-300 focus:border-primary-blue focus:ring-0 -ml-2 -mr-2 -mt-1 -mb-1"
+                          className="text-crm-text-secondary bg-transparent border-b border-gray-300 focus:border-primary focus:ring-0 -ml-2 -mr-2 -mt-1 -mb-1"
                         />
                       ) : (
                         user.title
@@ -132,7 +177,7 @@ export default function Profile() {
                         name="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        className="border-none bg-transparent border-b border-gray-300 focus:border-primary-blue focus:ring-0"
+                        className="border-none bg-transparent border-b border-gray-300 focus:border-primary focus:ring-0"
                       />
                     ) : (
                       user.email
@@ -145,7 +190,7 @@ export default function Profile() {
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
-                        className="border-none bg-transparent border-b border-gray-300 focus:border-primary-blue focus:ring-0"
+                        className="border-none bg-transparent border-b border-gray-300 focus:border-primary focus:ring-0"
                       />
                     ) : (
                       user.phone
@@ -158,7 +203,7 @@ export default function Profile() {
                         name="location"
                         value={formData.location}
                         onChange={handleInputChange}
-                        className="border-none bg-transparent border-b border-gray-300 focus:border-primary-blue focus:ring-0"
+                        className="border-none bg-transparent border-b border-gray-300 focus:border-primary focus:ring-0"
                       />
                     ) : (
                       user.location
@@ -171,7 +216,7 @@ export default function Profile() {
                         name="timezone"
                         value={formData.timezone}
                         onChange={handleInputChange}
-                        className="border-none bg-transparent border-b border-gray-300 focus:border-primary-blue focus:ring-0"
+                        className="border-none bg-transparent border-b border-gray-300 focus:border-primary focus:ring-0"
                       />
                     ) : (
                       user.timezone
@@ -185,7 +230,7 @@ export default function Profile() {
           {/* Profile Details */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Personal Information */}
-            <div className="bg-white rounded-lg border border-crm-border p-6">
+            <div className="bg-white dark:bg-[#1a1d24] rounded-lg border border-crm-border p-6">
               <h3 className="text-lg font-semibold text-crm-text-primary mb-4">Personal Information</h3>
               
               <div className="space-y-4">
@@ -245,7 +290,7 @@ export default function Profile() {
             </div>
 
             {/* Account Information */}
-            <div className="bg-white rounded-lg border border-crm-border p-6">
+            <div className="bg-white dark:bg-[#1a1d24] rounded-lg border border-crm-border p-6">
               <h3 className="text-lg font-semibold text-crm-text-primary mb-4">Account Information</h3>
               
               <div className="space-y-4">
@@ -266,14 +311,14 @@ export default function Profile() {
                       name="website"
                       value={formData.website}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-crm-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent bg-transparent"
+                      className="w-full px-3 py-2 border border-crm-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-transparent"
                     />
                   ) : (
                     <a 
                       href={user.website} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-primary-blue hover:underline"
+                      className="text-primary hover:underline"
                     >
                       {user.website}
                     </a>

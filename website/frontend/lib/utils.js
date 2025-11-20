@@ -65,7 +65,7 @@ export function getInitials(name) {
  */
 export function generateAvatarColor(name) {
   const colors = [
-    'bg-blue-500',
+    'bg-red-500',
     'bg-green-500',
     'bg-yellow-500',
     'bg-red-500',
@@ -184,4 +184,115 @@ export function calculateDealProbability(stage) {
   };
 
   return probabilities[stage] || 0;
+}
+
+/**
+ * Get date range for dashboard based on time range
+ */
+export function getDateRange(timeRange) {
+  const now = new Date();
+  let startDate, endDate;
+
+  switch (timeRange) {
+    case 'week':
+      // Get start of current week (Sunday)
+      startDate = new Date(now);
+      startDate.setDate(now.getDate() - now.getDay());
+      startDate.setHours(0, 0, 0, 0);
+
+      // Get end of current week (Saturday)
+      endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 6);
+      endDate.setHours(23, 59, 59, 999);
+      break;
+
+    case 'month':
+      // Get start of current month
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      // Get end of current month
+      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      endDate.setHours(23, 59, 59, 999);
+      break;
+
+    case 'quarter': {
+      // Get current quarter
+      const currentQuarter = Math.floor(now.getMonth() / 3);
+      startDate = new Date(now.getFullYear(), currentQuarter * 3, 1);
+
+      // Get end of quarter
+      endDate = new Date(now.getFullYear(), (currentQuarter + 1) * 3, 0);
+      endDate.setHours(23, 59, 59, 999);
+      break;
+    }
+
+    case 'year':
+      // Get start of current year
+      startDate = new Date(now.getFullYear(), 0, 1);
+
+      // Get end of current year
+      endDate = new Date(now.getFullYear(), 11, 31);
+      endDate.setHours(23, 59, 59, 999);
+      break;
+
+    default:
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  }
+
+  return { startDate, endDate };
+}
+
+/**
+ * Format date range for display
+ */
+export function formatDateRange(timeRange) {
+  const { startDate, endDate } = getDateRange(timeRange);
+  const now = new Date();
+
+  switch (timeRange) {
+    case 'week':
+      // "Nov 10 - Nov 16, 2024"
+      if (startDate.getMonth() === endDate.getMonth()) {
+        return `${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endDate.toLocaleDateString('en-US', { day: 'numeric', year: 'numeric' })}`;
+      } else {
+        return `${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+      }
+
+    case 'month':
+      // "November 2024"
+      return startDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+    case 'quarter': {
+      // "Q4 2024 (Oct - Dec)"
+      const quarter = Math.floor(startDate.getMonth() / 3) + 1;
+      const quarterMonths = `${startDate.toLocaleDateString('en-US', { month: 'short' })} - ${endDate.toLocaleDateString('en-US', { month: 'short' })}`;
+      return `Q${quarter} ${startDate.getFullYear()} (${quarterMonths})`;
+    }
+
+    case 'year':
+      // "2024"
+      return startDate.getFullYear().toString();
+
+    default:
+      return startDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }
+}
+
+/**
+ * Get period label for dashboard
+ */
+export function getPeriodLabel(timeRange) {
+  switch (timeRange) {
+    case 'week':
+      return 'This Week';
+    case 'month':
+      return 'This Month';
+    case 'quarter':
+      return 'This Quarter';
+    case 'year':
+      return 'This Year';
+    default:
+      return 'Current Period';
+  }
 }

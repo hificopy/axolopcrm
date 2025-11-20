@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import inboxService from '../services/inboxService.js';
+import { protect } from '../middleware/authMiddleware.js';
+
 const router = express.Router();
-const inboxService = require('../services/inboxService');
-const { protect } = require('../middleware/authMiddleware');
 
 // Get all emails for the authenticated user
 router.get('/', protect, async (req, res) => {
@@ -103,4 +104,4 @@ router.post('/send', protect, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

@@ -563,7 +563,7 @@ Form:
 ├── Organization Name*
 │   • Input field: "axolop"
 ├── Currency
-│   • Dropdown: "USD -- US Dollar ($)"
+│   • Dropdown: "USD - US Dollar ($)"
 └── "Save" button (blue)
 ```
 

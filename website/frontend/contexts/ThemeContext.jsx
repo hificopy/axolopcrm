@@ -1,4 +1,5 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
 const ThemeContext = createContext();
 
@@ -14,7 +15,7 @@ export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState('light');
 
   // Function to apply theme to document
-  const applyTheme = (themeValue) => {
+  const applyTheme = useCallback((themeValue) => {
     const root = document.documentElement;
     
     if (themeValue === 'auto') {
@@ -29,7 +30,7 @@ export const ThemeProvider = ({ children }) => {
       root.classList.add(themeValue);
       localStorage.setItem('theme', themeValue);
     }
-  };
+  }, []);
 
   // Effect to handle initial theme and system preference changes
   useEffect(() => {
@@ -67,7 +68,7 @@ export const ThemeProvider = ({ children }) => {
   // Apply theme when 'theme' state changes (for programmatic changes)
   useEffect(() => {
     applyTheme(theme);
-  }, [theme]);
+  }, [theme, applyTheme]);
 
   const toggleTheme = () => {
     setTheme(prev => {

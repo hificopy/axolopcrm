@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import gmailService from '../services/gmailService.js';
+import { protect } from '../middleware/authMiddleware.js';
+
 const router = express.Router();
-const gmailService = require('../services/gmailService');
-const { protect } = require('../middleware/authMiddleware');
 
 // Route to initiate Gmail OAuth flow
 router.get('/auth', protect, (req, res) => {
@@ -57,4 +58,4 @@ router.get('/signature', protect, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

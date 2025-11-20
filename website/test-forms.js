@@ -4,7 +4,7 @@
 import axios from 'axios';
 
 // Configuration - adjust these values based on your setup
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = 'http://localhost:3002/api';
 
 async function testFormFunctionality() {
   console.log('Testing Form Functionality...\n');

@@ -30,9 +30,9 @@ const EmptyState = ({
           initial={{ scale: 0.8 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-          className="inline-flex items-center justify-center h-20 w-20 rounded-full bg-gradient-to-br from-gray-100 to-gray-50 border-2 border-gray-200 mb-6"
+          className="inline-flex items-center justify-center h-20 w-20 rounded-full bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 border-2 border-gray-200 dark:border-gray-700 mb-6"
         >
-          <Icon className="h-10 w-10 text-gray-400" />
+          <Icon className="h-10 w-10 text-gray-400 dark:text-gray-500" />
         </motion.div>
       )}
 
@@ -41,7 +41,7 @@ const EmptyState = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
-        className="text-2xl font-bold text-gray-900 mb-3"
+        className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3"
       >
         {title}
       </motion.h3>
@@ -52,7 +52,7 @@ const EmptyState = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="text-gray-600 max-w-sm mx-auto mb-8"
+          className="text-gray-600 dark:text-gray-400 max-w-sm mx-auto mb-8"
         >
           {description}
         </motion.p>

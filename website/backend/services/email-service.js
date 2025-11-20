@@ -1,6 +1,7 @@
 import { createTransport } from 'nodemailer';
 import { createClient } from '@supabase/supabase-js';
 import AWSService from './aws-ses-service.js';
+import SendGridService from './sendgrid-service.js';
 
 // Initialize Supabase client
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -9,11 +10,17 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 class EmailService {
   constructor() {
-    // Check if AWS SES is configured
-    if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+    // Priority order: SendGrid > AWS SES > SMTP
+    if (process.env.SENDGRID_API_KEY) {
+      // Use SendGrid for email sending (preferred for marketing)
+      this.emailProvider = 'sendgrid';
+      this.sendgridService = new SendGridService();
+      console.log('Email provider: SendGrid');
+    } else if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
       // Use AWS SES for email sending
       this.emailProvider = 'aws';
       this.awsService = new AWSService();
+      console.log('Email provider: AWS SES');
     } else {
       // Fallback to nodemailer SMTP
       this.emailProvider = 'smtp';
@@ -28,12 +35,16 @@ class EmailService {
           pass: process.env.EMAIL_PASS, // App password for Gmail
         },
       });
+      console.log('Email provider: SMTP');
     }
   }
 
   async sendEmail(options) {
     try {
-      if (this.emailProvider === 'aws') {
+      if (this.emailProvider === 'sendgrid') {
+        // Use SendGrid to send the email
+        return await this.sendgridService.sendEmail(options);
+      } else if (this.emailProvider === 'aws') {
         // Use AWS SES to send the email
         return await this.awsService.sendEmail(options);
       } else {
@@ -303,6 +314,101 @@ class EmailService {
         console.error('Error updating failed execution:', failUpdateError);
       }
     }
+  }
+
+  // ==========================================
+  // SENDGRID-SPECIFIC METHODS
+  // ==========================================
+
+  /**
+   * Sync contact to SendGrid
+   */
+  async syncContactToSendGrid(contact) {
+    if (this.emailProvider === 'sendgrid') {
+      return await this.sendgridService.addOrUpdateContact(contact);
+    }
+    return { success: false, message: 'SendGrid not configured' };
+  }
+
+  /**
+   * Sync multiple contacts to SendGrid
+   */
+  async syncContactsToSendGrid(contacts) {
+    if (this.emailProvider === 'sendgrid') {
+      return await this.sendgridService.addMultipleContacts(contacts);
+    }
+    return { success: false, message: 'SendGrid not configured' };
+  }
+
+  /**
+   * Get email analytics from SendGrid
+   */
+  async getEmailAnalytics(options = {}) {
+    if (this.emailProvider === 'sendgrid') {
+      return await this.sendgridService.getGlobalStats(options);
+    }
+    return { success: false, message: 'SendGrid not configured' };
+  }
+
+  /**
+   * Create email template in SendGrid
+   */
+  async createEmailTemplate(template) {
+    if (this.emailProvider === 'sendgrid') {
+      return await this.sendgridService.createTemplate(template);
+    }
+    return { success: false, message: 'SendGrid not configured' };
+  }
+
+  /**
+   * Get suppression lists from SendGrid
+   */
+  async getSuppressionLists() {
+    if (this.emailProvider === 'sendgrid') {
+      const bounces = await this.sendgridService.getSuppressionList('bounces');
+      const blocks = await this.sendgridService.getSuppressionList('blocks');
+      const spamReports = await this.sendgridService.getSuppressionList('spam_reports');
+      const unsubscribes = await this.sendgridService.getSuppressionList('unsubscribes');
+
+      return {
+        success: true,
+        bounces: bounces.suppressions,
+        blocks: blocks.suppressions,
+        spamReports: spamReports.suppressions,
+        unsubscribes: unsubscribes.suppressions
+      };
+    }
+    return { success: false, message: 'SendGrid not configured' };
+  }
+
+  /**
+   * Sync suppression lists to Supabase
+   */
+  async syncSuppressionLists() {
+    if (this.emailProvider === 'sendgrid') {
+      return await this.sendgridService.syncSuppressionListToSupabase();
+    }
+    return { success: false, message: 'SendGrid not configured' };
+  }
+
+  /**
+   * Process SendGrid webhook events
+   */
+  async processWebhookEvents(events) {
+    if (this.emailProvider === 'sendgrid') {
+      return await this.sendgridService.processWebhookEvents(events);
+    }
+    return { success: false, message: 'SendGrid not configured' };
+  }
+
+  /**
+   * Check if email is suppressed
+   */
+  async isEmailSuppressed(email) {
+    if (this.emailProvider === 'sendgrid') {
+      return await this.sendgridService.isEmailSuppressed(email);
+    }
+    return false;
   }
 
   // Process queued emails

@@ -112,7 +112,7 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key   # Supabase key
 ```
 
 ### Branch-Specific Settings
-- **Development:** Use local backend (http://localhost:3001) 
+- **Development:** Use local backend (http://localhost:3002) 
 - **Production:** Use deployed backend (https://api.yourdomain.com)
 - **Beta/Staging:** Use staging backend (https://staging-api.yourdomain.com)
 

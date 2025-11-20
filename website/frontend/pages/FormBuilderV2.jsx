@@ -88,36 +88,6 @@ export default function FormBuilderV2() {
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
 
-  // Load form data
-  useEffect(() => {
-    if (formId && formId !== 'new' && !formId.startsWith('new-')) {
-      formsApi.getForm(formId)
-        .then(formData => {
-          setForm(formData);
-          const questionsWithDefaults = (formData.questions || []).map(q => ({
-            ...q,
-            lead_scoring_enabled: q.lead_scoring_enabled || false,
-            lead_scoring: q.lead_scoring || {},
-            conditional_logic: q.conditional_logic || []
-          }));
-          setQuestions(questionsWithDefaults);
-
-          // Initialize workflow from questions
-          initializeWorkflowFromQuestions(questionsWithDefaults);
-
-          setLoading(false);
-        })
-        .catch(err => {
-          setError(err);
-          setLoading(false);
-        });
-    } else {
-      // Initialize default workflow for new form
-      initializeWorkflowFromQuestions(questions);
-      setLoading(false);
-    }
-  }, [formId]);
-
   // Initialize linear workflow from questions
   const initializeWorkflowFromQuestions = useCallback((questionsArray) => {
     const nodes = [];
@@ -186,20 +156,70 @@ export default function FormBuilderV2() {
     setWorkflowEdges(edges);
   }, [endings]);
 
+  // Load form data
+  useEffect(() => {
+    if (formId && formId !== 'new' && !formId.startsWith('new-')) {
+      formsApi.getForm(formId)
+        .then(formData => {
+          setForm(formData);
+          const questionsWithDefaults = (formData.questions || []).map(q => ({
+            ...q,
+            lead_scoring_enabled: q.lead_scoring_enabled || false,
+            lead_scoring: q.lead_scoring || {},
+            conditional_logic: q.conditional_logic || []
+          }));
+          setQuestions(questionsWithDefaults);
+
+          // Extract workflow data from settings if it exists
+          if (formData.settings?.workflow_nodes && formData.settings?.workflow_nodes.length > 0) {
+            setWorkflowNodes(formData.settings.workflow_nodes);
+            setWorkflowEdges(formData.settings.workflow_edges || []);
+            setEndings(formData.settings.endings || [
+              {
+                id: 'end-default',
+                title: 'Thank you!',
+                message: 'Your response has been recorded.',
+                icon: 'success',
+                mark_as_qualified: null,
+              }
+            ]);
+          } else {
+            // Initialize workflow from questions if no saved workflow
+            initializeWorkflowFromQuestions(questionsWithDefaults);
+          }
+
+          setLoading(false);
+        })
+        .catch(err => {
+          setError(err);
+          setLoading(false);
+        });
+    } else {
+      // Initialize default workflow for new form
+      initializeWorkflowFromQuestions(questions);
+      setLoading(false);
+    }
+  }, [formId, initializeWorkflowFromQuestions, questions]);
+
   // Save form
   const handleSave = async () => {
     setSaving(true);
     try {
+      // Include workflow data in settings for now (until backend is updated)
+      const settingsWithWorkflow = {
+        ...form.settings,
+        workflow_nodes: workflowNodes,
+        workflow_edges: workflowEdges,
+        endings: endings
+      };
+
       if (formId && formId !== 'new' && !formId.startsWith('new-')) {
         // Update existing form
         await formsApi.updateForm(form.id, {
           title: form.title,
           description: form.description,
           questions: questions,
-          settings: form.settings,
-          workflow_nodes: workflowNodes,
-          workflow_edges: workflowEdges,
-          endings: endings
+          settings: settingsWithWorkflow
         });
         alert(`Form "${form.title}" updated successfully!`);
       } else {
@@ -208,14 +228,11 @@ export default function FormBuilderV2() {
           title: form.title,
           description: form.description,
           questions: questions,
-          settings: form.settings,
-          workflow_nodes: workflowNodes,
-          workflow_edges: workflowEdges,
-          endings: endings
+          settings: settingsWithWorkflow
         });
 
         setForm(newForm);
-        navigate(`/forms/builder/${newForm.id}`, { replace: true });
+        navigate(`/app/forms/builder/${newForm.id}`, { replace: true });
         alert(`New form "${form.title}" created successfully!`);
       }
     } catch (error) {
@@ -230,7 +247,7 @@ export default function FormBuilderV2() {
     return (
       <div className="h-full flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary-blue border-t-transparent"></div>
+          <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
           <p className="text-crm-text-secondary">Loading form...</p>
         </div>
       </div>
@@ -289,14 +306,14 @@ export default function FormBuilderV2() {
         </div>
       </div>
 
-      {/* Tab Navigation - TypeForm Style */}
-      <div className="bg-white border-b border-crm-border">
+      {/* Tab Navigation - Conversational Style */}
+      <div className="bg-white dark:bg-[#1a1d24] border-b border-crm-border">
         <div className="flex items-center px-6">
           <button
             onClick={() => setActiveTab('content')}
             className={`flex items-center gap-2 px-4 py-4 text-sm font-medium border-b-2 transition-colors ${
               activeTab === 'content'
-                ? 'border-primary-blue text-primary-blue'
+                ? 'border-primary text-primary'
                 : 'border-transparent text-crm-text-secondary hover:text-crm-text-primary'
             }`}
           >
@@ -307,7 +324,7 @@ export default function FormBuilderV2() {
             onClick={() => setActiveTab('workflow')}
             className={`flex items-center gap-2 px-4 py-4 text-sm font-medium border-b-2 transition-colors ${
               activeTab === 'workflow'
-                ? 'border-primary-blue text-primary-blue'
+                ? 'border-primary text-primary'
                 : 'border-transparent text-crm-text-secondary hover:text-crm-text-primary'
             }`}
           >
@@ -318,7 +335,7 @@ export default function FormBuilderV2() {
             onClick={() => setActiveTab('connect')}
             className={`flex items-center gap-2 px-4 py-4 text-sm font-medium border-b-2 transition-colors ${
               activeTab === 'connect'
-                ? 'border-primary-blue text-primary-blue'
+                ? 'border-primary text-primary'
                 : 'border-transparent text-crm-text-secondary hover:text-crm-text-primary'
             }`}
           >
@@ -329,7 +346,7 @@ export default function FormBuilderV2() {
             onClick={() => setActiveTab('share')}
             className={`flex items-center gap-2 px-4 py-4 text-sm font-medium border-b-2 transition-colors ${
               activeTab === 'share'
-                ? 'border-primary-blue text-primary-blue'
+                ? 'border-primary text-primary'
                 : 'border-transparent text-crm-text-secondary hover:text-crm-text-primary'
             }`}
           >
@@ -340,7 +357,7 @@ export default function FormBuilderV2() {
             onClick={() => setActiveTab('results')}
             className={`flex items-center gap-2 px-4 py-4 text-sm font-medium border-b-2 transition-colors ${
               activeTab === 'results'
-                ? 'border-primary-blue text-primary-blue'
+                ? 'border-primary text-primary'
                 : 'border-transparent text-crm-text-secondary hover:text-crm-text-primary'
             }`}
           >
@@ -372,12 +389,13 @@ export default function FormBuilderV2() {
             setWorkflowEdges={setWorkflowEdges}
             endings={endings}
             setEndings={setEndings}
+            onSave={handleSave}
+            onBack={() => setActiveTab('content')}
           />
         )}
         {activeTab === 'connect' && (
           <ConnectTab
             form={form}
-            setForm={setForm}
           />
         )}
         {activeTab === 'share' && (

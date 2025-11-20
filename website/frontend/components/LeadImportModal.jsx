@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from './ui/dialog'; // Assuming Shadcn UI dialog
 import { Button } from './ui/button'; // Assuming Shadcn UI button
 import { Input } from './ui/input'; // Assuming Shadcn UI input
@@ -8,7 +8,7 @@ import { RadioGroup, RadioGroupItem } from './ui/radio-group'; // Assuming Shadc
 import { useToast } from './ui/use-toast'; // Assuming Shadcn UI toast
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002';
 
 const LeadImportModal = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,13 +29,7 @@ const LeadImportModal = ({ children }) => {
     { key: 'website', label: 'Website' },
   ];
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchPresets();
-    }
-  }, [isOpen]);
-
-  const fetchPresets = async () => {
+  const fetchPresets = useCallback(async () => {
     try {
       const token = localStorage.getItem('supabase.auth.token'); // Assuming token is stored here
       const response = await axios.get(`${API_BASE_URL}/api/leads/presets`, {
@@ -50,7 +44,13 @@ const LeadImportModal = ({ children }) => {
         variant: 'destructive',
       });
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchPresets();
+    }
+  }, [isOpen, fetchPresets]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -389,7 +389,7 @@ const LeadImportModal = ({ children }) => {
                         ))}
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white dark:bg-[#1a1d24] divide-y divide-gray-200 dark:divide-gray-700">
                       <tr>
                         {csvHeaders.map((header, index) => (
                           <td key={index} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

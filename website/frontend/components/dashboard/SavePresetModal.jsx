@@ -82,8 +82,8 @@ export default function SavePresetModal({ isOpen, onClose, onSave, currentPreset
           </div>
 
           {currentPresetName && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-sm text-blue-800">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p className="text-sm text-red-800">
                 <span className="font-medium">Based on:</span> {currentPresetName}
               </p>
             </div>

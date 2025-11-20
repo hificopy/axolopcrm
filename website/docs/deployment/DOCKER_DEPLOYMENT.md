@@ -71,7 +71,7 @@ To get the application running with Docker, follow these steps:
 *   **Dockerfile:** `docker/backend/Dockerfile`
 *   **Purpose:** Runs the Node.js Express API.
 *   **Environment Variables:** Configured via `docker-compose.yml` to connect to Supabase, Redis, and other external services.
-*   **Port Mapping:** Container port 3001 mapped to host port 4001.
+*   **Port Mapping:** Container port 3002 mapped to host port 4001.
 
 ### `redis` Service
 
@@ -121,9 +121,9 @@ docker stats
 
 ## 🚨 Troubleshooting
 
-*   **"Port is already allocated" error:** Ensure no other applications are using ports `4001` or `6379` on your host machine. The Docker backend now runs on port 4001 to avoid conflicts with the development server on port 3001.
+*   **"Port is already allocated" error:** Ensure no other applications are using ports `4001` or `6379` on your host machine. The Docker backend now runs on port 4001 to avoid conflicts with the development server on port 3002.
 *   **Container fails to start:** Check the logs for the specific service using `docker-compose logs -f <service_name>`.
-*   **Development vs Docker:** The development server runs on port 3001 while Docker container runs on port 4001, allowing both to run simultaneously.
+*   **Development vs Docker:** The development server runs on port 3002 while Docker container runs on port 4001, allowing both to run simultaneously.
 
 ---
 

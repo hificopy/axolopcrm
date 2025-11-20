@@ -1,16 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Mail, 
-  User, 
-  Tag, 
-  Target, 
-  Calendar, 
-  Clock, 
+import {
+  Mail,
+  Target,
+  Calendar,
   Settings,
   Save,
   Play,
-  Eye,
   ArrowRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -20,11 +16,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { useToast } from '@/components/ui/use-toast';
+import axios from 'axios';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002';
 
 const CreateCampaign = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const contentEditableRef = useRef(null);
   const [step, setStep] = useState(1);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSendingTest, setIsSendingTest] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const [campaignData, setCampaignData] = useState({
     name: '',
     subject: '',
@@ -39,7 +43,7 @@ const CreateCampaign = () => {
       stages: [],
       dateRange: null
     },
-    htmlContent: '<p>Hello {{firstName}},</p><p>This is your personalized email content.</p>', // eslint-disable-line no-template-curly-in-string
+    htmlContent: '<p>Hello {{firstName}},</p><p>This is your personalized email content.</p>',
     textContent: 'Hello, this is your email content.',
     testRecipients: []
   });
@@ -69,24 +73,107 @@ const CreateCampaign = () => {
   };
 
   const handleSave = async () => {
+    setIsSaving(true);
     try {
-      // In a real implementation, we would call the API to save the campaign
-      console.log('Saving campaign:', campaignData);
-      
-      // Simulate API call
-      setTimeout(() => {
-        navigate('/email-marketing');
-        alert('Campaign saved successfully!');
-      }, 500);
+      const token = localStorage.getItem('supabase.auth.token');
+      await axios.post(`${API_BASE_URL}/api/campaigns`, {
+        ...campaignData,
+        status: 'DRAFT'
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      toast({
+        title: "Campaign Saved",
+        description: "Your campaign has been saved as a draft.",
+      });
+
+      navigate('/app/email-marketing');
     } catch (error) {
       console.error('Error saving campaign:', error);
-      alert('Error saving campaign');
+      toast({
+        title: "Save Failed",
+        description: "Failed to save campaign. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleSendTest = async () => {
-    // Simulate sending test email
-    alert('Test email sent!');
+    if (!campaignData.testRecipients || campaignData.testRecipients.length === 0) {
+      toast({
+        title: "No Test Recipients",
+        description: "Please add test recipients before sending a test email.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSendingTest(true);
+    try {
+      const token = localStorage.getItem('supabase.auth.token');
+      await axios.post(`${API_BASE_URL}/api/campaigns/test`, {
+        ...campaignData,
+        recipients: campaignData.testRecipients
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      toast({
+        title: "Test Email Sent",
+        description: `Test email sent to ${campaignData.testRecipients.length} recipient(s).`,
+      });
+    } catch (error) {
+      console.error('Error sending test email:', error);
+      toast({
+        title: "Test Send Failed",
+        description: "Failed to send test email. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingTest(false);
+    }
+  };
+
+  const handleSendNow = async () => {
+    if (!campaignData.name || !campaignData.subject || !campaignData.htmlContent) {
+      toast({
+        title: "Incomplete Campaign",
+        description: "Please fill in all required fields before sending.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      const token = localStorage.getItem('supabase.auth.token');
+      await axios.post(`${API_BASE_URL}/api/campaigns/send`, {
+        ...campaignData,
+        status: 'SENT',
+        sentAt: new Date().toISOString()
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      toast({
+        title: "Campaign Sent",
+        description: "Your campaign has been sent successfully!",
+      });
+
+      navigate('/app/email-marketing');
+    } catch (error) {
+      console.error('Error sending campaign:', error);
+      toast({
+        title: "Send Failed",
+        description: "Failed to send campaign. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -94,20 +181,20 @@ const CreateCampaign = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-crm-text-primary">Create Email Campaign</h1>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => navigate('/email-marketing')}>
+          <Button variant="outline" onClick={() => navigate('/app/email-marketing')} disabled={isSaving || isSending}>
             Cancel
           </Button>
-          <Button onClick={handleSave} className="flex items-center gap-2">
+          <Button onClick={handleSave} className="flex items-center gap-2" disabled={isSaving}>
             <Save className="w-4 h-4" />
-            Save Draft
+            {isSaving ? 'Saving...' : 'Save Draft'}
           </Button>
-          <Button onClick={handleSendTest} variant="outline" className="flex items-center gap-2">
+          <Button onClick={handleSendTest} variant="outline" className="flex items-center gap-2" disabled={isSendingTest}>
             <Mail className="w-4 h-4" />
-            Send Test
+            {isSendingTest ? 'Sending...' : 'Send Test'}
           </Button>
-          <Button className="flex items-center gap-2">
+          <Button onClick={handleSendNow} className="flex items-center gap-2" disabled={isSending}>
             <Play className="w-4 h-4" />
-            Send Now
+            {isSending ? 'Sending...' : 'Send Now'}
           </Button>
         </div>
       </div>
@@ -116,7 +203,7 @@ const CreateCampaign = () => {
       <div className="flex items-center gap-4">
         <div 
           className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-            step === 1 ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'
+            step === 1 ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-500'
           }`}
           onClick={() => setStep(1)}
         >
@@ -126,7 +213,7 @@ const CreateCampaign = () => {
         <ArrowRight className="w-4 h-4 text-gray-400" />
         <div 
           className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-            step === 2 ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'
+            step === 2 ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-500'
           }`}
           onClick={() => setStep(2)}
         >
@@ -136,7 +223,7 @@ const CreateCampaign = () => {
         <ArrowRight className="w-4 h-4 text-gray-400" />
         <div 
           className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-            step === 3 ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'
+            step === 3 ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-500'
           }`}
           onClick={() => setStep(3)}
         >
@@ -146,7 +233,7 @@ const CreateCampaign = () => {
         <ArrowRight className="w-4 h-4 text-gray-400" />
         <div 
           className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-            step === 4 ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'
+            step === 4 ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-500'
           }`}
           onClick={() => setStep(4)}
         >
@@ -281,7 +368,7 @@ const CreateCampaign = () => {
                 <div 
                   ref={contentEditableRef}
                   contentEditable
-                  className="min-h-[250px] p-2 bg-white border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="min-h-[250px] p-2 bg-white dark:bg-[#15171d] border rounded dark:border-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   onBlur={(e) => handleInputChange('htmlContent', e.target.innerHTML)}
                 >
                 </div>

@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import contactService from '../services/contactService.js';
+import { protect } from '../middleware/authMiddleware.js';
+
 const router = express.Router();
-const contactService = require('../services/contactService');
-const { protect } = require('../middleware/authMiddleware');
 
 // Get all contacts for the authenticated user
 router.get('/', protect, async (req, res) => {
@@ -75,4 +76,26 @@ router.delete('/:id', protect, async (req, res) => {
   }
 });
 
-module.exports = router;
+// Route to export contacts to CSV
+router.get('/export', protect, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { exportContacts } = await import('../utils/export.js');
+
+    // Get filter parameters from query string
+    const filters = {
+      leadId: req.query.leadId
+    };
+
+    const csv = await exportContacts(userId, filters);
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="contacts_export.csv"');
+    res.send(csv);
+  } catch (error) {
+    console.error('Error exporting contacts:', error);
+    res.status(500).json({ message: 'Failed to export contacts', error: error.message });
+  }
+});
+
+export default router;

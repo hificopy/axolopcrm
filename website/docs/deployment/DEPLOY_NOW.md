@@ -15,14 +15,20 @@
 - ✅ **Environment Configuration** - Vercel with proper API endpoints
 
 ### Backend Infrastructure (100%)
-- ✅ **Docker Compose** - Services for backend functionality:
-  - crm-backend (Node 20 + Express API)
+- ✅ **Self-Hosted Server** - Running on macOS with Docker Compose:
+  - crm-backend (Node 20 + Express API on port 3002)
   - crm-redis (Redis 7 for caching)
   - crm-chromadb (Vector DB for AI features)
-  - n8n (Automation platform)
+- ✅ **Dynamic DNS** - axolop.hopto.org via No-IP service
+- ✅ **Router Configuration** - TP-Link AXE with port forwarding (port 3002)
 - ✅ **Application configuration** - Backend services with proper Supabase integration
 - ✅ **.env** - Environment variables (Supabase configured)
 - ✅ **deploy.sh** - Backend deployment script
+
+### Frontend-Backend Communication (100%)
+- ✅ **API Proxy** - Vercel proxies /api/* requests to http://axolop.hopto.org:3002
+- ✅ **CORS Configuration** - Backend allows requests from https://axolop.com
+- ✅ **Secure Communication** - End-to-end HTTPS communication flow
 
 ### Database & Security (100%)
 - ✅ **Supabase PostgreSQL Cloud** - Production database ready
@@ -66,22 +72,55 @@ docker-compose up -d
 
 ### URLs
 - **Frontend:** Vercel deployment (from mastered branch)
-- **Backend API (dev):** http://localhost:3001 (development)
-- **Backend API (Docker):** http://localhost:4001 (when running in Docker container)
+- **Backend API (dev):** http://localhost:3002 (development)
+- **Backend API (Docker):** http://localhost:3002 (when running in Docker container)
+- **Backend API (Production):** http://axolop.hopto.org:3002 (dynamic DNS forwarding to Docker container)
 - **ChromaDB:** http://localhost:8001 (in Docker) / self-hosted in production
-- **Health Check:** http://localhost:4001/health (Docker) or http://localhost:3001/health (dev)
+- **Health Check:** http://localhost:3002/health (Docker) or http://localhost:3002/health (dev)
 
 ---
 
 ## 📋 Git Workflow
 
-### Branch Strategy
-- **`mastered` branch:** Production-ready code deployed to Vercel
+### Branch Strategy (CRITICAL - FOLLOW EXACTLY)
+- **`mastered` branch:** Production-ready code deployed to Vercel (LIVE WEBSITE)
 - **`beta` branch:** Testing environment, deploy here first before mastered
 - **`backup` branch:** Backup of important versions
 - **Local `backups/` folder:** For version preservation of local files.
 - **Local `beta/` folder:** For local testing environment files.
 - **Local `mastered/` folder:** For local production-ready files.
+
+### Deployment Flow (MANDATORY)
+1. **Development**: Work on `main` branch
+2. **Testing**: Deploy to `beta` branch for testing
+3. **Production**: Only after thorough testing, deploy to `mastered`
+4. **NEVER** deploy directly to `mastered` without beta testing
+
+### Release Management Process
+
+#### Pre-Release Requirements (MANDATORY)
+1. **Backup Creation** (AI Assisted)
+   - Create backup in `../mastered/` folder: `backup-YYYYMMDD-HHMMSS-description`
+   - Document changes and version number
+
+2. **Version Management** (Human Controlled)
+   - Version format: V.X.Y (e.g., V1.0, V1.1, V1.2)
+   - Next version is always one point above last release
+
+3. **Feature Documentation** (AI Assisted)
+   - Generate changelog from last version
+   - Document new features and changes
+
+#### Release Execution (HUMAN ONLY)
+1. **Final Testing**: Manual testing on beta branch
+2. **Developer Verification**: Juan manually tests all features
+3. **Manual Push**: Only Juan performs `git push` to `mastered`
+4. **Vercel Deployment**: Manual deployment to production (by Juan)
+
+#### AI Role in Deployment (LIMITED)
+- **AI CAN**: Create backups, generate documentation, prepare release notes
+- **AI CANNOT**: Commit to GitHub, push to Vercel, or make production releases
+- **AI MUST**: Remind about backup process and documentation requirements
 
 ### Deployment Safety
 1. **Always test on beta first** - Deploy to beta branch before mastered
@@ -111,8 +150,8 @@ docker-compose up -d
 ### Backend Health
 ```bash
 # Check backend health (development)
-curl http://localhost:3001/health
-curl http://localhost:3001/api/health
+curl http://localhost:3002/health
+curl http://localhost:3002/api/health
 
 # Check backend health (Docker)
 curl http://localhost:4001/health

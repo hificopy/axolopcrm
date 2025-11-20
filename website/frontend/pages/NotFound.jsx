@@ -35,7 +35,7 @@ function NotFound() {
       <div className="max-w-md w-full px-6 text-center">
         {/* 404 Illustration */}
         <div className="mb-8">
-          <div className="text-9xl font-bold text-primary-blue opacity-20">404</div>
+          <div className="text-9xl font-bold text-primary opacity-20">404</div>
         </div>
 
         {/* Error Message */}
@@ -52,8 +52,8 @@ function NotFound() {
         </div>
 
         {/* Auto-redirect notice */}
-        <div className="mb-6 p-4 bg-primary-blue/10 rounded-lg">
-          <p className="text-sm text-primary-blue">
+        <div className="mb-6 p-4 bg-primary/10 rounded-lg">
+          <p className="text-sm text-primary">
             Redirecting to home in <span className="font-bold">{countdown}</span> seconds...
           </p>
         </div>
@@ -70,7 +70,7 @@ function NotFound() {
 
           <Link
             to="/"
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-primary-blue hover:bg-primary-blue/90 text-white rounded-lg transition-colors"
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors"
           >
             <Home className="w-4 h-4" />
             Go to Home
@@ -84,25 +84,25 @@ function NotFound() {
           </p>
           <div className="flex flex-wrap gap-2 justify-center">
             <Link
-              to="/inbox"
+              to="/app/inbox"
               className="px-4 py-2 text-sm bg-crm-bg-secondary hover:bg-crm-bg-tertiary text-crm-text-primary rounded-lg transition-colors"
             >
               Inbox
             </Link>
             <Link
-              to="/contacts"
+              to="/app/contacts"
               className="px-4 py-2 text-sm bg-crm-bg-secondary hover:bg-crm-bg-tertiary text-crm-text-primary rounded-lg transition-colors"
             >
               Contacts
             </Link>
             <Link
-              to="/pipeline"
+              to="/app/pipeline"
               className="px-4 py-2 text-sm bg-crm-bg-secondary hover:bg-crm-bg-tertiary text-crm-text-primary rounded-lg transition-colors"
             >
               Pipeline
             </Link>
             <Link
-              to="/settings"
+              to="/app/settings"
               className="px-4 py-2 text-sm bg-crm-bg-secondary hover:bg-crm-bg-tertiary text-crm-text-primary rounded-lg transition-colors"
             >
               Settings

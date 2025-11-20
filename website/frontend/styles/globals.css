@@ -2,6 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom scrollbar for dashboard widgets */
+.dashboard-widget {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(123, 28, 20, 0.3) transparent;
+}
+
+.dashboard-widget::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.dashboard-widget::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dashboard-widget::-webkit-scrollbar-thumb {
+  background-color: rgba(123, 28, 20, 0.3);
+  border-radius: 3px;
+}
+
+.dashboard-widget::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(123, 28, 20, 0.5);
+}
+
 @layer base {
   :root {
     /* Close CRM Color Variables */
@@ -56,14 +91,14 @@
   }
 
   .dark {
-    --background: 0 0% 6%;
-    --foreground: 0 0% 98%;
+    --background: 216 20% 5%;
+    --foreground: 0 0% 100%;
 
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 98%;
+    --card: 216 20% 5%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 6%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 216 20% 5%;
+    --popover-foreground: 0 0% 100%;
 
     --primary: 4 85% 50%; /* #7b1c14 lighter for dark mode */
     --primary-foreground: 0 0% 100%;
@@ -90,22 +125,25 @@
     --primary-yellow: 38 92% 65%; /* Brighter saffron for dark mode */
     --primary-black: 0 0% 98%; /* #101010 equivalent in dark mode */
     --primary-accent: 4 85% 50%; /* #7b1c14 lighter in dark mode */
-    --crm-text-primary: 0 0% 98%;
-    --crm-text-secondary: 0 0% 65%;
-    --crm-bg-light: 0 0% 15%;
-    --crm-border: 0 0% 25%;
-    --crm-sidebar: 0 0% 15%;
-    --crm-sidebar-gradient-start: 4 85% 12%;
-    --crm-sidebar-gradient-mid: 0 0% 15%;
-    --crm-sidebar-gradient-end: 4 60% 18%;
-    --crm-sidebar-hover: 4 70% 20%;
-    --crm-sidebar-active: 4 85% 35%;
+    --crm-text-primary: 0 0% 100%;
+    --crm-text-secondary: 0 0% 70%;
+    --crm-bg-light: 216 20% 5%; /* Darker neutral background #0d0f12 */
+    --crm-border: 0 0% 20%;
+    /* Sidebar remains identical in both light and dark mode */
+    --crm-sidebar: 0 0% 6%; /* #101010 - Dark sidebar for Axolop */
+    --crm-sidebar-gradient-start: 4 85% 8%; /* Deep burgundy-black */
+    --crm-sidebar-gradient-mid: 0 0% 6%; /* Main black #101010 */
+    --crm-sidebar-gradient-end: 4 60% 10%; /* Warm dark accent */
+    --crm-sidebar-hover: 4 70% 15%; /* Warm hover with red undertones */
+    --crm-sidebar-active: 4 85% 27%; /* Accent red #7b1c14 */
   }
 }
 
 @layer base {
   * {
     @apply border-border;
+    /* Smooth transitions for all elements */
+    transition: background-color, color, border-color, box-shadow 150ms ease-in-out;
   }
 
   html,
@@ -115,12 +153,17 @@
     width: 100%;
     margin: 0;
     padding: 0;
+    /* Enable smooth scrolling globally */
+    scroll-behavior: smooth;
   }
 
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    /* Better font rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   /* Close CRM Typography - Premium Hierarchy */
@@ -196,7 +239,7 @@
 
   /* Close CRM Card Styles */
   .card-crm {
-    @apply bg-white border border-crm-border rounded-lg shadow-crm-card
+    @apply bg-white dark:bg-[#1a1d24] border border-crm-border rounded-lg shadow-crm-card
            hover:shadow-crm-hover transition-shadow duration-150;
   }
 
@@ -217,19 +260,19 @@
   }
 
   .table-crm thead {
-    @apply border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white;
+    @apply border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800;
   }
 
   .table-crm th {
-    @apply px-4 py-3.5 font-semibold text-xs uppercase tracking-wider text-gray-600 border-b border-gray-100;
+    @apply px-4 py-3.5 font-semibold text-xs uppercase tracking-wider text-gray-600 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700;
   }
 
   .table-crm td {
-    @apply px-4 py-3.5 border-b border-gray-100;
+    @apply px-4 py-3.5 border-b border-gray-100 dark:border-gray-700;
   }
 
   .table-crm tbody tr {
-    @apply hover:bg-gray-50/50 transition-all duration-200 cursor-pointer border-l-2 border-l-transparent hover:border-l-[#7b1c14] hover:shadow-sm;
+    @apply hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer border-l-2 border-l-transparent hover:border-l-[#7b1c14] hover:shadow-sm;
   }
 
   .table-crm tbody tr:last-child td {
@@ -242,23 +285,23 @@
   }
 
   .badge-blue {
-    @apply bg-blue-100 text-blue-800;
+    @apply bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300;
   }
 
   .badge-green {
-    @apply bg-green-100 text-green-800;
+    @apply bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300;
   }
 
   .badge-yellow {
-    @apply bg-yellow-100 text-yellow-800;
+    @apply bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300;
   }
 
   .badge-red {
-    @apply bg-red-100 text-red-800;
+    @apply bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300;
   }
 
   .badge-gray {
-    @apply bg-gray-100 text-gray-800;
+    @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300;
   }
 }
 
@@ -308,6 +351,45 @@
 
   .crm-button-group {
     @apply flex flex-wrap items-center gap-2;
+  }
+
+  /* Performance enhancements for smooth interactions */
+  .transform-gpu {
+    transform: translate3d(0, 0, 0);
+  }
+
+  .will-change-transform {
+    will-change: transform;
+  }
+
+  .will-change-contents {
+    will-change: contents;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  /* Optimize for animations */
+  .animate-fast {
+    animation-duration: 0.2s;
+  }
+
+  .animate-normal {
+    animation-duration: 0.3s;
+  }
+
+  .animate-slow {
+    animation-duration: 0.5s;
+  }
+
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
@@ -404,6 +486,7 @@
 .react-grid-layout {
   position: relative;
   transition: height 200ms ease;
+  min-width: fit-content;
 }
 
 .react-grid-item {
@@ -448,8 +531,13 @@
   bottom: 3px;
   width: 5px;
   height: 5px;
-  border-right: 2px solid rgba(0, 0, 0, 0.4);
-  border-bottom: 2px solid rgba(0, 0, 0, 0.4);
+  border-right: 2px solid rgba(123, 28, 20, 0.6);
+  border-bottom: 2px solid rgba(123, 28, 20, 0.6);
+}
+
+.dark .react-grid-item > .react-resizable-handle::after {
+  border-right: 2px solid rgba(212, 70, 60, 0.6);
+  border-bottom: 2px solid rgba(212, 70, 60, 0.6);
 }
 
 .react-resizable-hide > .react-resizable-handle {
@@ -459,11 +547,153 @@
 .dashboard-widget {
   position: relative;
   height: 100%;
+  width: 100%;
   border-radius: 8px;
+  overflow: visible !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-widget > * {
+  box-sizing: border-box;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Edit mode styling */
+.react-grid-item.react-draggable-dragging .dashboard-widget {
+  opacity: 0.8;
+}
+
+.react-grid-item:hover .drag-handle {
+  background: linear-gradient(to right, #a03a2e, #7b1c14);
+}
+
+.drag-handle {
+  transition: background 0.2s ease;
+}
+
+.react-grid-item {
+  overflow: visible !important;
 }
 
 .drag-handle {
   cursor: move;
 }
 
+/* Ensure cards fit properly */
+.dashboard-widget .card {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
 
+.dashboard-widget .card > * {
+  box-sizing: border-box;
+}
+
+/* Responsive dashboard adjustments */
+@media (max-width: 768px) {
+  .react-grid-layout {
+    margin: 0;
+  }
+
+  .dashboard-widget {
+    font-size: 0.875rem;
+  }
+
+  .react-grid-item {
+    box-sizing: border-box;
+  }
+
+  /* Make tables scroll horizontally on tablets */
+  .table-crm {
+    min-width: 600px;
+  }
+
+  /* Hide less important table columns on mobile */
+  .table-mobile-hide {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-widget {
+    font-size: 0.75rem;
+  }
+
+  .react-grid-item {
+    touch-action: none;
+    box-sizing: border-box;
+  }
+
+  /* Tables need to scroll on mobile */
+  .table-crm {
+    min-width: 500px;
+    font-size: 0.75rem;
+  }
+
+  .table-crm th,
+  .table-crm td {
+    padding: 0.5rem 0.75rem;
+  }
+
+  /* Button groups stack better on very small screens */
+  .crm-button-group {
+    width: 100%;
+  }
+
+  .crm-button-group button {
+    flex: 1;
+    min-width: fit-content;
+  }
+}
+
+
+
+/* Ensure content doesn't overlap with Chat/Tasks panels - TARGETED APPROACH */
+/* Chat/Tasks buttons are fixed at top-right, only ~60px tall */
+/* Only add spacing to content that's actually in the top-right area */
+
+@layer components {
+  /* For workflow/form builders: only top-right elements need spacing */
+  .workflow-builder-content > *:first-child,
+  .form-builder-content > *:first-child {
+    padding-top: 4rem; /* 64px - enough to clear the buttons */
+  }
+
+  /* Alternative: Add margin to top-right positioned elements only */
+  .top-right-safe-area {
+    margin-top: 4rem;
+  }
+
+  /* Ensure modal/dialog content doesn't get covered */
+  .dialog-content-safe,
+  .modal-content-safe {
+    margin-top: 5rem;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .workflow-builder-content > *:first-child,
+  .form-builder-content > *:first-child {
+    padding-top: 1rem; /* Less padding on mobile */
+  }
+}
+
+/* Shimmer animation for Clear Placeholder Data button */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}

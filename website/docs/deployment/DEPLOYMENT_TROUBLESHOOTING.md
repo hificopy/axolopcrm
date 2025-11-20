@@ -47,10 +47,10 @@ Error: Bind for 0.0.0.0:3001 failed: port is already allocated
 **Solution:**
 ```bash
 # Check what's using the port
-lsof -ti:3001
+lsof -ti:3002
 
 # Kill process using the port
-kill -9 $(lsof -ti:3001)
+kill -9 $(lsof -ti:3002)
 
 # Or stop Docker containers that may be using the port
 docker-compose down
@@ -156,8 +156,8 @@ docker build --no-cache -t crm-backend .
 ### Backend Health
 ```bash
 # Check if backend is running
-curl http://localhost:3001/health
-curl http://localhost:3001/api/health
+curl http://localhost:3002/health
+curl http://localhost:3002/api/health
 
 # Check all services
 docker-compose ps

@@ -1,41 +1,86 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useSupabase } from '../context/SupabaseContext';
+import api from '../lib/api';
 
-const ProtectedRoute = ({ children, requireAdmin = true }) => {
+const ProtectedRoute = ({ children, requireAdmin = false, skipOnboarding = false }) => {
   const { user, loading } = useSupabase();
   const location = useLocation();
-  const hasBetaAccess = sessionStorage.getItem('betaAccess') === 'true';
+  const [onboardingStatus, setOnboardingStatus] = useState(null);
+  const [checkingOnboarding, setCheckingOnboarding] = useState(true);
 
-  // If still loading, show a loading state
-  if (loading) {
+  // Check if user is admin (exempt from onboarding)
+  const isAdmin = user && user.email === 'axolopcrm@gmail.com';
+
+  // Check if user is Kate (special onboarding requirement)
+  const isKate = user && user.email === 'kate@kateviolet.com';
+
+  // Check onboarding status
+  useEffect(() => {
+    async function checkOnboarding() {
+      if (!user || skipOnboarding || isAdmin) {
+        setCheckingOnboarding(false);
+        return;
+      }
+
+      try {
+        const response = await api.get('/users/me/onboarding-status');
+        setOnboardingStatus(response.data.onboarding_completed);
+      } catch (error) {
+        console.error('Failed to check onboarding status:', error);
+        // If error, assume not completed
+        setOnboardingStatus(false);
+      } finally {
+        setCheckingOnboarding(false);
+      }
+    }
+
+    checkOnboarding();
+  }, [user, skipOnboarding, isAdmin]);
+
+  // If still loading auth, show a loading state
+  if (loading || checkingOnboarding) {
     return (
-      <div className="flex h-screen items-center justify-center bg-crm-bg-light">
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
         <div className="text-center">
-          <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary-blue border-t-transparent"></div>
-          <p className="text-crm-text-secondary">Loading Axolop CRM...</p>
+          <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent mx-auto"></div>
+          <p className="text-gray-300">Loading Axolop CRM...</p>
         </div>
       </div>
     );
   }
 
-  // Check for beta access - this is required for all routes
-  if (!hasBetaAccess) {
-    return <Navigate to="/password" state={{ from: location }} replace />;
+  // Check if user is authenticated
+  if (!user) {
+    // Redirect to sign in, saving the attempted location
+    return <Navigate to="/signin" state={{ from: location }} replace />;
   }
 
-  // Check for admin access if admin access is required
+  // Check for admin access if required
   if (requireAdmin) {
-    // Admin check - for now, we'll consider DEV_USER as admin
-    // In a real implementation, you'd check user roles from your auth system
-    const isAdmin = (window.DEV_MODE && window.DEV_USER) || 
-                   (user && user.email === 'juan@axolop.com') ||
-                   (user && user.app_metadata && user.app_metadata.roles && 
-                    user.app_metadata.roles.includes('admin'));
-    
-    if (!isAdmin) {
-      // For non-admins, redirect to a permission denied page or back to beta login
-      return <Navigate to="/password" state={{ from: location }} replace />;
+    const isAdminUser = isAdmin ||
+                   (user && user.app_metadata && user.app_metadata.roles &&
+                    user.app_metadata.roles.includes('admin')) ||
+                   (user && user.user_metadata && user.user_metadata.role === 'admin');
+
+    if (!isAdminUser) {
+      // Redirect non-admins to dashboard or show access denied
+      return <Navigate to="/app/dashboard" state={{ accessDenied: true }} replace />;
+    }
+  }
+
+  // Check if onboarding is required (skip for admin and onboarding page itself)
+  if (!skipOnboarding && !isAdmin && onboardingStatus === false && location.pathname !== '/onboarding') {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  // Special case: Kate must complete both regular and special onboarding
+  if (!skipOnboarding && isKate && location.pathname !== '/onboarding') {
+    // Check if Kate has completed the special onboarding via localStorage
+    const kateOnboardingCompleted = localStorage.getItem('kateOnboardingCompleted');
+    if (!kateOnboardingCompleted) {
+      // Redirect Kate to onboarding to complete her special onboarding
+      return <Navigate to="/onboarding" replace />;
     }
   }
 

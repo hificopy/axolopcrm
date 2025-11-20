@@ -15,14 +15,11 @@
     },
     {
       "src": "/api/(.*)",
-      "status": 404,
-      "dest": "/api/404"
+      "dest": "http://axolop.hopto.org:3002/api/$1"
     },
     {
-      "src": "/(.*\\.(js|css|json|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|mp4|webm|webp))",
-      "headers": {
-        "Cache-Control": "public, max-age=31536000, immutable"
-      }
+      "src": "/health",
+      "dest": "http://axolop.hopto.org:3002/health"
     },
     {
       "src": "/(.*)",

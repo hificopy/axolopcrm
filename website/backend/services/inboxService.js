@@ -1,6 +1,6 @@
-const { createClient } = require('@supabase/supabase-js');
-const { identifyPotential } = require('./emailIdentificationService');
-const gmailService = require('./gmailService'); // Import gmailService
+import { createClient } from '@supabase/supabase-js';
+import { identifyPotential } from './emailIdentificationService.js';
+import gmailService from './gmailService.js';
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -141,9 +141,6 @@ const syncGmailEmails = async (userId) => {
   }
 };
 
-  }
-};
-
 // Send an email using Gmail API and record it
 const sendEmail = async (userId, { to, subject, body, inReplyToMessageId = null }) => {
   try {
@@ -182,13 +179,13 @@ const sendEmail = async (userId, { to, subject, body, inReplyToMessageId = null 
   }
 };
 
-module.exports = {
+export default {
   getEmails,
   getEmailById,
   ingestEmail,
   updateEmail,
   deleteEmail,
   syncGmailEmails,
-  sendEmail, // Export the new sendEmail function
+  sendEmail,
 };
 

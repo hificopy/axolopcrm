@@ -13,11 +13,14 @@ import {
   X,
   GripVertical,
   Target,
-  GitBranch
+  GitBranch,
+  Settings as SettingsIcon // Import SettingsIcon for the settings panel
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import QuestionSettingsPanel from './QuestionSettingsPanel'; // Import the new component
+import QuestionRenderer from './QuestionRenderer'; // Import the new component
 
 // Available question types
 const questionTypes = [
@@ -37,6 +40,7 @@ export default function ContentTab({ form, setForm, questions, setQuestions, onQ
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [responses, setResponses] = useState({});
   const [previewMode, setPreviewMode] = useState('desktop');
+  const [activeRightPanelTab, setActiveRightPanelTab] = useState('outline'); // 'outline' or 'settings'
 
   const addQuestion = (type) => {
     const newQuestion = {
@@ -54,12 +58,18 @@ export default function ContentTab({ form, setForm, questions, setQuestions, onQ
     const newQuestions = [...questions, newQuestion];
     setQuestions(newQuestions);
     if (onQuestionsChange) onQuestionsChange(newQuestions);
+    setSelectedQuestion(newQuestion); // Select the newly added question
+    setActiveRightPanelTab('settings'); // Switch to settings tab for the new question
   };
 
   const updateQuestion = (id, updates) => {
     const newQuestions = questions.map(q => q.id === id ? { ...q, ...updates } : q);
     setQuestions(newQuestions);
     if (onQuestionsChange) onQuestionsChange(newQuestions);
+    // Also update the selected question if it's the one being updated
+    if (selectedQuestion && selectedQuestion.id === id) {
+      setSelectedQuestion(prev => ({ ...prev, ...updates }));
+    }
   };
 
   const deleteQuestion = (id) => {
@@ -67,14 +77,20 @@ export default function ContentTab({ form, setForm, questions, setQuestions, onQ
     setQuestions(newQuestions);
     if (selectedQuestion?.id === id) {
       setSelectedQuestion(null);
+      setActiveRightPanelTab('outline'); // Go back to outline if selected question is deleted
     }
     if (onQuestionsChange) onQuestionsChange(newQuestions);
+  };
+
+  const handleQuestionSelect = (question) => {
+    setSelectedQuestion(question);
+    setActiveRightPanelTab('settings'); // Automatically switch to settings when a question is selected
   };
 
   return (
     <div className="flex h-full overflow-hidden">
       {/* Left Panel - Question Types */}
-      <div className="w-64 bg-white border-r border-crm-border overflow-y-auto">
+      <div className="w-64 bg-white dark:bg-[#1a1d24] border-r border-crm-border overflow-y-auto">
         <div className="p-4">
           <h3 className="font-semibold text-crm-text-primary mb-3">Question Types</h3>
           <div className="space-y-1">
@@ -86,7 +102,7 @@ export default function ContentTab({ form, setForm, questions, setQuestions, onQ
                   onClick={() => addQuestion(type)}
                   className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 text-left transition-colors"
                 >
-                  <Icon className="h-5 w-5 text-primary-blue" />
+                  <Icon className="h-5 w-5 text-primary" />
                   <div>
                     <div className="font-medium text-sm">{type.name}</div>
                     <div className="text-xs text-crm-text-secondary">{type.description}</div>
@@ -101,7 +117,7 @@ export default function ContentTab({ form, setForm, questions, setQuestions, onQ
       {/* Center Panel - Question Preview */}
       <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
         {/* Preview Controls */}
-        <div className="bg-white border-b border-crm-border p-4">
+        <div className="bg-white dark:bg-[#1a1d24] border-b border-crm-border p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               {selectedQuestion ? (
@@ -113,6 +129,7 @@ export default function ContentTab({ form, setForm, questions, setQuestions, onQ
                       const currentIndex = questions.findIndex(q => q.id === selectedQuestion.id);
                       if (currentIndex > 0) {
                         setSelectedQuestion(questions[currentIndex - 1]);
+                        setActiveRightPanelTab('settings');
                       }
                     }}
                     disabled={questions.findIndex(q => q.id === selectedQuestion.id) === 0}
@@ -129,6 +146,7 @@ export default function ContentTab({ form, setForm, questions, setQuestions, onQ
                       const currentIndex = questions.findIndex(q => q.id === selectedQuestion.id);
                       if (currentIndex < questions.length - 1) {
                         setSelectedQuestion(questions[currentIndex + 1]);
+                        setActiveRightPanelTab('settings');
                       }
                     }}
                     disabled={questions.findIndex(q => q.id === selectedQuestion.id) === questions.length - 1}
@@ -148,7 +166,7 @@ export default function ContentTab({ form, setForm, questions, setQuestions, onQ
               <button
                 className={`px-3 py-1.5 text-xs ${
                   previewMode === 'desktop'
-                    ? 'bg-primary-blue text-white'
+                    ? 'bg-primary text-white'
                     : 'bg-white text-crm-text-secondary hover:bg-gray-50'
                 }`}
                 onClick={() => setPreviewMode('desktop')}
@@ -159,7 +177,7 @@ export default function ContentTab({ form, setForm, questions, setQuestions, onQ
               <button
                 className={`px-3 py-1.5 text-xs ${
                   previewMode === 'mobile'
-                    ? 'bg-primary-blue text-white'
+                    ? 'bg-primary text-white'
                     : 'bg-white text-crm-text-secondary hover:bg-gray-50'
                 }`}
                 onClick={() => setPreviewMode('mobile')}
@@ -174,7 +192,7 @@ export default function ContentTab({ form, setForm, questions, setQuestions, onQ
         <div className="flex-1 flex items-center justify-center p-6 overflow-auto bg-gray-100">
           {selectedQuestion ? (
             <div className={`${previewMode === 'mobile' ? 'w-full max-w-sm mx-4' : 'w-full max-w-4xl'}`}>
-              <div className="bg-white min-h-[500px] rounded-xl shadow-sm overflow-hidden flex flex-col">
+              <div className="bg-white dark:bg-[#1a1d24] min-h-[500px] rounded-xl shadow-sm overflow-hidden flex flex-col">
                 {/* Header */}
                 <div className="bg-white border-b border-gray-200 p-6">
                   <h1 className="text-xl font-bold text-crm-text-primary">{form.title}</h1>
@@ -197,10 +215,13 @@ export default function ContentTab({ form, setForm, questions, setQuestions, onQ
                       {selectedQuestion.title}
                     </h2>
 
-                    {/* Question Input (truncated for brevity - use same logic from FormBuilder.jsx) */}
+                    {/* Question Input */}
                     <div className="mt-4">
-                      {/* Add question rendering logic here */}
-                      <p className="text-sm text-crm-text-secondary">Question preview rendering...</p>
+                      <QuestionRenderer
+                        question={selectedQuestion}
+                        value={responses[selectedQuestion.id]}
+                        onChange={(val) => setResponses(prev => ({ ...prev, [selectedQuestion.id]: val }))}
+                      />
                     </div>
                   </div>
 
@@ -208,7 +229,7 @@ export default function ContentTab({ form, setForm, questions, setQuestions, onQ
                   <div className="mt-6">
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
-                        className="bg-primary-blue h-2 rounded-full transition-all duration-300"
+                        className="bg-primary h-2 rounded-full transition-all duration-300"
                         style={{ width: `${((questions.findIndex(q => q.id === selectedQuestion.id) + 1) / questions.length) * 100}%` }}
                       ></div>
                     </div>
@@ -228,73 +249,109 @@ export default function ContentTab({ form, setForm, questions, setQuestions, onQ
         </div>
       </div>
 
-      {/* Right Panel - Question Outline */}
-      <div className="w-80 bg-white border-l border-crm-border overflow-y-auto flex flex-col">
-        <div className="p-4">
-          <h3 className="font-semibold text-crm-text-primary mb-4 flex items-center justify-between">
-            <span>Form Outline</span>
-            <span className="text-sm text-crm-text-secondary">{questions.length} questions</span>
-          </h3>
-
-          <div className="space-y-2">
-            {questions.map((question, index) => {
-              const questionType = questionTypes.find(qt => qt.id === question.type);
-              const Icon = questionType?.icon || Type;
-              const hasConditionalLogic = question.conditional_logic && question.conditional_logic.length > 0;
-
-              return (
-                <div
-                  key={question.id}
-                  className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                    selectedQuestion?.id === question.id
-                      ? 'border-primary-blue bg-primary-blue/5'
-                      : 'border-gray-200 hover:bg-gray-50'
-                  }`}
-                  onClick={() => setSelectedQuestion(question)}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="flex flex-col items-center gap-1">
-                      <Icon className="h-4 w-4 mt-0.5 text-primary-blue flex-shrink-0" />
-                      {hasConditionalLogic && (
-                        <GitBranch className="h-3 w-3 text-blue-600" title="Has conditional logic" />
-                      )}
-                      {question.lead_scoring_enabled && (
-                        <Target className="h-3 w-3 text-green-600" title="Lead scoring enabled" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm text-crm-text-primary truncate">
-                        {index + 1}. {question.title}
-                      </div>
-                      <div className="text-xs text-crm-text-secondary">
-                        <span className="capitalize">{questionType?.name || question.type}</span>
-                        {question.required && <span className="text-red-500"> *</span>}
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 w-6 p-0 flex-shrink-0"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteQuestion(question.id);
-                      }}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {questions.length === 0 && (
-            <div className="text-center py-8 text-crm-text-secondary">
-              <p className="text-sm">No questions yet</p>
-              <p className="text-xs mt-1">Add questions to build your form</p>
+      {/* Right Panel - Question Outline / Settings */}
+      <div className="w-80 bg-white dark:bg-[#1a1d24] border-l border-crm-border overflow-y-auto flex flex-col">
+        {/* Tabs for Outline and Settings */}
+        <div className="flex border-b border-crm-border">
+          <button
+            className={`flex-1 py-3 text-sm font-medium ${
+              activeRightPanelTab === 'outline'
+                ? 'border-b-2 border-primary text-primary'
+                : 'text-crm-text-secondary hover:text-crm-text-primary'
+            }`}
+            onClick={() => setActiveRightPanelTab('outline')}
+          >
+            Outline
+          </button>
+          <button
+            className={`flex-1 py-3 text-sm font-medium ${
+              activeRightPanelTab === 'settings'
+                ? 'border-b-2 border-primary text-primary'
+                : 'text-crm-text-secondary hover:text-crm-text-primary'
+            }`}
+            onClick={() => setActiveRightPanelTab('settings')}
+            disabled={!selectedQuestion} // Disable settings tab if no question is selected
+          >
+            <div className="flex items-center justify-center gap-1">
+              <SettingsIcon className="h-4 w-4" /> Settings
             </div>
-          )}
+          </button>
         </div>
+
+        {activeRightPanelTab === 'outline' && (
+          <div className="p-4">
+            <h3 className="font-semibold text-crm-text-primary mb-4 flex items-center justify-between">
+              <span>Form Outline</span>
+              <span className="text-sm text-crm-text-secondary">{questions.length} questions</span>
+            </h3>
+
+            <div className="space-y-2">
+              {questions.map((question, index) => {
+                const questionType = questionTypes.find(qt => qt.id === question.type);
+                const Icon = questionType?.icon || Type;
+                const hasConditionalLogic = question.conditional_logic && question.conditional_logic.length > 0;
+
+                return (
+                  <div
+                    key={question.id}
+                    className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                      selectedQuestion?.id === question.id
+                        ? 'border-primary bg-primary/5'
+                        : 'border-gray-200 hover:bg-gray-50'
+                    }`}
+                    onClick={() => handleQuestionSelect(question)}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="flex flex-col items-center gap-1">
+                        <Icon className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
+                        {hasConditionalLogic && (
+                          <GitBranch className="h-3 w-3 text-red-600" title="Has conditional logic" />
+                        )}
+                        {question.lead_scoring_enabled && (
+                          <Target className="h-3 w-3 text-green-600" title="Lead scoring enabled" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm text-crm-text-primary truncate">
+                          {index + 1}. {question.title}
+                        </div>
+                        <div className="text-xs text-crm-text-secondary">
+                          <span className="capitalize">{questionType?.name || question.type}</span>
+                          {question.required && <span className="text-red-500"> *</span>}
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0 flex-shrink-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteQuestion(question.id);
+                        }}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {questions.length === 0 && (
+              <div className="text-center py-8 text-crm-text-secondary">
+                <p className="text-sm">No questions yet</p>
+                <p className="text-xs mt-1">Add questions to build your form</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeRightPanelTab === 'settings' && selectedQuestion && (
+          <QuestionSettingsPanel question={selectedQuestion} updateQuestion={updateQuestion} />
+        )}
+        {activeRightPanelTab === 'settings' && !selectedQuestion && (
+          <div className="p-4 text-crm-text-secondary">Select a question to edit its settings.</div>
+        )}
       </div>
     </div>
   );

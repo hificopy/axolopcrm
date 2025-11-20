@@ -15,34 +15,34 @@ const StatCard = React.forwardRef(({
 }, ref) => {
   const colorVariants = {
     blue: {
-      bg: 'bg-blue-100',
-      text: 'text-blue-600',
-      border: 'border-blue-200',
-      hover: 'group-hover:bg-blue-200'
+      bg: 'bg-red-100 dark:bg-red-950',
+      text: 'text-red-600 dark:text-red-400',
+      border: 'border-red-200 dark:border-red-800',
+      hover: 'group-hover:bg-red-200 dark:group-hover:bg-red-900'
     },
     green: {
-      bg: 'bg-emerald-100',
-      text: 'text-emerald-600',
-      border: 'border-emerald-200',
-      hover: 'group-hover:bg-emerald-200'
+      bg: 'bg-emerald-100 dark:bg-emerald-950',
+      text: 'text-emerald-600 dark:text-emerald-400',
+      border: 'border-emerald-200 dark:border-emerald-800',
+      hover: 'group-hover:bg-emerald-200 dark:group-hover:bg-emerald-900'
     },
     yellow: {
-      bg: 'bg-amber-100',
-      text: 'text-amber-600',
-      border: 'border-amber-200',
-      hover: 'group-hover:bg-amber-200'
+      bg: 'bg-amber-100 dark:bg-amber-950',
+      text: 'text-amber-600 dark:text-amber-400',
+      border: 'border-amber-200 dark:border-amber-800',
+      hover: 'group-hover:bg-amber-200 dark:group-hover:bg-amber-900'
     },
     accent: {
-      bg: 'bg-[#7b1c14]/10',
-      text: 'text-[#7b1c14]',
-      border: 'border-[#7b1c14]/20',
-      hover: 'group-hover:bg-[#7b1c14]/15'
+      bg: 'bg-[#7b1c14]/10 dark:bg-[#7b1c14]/20',
+      text: 'text-[#7b1c14] dark:text-[#d4463c]',
+      border: 'border-[#7b1c14]/20 dark:border-[#7b1c14]/40',
+      hover: 'group-hover:bg-[#7b1c14]/15 dark:group-hover:bg-[#7b1c14]/30'
     },
     gray: {
-      bg: 'bg-gray-100',
-      text: 'text-gray-600',
-      border: 'border-gray-200',
-      hover: 'group-hover:bg-gray-200'
+      bg: 'bg-gray-100 dark:bg-gray-800',
+      text: 'text-gray-600 dark:text-gray-400',
+      border: 'border-gray-200 dark:border-gray-700',
+      hover: 'group-hover:bg-gray-200 dark:group-hover:bg-gray-700'
     }
   };
 
@@ -58,8 +58,24 @@ const StatCard = React.forwardRef(({
     <CardComponent
       ref={ref}
       className={cn(
-        "bg-white rounded-xl p-6 border border-gray-200",
-        "hover:shadow-lg hover:border-gray-300",
+        // No borders, clean glass morphism design
+        "bg-white rounded-xl p-6 relative overflow-hidden",
+        "dark:bg-gradient-to-br dark:from-[#1a1d24] dark:to-[#15171d]",
+
+        // Light mode shadows
+        "shadow-[0_2px_8px_rgba(0,0,0,0.04),_0_1px_2px_rgba(0,0,0,0.02)]",
+        "hover:shadow-[0_8px_24px_rgba(123,28,20,0.08),_0_4px_8px_rgba(123,28,20,0.04)]",
+
+        // Dark mode glow
+        "dark:shadow-[0_4px_16px_rgba(0,0,0,0.4)]",
+        "dark:hover:shadow-[0_8px_32px_rgba(212,70,60,0.15),_0_4px_16px_rgba(0,0,0,0.5)]",
+
+        // Glass effect
+        "dark:backdrop-blur-xl dark:bg-opacity-80",
+
+        // Subtle outline
+        "border border-gray-100/50 dark:border-white/5",
+
         "transition-all duration-300 group",
         className
       )}
@@ -68,7 +84,7 @@ const StatCard = React.forwardRef(({
     >
       <div className="flex items-start justify-between mb-3">
         <div>
-          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          <p className="text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">
             {label}
           </p>
         </div>
@@ -85,7 +101,7 @@ const StatCard = React.forwardRef(({
 
       <div className="flex items-baseline justify-between">
         <div className={cn(
-          "text-3xl font-bold text-gray-900 transition-colors duration-300",
+          "text-3xl font-bold text-gray-900 dark:text-white transition-colors duration-300",
           color === 'accent' && "group-hover:text-[#7b1c14]"
         )}>
           {value}

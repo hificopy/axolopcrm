@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import { useDemoMode } from '../contexts/DemoModeContext';
 
 const SupabaseContext = createContext();
 
@@ -13,9 +14,13 @@ export const useSupabase = () => {
 
 export const SupabaseProvider = ({ children }) => {
   const [supabase, setSupabase] = useState(null);
-  const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { isDemoMode, demoUser } = useDemoMode();
+
+  // Use demo user when demo mode is enabled, otherwise use real user
+  const [user, setUser] = useState(null);
+  const effectiveUser = isDemoMode ? demoUser : user;
 
   useEffect(() => {
     // Initialize Supabase client
@@ -88,10 +93,10 @@ export const SupabaseProvider = ({ children }) => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: provider,
       options: {
-        redirectTo: window.location.origin, // Redirect back to your app after auth
+        redirectTo: `${window.location.origin}/app/dashboard`, // Redirect to dashboard after OAuth
       },
     });
-    
+
     if (error) {
       console.error('OAuth sign-in error:', error);
       throw error;
@@ -155,7 +160,7 @@ export const SupabaseProvider = ({ children }) => {
 
   const value = {
     supabase,
-    user,
+    user: effectiveUser,
     session,
     loading,
     signInWithOAuth,

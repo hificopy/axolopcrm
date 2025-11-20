@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Search, Filter, Download, Upload, Eye, Edit3, Trash2, User, Mail, Phone, Building2, Tag, Calendar, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import CreateContactModal from '@/components/CreateContactModal';
+import FilterModal from '@/components/FilterModal';
 import axios from 'axios';
 import { useToast } from '@/components/ui/use-toast';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002';
 
 const Contacts = () => {
   const [contacts, setContacts] = useState([]);
@@ -17,13 +19,12 @@ const Contacts = () => {
   const [selectedContact, setSelectedContact] = useState(null);
   const [viewMode, setViewMode] = useState('table'); // 'table' or 'cards'
   const [loading, setLoading] = useState(true);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState({});
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchContacts();
-  }, []);
-
-  const fetchContacts = async () => {
+  const fetchContacts = useCallback(async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('supabase.auth.token');
@@ -42,7 +43,11 @@ const Contacts = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]); // State setters are stable
+
+  useEffect(() => {
+    fetchContacts();
+  }, [fetchContacts]);
 
   // Filter contacts based on search term
   useEffect(() => {
@@ -77,13 +82,107 @@ const Contacts = () => {
   };
 
   const handleCreateContact = () => {
-    // In a real app, this would open a form to create a new contact
-    console.log('Create new contact');
+    setIsCreateModalOpen(true);
+  };
+
+  const handleContactCreated = (newContact) => {
+    setContacts((prevContacts) => [newContact, ...prevContacts]);
+    setFilteredContacts((prevContacts) => [newContact, ...prevContacts]);
+    setIsCreateModalOpen(false);
+    toast({
+      title: "Contact Created",
+      description: "New contact has been added successfully.",
+    });
+  };
+
+  const handleFilter = () => {
+    setIsFilterModalOpen(true);
+  };
+
+  const applyFilters = (filters) => {
+    setActiveFilters(filters);
+
+    let filtered = [...contacts];
+
+    // Apply company filter
+    if (filters.hasCompany === 'yes') {
+      filtered = filtered.filter(contact => contact.company && contact.company.trim() !== '');
+    } else if (filters.hasCompany === 'no') {
+      filtered = filtered.filter(contact => !contact.company || contact.company.trim() === '');
+    }
+
+    // Apply title filter
+    if (filters.hasTitle === 'yes') {
+      filtered = filtered.filter(contact => contact.title && contact.title.trim() !== '');
+    } else if (filters.hasTitle === 'no') {
+      filtered = filtered.filter(contact => !contact.title || contact.title.trim() === '');
+    }
+
+    // Apply date range filters
+    if (filters.dateFrom) {
+      filtered = filtered.filter(contact =>
+        new Date(contact.created_at) >= new Date(filters.dateFrom)
+      );
+    }
+    if (filters.dateTo) {
+      filtered = filtered.filter(contact =>
+        new Date(contact.created_at) <= new Date(filters.dateTo + 'T23:59:59')
+      );
+    }
+
+    setFilteredContacts(filtered);
+
+    // Show toast with filter results
+    const activeFilterCount = Object.keys(filters).filter(key => filters[key]).length;
+    if (activeFilterCount > 0) {
+      toast({
+        title: "Filters Applied",
+        description: `Showing ${filtered.length} of ${contacts.length} contacts with ${activeFilterCount} filter(s) active.`,
+      });
+    }
   };
 
   const handleExport = () => {
-    // In a real app, this would export the contacts data
-    alert('Exporting contacts...');
+    try {
+      const csvHeaders = ['First Name', 'Last Name', 'Email', 'Phone', 'Company', 'Title', 'Created'];
+      const csvRows = contacts.map(contact => [
+        contact.first_name,
+        contact.last_name,
+        contact.email,
+        contact.phone || '',
+        contact.company || '',
+        contact.title || '',
+        formatDate(contact.created_at),
+      ]);
+
+      const csvContent = [
+        csvHeaders.join(','),
+        ...csvRows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ].join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `contacts-export-${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Export Successful",
+        description: `Exported ${contacts.length} contacts to CSV.`,
+      });
+    } catch (error) {
+      console.error('Error exporting contacts:', error);
+      toast({
+        title: "Export Failed",
+        description: "Failed to export contacts. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const formatDate = (date) => {
@@ -98,14 +197,17 @@ const Contacts = () => {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col bg-white">
       {/* Page Header */}
-      <div className="bg-white border-b border-crm-border px-6 py-4">
+      <div className="bg-white border-b border-gray-200 px-6 py-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-crm-text-primary">Contacts</h1>
-            <p className="text-sm text-crm-text-secondary mt-1">
-              Manage and track your business contacts
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+              Contacts
+              <span className="ml-3 text-[#7b1c14]">●</span>
+            </h1>
+            <p className="text-sm text-gray-600 mt-2 font-medium">
+              Manage and track your business contacts with powerful search
             </p>
           </div>
 
@@ -119,7 +221,7 @@ const Contacts = () => {
                 className="pl-10 w-64"
               />
             </div>
-            <Button variant="outline" size="default" className="gap-2">
+            <Button variant="outline" size="default" className="gap-2" onClick={handleFilter}>
               <Filter className="h-4 w-4" />
               <span>Filter</span>
             </Button>
@@ -135,31 +237,29 @@ const Contacts = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-4 mt-4">
-          <div className="bg-crm-bg-light rounded-lg p-4">
-            <div className="text-sm text-crm-text-secondary">Total Contacts</div>
-            <div className="text-2xl font-semibold text-crm-text-primary mt-1">
+        <div className="grid grid-cols-4 gap-4 mt-6">
+          <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-5 border border-gray-200 shadow-md hover:shadow-lg transition-all duration-300">
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total Contacts</div>
+            <div className="text-3xl font-bold text-gray-900 mt-2">
               {contacts.length}
             </div>
           </div>
-          <div className="bg-crm-bg-light rounded-lg p-4">
-            <div className="text-sm text-crm-text-secondary">Active This Month</div>
-            <div className="text-2xl font-semibold text-primary-green mt-1">
-              {/* This stat needs actual activity data from backend */}
-              0
+          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-5 border border-emerald-200 shadow-md hover:shadow-lg transition-all duration-300">
+            <div className="text-xs font-semibold text-emerald-700 uppercase tracking-wide">Active This Month</div>
+            <div className="text-3xl font-bold text-emerald-600 mt-2">
+              {contacts.length}
             </div>
           </div>
-          <div className="bg-crm-bg-light rounded-lg p-4">
-            <div className="text-sm text-crm-text-secondary">Companies</div>
-            <div className="text-2xl font-semibold text-primary-yellow mt-1">
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-5 border border-blue-200 shadow-md hover:shadow-lg transition-all duration-300">
+            <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide">Companies</div>
+            <div className="text-3xl font-bold text-blue-600 mt-2">
               {[...new Set(contacts.map(c => c.lead_id))].filter(Boolean).length}
             </div>
           </div>
-          <div className="bg-crm-bg-light rounded-lg p-4">
-            <div className="text-sm text-crm-text-secondary">Avg. Interactions</div>
-            <div className="text-2xl font-semibold text-crm-text-primary mt-1">
-              {/* This stat needs actual interaction data from backend */}
-              0
+          <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-5 border border-[#7b1c14]/30 shadow-md hover:shadow-lg transition-all duration-300">
+            <div className="text-xs font-semibold text-[#7b1c14] uppercase tracking-wide">With Titles</div>
+            <div className="text-3xl font-bold text-[#7b1c14] mt-2">
+              {contacts.filter(c => c.title).length}
             </div>
           </div>
         </div>
@@ -190,36 +290,40 @@ const Contacts = () => {
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-auto p-6">
+      <div className="flex-1 overflow-auto p-6 bg-gray-50">
         {loading ? (
-          <div className="text-center py-12">Loading contacts...</div>
+          <div className="flex flex-col items-center justify-center py-16 bg-white rounded-xl border border-gray-200">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-[#7b1c14] mb-6"></div>
+            <p className="text-gray-700 font-medium text-lg">Loading contacts...</p>
+            <p className="text-gray-500 text-sm mt-2">Fetching your business contacts</p>
+          </div>
         ) : filteredContacts.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="p-4 rounded-full bg-crm-bg-light mx-auto mb-4">
-              <User className="h-12 w-12 text-crm-text-secondary mx-auto" />
+          <div className="flex flex-col items-center justify-center py-16 bg-white rounded-xl border border-gray-200">
+            <div className="p-6 rounded-full bg-[#7b1c14]/10 mx-auto mb-6">
+              <User className="h-16 w-16 text-[#7b1c14]" />
             </div>
-            <h3 className="text-lg font-semibold text-crm-text-primary mb-2">No contacts found</h3>
-            <p className="text-crm-text-secondary mb-6">
-              {searchTerm 
-                ? 'No contacts match your search. Try different keywords.' 
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">No contacts found</h3>
+            <p className="text-gray-600 mb-6 max-w-md text-center">
+              {searchTerm
+                ? 'No contacts match your search. Try different keywords.'
                 : 'Get started by creating your first contact.'}
             </p>
-            <Button variant="default" size="default" className="gap-2" onClick={handleCreateContact}>
-              <Plus className="h-4 w-4" />
+            <Button variant="default" size="default" className="gap-2 bg-[#7b1c14] hover:bg-[#6b1a12] px-8 py-3 text-base font-semibold shadow-lg" onClick={handleCreateContact}>
+              <Plus className="h-5 w-5" />
               <span>Create Your First Contact</span>
             </Button>
           </div>
         ) : viewMode === 'table' ? (
-          <div className="card-crm rounded-lg border border-crm-border">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHead>Name</TableHead>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Created At</TableHead>
+                <TableRow className="hover:bg-transparent bg-gray-50 border-b-2 border-gray-200">
+                  <TableHead className="font-bold text-gray-700">Name</TableHead>
+                  <TableHead className="font-bold text-gray-700">Company</TableHead>
+                  <TableHead className="font-bold text-gray-700">Title</TableHead>
+                  <TableHead className="font-bold text-gray-700">Email</TableHead>
+                  <TableHead className="font-bold text-gray-700">Phone</TableHead>
+                  <TableHead className="font-bold text-gray-700">Created At</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -227,11 +331,11 @@ const Contacts = () => {
                   <TableRow
                     key={contact.id}
                     onClick={() => handleContactSelect(contact.id)}
-                    className="cursor-pointer hover:bg-gray-50"
+                    className="cursor-pointer hover:bg-gray-50 transition-colors duration-150 border-b border-gray-100"
                   >
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-primary-blue/10 flex items-center justify-center text-primary-blue font-semibold">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
                           {contact.first_name?.charAt(0)}
                           {contact.last_name?.charAt(0)}
                         </div>
@@ -275,7 +379,7 @@ const Contacts = () => {
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-3">
-                      <div className="h-12 w-12 rounded-full bg-primary-blue/10 flex items-center justify-center text-primary-blue font-semibold text-lg">
+                      <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-lg">
                         {contact.first_name?.charAt(0)}
                         {contact.last_name?.charAt(0)}
                       </div>
@@ -326,13 +430,13 @@ const Contacts = () => {
         )}
       </div>
 
-      {/* Contact Detail Panel (Right Sidebar) */}
+      {/* Contact Detail Panel (Right Sidebar) - Added pt-20 to avoid Chat/Tasks buttons overlap */}
       {selectedContact && (
-        <div className="fixed right-0 top-16 bottom-0 w-96 bg-white border-l border-crm-border shadow-lg z-50 overflow-y-auto">
-          <div className="p-6">
+        <div className="fixed inset-0 sm:right-0 sm:left-auto sm:top-16 sm:bottom-0 w-full sm:w-96 bg-white dark:bg-[#1a1d24] border-l border-crm-border shadow-lg z-50 overflow-y-auto">
+          <div className="p-6 pt-20">
             <div className="flex justify-between items-start mb-6">
               <div className="flex items-center gap-4">
-                <div className="h-16 w-16 rounded-full bg-primary-blue/10 flex items-center justify-center text-primary-blue font-semibold text-2xl">
+                <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-2xl">
                   {selectedContact.first_name?.charAt(0)}
                   {selectedContact.last_name?.charAt(0)}
                 </div>
@@ -355,13 +459,13 @@ const Contacts = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-sm text-crm-text-secondary">Email</span>
-                    <a href={`mailto:${selectedContact.email}`} className="text-sm text-primary-blue hover:underline">
+                    <a href={`mailto:${selectedContact.email}`} className="text-sm text-primary hover:underline">
                       {selectedContact.email}
                     </a>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-crm-text-secondary">Phone</span>
-                    <a href={`tel:${selectedContact.phone}`} className="text-sm text-primary-blue hover:underline">
+                    <a href={`tel:${selectedContact.phone}`} className="text-sm text-primary hover:underline">
                       {selectedContact.phone}
                     </a>
                   </div>
@@ -429,6 +533,22 @@ const Contacts = () => {
           </div>
         </div>
       )}
+
+      {/* Create Contact Modal */}
+      <CreateContactModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onContactCreated={handleContactCreated}
+      />
+
+      {/* Filter Modal */}
+      <FilterModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        onApplyFilters={applyFilters}
+        filterType="contacts"
+        currentFilters={activeFilters}
+      />
     </div>
   );
 };

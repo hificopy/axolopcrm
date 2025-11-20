@@ -19,7 +19,7 @@
    - Under "Site URL", add: `http://localhost:3000`
    - Under "Redirect URLs", add: 
      - `http://localhost:3000`
-     - `http://localhost:3001`
+     - `http://localhost:3002`
      - `https://fuclpfhitgwugxogxkmw.supabase.co/auth/v1/callback`
 
 ## Auth0 Configuration
@@ -30,8 +30,8 @@
    - In the "Settings" tab, configure:
      - **Allowed Callback URLs**: `https://fuclpfhitgwugxogxkmw.supabase.co/auth/v1/callback`
      - **Allowed Logout URLs**: `http://localhost:3000, https://fuclpfhitgwugxogxkmw.supabase.co`
-     - **Allowed Web Origins**: `http://localhost:3000, http://localhost:3001`
-     - **Allowed Origins (CORS)**: `http://localhost:3000, http://localhost:3001`
+     - **Allowed Web Origins**: `http://localhost:3000, http://localhost:3002`
+     - **Allowed Origins (CORS)**: `http://localhost:3000, http://localhost:3002`
 
 2. **Create API in Auth0** (if needed):
    - Go to APIs -> Create API

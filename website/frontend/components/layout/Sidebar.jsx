@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAffiliatePopup } from '@/contexts/AffiliatePopupContext';
+import { useDemoMode } from '@/contexts/DemoModeContext';
 import { useSupabase } from '../../context/SupabaseContext';
+import axios from 'axios';
 import {
   Inbox,
   Users,
@@ -22,9 +25,20 @@ import {
   ChevronDown,
   ChevronRight,
   DollarSign,
+  Eye,
   Send,
   Headset,
   LayoutDashboard,
+  Calendar,
+  Lock,
+  MessageSquare,
+  CheckSquare,
+  Brain,
+  Trash2,
+  Sparkles,
+  Link as LinkIcon,
+  Filter,
+  Layers,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -34,6 +48,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -44,21 +59,57 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 
+// Top-level navigation items
+const topLevelItems = [
+  { name: 'Dashboard', href: '/app/dashboard', icon: LayoutDashboard },
+  { name: 'Calendar', href: '/app/calendar', icon: Calendar }
+];
+
 const mainCategories = [
   {
     name: 'Sales',
     icon: DollarSign,
     expanded: true,
     items: [
-      { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-      { name: 'Leads', href: '/leads', icon: UserPlus },
-      { name: 'Contacts', href: '/contacts', icon: Users },
-      { name: 'Pipeline', href: '/pipeline', icon: Target },
-      { name: 'Opportunities', href: '/opportunities', icon: TrendingUp },
-      { name: 'Activities', href: '/activities', icon: Activity },
-      { name: 'History', href: '/history', icon: History },
-      { name: 'Live Calls', href: '/live-calls', icon: Phone },
-      { name: 'Inbox', href: '/inbox', icon: Inbox },
+      { name: 'Inbox', href: '/app/inbox', icon: Inbox, badge: 48, locked: true },
+      {
+        name: 'Leads',
+        icon: UserPlus,
+        subItems: [
+          { name: 'List', href: '/app/leads', icon: UserPlus },
+          { name: 'New Custom View', href: '/app/leads/custom-view', icon: Eye, locked: true },
+        ]
+      },
+      { name: 'Contacts', href: '/app/contacts', icon: Users },
+      {
+        name: 'Opportunities',
+        icon: TrendingUp,
+        subItems: [
+          { name: 'Pipeline', href: '/app/pipeline', icon: Target },
+          { name: 'List', href: '/app/opportunities', icon: TrendingUp },
+        ]
+      },
+      { name: 'Workflows', href: '/app/workflows', icon: Workflow },
+      {
+        name: 'Conversations',
+        icon: MessageSquare,
+        subItems: [
+          { name: 'History', href: '/app/history', icon: History },
+          { name: 'Live Calls', href: '/app/live-calls', icon: Phone, locked: true },
+        ]
+      },
+      {
+        name: 'Activities',
+        icon: Activity,
+        subItems: [
+          { name: 'List', href: '/app/activities', icon: Activity },
+          { name: 'Activity Overview', href: '/app/reports/activity-overview', icon: Activity, locked: true },
+          { name: 'Activity Comparison', href: '/app/reports/activity-comparison', icon: BarChart3, locked: true },
+          { name: 'Opportunity Funnels', href: '/app/reports/opportunity-funnels', icon: TrendingUp, locked: true },
+          { name: 'Status Changes', href: '/app/reports/status-changes', icon: History, locked: true },
+          { name: 'Explorer', href: '/app/reports/explorer', icon: Target, locked: true },
+        ]
+      },
     ]
   },
   {
@@ -66,10 +117,14 @@ const mainCategories = [
     icon: Send,
     expanded: true,
     items: [
-      { name: 'Email Marketing', href: '/email-marketing', icon: Mail },
-      { name: 'Forms', href: '/forms', icon: FileText },
-      { name: 'Workflows', href: '/workflows', icon: Workflow },
-      { name: 'Reports', href: '/reports', icon: BarChart3 },
+      { name: 'Email Marketing', href: '/app/email-marketing', icon: Mail, locked: true },
+      { name: 'Meetings', href: '/app/meetings', icon: Calendar },
+      { name: 'Forms', href: '/app/forms', icon: FileText },
+      { name: 'Workflows', href: '/app/workflows', icon: Workflow },
+      { name: 'Funnels', href: '/app/funnels', icon: Filter, locked: true },
+      { name: 'Link in Bio', href: '/app/link-in-bio', icon: LinkIcon, locked: true },
+      { name: 'Content', href: '/app/content', icon: Layers, locked: true },
+      { name: 'Reports', href: '/app/reports', icon: BarChart3 },
     ]
   },
   {
@@ -77,11 +132,11 @@ const mainCategories = [
     icon: Headset,
     expanded: true,
     items: [
-      // Placeholder items for future service features
-      { name: 'Tickets', href: '/tickets', icon: Activity },
-      { name: 'Knowledge Base', href: '/knowledge-base', icon: FileText },
-      { name: 'Customer Portal', href: '/customer-portal', icon: Users },
-      { name: 'Support Analytics', href: '/support-analytics', icon: BarChart3 },
+      // Placeholder items for future service features - Locked
+      { name: 'Tickets', href: '/app/tickets', icon: Activity, locked: true },
+      { name: 'Knowledge Base', href: '/app/knowledge-base', icon: FileText, locked: true },
+      { name: 'Customer Portal', href: '/app/customer-portal', icon: Users, locked: true },
+      { name: 'Support Analytics', href: '/app/support-analytics', icon: BarChart3, locked: true },
     ]
   }
 ];
@@ -89,18 +144,116 @@ const mainCategories = [
 export default function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { signOut } = useSupabase();
+  const { user, signOut, supabase } = useSupabase();
+  const { openPopup } = useAffiliatePopup();
+  const { isDemoMode, disableDemoMode } = useDemoMode();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+
+  // Check if current user is the parent account
+  const isParentAccount = user?.email === 'axolopcrm@gmail.com';
   const [expandedCategories, setExpandedCategories] = useState({
     Sales: true,
     Marketing: true,
     Service: true,
   });
+  const [expandedSubItems, setExpandedSubItems] = useState({
+    Opportunities: true,
+    Conversations: true,
+    Reports: true,
+  });
+
+  // Placeholder data management
+  const [hasPlaceholderData, setHasPlaceholderData] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [showButton, setShowButton] = useState(true);
+
+  // Check for placeholder data from Supabase (NO localStorage)
+  useEffect(() => {
+    const checkPlaceholderData = async () => {
+      try {
+        // Get auth session from Supabase
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.access_token) return;
+
+        // Check Supabase API for placeholder data
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/demo-data/status`, {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`
+          }
+        });
+
+        if (response.data.success) {
+          const hasData = response.data.has_placeholder_data;
+          setHasPlaceholderData(hasData);
+          setShowButton(hasData);
+          console.log(`Placeholder data status: ${hasData ? 'EXISTS' : 'NOT FOUND'}`);
+        }
+      } catch (error) {
+        console.error('Error checking placeholder data:', error);
+      }
+    };
+
+    if (user && supabase) {
+      checkPlaceholderData();
+    }
+  }, [user, supabase]);
+
+  const handleClearPlaceholderData = async () => {
+    if (isClearing || isAnimating) return;
+
+    try {
+      setIsClearing(true);
+      setIsAnimating(true);
+
+      console.log('🗑️ Clearing all placeholder data from Supabase...');
+
+      // Get auth session from Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        console.error('No auth token available');
+        return;
+      }
+
+      // Call API to clear placeholder data from Supabase
+      const response = await axios.delete(`${import.meta.env.VITE_API_URL}/demo-data/clear`, {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
+        }
+      });
+
+      console.log('✅ Placeholder data cleared:', response.data);
+
+      // Start animation sequence (4 seconds total)
+      setTimeout(() => {
+        setShowButton(false);
+        setHasPlaceholderData(false);
+        setIsAnimating(false);
+        setIsClearing(false);
+
+        // Reload page to show cleared data
+        console.log('🔄 Reloading page...');
+        window.location.reload();
+      }, 4000);
+
+    } catch (error) {
+      console.error('❌ Error clearing placeholder data:', error);
+      setIsClearing(false);
+      setIsAnimating(false);
+    }
+  };
 
   const toggleCategory = (categoryName) => {
     setExpandedCategories(prev => ({
       ...prev,
       [categoryName]: !prev[categoryName]
+    }));
+  };
+
+  const toggleSubItem = (itemName) => {
+    setExpandedSubItems(prev => ({
+      ...prev,
+      [itemName]: !prev[itemName]
     }));
   };
 
@@ -113,8 +266,8 @@ export default function Sidebar() {
     } catch (error) {
       console.error('Error during logout:', error);
     } finally {
-      // Navigate to the beta login page
-      navigate('/password');
+      // Navigate to the sign in page
+      navigate('/signin');
     }
   };
 
@@ -127,7 +280,10 @@ export default function Sidebar() {
     <div className="fixed left-0 top-0 h-screen w-64 bg-gradient-to-br from-[hsl(var(--crm-sidebar-gradient-start))] via-[hsl(var(--crm-sidebar-gradient-mid))] to-[hsl(var(--crm-sidebar-gradient-end))] border-r border-gray-800/50 flex flex-col shadow-2xl">
       {/* Logo */}
       <div className="h-24 flex items-center justify-center px-6 border-b border-gray-800/30 bg-gradient-to-b from-black/40 to-transparent backdrop-blur-md">
-        <div className="relative group">
+        <Link
+          to="/"
+          className="relative group transform-gpu"
+        >
           {/* Subtle Accent Glow */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#7b1c14]/0 via-[#7b1c14]/10 to-[#7b1c14]/0 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
@@ -135,56 +291,232 @@ export default function Sidebar() {
           <img
             src="/axolop-logo.png"
             alt="Axolop"
-            className="h-[4.5rem] w-auto object-contain relative z-10 transition-transform duration-300 group-hover:scale-105"
+            className="h-[4.5rem] w-auto object-contain relative z-10 transition-transform duration-300 ease-out group-hover:scale-105 cursor-pointer will-change-transform"
           />
+        </Link>
+      </div>
+
+      {/* Top Section Icons - CRM, Chat, Task */}
+      <div className="px-3 py-4 border-b border-gray-800/30 bg-gradient-to-b from-black/20 to-transparent">
+        <div className="flex items-center justify-center gap-2 mb-3">
+          {/* CRM Icon - Active - Glassmorphic */}
+          <div className="relative group transform-gpu">
+            <button
+              className="relative flex flex-col items-center justify-center w-[72px] h-[72px] rounded-xl backdrop-blur-xl bg-gradient-to-br from-[#7b1c14]/40 via-[#7b1c14]/30 to-[#7b1c14]/20 border-2 border-[#7b1c14]/60 shadow-lg transition-all duration-200 ease-out hover:scale-105 hover:shadow-xl overflow-hidden will-change-transform"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/20 pointer-events-none" />
+              <BarChart3 className="h-6 w-6 text-white relative z-10 mb-1 drop-shadow-lg" />
+              <span className="text-[10px] font-bold text-white relative z-10 tracking-wide drop-shadow-lg">CRM</span>
+              <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-10 h-1 bg-[#7b1c14] rounded-full shadow-lg" />
+            </button>
+          </div>
+
+          {/* Chat Icon - Locked - Glassmorphic */}
+          <div className="relative group transform-gpu">
+            <button
+              disabled
+              className="relative flex flex-col items-center justify-center w-[72px] h-[72px] rounded-xl backdrop-blur-xl bg-gradient-to-br from-gray-700/20 via-gray-800/30 to-gray-900/40 border-2 border-gray-700/40 shadow-md transition-all duration-200 ease-out hover:scale-105 hover:shadow-lg cursor-not-allowed overflow-hidden will-change-transform"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-black/20 pointer-events-none" />
+              <MessageSquare className="h-6 w-6 text-gray-400 relative z-10 mb-1" />
+              <span className="text-[10px] font-bold text-gray-400 relative z-10 tracking-wide">CHAT</span>
+
+              {/* Lock Overlay - Glassmorphic */}
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md z-20">
+                <div className="bg-gray-900/60 backdrop-blur-sm rounded-full p-2 border border-gray-600/40">
+                  <Lock className="h-4 w-4 text-gray-300" />
+                </div>
+              </div>
+            </button>
+
+            {/* Tooltip - Glassmorphic */}
+            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+              <div className="backdrop-blur-xl bg-gray-900/80 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap border border-gray-600/40">
+                Coming in V1.1
+              </div>
+            </div>
+          </div>
+
+          {/* Task Icon - Locked - Glassmorphic */}
+          <div className="relative group transform-gpu">
+            <button
+              disabled
+              className="relative flex flex-col items-center justify-center w-[72px] h-[72px] rounded-xl backdrop-blur-xl bg-gradient-to-br from-gray-700/20 via-gray-800/30 to-gray-900/40 border-2 border-gray-700/40 shadow-md transition-all duration-200 ease-out hover:scale-105 hover:shadow-lg cursor-not-allowed overflow-hidden will-change-transform"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-black/20 pointer-events-none" />
+              <CheckSquare className="h-6 w-6 text-gray-400 relative z-10 mb-1" />
+              <span className="text-[10px] font-bold text-gray-400 relative z-10 tracking-wide">TASKS</span>
+
+              {/* Lock Overlay - Glassmorphic */}
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md z-20">
+                <div className="bg-gray-900/60 backdrop-blur-sm rounded-full p-2 border border-gray-600/40">
+                  <Lock className="h-4 w-4 text-gray-300" />
+                </div>
+              </div>
+            </button>
+
+            {/* Tooltip - Glassmorphic */}
+            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+              <div className="backdrop-blur-xl bg-gray-900/80 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap border border-gray-600/40">
+                Coming in V1.1
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Clear Placeholder Data Button - ABOVE Second Brain */}
+        {showButton && hasPlaceholderData && (
+          <div
+            className={`relative group transform-gpu mt-3 transition-all duration-1000 ${
+              isAnimating ? 'opacity-0 scale-95 -translate-x-full' : 'opacity-100 scale-100 translate-x-0'
+            }`}
+          >
+            <button
+              onClick={handleClearPlaceholderData}
+              disabled={isClearing}
+              className={`w-full flex items-center justify-center py-2.5 px-3 rounded-lg transition-all duration-300 ease-out backdrop-blur-xl bg-gradient-to-r from-gray-700/20 via-gray-800/30 to-gray-900/40 border-2 border-gray-700/40 shadow-lg hover:scale-[1.02] hover:shadow-xl overflow-hidden will-change-transform relative ${
+                isClearing ? 'cursor-wait opacity-70' : 'cursor-pointer hover:from-[#7b1c14]/30 hover:via-[#7b1c14]/20 hover:to-[#7b1c14]/10 hover:border-[#7b1c14]/60'
+              }`}
+            >
+              {/* Glassy overlay - same as Second Brain */}
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/20 pointer-events-none" />
+
+              {/* Animated glowing effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer pointer-events-none" />
+
+              {isClearing ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent relative z-10 mr-2" />
+                  <span className="text-sm font-bold text-gray-300 relative z-10 tracking-wide">Clearing...</span>
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-5 w-5 text-white relative z-10 mr-2 drop-shadow-lg" />
+                  <span className="text-sm font-bold text-white relative z-10 tracking-wide drop-shadow-lg">Clear Placeholder Data</span>
+                  <Sparkles className="h-4 w-4 text-yellow-300 relative z-10 ml-2 animate-pulse" />
+                </>
+              )}
+            </button>
+
+            {/* Tooltip */}
+            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+              <div className="backdrop-blur-xl bg-gray-900/90 text-white text-xs px-3 py-1.5 rounded shadow-lg whitespace-nowrap border border-gray-700/60">
+                Remove all demo data permanently
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Second Brain Button - Full Width - Locked - Falls down when Clear button disappears */}
+        <div
+          className={`relative group transform-gpu transition-all duration-1000 ease-in-out ${
+            isAnimating
+              ? '-translate-y-14 opacity-100' // Falls DOWN to fill the gap
+              : showButton && hasPlaceholderData
+                ? 'translate-y-0 opacity-100' // Normal position when Clear button is showing
+                : '-translate-y-14 opacity-100' // Already in fallen position when no Clear button
+          }`}
+          style={{ marginTop: (showButton && hasPlaceholderData && !isAnimating) ? '12px' : '12px' }}
+        >
+          <button
+            disabled
+            className="w-full flex items-center justify-center py-2.5 px-3 rounded-lg transition-all duration-200 ease-out backdrop-blur-xl bg-gradient-to-r from-gray-700/20 via-gray-800/30 to-gray-900/40 border-2 border-gray-700/40 shadow-md hover:scale-[1.02] hover:shadow-lg hover:from-gray-700/30 hover:via-gray-800/40 hover:to-gray-900/50 overflow-hidden cursor-not-allowed will-change-transform"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-black/20 pointer-events-none" />
+            <Brain className="h-5 w-5 text-gray-400 relative z-10 mr-2" />
+            <span className="text-sm font-bold text-gray-400 relative z-10 tracking-wide">Second Brain</span>
+
+            {/* Lock Overlay - Glassmorphic */}
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md z-20">
+              <div className="bg-gray-900/60 backdrop-blur-sm rounded-full p-2 border border-gray-600/40">
+                <Lock className="h-4 w-4 text-gray-300" />
+              </div>
+            </div>
+          </button>
+
+          {/* Tooltip - Glassmorphic */}
+          <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+            <div className="backdrop-blur-xl bg-gray-900/80 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap border border-gray-600/40">
+              Coming in V1.1
+            </div>
+          </div>
+        </div>
+
+        {/* Dashboard & Calendar - Split Row - No animation, stays in place */}
+        <div className="grid grid-cols-2 gap-2 mt-3">
+          <Link
+            to="/app/dashboard"
+            className={`flex items-center justify-center py-2 px-2 rounded-lg transition-all duration-200 ${
+              location.pathname === '/app/dashboard'
+                ? 'bg-gradient-to-r from-[#7b1c14]/30 via-[#7b1c14]/20 to-transparent text-white border border-[#7b1c14] shadow-md'
+                : 'text-gray-300 hover:bg-[hsl(var(--crm-sidebar-hover))]/50 hover:text-white border border-gray-800/30'
+            }`}
+          >
+            <LayoutDashboard className="h-4 w-4 mr-2" />
+            <span className="text-xs font-medium">Dashboard</span>
+          </Link>
+          <Link
+            to="/app/calendar"
+            className={`flex items-center justify-center py-2 px-2 rounded-lg transition-all duration-200 ${
+              location.pathname === '/app/calendar'
+                ? 'bg-gradient-to-r from-[#7b1c14]/30 via-[#7b1c14]/20 to-transparent text-white border border-[#7b1c14] shadow-md'
+                : 'text-gray-300 hover:bg-[hsl(var(--crm-sidebar-hover))]/50 hover:text-white border border-gray-800/30'
+            }`}
+          >
+            <Calendar className="h-4 w-4 mr-2" />
+            <span className="text-xs font-medium">Calendar</span>
+          </Link>
         </div>
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-4 px-3 scrollbar-thin">
         <div className="space-y-4">
+
+          {/* Category sections */}
           {mainCategories.map((category) => {
             const Icon = category.icon;
             const isExpanded = expandedCategories[category.name];
 
             return (
               <div key={category.name}>
-                {/* Category Header */}
+                {/* Category Header - Glassmorphic */}
                 <div
-                  className={`flex items-center justify-between cursor-pointer rounded-lg mb-1 transition-all duration-300 ${
+                  className={`flex items-center justify-between cursor-pointer rounded-lg mb-1 transition-all duration-200 ease-out overflow-hidden transform-gpu ${
                     isExpanded
                       ? (category.name === 'Sales'
-                          ? 'bg-gradient-to-r from-gray-700/40 via-gray-800/50 to-[hsl(var(--crm-sidebar-hover))]/30 shadow-lg border-l-4 border-primary-blue backdrop-blur-sm'
+                          ? 'backdrop-blur-xl bg-gradient-to-r from-gray-700/30 via-gray-800/40 to-[hsl(var(--crm-sidebar-hover))]/20 shadow-lg border-l-4 border-primary-green'
                           : category.name === 'Marketing'
-                            ? 'bg-gradient-to-r from-gray-700/40 via-gray-800/50 to-[hsl(var(--crm-sidebar-hover))]/30 shadow-lg border-l-4 border-primary-green backdrop-blur-sm'
-                            : 'bg-gradient-to-r from-gray-700/40 via-gray-800/50 to-[hsl(var(--crm-sidebar-hover))]/30 shadow-lg border-l-4 border-primary-yellow backdrop-blur-sm')
-                      : 'hover:bg-[hsl(var(--crm-sidebar-hover))]/50 hover:shadow-sm hover:backdrop-blur-sm'
+                            ? 'backdrop-blur-xl bg-gradient-to-r from-gray-700/30 via-gray-800/40 to-[hsl(var(--crm-sidebar-hover))]/20 shadow-lg border-l-4 border-primary-blue'
+                            : 'backdrop-blur-xl bg-gradient-to-r from-gray-700/30 via-gray-800/40 to-[hsl(var(--crm-sidebar-hover))]/20 shadow-lg border-l-4 border-primary-yellow')
+                      : 'hover:backdrop-blur-sm hover:bg-[hsl(var(--crm-sidebar-hover))]/40 hover:shadow-sm'
                   }`}
                   onClick={() => toggleCategory(category.name)}
                 >
+                  {isExpanded && <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-black/10 pointer-events-none" />}
                   <div className="flex items-center flex-1">
-                    <div className={`p-2 rounded-lg mr-3 transition-colors duration-300 ${
-                      isExpanded 
-                        ? (category.name === 'Sales' 
-                            ? 'bg-primary-blue/20 text-primary-blue shadow-inner' 
-                            : category.name === 'Marketing' 
-                              ? 'bg-primary-green/20 text-primary-green shadow-inner' 
-                              : 'bg-primary-yellow/20 text-primary-yellow shadow-inner') 
+                    <div className={`p-2 rounded-lg mr-3 transition-colors duration-200 ease-out ${
+                      isExpanded
+                        ? (category.name === 'Sales'
+                            ? 'bg-primary-green/20 text-primary-green shadow-inner'
+                            : category.name === 'Marketing'
+                              ? 'bg-primary-blue/20 text-primary-blue shadow-inner'
+                              : 'bg-primary-yellow/20 text-primary-yellow shadow-inner')
                         : 'text-gray-400 hover:text-white'
                     }`}>
-                      <Icon className="h-5 w-5 transition-transform duration-300" />
+                      <Icon className="h-5 w-5 transition-transform duration-200 ease-out" />
                     </div>
-                    <span className={`font-semibold transition-colors duration-300 ${
-                      isExpanded 
-                        ? 'text-white' 
+                    <span className={`font-semibold transition-colors duration-200 ease-out ${
+                      isExpanded
+                        ? 'text-white'
                         : 'text-gray-300'
                     }`}>{category.name}</span>
                   </div>
-                  <div className={`transition-all duration-300 transform ${
+                  <div className={`transition-all duration-200 ease-out transform ${
                     isExpanded ? 'rotate-0' : '-rotate-90'
-                  }`}>
-                    {isExpanded ? 
-                      <ChevronDown className="h-4 w-4 text-gray-400" /> : 
+                  } will-change-transform`}>
+                    {isExpanded ?
+                      <ChevronDown className="h-4 w-4 text-gray-400" /> :
                       <ChevronRight className="h-4 w-4 text-gray-400" />
                     }
                   </div>
@@ -196,23 +528,156 @@ export default function Sidebar() {
                     {category.items.map((item) => {
                       const ItemIcon = item.icon;
                       const isActive = location.pathname === item.href;
+                      const hasSubItems = item.subItems && item.subItems.length > 0;
+                      const isSubExpanded = expandedSubItems[item.name];
 
-                      return (
+                      if (hasSubItems) {
+                        return (
+                          <div key={item.name}>
+                            {/* Parent Item with Sub-dropdown */}
+                            <div
+                              className={`flex items-center justify-between py-2 px-3 rounded-lg transition-all duration-200 ml-2 ${
+                                isSubExpanded
+                                  ? 'text-white bg-[hsl(var(--crm-sidebar-hover))]/30'
+                                  : 'text-gray-400 hover:bg-[hsl(var(--crm-sidebar-hover))]/50 hover:text-white'
+                              }`}
+                            >
+                              <div
+                                className="flex items-center flex-1 cursor-pointer"
+                                onClick={() => {
+                                  // First, check if there's a 'List', 'Pipeline', 'Overview', or 'History' sub-item and navigate to it
+                                  const defaultSubItem = item.subItems.find(sub =>
+                                    sub.name.toLowerCase().includes('list') ||
+                                    sub.name.toLowerCase() === 'pipeline' ||
+                                    sub.name.toLowerCase() === 'overview' ||
+                                    sub.name.toLowerCase() === 'history'
+                                  );
+                                  if (defaultSubItem && defaultSubItem.href) {
+                                    navigate(defaultSubItem.href);
+                                  }
+                                }}
+                              >
+                                <ItemIcon className="h-4 w-4 mr-3" />
+                                <span className="text-sm">{item.name}</span>
+                              </div>
+
+                              <div
+                                className="cursor-pointer"
+                                onClick={() => toggleSubItem(item.name)}
+                              >
+                                {isSubExpanded ?
+                                  <ChevronDown className="h-3 w-3 text-gray-400" /> :
+                                  <ChevronRight className="h-3 w-3 text-gray-400" />
+                                }
+                              </div>
+                            </div>
+
+                            {/* Sub Items */}
+                            {isSubExpanded && (
+                              <div className="ml-6 mt-1 space-y-1">
+                                {item.subItems.map((subItem) => {
+                                  const SubItemIcon = subItem.icon;
+                                  const isSubActive = location.pathname === subItem.href;
+
+                                  return subItem.locked ? (
+                                    <div key={subItem.name} className="relative group ml-2">
+                                      <div
+                                        className={`flex items-center py-2 px-3 rounded-lg transition-all duration-200 cursor-not-allowed ${
+                                          'text-gray-500 bg-gray-800/30 border border-gray-700/40 backdrop-blur-sm'
+                                        }`}
+                                      >
+                                        <div className="flex items-center">
+                                          <SubItemIcon className="h-3.5 w-3.5 mr-3 text-gray-500" />
+                                          <span className="text-xs text-gray-500">{subItem.name}</span>
+                                        </div>
+                                        {/* Lock Overlay */}
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md z-10 rounded-lg">
+                                          <div className="bg-gray-900/60 backdrop-blur-sm rounded-full p-1 border border-gray-600/40">
+                                            <Lock className="h-3 w-3 text-gray-300" />
+                                          </div>
+                                        </div>
+                                      </div>
+                                      {/* Tooltip */}
+                                      <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                        <div className="backdrop-blur-xl bg-gray-900/80 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap border border-gray-600/40">
+                                          Coming in V1.1
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <Link
+                                      key={subItem.name}
+                                      to={subItem.href}
+                                      className={`flex items-center py-2 px-3 rounded-lg transition-all duration-200 ${
+                                        isSubActive
+                                          ? (category.name === 'Sales'
+                                              ? 'bg-gradient-to-r from-primary-green/15 via-primary-green/10 to-transparent text-primary-green border-r-2 border-primary-green shadow-inner backdrop-blur-sm'
+                                              : category.name === 'Marketing'
+                                                ? 'bg-gradient-to-r from-primary-blue/15 via-primary-blue/15 to-transparent text-primary-blue border-r-2 border-primary-blue shadow-inner backdrop-blur-sm'
+                                                : 'bg-gradient-to-r from-primary-yellow/15 via-primary-yellow/10 to-transparent text-primary-yellow border-r-2 border-primary-yellow shadow-inner backdrop-blur-sm')
+                                          : 'text-gray-400 hover:bg-[hsl(var(--crm-sidebar-hover))]/50 hover:text-white hover:translate-x-1 hover:backdrop-blur-sm'
+                                      }`}
+                                    >
+                                      <SubItemIcon className="h-3.5 w-3.5 mr-3" />
+                                      <span className="text-xs">{subItem.name}</span>
+                                    </Link>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }
+
+                      // Regular Item without sub-items
+                      return item.locked ? (
+                        <div key={item.name} className="relative group ml-2">
+                          <div
+                            className={`flex items-center justify-between py-2 px-3 rounded-lg transition-all duration-200 cursor-not-allowed ${
+                              'text-gray-500 bg-gray-800/30 border border-gray-700/40 backdrop-blur-sm'
+                            }`}
+                          >
+                            <div className="flex items-center">
+                              <ItemIcon className="h-4 w-4 mr-3 text-gray-500" />
+                              <span className="text-sm text-gray-500">{item.name}</span>
+                            </div>
+                            {/* Lock Overlay */}
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md z-10 rounded-lg">
+                              <div className="bg-gray-900/60 backdrop-blur-sm rounded-full p-1 border border-gray-600/40">
+                                <Lock className="h-3 w-3 text-gray-300" />
+                              </div>
+                            </div>
+                          </div>
+                          {/* Tooltip */}
+                          <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                            <div className="backdrop-blur-xl bg-gray-900/80 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap border border-gray-600/40">
+                              Coming in V1.1
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
                         <Link
                           key={item.name}
                           to={item.href}
-                          className={`flex items-center py-2 px-3 rounded-lg transition-all duration-200 ml-2 ${
+                          className={`flex items-center justify-between py-2 px-3 rounded-lg transition-all duration-200 ml-2 ${
                             isActive
                               ? (category.name === 'Sales'
-                                  ? 'bg-gradient-to-r from-primary-blue/15 via-primary-blue/10 to-transparent text-primary-blue border-r-2 border-primary-blue shadow-inner backdrop-blur-sm'
+                                  ? 'bg-gradient-to-r from-primary-green/15 via-primary-green/10 to-transparent text-primary-green border-r-2 border-primary-green shadow-inner backdrop-blur-sm'
                                   : category.name === 'Marketing'
-                                    ? 'bg-gradient-to-r from-primary-green/15 via-primary-green/10 to-transparent text-primary-green border-r-2 border-primary-green shadow-inner backdrop-blur-sm'
+                                    ? 'bg-gradient-to-r from-primary-blue/15 via-primary-blue/10 to-transparent text-primary-blue border-r-2 border-primary-blue shadow-inner backdrop-blur-sm'
                                     : 'bg-gradient-to-r from-primary-yellow/15 via-primary-yellow/10 to-transparent text-primary-yellow border-r-2 border-primary-yellow shadow-inner backdrop-blur-sm')
                               : 'text-gray-400 hover:bg-[hsl(var(--crm-sidebar-hover))]/50 hover:text-white hover:translate-x-1 hover:backdrop-blur-sm'
                           }`}
                         >
-                          <ItemIcon className="h-4 w-4 mr-3" />
-                          <span className="text-sm">{item.name}</span>
+                          <div className="flex items-center">
+                            <ItemIcon className="h-4 w-4 mr-3" />
+                            <span className="text-sm">{item.name}</span>
+                          </div>
+                          {item.badge && (
+                            <Badge className="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-green text-xs">
+                              {item.badge}
+                            </Badge>
+                          )}
                         </Link>
                       );
                     })}
@@ -222,24 +687,48 @@ export default function Sidebar() {
             );
           })}
         </div>
+      </nav>
 
-        {/* Divider */}
-        <div className="my-4 relative">
-          <div className="border-t border-gray-800/50"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[hsl(var(--primary-accent))]/20 to-transparent blur-sm"></div>
+      {/* Affiliate Referral Card - Above Settings - Glassmorphic */}
+      <div className="px-3 py-3 border-t border-gray-800/50">
+        <div
+          onClick={openPopup}
+          className="group relative rounded-xl overflow-hidden backdrop-blur-xl bg-gradient-to-br from-[#7b1c14]/20 via-[#5a1610]/30 to-[#3a0e0a]/40 p-4 border border-[#7b1c14]/40 shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 cursor-pointer"
+        >
+          {/* Glassmorphic layers */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-black/20 pointer-events-none" />
+
+          {/* Glow effect on hover */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#7b1c14]/0 via-[#7b1c14]/20 to-[#7b1c14]/0 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+          <div className="relative">
+            <h3 className="text-white font-bold text-sm mb-1 drop-shadow-lg">Earn 40% Recurring Commission</h3>
+            <p className="text-gray-300 text-xs mb-3 drop-shadow">Refer clients and earn lifetime commissions</p>
+            <div className="w-full relative overflow-hidden bg-gradient-to-r from-[#6b1a12]/90 to-[#7b1c14]/90 hover:from-[#7b1c14] hover:to-[#8b1f16] backdrop-blur-sm text-white py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105 border border-white/10">
+              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+              <svg className="h-3.5 w-3.5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+              <span className="relative z-10">Share now</span>
+            </div>
+          </div>
         </div>
+      </div>
 
-        {/* Settings */}
+      {/* Settings - Sticky at bottom above profile */}
+      <div className="px-3 py-3 bg-black/30 backdrop-blur-sm">
         <Link
-          to="/settings"
-          className={`sidebar-item ${
-            location.pathname === '/settings' ? 'sidebar-item-active' : ''
-          } flex items-center hover:bg-[hsl(var(--crm-sidebar-hover))]/50 hover:text-white`}
+          to="/app/settings"
+          className={`flex items-center py-2.5 px-3 rounded-lg transition-all duration-200 ${
+            location.pathname.includes('/settings')
+              ? 'bg-gradient-to-r from-[#7b1c14]/30 via-[#7b1c14]/20 to-transparent text-white border-r-4 border-[#7b1c14] shadow-lg backdrop-blur-sm font-semibold'
+              : 'text-gray-300 hover:bg-[hsl(var(--crm-sidebar-hover))]/50 hover:text-white hover:translate-x-1 hover:backdrop-blur-sm'
+          }`}
         >
           <Settings className="h-5 w-5 mr-3" />
-          <span>Settings</span>
+          <span className="text-sm">Settings</span>
         </Link>
-      </nav>
+      </div>
 
       {/* User Profile Dropdown */}
       <div className="h-16 border-t border-gray-800/50 px-3 flex items-center bg-black/30 backdrop-blur-sm">
@@ -247,11 +736,11 @@ export default function Sidebar() {
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-3 w-full hover:bg-[hsl(var(--crm-sidebar-hover))] rounded-lg p-2 transition-all duration-200">
               <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[hsl(var(--primary-accent))] to-red-900 flex items-center justify-center text-white font-semibold shadow-lg ring-2 ring-[hsl(var(--primary-accent))]/30">
-                JD
+                {user?.user_metadata?.full_name?.split(' ').map(n => n[0]).join('').toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
               </div>
               <div className="flex-1 min-w-0 text-left">
-                <p className="text-sm font-medium text-white truncate">Juan D. Romero</p>
-                <p className="text-xs text-gray-400 truncate">juan@axolop.com</p>
+                <p className="text-sm font-medium text-white truncate">{user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}</p>
+                <p className="text-xs text-gray-400 truncate">{user?.email || 'No email'}</p>
               </div>
               <svg
                 className="h-4 w-4 text-gray-400 ml-1"
@@ -268,19 +757,39 @@ export default function Sidebar() {
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link to="/profile" className="flex items-center gap-2 w-full">
+              <Link to="/app/profile" className="flex items-center gap-2 w-full">
                 <User className="h-4 w-4" />
                 <span>Profile</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link to="/settings" className="flex items-center gap-2 w-full">
+              <Link to="/app/settings" className="flex items-center gap-2 w-full">
                 <Settings className="h-4 w-4" />
                 <span>Settings</span>
               </Link>
             </DropdownMenuItem>
+
+            {/* Exit Demo Mode - Shows when in biztester demo mode */}
+            {isDemoMode && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="flex items-center gap-2 text-orange-400 focus:text-orange-400 cursor-pointer"
+                  onSelect={() => {
+                    disableDemoMode();
+                    window.location.reload(); // Refresh to exit demo mode completely
+                  }}
+                >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  <span className="font-semibold">Exit Demo Mode</span>
+                </DropdownMenuItem>
+              </>
+            )}
+
             <DropdownMenuSeparator />
-            <DropdownMenuItem 
+            <DropdownMenuItem
               className="flex items-center gap-2 text-red-400 focus:text-red-400 cursor-pointer"
               onSelect={() => setShowLogoutDialog(true)}
             >

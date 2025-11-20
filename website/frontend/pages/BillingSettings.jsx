@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { CreditCard, Calendar, Shield, AlertCircle, BarChart3, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function BillingSettings() {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('billing');
   const [billingInfo, setBillingInfo] = useState({
     cardNumber: '**** **** **** 1234',
@@ -35,19 +37,25 @@ export default function BillingSettings() {
 
   const handleUpdatePayment = () => {
     // In a real app, this would open a payment update modal
-    alert('Payment method update functionality would be implemented here');
+    toast({
+      title: "Update Payment Method",
+      description: "Payment method update functionality coming soon!",
+    });
   };
 
   const handleDownloadInvoice = (invoiceId) => {
     // In a real app, this would download the invoice
-    console.log(`Downloading invoice: ${invoiceId}`);
-    alert(`Downloading invoice ${invoiceId}`);
+    console.warn(`Downloading invoice: ${invoiceId}`);
+    toast({
+      title: "Downloading Invoice",
+      description: `Invoice ${invoiceId} download started.`,
+    });
   };
 
   return (
     <div className="h-full flex flex-col">
       {/* Page Header */}
-      <div className="bg-white border-b border-crm-border px-6 py-4">
+      <div className="bg-white dark:bg-[#1a1d24] border-b border-crm-border px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-crm-text-primary">Billing Settings</h1>
@@ -64,13 +72,13 @@ export default function BillingSettings() {
           <div className="flex gap-6">
             {/* Sidebar Navigation */}
             <div className="w-64 flex-shrink-0">
-              <nav className="bg-white rounded-lg border border-crm-border p-4">
+              <nav className="bg-white dark:bg-[#1a1d24] rounded-lg border border-crm-border p-4">
                 <div className="space-y-1">
                   <button
                     onClick={() => setActiveTab('billing')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       activeTab === 'billing'
-                        ? 'bg-primary-blue text-white'
+                        ? 'bg-primary text-white'
                         : 'hover:bg-gray-100 text-crm-text-primary'
                     }`}
                   >
@@ -81,7 +89,7 @@ export default function BillingSettings() {
                     onClick={() => setActiveTab('usage')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       activeTab === 'usage'
-                        ? 'bg-primary-blue text-white'
+                        ? 'bg-primary text-white'
                         : 'hover:bg-gray-100 text-crm-text-primary'
                     }`}
                   >
@@ -94,12 +102,12 @@ export default function BillingSettings() {
 
             {/* Settings Content */}
             <div className="flex-1">
-              <div className="bg-white rounded-lg border border-crm-border p-6">
+              <div className="bg-white dark:bg-[#1a1d24] rounded-lg border border-crm-border p-6">
                 {/* Billing Tab */}
                 {activeTab === 'billing' && (
                   <div className="space-y-6">
                     {/* Current Plan */}
-                    <div className="bg-white rounded-lg border border-crm-border p-6">
+                    <div className="bg-white dark:bg-[#1a1d24] rounded-lg border border-crm-border p-6">
                       <h2 className="text-lg font-semibold text-crm-text-primary mb-4">Current Plan</h2>
 
                       <div className="flex items-center justify-between">
@@ -115,7 +123,7 @@ export default function BillingSettings() {
                     </div>
 
                     {/* Payment Method */}
-                    <div className="bg-white rounded-lg border border-crm-border p-6">
+                    <div className="bg-white dark:bg-[#1a1d24] rounded-lg border border-crm-border p-6">
                       <h2 className="text-lg font-semibold text-crm-text-primary mb-4">Payment Method</h2>
 
                       <div className="flex items-center gap-4">
@@ -135,7 +143,7 @@ export default function BillingSettings() {
                     </div>
 
                     {/* Billing Information */}
-                    <div className="bg-white rounded-lg border border-crm-border p-6">
+                    <div className="bg-white dark:bg-[#1a1d24] rounded-lg border border-crm-border p-6">
                       <h2 className="text-lg font-semibold text-crm-text-primary mb-4">Billing Information</h2>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -159,7 +167,7 @@ export default function BillingSettings() {
                     </div>
 
                     {/* Invoices */}
-                    <div className="bg-white rounded-lg border border-crm-border p-6">
+                    <div className="bg-white dark:bg-[#1a1d24] rounded-lg border border-crm-border p-6">
                       <h2 className="text-lg font-semibold text-crm-text-primary mb-4">Recent Invoices</h2>
 
                       <div className="overflow-x-auto">
@@ -201,7 +209,7 @@ export default function BillingSettings() {
                     </div>
 
                     {/* Subscription Management */}
-                    <div className="bg-white rounded-lg border border-crm-border p-6">
+                    <div className="bg-white dark:bg-[#1a1d24] rounded-lg border border-crm-border p-6">
                       <h2 className="text-lg font-semibold text-crm-text-primary mb-4">Subscription Management</h2>
 
                       <div className="space-y-4">
@@ -216,7 +224,7 @@ export default function BillingSettings() {
                           <Button variant="destructive">Cancel Subscription</Button>
                         </div>
 
-                        <div className="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-center justify-between p-4 bg-red-50 border border-red-200 rounded-lg">
                           <div>
                             <h3 className="font-medium text-crm-text-primary">Change Plan</h3>
                             <p className="text-sm text-crm-text-secondary">Upgrade or downgrade your subscription</p>
@@ -237,8 +245,8 @@ export default function BillingSettings() {
                       {/* Leads Created */}
                       <div className="bg-gray-50 p-6 rounded-lg border border-crm-border">
                         <div className="flex items-center gap-3 mb-2">
-                          <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                            <TrendingUp className="h-5 w-5 text-blue-600" />
+                          <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
+                            <TrendingUp className="h-5 w-5 text-red-600" />
                           </div>
                           <h3 className="text-sm font-medium text-crm-text-secondary">Leads Created</h3>
                         </div>

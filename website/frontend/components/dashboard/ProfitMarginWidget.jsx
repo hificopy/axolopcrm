@@ -20,18 +20,30 @@ export default function ProfitMarginWidget({ data }) {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, delay: 0.1 }}
+      whileHover={{ y: -4, scale: 1.01, transition: { duration: 0.2 } }}
       className="h-full"
     >
-      <Card className="h-full flex flex-col">
-        <CardHeader>
+      <Card className="h-full flex flex-col border-2 hover:border-opacity-60 hover:shadow-xl hover:shadow-emerald-500/20 transition-all duration-300 relative group overflow-hidden">
+        {/* Animated background gradient on hover */}
+        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+          isProfit
+            ? 'bg-gradient-to-br from-emerald-50/50 to-green-50/50 dark:from-emerald-950/10 dark:to-green-950/10'
+            : 'bg-gradient-to-br from-red-50/50 to-orange-50/50 dark:from-red-950/10 dark:to-orange-950/10'
+        }`} />
+
+        <CardHeader className="relative z-10">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-              isProfit
-                ? 'bg-gradient-to-br from-[#2DCE89] to-[#25a56f]'
-                : 'bg-gradient-to-br from-red-500 to-red-600'
-            }`}>
+            <motion.div
+              className={`w-10 h-10 rounded-lg flex items-center justify-center shadow-lg ${
+                isProfit
+                  ? 'bg-gradient-to-br from-[#2DCE89] to-[#25a56f]'
+                  : 'bg-gradient-to-br from-red-500 to-red-600'
+              }`}
+              whileHover={{ rotate: 12, scale: 1.1 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
               <DollarSign className="h-5 w-5 text-white" />
-            </div>
+            </motion.div>
             <div>
               <CardTitle className="text-lg">Profit & Loss</CardTitle>
               <CardDescription className="text-xs">Current Period Summary</CardDescription>
@@ -60,8 +72,8 @@ export default function ProfitMarginWidget({ data }) {
                 <Tooltip
                   formatter={(value) => formatCurrency(value)}
                   contentStyle={{
-                    backgroundColor: 'white',
-                    border: '1px solid #E5E7EB',
+                    backgroundColor: 'var(--crm-bg-light)',
+                    border: '1px solid var(--crm-border)',
                     borderRadius: '8px',
                     padding: '8px 12px'
                   }}
@@ -100,7 +112,13 @@ export default function ProfitMarginWidget({ data }) {
                 )}
               </div>
             </div>
-            <div className="flex items-center justify-between bg-crm-bg-light rounded-lg p-2">
+            <motion.div
+              className="flex items-center justify-between bg-crm-bg-light rounded-lg p-2"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              whileHover={{ scale: 1.02 }}
+            >
               <span className="text-sm font-medium text-crm-text-primary">Profit Margin</span>
               <span className={`text-lg font-bold ${
                 profitMargin >= 20 ? 'text-primary-green' :
@@ -108,9 +126,16 @@ export default function ProfitMarginWidget({ data }) {
               }`}>
                 {profitMargin.toFixed(1)}%
               </span>
-            </div>
+            </motion.div>
           </div>
         </CardContent>
+
+        {/* Decorative corner accent */}
+        <div className={`absolute bottom-0 left-0 w-24 h-24 opacity-5 blur-3xl rounded-full -mb-12 -ml-12 ${
+          isProfit
+            ? 'bg-gradient-to-br from-emerald-500 to-green-500'
+            : 'bg-gradient-to-br from-red-500 to-orange-500'
+        }`} />
       </Card>
     </motion.div>
   );

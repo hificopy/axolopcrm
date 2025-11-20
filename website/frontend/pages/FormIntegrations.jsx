@@ -115,7 +115,7 @@ export default function FormIntegrations() {
     return (
       <div className="h-full flex items-center justify-center p-6">
         <div className="text-center">
-          <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary-blue border-t-transparent"></div>
+          <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
           <p className="text-crm-text-secondary">Loading integration settings...</p>
         </div>
       </div>
@@ -149,7 +149,7 @@ export default function FormIntegrations() {
   return (
     <div className="h-full flex flex-col">
       {/* Page Header */}
-      <div className="bg-white border-b border-crm-border px-6 py-4">
+      <div className="bg-white dark:bg-[#1a1d24] border-b border-crm-border px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-crm-text-primary">
@@ -183,13 +183,13 @@ export default function FormIntegrations() {
       </div>
 
       {/* Integration Stats */}
-      <div className="bg-white border-b border-crm-border px-6 py-4">
+      <div className="bg-white dark:bg-[#1a1d24] border-b border-crm-border px-6 py-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary-blue/10">
-                  <Users className="h-5 w-5 text-primary-blue" />
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Users className="h-5 w-5 text-primary" />
                 </div>
                 <div>
                   <div className="text-sm text-crm-text-secondary">Leads Generated</div>
@@ -236,8 +236,8 @@ export default function FormIntegrations() {
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary-blue/10">
-                  <Zap className="h-5 w-5 text-primary-blue" />
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Zap className="h-5 w-5 text-primary" />
                 </div>
                 <div>
                   <div className="text-sm text-crm-text-secondary">ROI</div>
@@ -363,8 +363,8 @@ export default function FormIntegrations() {
               <div className="space-y-3">
                 <div className="p-3 border border-gray-200 rounded-lg">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 bg-primary-blue/10 rounded">
-                      <Users className="h-4 w-4 text-primary-blue" />
+                    <div className="p-2 bg-primary/10 rounded">
+                      <Users className="h-4 w-4 text-primary" />
                     </div>
                     <div className="font-medium">Lead Creation</div>
                   </div>
@@ -399,8 +399,8 @@ export default function FormIntegrations() {
 
                 <div className="p-3 border border-gray-200 rounded-lg">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 bg-primary-blue/10 rounded">
-                      <Phone className="h-4 w-4 text-primary-blue" />
+                    <div className="p-2 bg-primary/10 rounded">
+                      <Phone className="h-4 w-4 text-primary" />
                     </div>
                     <div className="font-medium">Task Creation</div>
                   </div>

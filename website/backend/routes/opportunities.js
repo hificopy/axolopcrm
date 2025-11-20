@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import opportunityService from '../services/opportunityService.js';
+import { protect } from '../middleware/authMiddleware.js';
+
 const router = express.Router();
-const opportunityService = require('../services/opportunityService');
-const { protect } = require('../middleware/authMiddleware');
 
 // Get all opportunities for the authenticated user
 router.get('/', protect, async (req, res) => {
@@ -75,4 +76,29 @@ router.delete('/:id', protect, async (req, res) => {
   }
 });
 
-module.exports = router;
+// Route to export opportunities to CSV
+router.get('/export', protect, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { exportOpportunities } = await import('../utils/export.js');
+
+    // Get filter parameters from query string
+    const filters = {
+      stage: req.query.stage,
+      status: req.query.status,
+      startDate: req.query.startDate,
+      endDate: req.query.endDate
+    };
+
+    const csv = await exportOpportunities(userId, filters);
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="opportunities_export.csv"');
+    res.send(csv);
+  } catch (error) {
+    console.error('Error exporting opportunities:', error);
+    res.status(500).json({ message: 'Failed to export opportunities', error: error.message });
+  }
+});
+
+export default router;

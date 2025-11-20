@@ -50,7 +50,7 @@ const EmailAnalytics = () => {
   // Simulate API call to get analytics
   useEffect(() => {
     // In a real implementation, we would call the API here based on filters
-    console.log('Fetching analytics with filters:', { dateRange, campaignType });
+    console.warn('Fetching analytics with filters:', { dateRange, campaignType });
   }, [dateRange, campaignType]);
 
   return (
@@ -99,8 +99,8 @@ const EmailAnalytics = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-4">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Mail className="w-6 h-6 text-blue-600" />
+            <div className="p-3 bg-red-100 rounded-lg">
+              <Mail className="w-6 h-6 text-red-600" />
             </div>
             <div>
               <p className="text-sm text-crm-text-secondary">Campaigns Sent</p>

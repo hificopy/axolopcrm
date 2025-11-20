@@ -1,28 +1,31 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Plus, Filter, Download, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { getLeadStatusColor, formatDate, formatCurrency } from '@/lib/utils';
-import LeadImportModal from '@/components/LeadImportModal'; // Import LeadImportModal
-import CreateLeadModal from '@/components/CreateLeadModal'; // Import CreateLeadModal
+import LeadImportModal from '@/components/LeadImportModal';
+import EnhancedLeadImportModal from '@/components/EnhancedLeadImportModal';
+import CreateLeadModal from '@/components/CreateLeadModal';
+import FilterModal from '@/components/FilterModal';
 import axios from 'axios';
 import { useToast } from '@/components/ui/use-toast';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002';
 
 export default function Leads() {
   const [leads, setLeads] = useState([]);
+  const [filteredLeads, setFilteredLeads] = useState([]);
   const [selectedLead, setSelectedLead] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // State for CreateLeadModal
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isEnhancedImportModalOpen, setIsEnhancedImportModalOpen] = useState(false);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState({});
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchLeads();
-  }, []);
-
-  const fetchLeads = async () => {
+  const fetchLeads = useCallback(async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('supabase.auth.token'); // Assuming token is stored here
@@ -30,6 +33,7 @@ export default function Leads() {
         headers: { Authorization: `Bearer ${token}` },
       });
       setLeads(response.data);
+      setFilteredLeads(response.data);
     } catch (error) {
       console.error('Error fetching leads:', error);
       toast({
@@ -40,39 +44,217 @@ export default function Leads() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]); // State setters are stable, only toast needed
+
+  useEffect(() => {
+    fetchLeads();
+  }, [fetchLeads]);
 
   const handleLeadCreated = (newLead) => {
     setLeads((prevLeads) => [newLead, ...prevLeads]);
+    setFilteredLeads((prevLeads) => [newLead, ...prevLeads]);
+  };
+
+  // Handle filter
+  const handleFilter = () => {
+    setIsFilterModalOpen(true);
+  };
+
+  const applyFilters = (filters) => {
+    setActiveFilters(filters);
+
+    let filtered = [...leads];
+
+    // Apply status filter
+    if (filters.status) {
+      filtered = filtered.filter(lead => lead.status === filters.status);
+    }
+
+    // Apply type filter
+    if (filters.type) {
+      filtered = filtered.filter(lead => lead.type === filters.type);
+    }
+
+    // Apply value range filters
+    if (filters.minValue) {
+      filtered = filtered.filter(lead => (lead.value || 0) >= filters.minValue);
+    }
+    if (filters.maxValue) {
+      filtered = filtered.filter(lead => (lead.value || 0) <= filters.maxValue);
+    }
+
+    // Apply date range filters
+    if (filters.dateFrom) {
+      filtered = filtered.filter(lead =>
+        new Date(lead.created_at) >= new Date(filters.dateFrom)
+      );
+    }
+    if (filters.dateTo) {
+      filtered = filtered.filter(lead =>
+        new Date(lead.created_at) <= new Date(filters.dateTo + 'T23:59:59')
+      );
+    }
+
+    setFilteredLeads(filtered);
+
+    // Show toast with filter results
+    const activeFilterCount = Object.keys(filters).filter(key => filters[key]).length;
+    if (activeFilterCount > 0) {
+      toast({
+        title: "Filters Applied",
+        description: `Showing ${filtered.length} of ${leads.length} leads with ${activeFilterCount} filter(s) active.`,
+      });
+    }
+  };
+
+  // Handle export leads to CSV
+  const handleExport = () => {
+    try {
+      const csvHeaders = ['Name', 'Email', 'Phone', 'Status', 'Type', 'Value', 'Created'];
+      const csvRows = leads.map(lead => [
+        lead.name,
+        lead.email,
+        lead.phone || '',
+        lead.status,
+        lead.type || '',
+        lead.value || 0,
+        formatDate(lead.created_at),
+      ]);
+
+      const csvContent = [
+        csvHeaders.join(','),
+        ...csvRows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ].join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `leads-export-${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Export Successful",
+        description: `Exported ${leads.length} leads to CSV.`,
+      });
+    } catch (error) {
+      console.error('Error exporting leads:', error);
+      toast({
+        title: "Export Failed",
+        description: "Failed to export leads. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Handle import
+  const handleImport = () => {
+    setIsEnhancedImportModalOpen(true);
+  };
+
+  const handleLeadsImported = (importedLeads) => {
+    setLeads((prevLeads) => [...importedLeads, ...prevLeads]);
+    setIsEnhancedImportModalOpen(false);
+    toast({
+      title: "Import Successful",
+      description: `Successfully imported ${importedLeads.length} leads.`,
+    });
+  };
+
+  // Handle convert to opportunity
+  const handleConvertToOpportunity = async () => {
+    if (!selectedLead) return;
+
+    try {
+      const token = localStorage.getItem('supabase.auth.token');
+      await axios.post(`${API_BASE_URL}/api/opportunities`, {
+        name: selectedLead.name,
+        email: selectedLead.email,
+        phone: selectedLead.phone,
+        value: selectedLead.value,
+        leadId: selectedLead.id,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      toast({
+        title: "Converted to Opportunity",
+        description: `${selectedLead.name} has been converted to an opportunity.`,
+      });
+
+      setSelectedLead(null);
+      fetchLeads(); // Refresh the leads list
+    } catch (error) {
+      console.error('Error converting to opportunity:', error);
+      toast({
+        title: "Conversion Failed",
+        description: "Failed to convert lead to opportunity. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Handle add contact
+  const handleAddContact = async () => {
+    if (!selectedLead) return;
+
+    try {
+      const token = localStorage.getItem('supabase.auth.token');
+      await axios.post(`${API_BASE_URL}/api/contacts`, {
+        name: selectedLead.name,
+        email: selectedLead.email,
+        phone: selectedLead.phone,
+        leadId: selectedLead.id,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      toast({
+        title: "Contact Added",
+        description: `${selectedLead.name} has been added to contacts.`,
+      });
+    } catch (error) {
+      console.error('Error adding contact:', error);
+      toast({
+        title: "Failed to Add Contact",
+        description: "Failed to add contact. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
-    <div className="h-full flex flex-col crm-page-wrapper">
+    <div className="h-full flex flex-col crm-page-wrapper bg-white">
       {/* Page Header */}
-      <div className="bg-white border-b border-crm-border px-4 sm:px-6 py-4">
+      <div className="relative bg-white border-b border-gray-200 px-4 sm:px-6 py-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-crm-text-primary">Leads</h1>
-            <p className="text-sm text-crm-text-secondary mt-1">
-              Manage and track your sales leads
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+              Leads
+              <span className="ml-3 text-[#7b1c14]">●</span>
+            </h1>
+            <p className="text-sm text-gray-600 mt-2 font-medium">
+              Manage and track your sales leads with powerful filtering
             </p>
           </div>
 
           <div className="crm-button-group">
-            <Button variant="outline" size="default" className="gap-2">
+            <Button variant="outline" size="default" className="gap-2" onClick={handleFilter}>
               <Filter className="h-4 w-4" />
               <span>Filter</span>
             </Button>
-            <Button variant="outline" size="default" className="gap-2">
+            <Button variant="outline" size="default" className="gap-2" onClick={handleExport}>
               <Download className="h-4 w-4" />
               <span>Export</span>
             </Button>
-            <LeadImportModal> {/* Wrap the Import button with LeadImportModal */}
-              <Button variant="outline" size="default" className="gap-2">
-                <Upload className="h-4 w-4" />
-                <span>Import</span>
-              </Button>
-            </LeadImportModal>
+            <Button variant="outline" size="default" className="gap-2" onClick={handleImport}>
+              <Upload className="h-4 w-4" />
+              <span>Import</span>
+            </Button>
             <Button variant="default" size="default" className="gap-2" onClick={() => setIsCreateModalOpen(true)}>
               <Plus className="h-4 w-4" />
               <span>New Lead</span>
@@ -81,28 +263,28 @@ export default function Leads() {
         </div>
 
         {/* Stats */}
-        <div className="crm-stats-grid mt-4">
-          <div className="bg-crm-bg-light rounded-lg p-4">
-            <div className="text-sm text-crm-text-secondary">Total Leads</div>
-            <div className="2xl font-semibold text-crm-text-primary mt-1">
+        <div className="crm-stats-grid mt-6">
+          <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-5 border border-gray-200 shadow-md hover:shadow-lg transition-all duration-300">
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total Leads</div>
+            <div className="text-3xl font-bold text-gray-900 mt-2">
               {leads.length}
             </div>
           </div>
-          <div className="bg-crm-bg-light rounded-lg p-4">
-            <div className="text-sm text-crm-text-secondary">Qualified</div>
-            <div className="2xl font-semibold text-primary-green mt-1">
+          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-5 border border-emerald-200 shadow-md hover:shadow-lg transition-all duration-300">
+            <div className="text-xs font-semibold text-emerald-700 uppercase tracking-wide">Qualified</div>
+            <div className="text-3xl font-bold text-emerald-600 mt-2">
               {leads.filter((l) => l.status === 'QUALIFIED').length}
             </div>
           </div>
-          <div className="bg-crm-bg-light rounded-lg p-4">
-            <div className="text-sm text-crm-text-secondary">Contacted</div>
-            <div className="2xl font-semibold text-primary-yellow mt-1">
+          <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-5 border border-amber-200 shadow-md hover:shadow-lg transition-all duration-300">
+            <div className="text-xs font-semibold text-amber-700 uppercase tracking-wide">Contacted</div>
+            <div className="text-3xl font-bold text-amber-600 mt-2">
               {leads.filter((l) => l.status === 'CONTACTED').length}
             </div>
           </div>
-          <div className="bg-crm-bg-light rounded-lg p-4">
-            <div className="text-sm text-crm-text-secondary">Total Value</div>
-            <div className="2xl font-semibold text-crm-text-primary mt-1">
+          <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-5 border border-[#7b1c14]/30 shadow-md hover:shadow-lg transition-all duration-300">
+            <div className="text-xs font-semibold text-[#7b1c14] uppercase tracking-wide">Total Value</div>
+            <div className="text-3xl font-bold text-[#7b1c14] mt-2">
               {formatCurrency(leads.reduce((sum, l) => sum + (l.value || 0), 0))}
             </div>
           </div>
@@ -110,51 +292,66 @@ export default function Leads() {
       </div>
 
       {/* Table */}
-      <div className="flex-1 overflow-auto p-4 sm:p-6">
-        <div className="card-crm rounded-lg border border-crm-border crm-table-wrapper">
+      <div className="flex-1 overflow-auto p-4 sm:p-6 bg-gray-50">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Value</TableHead>
-                <TableHead>Created</TableHead>
+              <TableRow className="hover:bg-transparent bg-gray-50 border-b-2 border-gray-200">
+                <TableHead className="font-bold text-gray-700">Name</TableHead>
+                <TableHead className="font-bold text-gray-700">Email</TableHead>
+                <TableHead className="font-bold text-gray-700">Phone</TableHead>
+                <TableHead className="font-bold text-gray-700">Status</TableHead>
+                <TableHead className="font-bold text-gray-700">Type</TableHead>
+                <TableHead className="font-bold text-gray-700">Value</TableHead>
+                <TableHead className="font-bold text-gray-700">Created</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center">Loading leads...</TableCell>
+                  <TableCell colSpan={7} className="text-center py-12">
+                    <div className="flex flex-col items-center">
+                      <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-[#7b1c14] mb-4"></div>
+                      <p className="text-gray-600 font-medium">Loading leads...</p>
+                    </div>
+                  </TableCell>
                 </TableRow>
               ) : leads.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center">No leads found.</TableCell>
+                  <TableCell colSpan={7} className="text-center py-16">
+                    <div className="flex flex-col items-center">
+                      <Plus className="h-16 w-16 text-[#7b1c14]/30 mb-4" />
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">No leads yet</h3>
+                      <p className="text-gray-600 mb-6">Get started by creating your first lead</p>
+                      <Button variant="default" size="default" className="gap-2 bg-[#7b1c14] hover:bg-[#6b1a12]" onClick={() => setIsCreateModalOpen(true)}>
+                        <Plus className="h-4 w-4" />
+                        <span>Add Your First Lead</span>
+                      </Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
               ) : (
                 leads.map((lead) => (
-                  <TableRow 
+                  <TableRow
                     key={lead.id}
                     onClick={() => setSelectedLead(lead)}
-                    className="cursor-pointer hover:bg-gray-50"
+                    className="cursor-pointer hover:bg-gray-50 transition-colors duration-150 border-b border-gray-100"
                   >
-                    <TableCell className="font-medium">
+                    <TableCell className="font-semibold text-gray-900">
                       {lead.name}
                     </TableCell>
-                    <TableCell>{lead.email}</TableCell>
-                    <TableCell>{lead.phone}</TableCell>
+                    <TableCell className="text-gray-600">{lead.email}</TableCell>
+                    <TableCell className="text-gray-600">{lead.phone}</TableCell>
                     <TableCell>
-                      <Badge variant={getLeadStatusColor(lead.status)}>
+                      <Badge variant={getLeadStatusColor(lead.status)} className="font-medium">
                         {lead.status}
                       </Badge>
                     </TableCell>
-                    <TableCell>{lead.type}</TableCell>
-                    <TableCell className="font-medium">
+                    <TableCell className="text-gray-600">{lead.type}</TableCell>
+                    <TableCell className="font-bold text-[#7b1c14]">
                       {formatCurrency(lead.value)}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-gray-500">
                       {formatDate(lead.created_at)}
                     </TableCell>
                   </TableRow>
@@ -162,24 +359,13 @@ export default function Leads() {
               )}
             </TableBody>
           </Table>
-
-          {/* Empty State */}
-          {!loading && leads.length === 0 && (
-            <div className="text-center py-12">
-              <div className="text-gray-400 mb-2">No leads found</div>
-              <Button variant="default" size="default" className="gap-2" onClick={() => setIsCreateModalOpen(true)}>
-                <Plus className="h-4 w-4" />
-                <span>Add Your First Lead</span>
-              </Button>
-            </div>
-          )}
         </div>
       </div>
 
-      {/* Lead Detail Panel (Right Sidebar) */}
+      {/* Lead Detail Panel (Right Sidebar) - Added pt-20 to avoid Chat/Tasks buttons overlap */}
       {selectedLead && (
-        <div className="fixed right-0 top-16 bottom-0 w-96 bg-white border-l border-crm-border shadow-lg overflow-y-auto">
-          <div className="p-6">
+        <div className="fixed inset-0 sm:right-0 sm:left-auto sm:top-16 sm:bottom-0 w-full sm:w-96 bg-white dark:bg-[#1a1d24] border-l border-crm-border shadow-lg overflow-y-auto z-50 sm:z-auto">
+          <div className="p-6 pt-20">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">{selectedLead.name}</h2>
               <Button variant="ghost" size="sm" onClick={() => setSelectedLead(null)}>
@@ -231,7 +417,7 @@ export default function Leads() {
                     Website
                   </div>
                   <div className="mt-1">
-                    <a href={selectedLead.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                    <a href={selectedLead.website} target="_blank" rel="noopener noreferrer" className="text-red-600 hover:underline">
                       {selectedLead.website}
                     </a>
                   </div>
@@ -283,16 +469,39 @@ export default function Leads() {
             </div>
 
             <div className="mt-6 flex gap-2">
-              <Button variant="default" className="flex-1">
+              <Button variant="default" className="flex-1" onClick={handleConvertToOpportunity}>
                 Convert to Opportunity
               </Button>
-              <Button variant="outline" className="flex-1">
+              <Button variant="outline" className="flex-1" onClick={handleAddContact}>
                 Add Contact
               </Button>
             </div>
           </div>
         </div>
       )}
+
+      {/* Create Lead Modal */}
+      <CreateLeadModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onLeadCreated={handleLeadCreated}
+      />
+
+      {/* Enhanced Import Leads Modal */}
+      <EnhancedLeadImportModal
+        isOpen={isEnhancedImportModalOpen}
+        onClose={() => setIsEnhancedImportModalOpen(false)}
+        onLeadsImported={handleLeadsImported}
+      />
+
+      {/* Filter Modal */}
+      <FilterModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        onApplyFilters={applyFilters}
+        filterType="leads"
+        currentFilters={activeFilters}
+      />
     </div>
   );
 }

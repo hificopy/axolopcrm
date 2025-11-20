@@ -81,14 +81,14 @@ The script automatically:
 **Step 3: Access CRM**
 ```
 Frontend: Vercel deployment (from mastered branch)
-Backend API: http://localhost:3001 (development) / self-hosted in production
+Backend API: http://localhost:3002 (development) / self-hosted in production
 ```
 
 ### Backend Docker Services
 
 For development, these containers run the backend services:
 
-1. **crm-backend** - Node 20 + Express API (port 3001)
+1. **crm-backend** - Node 20 + Express API (port 3002)
 2. **crm-redis** - Redis 7 (cache & queue)
 3. **crm-chromadb** - ChromaDB for AI/ML (port 8001)
 4. **n8n** - Automation platform
@@ -110,7 +110,7 @@ npm run dev
 
 Access:
 - **Frontend:** http://localhost:3000
-- **Backend (dev):** http://localhost:3001
+- **Backend (dev):** http://localhost:3002
 - **Backend (Docker):** http://localhost:4001
 
 ---
@@ -304,7 +304,7 @@ brew services start redis
 ### Port already in use
 ```bash
 lsof -ti:3000 | xargs kill -9
-lsof -ti:3001 | xargs kill -9
+lsof -ti:3002 | xargs kill -9
 ```
 
 ---

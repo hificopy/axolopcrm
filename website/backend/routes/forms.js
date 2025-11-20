@@ -1,6 +1,7 @@
 import express from 'express';
 import { supabaseServer } from '../config/supabase-auth.js';
 import FormCampaignIntegrationService from '../services/form-campaign-integration-service.js';
+import { authenticateUser } from '../middleware/auth.js';
 
 const router = express.Router();
 const formCampaignService = new FormCampaignIntegrationService();
@@ -99,11 +100,16 @@ async function updateFormStats(formId) {
  * GET /api/forms
  * List all forms for the current user
  */
-router.get('/', async (req, res) => {
+router.get('/', authenticateUser, async (req, res) => {
   try {
     const { status, search } = req.query;
+    const userId = req.user.id;
+    if (!userId) {
+      console.error('Authentication error: userId is undefined in forms GET /');
+      return res.status(401).json({ success: false, error: 'Unauthorized', message: 'User ID not found in request' });
+    }
 
-    // Build query with Supabase
+    // Build query with Supabase - filter by user_id
     let query = supabaseServer
       .from('forms')
       .select(`
@@ -112,6 +118,7 @@ router.get('/', async (req, res) => {
         total_responses, conversion_rate, average_lead_score,
         public_url, created_at, updated_at
       `)
+      .eq('user_id', userId) // Only user's own forms
       .is('deleted_at', null) // Only non-deleted forms
       .order('updated_at', { ascending: false });
 
@@ -128,6 +135,7 @@ router.get('/', async (req, res) => {
     const { data, error } = await query;
 
     if (error) {
+      console.error('Supabase error fetching forms:', error); // Added detailed logging
       throw error;
     }
 
@@ -147,16 +155,18 @@ router.get('/', async (req, res) => {
 
 /**
  * GET /api/forms/:id
- * Get a single form by ID
+ * Get a single form by ID (authenticated - for editing)
  */
-router.get('/:id', async (req, res) => {
+router.get('/:id', authenticateUser, async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user.id;
 
     const { data, error } = await supabaseServer
       .from('forms')
       .select('*')
       .eq('id', id)
+      .eq('user_id', userId) // Only user's own form
       .is('deleted_at', null)
       .single();
 
@@ -185,11 +195,53 @@ router.get('/:id', async (req, res) => {
 });
 
 /**
+ * GET /api/forms/:id/public
+ * Get a form for public viewing (no auth required) - for preview, embed
+ */
+router.get('/:id/public', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data, error } = await supabaseServer
+      .from('forms')
+      .select('id, title, description, questions, settings, is_active, is_published')
+      .eq('id', id)
+      .eq('is_published', true) // Only published forms
+      .eq('is_active', true) // Only active forms
+      .is('deleted_at', null)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') { // Record not found error code in Supabase
+        return res.status(404).json({
+          success: false,
+          error: 'Form not found or not published'
+        });
+      }
+      throw error;
+    }
+
+    res.json({
+      success: true,
+      form: data
+    });
+  } catch (error) {
+    console.error('Error fetching public form:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch form',
+      message: error.message
+    });
+  }
+});
+
+/**
  * POST /api/forms
  * Create a new form
  */
-router.post('/', async (req, res) => {
+router.post('/', authenticateUser, async (req, res) => {
   try {
+    const userId = req.user.id;
     const {
       title = 'Untitled Form',
       description = '',
@@ -207,6 +259,7 @@ router.post('/', async (req, res) => {
     const { data, error } = await supabaseServer
       .from('forms')
       .insert([{
+        user_id: userId, // Associate form with user
         title,
         description,
         questions,
@@ -240,9 +293,10 @@ router.post('/', async (req, res) => {
  * PUT /api/forms/:id
  * Update an existing form
  */
-router.put('/:id', async (req, res) => {
+router.put('/:id', authenticateUser, async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user.id;
     const updates = {};
 
     // Build update object
@@ -267,6 +321,7 @@ router.put('/:id', async (req, res) => {
       .from('forms')
       .update(updates)
       .eq('id', id)
+      .eq('user_id', userId) // Only update user's own form
       .is('deleted_at', null)
       .select()
       .single();
@@ -300,9 +355,10 @@ router.put('/:id', async (req, res) => {
  * DELETE /api/forms/:id
  * Soft delete a form
  */
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateUser, async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user.id;
 
     const { data, error } = await supabaseServer
       .from('forms')
@@ -312,6 +368,7 @@ router.delete('/:id', async (req, res) => {
         is_published: false
       })
       .eq('id', id)
+      .eq('user_id', userId) // Only delete user's own form
       .is('deleted_at', null)
       .select('id, title')
       .single();
@@ -345,15 +402,17 @@ router.delete('/:id', async (req, res) => {
  * POST /api/forms/:id/duplicate
  * Duplicate an existing form
  */
-router.post('/:id/duplicate', async (req, res) => {
+router.post('/:id/duplicate', authenticateUser, async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user.id;
 
-    // Get the original form
+    // Get the original form (must be user's own form)
     const { data: form, error: fetchError } = await supabaseServer
       .from('forms')
       .select('*')
       .eq('id', id)
+      .eq('user_id', userId) // Only duplicate user's own form
       .is('deleted_at', null)
       .single();
 
@@ -371,6 +430,7 @@ router.post('/:id/duplicate', async (req, res) => {
     const { data, error: insertError } = await supabaseServer
       .from('forms')
       .insert([{
+        user_id: userId, // Associate duplicate with user
         title: `${form.title} (Copy)`,
         description: form.description,
         questions: form.questions,
@@ -405,180 +465,387 @@ router.post('/:id/duplicate', async (req, res) => {
 // ============================================================================
 
 /**
- * POST /api/forms/:id/submit
- * Submit a form response
+ * POST /api/forms/:id/auto-capture
+ * Auto-capture lead data as user types (without submit)
+ * Creates a DRAFT lead associated with the form creator
  */
-router.post('/:id/submit', async (req, res) => {
-  const client = await pool.connect();
-
+router.post('/:id/auto-capture', async (req, res) => {
   try {
-    await client.query('BEGIN');
-
     const { id: formId } = req.params;
     const {
       responses = {},
-      metadata = {}
+      draftLeadId = null, // If provided, update existing draft lead
+      sessionId = null // Track unique form sessions
     } = req.body;
 
-    // Get the form to calculate lead score
-    const formResult = await client.query(
-      'SELECT id, title, questions FROM forms WHERE id = $1 AND deleted_at IS NULL',
-      [formId]
-    );
+    // Get the form to retrieve its creator (user_id)
+    const { data: form, error: formError } = await supabaseServer
+      .from('forms')
+      .select('id, user_id, title, questions, settings')
+      .eq('id', formId)
+      .is('deleted_at', null)
+      .single();
 
-    if (formResult.rows.length === 0) {
-      await client.query('ROLLBACK');
+    if (formError || !form) {
       return res.status(404).json({
         success: false,
         error: 'Form not found'
       });
     }
 
-    const form = formResult.rows[0];
-    const questions = typeof form.questions === 'string' ? JSON.parse(form.questions) : form.questions;
-
-    // Calculate lead score
-    const scoreResult = calculateLeadScore(questions, responses);
+    const formCreatorUserId = form.user_id; // The form creator, NOT the respondent
 
     // Extract contact info from responses
     let contactEmail = null;
     let contactName = null;
     let contactPhone = null;
+    const questions = form.questions;
 
-    questions.forEach(q => {
+    for (const q of questions) {
       const response = responses[q.id];
-      if (!response) return;
+      if (!response) continue;
 
-      if (q.type === 'email') contactEmail = response;
-      else if (q.type === 'phone') contactPhone = response;
-      else if (q.type === 'short-text' && q.title?.toLowerCase().includes('name')) contactName = response;
+      if (q.type === 'email') {
+        contactEmail = response;
+      } else if (q.type === 'phone') {
+        contactPhone = response;
+      } else if (q.type === 'short-text' && q.title?.toLowerCase().includes('name')) {
+        contactName = response;
+      }
+    }
+
+    // If we don't have at least an email or name, don't create a lead yet
+    if (!contactEmail && !contactName) {
+      return res.json({
+        success: true,
+        message: 'Insufficient data for lead capture',
+        draftLeadId: null
+      });
+    }
+
+    // Check if we're updating an existing draft lead
+    if (draftLeadId) {
+      const { data: existingLead, error: fetchError } = await supabaseServer
+        .from('leads')
+        .select('id, user_id')
+        .eq('id', draftLeadId)
+        .eq('user_id', formCreatorUserId) // Ensure lead belongs to form creator
+        .eq('status', 'DRAFT')
+        .single();
+
+      if (!fetchError && existingLead) {
+        // Update existing draft lead
+        const { data: updatedLead, error: updateError } = await supabaseServer
+          .from('leads')
+          .update({
+            name: contactName || contactEmail || 'Draft Lead',
+            email: contactEmail,
+            phone: contactPhone,
+            custom_fields: {
+              form_responses: responses,
+              form_id: formId,
+              session_id: sessionId,
+              last_captured_at: new Date().toISOString()
+            },
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', draftLeadId)
+          .eq('user_id', formCreatorUserId)
+          .select()
+          .single();
+
+        if (updateError) {
+          console.error('Error updating draft lead:', updateError);
+          throw updateError;
+        }
+
+        return res.json({
+          success: true,
+          message: 'Draft lead updated',
+          draftLeadId: updatedLead.id,
+          lead: updatedLead
+        });
+      }
+    }
+
+    // Create new draft lead
+    const { data: newLead, error: createError } = await supabaseServer
+      .from('leads')
+      .insert([{
+        user_id: formCreatorUserId, // Associate with form creator
+        name: contactName || contactEmail || 'Draft Lead',
+        email: contactEmail,
+        phone: contactPhone,
+        status: 'DRAFT', // Mark as draft
+        source: `Form: ${form.title}`,
+        type: 'B2C_CUSTOMER', // Default type
+        value: 0,
+        custom_fields: {
+          form_responses: responses,
+          form_id: formId,
+          session_id: sessionId,
+          captured_at: new Date().toISOString()
+        }
+      }])
+      .select()
+      .single();
+
+    if (createError) {
+      console.error('Error creating draft lead:', createError);
+      throw createError;
+    }
+
+    res.json({
+      success: true,
+      message: 'Draft lead created',
+      draftLeadId: newLead.id,
+      lead: newLead
     });
+  } catch (error) {
+    console.error('Error in auto-capture:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to auto-capture lead',
+      message: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/forms/:id/submit
+ * Submit a form response
+ */
+router.post('/:id/submit', async (req, res) => {
+  try {
+    const { id: formId } = req.params;
+    const {
+      responses = {},
+      metadata = {},
+      draftLeadId = null // If provided, convert draft lead to completed
+    } = req.body;
+
+    // Get the form to calculate lead score
+    const { data: form, error: formError } = await supabaseServer
+      .from('forms')
+      .select('id, user_id, title, questions, settings')
+      .eq('id', formId)
+      .is('deleted_at', null)
+      .single();
+
+    if (formError || !form) {
+      return res.status(404).json({
+        success: false,
+        error: 'Form not found'
+      });
+    }
+
+    const formCreatorUserId = form.user_id;
+    const questions = form.questions;
+
+    // Calculate lead score
+    const scoreResult = calculateLeadScore(questions, responses);
+
+    // Extract contact info from responses and validate emails
+    let contactEmail = null;
+    let contactName = null;
+    let contactPhone = null;
+    const emailValidationResults = {};
+
+    for (const q of questions) {
+      const response = responses[q.id];
+      if (!response) continue;
+
+      // Smart email validation
+      if (q.type === 'email') {
+        contactEmail = response;
+
+        // Validate email if validation is enabled
+        if (q.settings?.validateEmail) {
+          const validation = await validateEmail(response);
+
+          if (!validation.valid) {
+            return res.status(400).json({
+              success: false,
+              error: validation.reason,
+              suggestions: validation.suggestions,
+              field: q.id,
+              emailValidation: validation
+            });
+          }
+
+          // Store validation results
+          emailValidationResults[q.id] = validation;
+        }
+      } else if (q.type === 'phone') {
+        contactPhone = response;
+      } else if (q.type === 'short-text' && q.title?.toLowerCase().includes('name')) {
+        contactName = response;
+      }
+    }
 
     // Check if form is configured to create contacts
-    const formSettings = typeof form.settings === 'string' ? JSON.parse(form.settings) : form.settings;
-    const shouldCreateContact = formSettings.create_contact === true;
+    const formSettings = form.settings;
+    const shouldCreateContact = formSettings?.create_contact === true;
 
     // Insert response
-    const insertResult = await client.query(
-      `INSERT INTO form_responses (
-        form_id, responses,
-        lead_score, lead_score_breakdown, is_qualified,
-        contact_email, contact_name, contact_phone,
-        ip_address, user_agent, referrer,
-        utm_source, utm_medium, utm_campaign
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
-      RETURNING *`,
-      [
-        formId,
-        JSON.stringify(responses),
-        scoreResult.total,
-        JSON.stringify(scoreResult.breakdown),
-        scoreResult.qualified,
-        contactEmail,
-        contactName,
-        contactPhone,
-        metadata.ip_address || null,
-        metadata.user_agent || null,
-        metadata.referrer || null,
-        metadata.utm_source || null,
-        metadata.utm_medium || null,
-        metadata.utm_campaign || null
-      ]
-    );
+    const { data: formResponse, error: responseError } = await supabaseServer
+      .from('form_responses')
+      .insert([{
+        form_id: formId,
+        responses,
+        lead_score: scoreResult.total,
+        lead_score_breakdown: scoreResult.breakdown,
+        is_qualified: scoreResult.qualified,
+        contact_email: contactEmail,
+        contact_name: contactName,
+        contact_phone: contactPhone,
+        ip_address: metadata.ip_address || null,
+        user_agent: metadata.user_agent || null,
+        referrer: metadata.referrer || null,
+        utm_source: metadata.utm_source || null,
+        utm_medium: metadata.utm_medium || null,
+        utm_campaign: metadata.utm_campaign || null
+      }])
+      .select()
+      .single();
+
+    if (responseError) {
+      throw responseError;
+    }
 
     // If form is configured to create contacts, create them now
     let contactId = null;
     let leadId = null;
     if (shouldCreateContact && (contactEmail || contactName)) {
+      // If we have a draft lead from auto-capture, convert it to a completed lead
+      if (draftLeadId) {
+        const { data: draftLead, error: draftError } = await supabaseServer
+          .from('leads')
+          .select('id, user_id')
+          .eq('id', draftLeadId)
+          .eq('user_id', formCreatorUserId)
+          .eq('status', 'DRAFT')
+          .single();
+
+        if (!draftError && draftLead) {
+          // Convert draft to completed lead
+          const { data: convertedLead, error: convertError } = await supabaseServer
+            .from('leads')
+            .update({
+              name: contactName || contactEmail,
+              email: contactEmail,
+              phone: contactPhone,
+              status: scoreResult.qualified ? 'QUALIFIED' : 'NEW',
+              value: scoreResult.total || 0,
+              source: `Form: ${form.title}`,
+              custom_fields: {
+                ...draftLead.custom_fields,
+                form_responses: responses,
+                completed_at: new Date().toISOString(),
+                lead_score: scoreResult.total,
+                lead_score_breakdown: scoreResult.breakdown
+              },
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', draftLeadId)
+            .eq('user_id', formCreatorUserId)
+            .select()
+            .single();
+
+          if (!convertError && convertedLead) {
+            leadId = convertedLead.id;
+          }
+        }
+      }
+
       // Check if contact already exists
-      let existingContactResult = await client.query(
-        'SELECT id, lead_id FROM contacts WHERE email = $1',
-        [contactEmail]
-      );
+      const { data: existingContact } = await supabaseServer
+        .from('contacts')
+        .select('id, lead_id')
+        .eq('email', contactEmail)
+        .eq('user_id', formCreatorUserId) // Ensure contact belongs to form creator
+        .single();
 
-      if (existingContactResult.rows.length > 0) {
+      if (existingContact) {
         // Update existing contact
-        contactId = existingContactResult.rows[0].id;
-        leadId = existingContactResult.rows[0].lead_id;
+        contactId = existingContact.id;
+        if (!leadId) leadId = existingContact.lead_id;
 
-        await client.query(
-          `UPDATE contacts
-           SET first_name = COALESCE($1, first_name),
-               last_name = COALESCE($2, last_name),
-               phone = COALESCE($3, phone),
-               updated_at = CURRENT_TIMESTAMP
-           WHERE id = $4`,
-          [
-            contactName ? contactName.split(' ')[0] : null,
-            contactName ? contactName.split(' ').slice(1).join(' ') : null,
-            contactPhone,
-            contactId
-          ]
-        );
+        const nameParts = contactName ? contactName.split(' ') : [];
+        const firstName = nameParts[0] || null;
+        const lastName = nameParts.slice(1).join(' ') || null;
+
+        await supabaseServer
+          .from('contacts')
+          .update({
+            first_name: firstName || existingContact.first_name,
+            last_name: lastName || existingContact.last_name,
+            phone: contactPhone || existingContact.phone,
+            lead_id: leadId || existingContact.lead_id,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', contactId)
+          .eq('user_id', formCreatorUserId);
       } else {
         // Create new contact
         const nameParts = contactName ? contactName.split(' ') : [];
-        const firstName = nameParts[0] || '';
+        const firstName = nameParts[0] || 'Contact';
         const lastName = nameParts.slice(1).join(' ') || '';
-        
-        const contactResult = await client.query(
-          `INSERT INTO contacts (first_name, last_name, email, phone)
-           VALUES ($1, $2, $3, $4)
-           RETURNING id`,
-          [firstName, lastName, contactEmail, contactPhone]
-        );
-        
-        contactId = contactResult.rows[0].id;
+
+        const { data: newContact, error: contactError } = await supabaseServer
+          .from('contacts')
+          .insert([{
+            user_id: formCreatorUserId, // Associate with form creator
+            first_name: firstName,
+            last_name: lastName,
+            email: contactEmail,
+            phone: contactPhone,
+            lead_id: leadId
+          }])
+          .select()
+          .single();
+
+        if (!contactError && newContact) {
+          contactId = newContact.id;
+        }
       }
 
       // If no lead exists for this contact, create one
-      if (!leadId) {
-        const leadResult = await client.query(
-          `INSERT INTO leads (name, email, phone, status, value)
-           VALUES ($1, $2, $3, 'NEW', $4)
-           RETURNING id`,
-          [contactName || contactEmail, contactEmail, contactPhone, scoreResult.total || 0]
-        );
-        
-        leadId = leadResult.rows[0].id;
-        
-        // Update contact to link to the new lead
-        await client.query(
-          'UPDATE contacts SET lead_id = $1 WHERE id = $2',
-          [leadId, contactId]
-        );
+      if (!leadId && contactId) {
+        const { data: newLead, error: leadError } = await supabaseServer
+          .from('leads')
+          .insert([{
+            user_id: formCreatorUserId, // Associate with form creator
+            name: contactName || contactEmail,
+            email: contactEmail,
+            phone: contactPhone,
+            status: scoreResult.qualified ? 'QUALIFIED' : 'NEW',
+            value: scoreResult.total || 0,
+            source: `Form: ${form.title}`,
+            type: 'B2C_CUSTOMER',
+            custom_fields: {
+              form_responses: responses,
+              form_id: formId,
+              completed_at: new Date().toISOString(),
+              lead_score: scoreResult.total,
+              lead_score_breakdown: scoreResult.breakdown
+            }
+          }])
+          .select()
+          .single();
+
+        if (!leadError && newLead) {
+          leadId = newLead.id;
+
+          // Update contact to link to the new lead
+          await supabaseServer
+            .from('contacts')
+            .update({ lead_id: leadId })
+            .eq('id', contactId)
+            .eq('user_id', formCreatorUserId);
+        }
       }
     }
-
-    // Update form analytics
-    const today = new Date().toISOString().split('T')[0];
-    const currentHour = new Date().getHours();
-
-    await client.query(
-      `INSERT INTO form_analytics (form_id, date, hour, completions, qualified_leads)
-       VALUES ($1, $2, $3, 1, $4)
-       ON CONFLICT (form_id, date, hour)
-       DO UPDATE SET
-         completions = form_analytics.completions + 1,
-         qualified_leads = form_analytics.qualified_leads + $4,
-         updated_at = CURRENT_TIMESTAMP`,
-      [formId, today, currentHour, scoreResult.qualified ? 1 : 0]
-    );
-
-    // Update question analytics
-    for (const [questionId, answer] of Object.entries(responses)) {
-      await client.query(
-        `INSERT INTO question_analytics (form_id, question_id, answers)
-         VALUES ($1, $2, 1)
-         ON CONFLICT (form_id, question_id)
-         DO UPDATE SET
-           answers = question_analytics.answers + 1,
-           updated_at = CURRENT_TIMESTAMP`,
-        [formId, questionId]
-      );
-    }
-
-    await client.query('COMMIT');
 
     // Update form stats (async, don't wait)
     updateFormStats(formId).catch(err => console.error('Error updating form stats:', err));
@@ -589,28 +856,25 @@ router.post('/:id/submit', async (req, res) => {
       name: contactName,
       phone: contactPhone
     };
-    
+
     formCampaignService.processFormSubmissionWithCampaigns(formId, responses, contactInfo)
       .catch(err => console.error('Error processing form campaign integrations:', err));
 
     res.status(201).json({
       success: true,
-      response: insertResult.rows[0],
+      response: formResponse,
       leadScore: scoreResult,
       contactId: contactId,
       leadId: leadId,
       message: 'Form submitted successfully'
     });
   } catch (error) {
-    await client.query('ROLLBACK');
     console.error('Error submitting form:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to submit form',
       message: error.message
     });
-  } finally {
-    client.release();
   }
 });
 
@@ -618,10 +882,26 @@ router.post('/:id/submit', async (req, res) => {
  * GET /api/forms/:id/responses
  * Get all responses for a form
  */
-router.get('/:id/responses', async (req, res) => {
+router.get('/:id/responses', authenticateUser, async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user.id;
     const { limit = 100, offset = 0, qualified, disqualified } = req.query;
+
+    // First verify user owns this form
+    const { data: form, error: formError } = await supabaseServer
+      .from('forms')
+      .select('id')
+      .eq('id', id)
+      .eq('user_id', userId)
+      .single();
+
+    if (formError || !form) {
+      return res.status(404).json({
+        success: false,
+        error: 'Form not found'
+      });
+    }
 
     let query = supabaseServer
       .from('form_responses')
@@ -665,16 +945,18 @@ router.get('/:id/responses', async (req, res) => {
  * GET /api/forms/:id/analytics
  * Get analytics for a form
  */
-router.get('/:id/analytics', async (req, res) => {
+router.get('/:id/analytics', authenticateUser, async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user.id;
     const { startDate, endDate } = req.query;
 
-    // Get form info
+    // Get form info (verify ownership)
     const { data: form, error: formError } = await supabaseServer
       .from('forms')
       .select('*')
       .eq('id', id)
+      .eq('user_id', userId)
       .is('deleted_at', null)
       .single();
 
@@ -799,10 +1081,26 @@ router.get('/:id/analytics', async (req, res) => {
  * GET /api/forms/:id/export
  * Export form responses as JSON/CSV
  */
-router.get('/:id/export', async (req, res) => {
+router.get('/:id/export', authenticateUser, async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user.id;
     const { format = 'json' } = req.query;
+
+    // First verify user owns this form
+    const { data: form, error: formError } = await supabaseServer
+      .from('forms')
+      .select('id')
+      .eq('id', id)
+      .eq('user_id', userId)
+      .single();
+
+    if (formError || !form) {
+      return res.status(404).json({
+        success: false,
+        error: 'Form not found'
+      });
+    }
 
     // Get form responses with form information
     const { data: responses, error: responsesError } = await supabaseServer
@@ -893,9 +1191,25 @@ router.get('/:id/export', async (req, res) => {
  * GET /api/forms/:id/integrations
  * Get all integrations for a form
  */
-router.get('/:id/integrations', async (req, res) => {
+router.get('/:id/integrations', authenticateUser, async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user.id;
+
+    // First verify user owns this form
+    const { data: form, error: formError } = await supabaseServer
+      .from('forms')
+      .select('id')
+      .eq('id', id)
+      .eq('user_id', userId)
+      .single();
+
+    if (formError || !form) {
+      return res.status(404).json({
+        success: false,
+        error: 'Form not found'
+      });
+    }
 
     const { data, error } = await supabaseServer
       .from('form_integrations')
@@ -925,9 +1239,10 @@ router.get('/:id/integrations', async (req, res) => {
  * POST /api/forms/:id/integrations
  * Add a new integration to a form
  */
-router.post('/:id/integrations', async (req, res) => {
+router.post('/:id/integrations', authenticateUser, async (req, res) => {
   try {
     const { id: formId } = req.params;
+    const userId = req.user.id;
     const {
       integration_type,
       config = {},
@@ -937,6 +1252,21 @@ router.post('/:id/integrations', async (req, res) => {
       notification_email,
       email_template
     } = req.body;
+
+    // First verify user owns this form
+    const { data: form, error: formError } = await supabaseServer
+      .from('forms')
+      .select('id')
+      .eq('id', formId)
+      .eq('user_id', userId)
+      .single();
+
+    if (formError || !form) {
+      return res.status(404).json({
+        success: false,
+        error: 'Form not found'
+      });
+    }
 
     const { data, error } = await supabaseServer
       .from('form_integrations')
@@ -976,11 +1306,27 @@ router.post('/:id/integrations', async (req, res) => {
  * PUT /api/forms/:formId/integrations/:integrationId
  * Update an integration
  */
-router.put('/:formId/integrations/:integrationId', async (req, res) => {
+router.put('/:formId/integrations/:integrationId', authenticateUser, async (req, res) => {
   try {
-    const { integrationId } = req.params;
+    const { formId, integrationId } = req.params;
+    const userId = req.user.id;
     const updates = { ...req.body };
-    
+
+    // First verify user owns this form
+    const { data: form, error: formError } = await supabaseServer
+      .from('forms')
+      .select('id')
+      .eq('id', formId)
+      .eq('user_id', userId)
+      .single();
+
+    if (formError || !form) {
+      return res.status(404).json({
+        success: false,
+        error: 'Form not found'
+      });
+    }
+
     // Remove protected fields that shouldn't be updated
     delete updates.id;
     delete updates.form_id;
@@ -1000,6 +1346,7 @@ router.put('/:formId/integrations/:integrationId', async (req, res) => {
       .from('form_integrations')
       .update(updates)
       .eq('id', integrationId)
+      .eq('form_id', formId) // Ensure integration belongs to the form
       .select()
       .single();
 
@@ -1032,14 +1379,31 @@ router.put('/:formId/integrations/:integrationId', async (req, res) => {
  * DELETE /api/forms/:formId/integrations/:integrationId
  * Delete an integration
  */
-router.delete('/:formId/integrations/:integrationId', async (req, res) => {
+router.delete('/:formId/integrations/:integrationId', authenticateUser, async (req, res) => {
   try {
-    const { integrationId } = req.params;
+    const { formId, integrationId } = req.params;
+    const userId = req.user.id;
+
+    // First verify user owns this form
+    const { data: form, error: formError } = await supabaseServer
+      .from('forms')
+      .select('id')
+      .eq('id', formId)
+      .eq('user_id', userId)
+      .single();
+
+    if (formError || !form) {
+      return res.status(404).json({
+        success: false,
+        error: 'Form not found'
+      });
+    }
 
     const { data, error } = await supabaseServer
       .from('form_integrations')
       .delete()
       .eq('id', integrationId)
+      .eq('form_id', formId) // Ensure integration belongs to the form
       .select('id, integration_type')
       .single();
 

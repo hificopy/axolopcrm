@@ -2,14 +2,18 @@ import { useState, useEffect } from 'react';
 import { Shield, Lock, Bell, Mail, Globe, CreditCard, LayoutDashboard, Key } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLocation } from 'react-router-dom';
+import { useSupabase } from '../context/SupabaseContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function AccountSettings() {
   const location = useLocation();
+  const { toast } = useToast();
+  const { user } = useSupabase();
   const [activeTab, setActiveTab] = useState('general');
   const { setTheme, setAutoTheme } = useTheme();
 
@@ -17,19 +21,37 @@ export default function AccountSettings() {
     // Handle query parameter-based navigation to specific tabs
     const urlParams = new URLSearchParams(location.search);
     const tab = urlParams.get('tab');
-    if (tab && ['general', 'security', 'notifications', 'appearance', 'membership', 'email'].includes(tab)) {
+    // Exclude 'appearance' as it's locked for V1.0
+    if (tab && ['general', 'security', 'notifications', 'membership', 'email'].includes(tab)) {
       setActiveTab(tab);
     }
   }, [location]);
 
+  // Update settings when user data loads
+  useEffect(() => {
+    if (user) {
+      const nameParts = user?.user_metadata?.full_name?.split(' ') || [];
+      setGeneralSettings({
+        firstName: nameParts[0] || user?.email?.split('@')[0] || 'User',
+        lastName: nameParts.slice(1).join(' ') || '',
+        email: user?.email || 'no-email@example.com',
+        timezone: user?.user_metadata?.timezone || 'America/New_York',
+        language: user?.user_metadata?.language || 'English',
+        dateFormat: user?.user_metadata?.dateFormat || 'MM/DD/YYYY',
+        timeFormat: user?.user_metadata?.timeFormat || '12 hour'
+      });
+    }
+  }, [user]);
+
+  const nameParts = user?.user_metadata?.full_name?.split(' ') || [];
   const [generalSettings, setGeneralSettings] = useState({
-    firstName: 'Juan',
-    lastName: 'Romero',
-    email: 'juan@axolop.com',
-    timezone: 'America/New_York',
-    language: 'English',
-    dateFormat: 'MM/DD/YYYY',
-    timeFormat: '12 hour'
+    firstName: nameParts[0] || user?.email?.split('@')[0] || 'User',
+    lastName: nameParts.slice(1).join(' ') || '',
+    email: user?.email || 'no-email@example.com',
+    timezone: user?.user_metadata?.timezone || 'America/New_York',
+    language: user?.user_metadata?.language || 'English',
+    dateFormat: user?.user_metadata?.dateFormat || 'MM/DD/YYYY',
+    timeFormat: user?.user_metadata?.timeFormat || '12 hour'
   });
 
   const [securitySettings, setSecuritySettings] = useState({
@@ -105,16 +127,19 @@ export default function AccountSettings() {
 
   const handleSave = (tab) => {
     // In a real app, we would send this data to the server
-    console.log(`${tab} settings saved:`, 
+    console.warn(`${tab} settings saved:`,
                 tab === 'general' ? generalSettings :
                 tab === 'security' ? securitySettings :
                 tab === 'notifications' ? notificationSettings :
                 tab === 'appearance' ? appearanceSettings :
                 tab === 'membership' ? membershipSettings :
                 generalSettings);
-    
+
     // Show success feedback
-    alert(`${tab.charAt(0).toUpperCase() + tab.slice(1)} settings saved successfully!`);
+    toast({
+      title: "Settings Saved",
+      description: `${tab.charAt(0).toUpperCase() + tab.slice(1)} settings have been saved successfully.`,
+    });
   };
 
   return (
@@ -143,7 +168,7 @@ export default function AccountSettings() {
                     onClick={() => setActiveTab('general')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       activeTab === 'general'
-                        ? 'bg-primary-blue text-white'
+                        ? 'bg-primary text-white'
                         : 'hover:bg-gray-100 text-crm-text-primary'
                     }`}
                   >
@@ -154,7 +179,7 @@ export default function AccountSettings() {
                     onClick={() => setActiveTab('security')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       activeTab === 'security'
-                        ? 'bg-primary-blue text-white'
+                        ? 'bg-primary text-white'
                         : 'hover:bg-gray-100 text-crm-text-primary'
                     }`}
                   >
@@ -165,29 +190,34 @@ export default function AccountSettings() {
                     onClick={() => setActiveTab('notifications')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       activeTab === 'notifications'
-                        ? 'bg-primary-blue text-white'
+                        ? 'bg-primary text-white'
                         : 'hover:bg-gray-100 text-crm-text-primary'
                     }`}
                   >
                     <Bell className="h-4 w-4" />
                     <span>Notifications</span>
                   </button>
-                  <button
-                    onClick={() => setActiveTab('appearance')}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                      activeTab === 'appearance'
-                        ? 'bg-primary-blue text-white'
-                        : 'hover:bg-gray-100 text-crm-text-primary'
-                    }`}
-                  >
-                    <LayoutDashboard className="h-4 w-4" />
-                    <span>Appearance</span>
-                  </button>
+                  {/* Locked Appearance Tab */}
+                  <div className="relative group">
+                    <div
+                      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-400 bg-gray-100/50 dark:bg-gray-800/30"
+                    >
+                      <LayoutDashboard className="h-4 w-4 text-gray-400" />
+                      <span className="text-gray-400">Appearance</span>
+                      <Lock className="h-3 w-3 ml-auto text-gray-400" />
+                    </div>
+                    {/* Tooltip */}
+                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                      <div className="bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                        Coming in V1.1
+                      </div>
+                    </div>
+                  </div>
                   <button
                     onClick={() => setActiveTab('membership')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       activeTab === 'membership'
-                        ? 'bg-primary-blue text-white'
+                        ? 'bg-primary text-white'
                         : 'hover:bg-gray-100 text-crm-text-primary'
                     }`}
                   >
@@ -198,7 +228,7 @@ export default function AccountSettings() {
                     onClick={() => setActiveTab('email')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       activeTab === 'email'
-                        ? 'bg-primary-blue text-white'
+                        ? 'bg-primary text-white'
                         : 'hover:bg-gray-100 text-crm-text-primary'
                     }`}
                   >
@@ -334,7 +364,7 @@ export default function AccountSettings() {
                             onChange={handleSecurityChange}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-blue/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-blue"></div>
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white dark:peer-checked:after:border-gray-300 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-gray-700 after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                         </label>
                       </div>
                       
@@ -353,7 +383,7 @@ export default function AccountSettings() {
                             onChange={handleSecurityChange}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-blue/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-blue"></div>
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white dark:peer-checked:after:border-gray-300 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-gray-700 after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                         </label>
                       </div>
                       
@@ -369,7 +399,7 @@ export default function AccountSettings() {
                             onChange={handleSecurityChange}
                             min="5"
                             max="120"
-                            className="w-24 px-3 py-2 border border-crm-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent bg-transparent"
+                            className="w-24 px-3 py-2 border border-crm-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-transparent"
                           />
                         </div>
                       )}
@@ -389,7 +419,7 @@ export default function AccountSettings() {
                             onChange={handleSecurityChange}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-blue/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-blue"></div>
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white dark:peer-checked:after:border-gray-300 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-gray-700 after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                         </label>
                       </div>
                     </div>
@@ -416,7 +446,7 @@ export default function AccountSettings() {
                           name="theme"
                           value={appearanceSettings.theme}
                           onChange={handleAppearanceChange}
-                          className="w-full px-3 py-2 border border-crm-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent bg-transparent"
+                          className="w-full px-3 py-2 border border-crm-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-transparent"
                         >
                           <option value="light">Light</option>
                           <option value="dark">Dark</option>
@@ -432,7 +462,7 @@ export default function AccountSettings() {
                           name="language"
                           value={appearanceSettings.language}
                           onChange={handleAppearanceChange}
-                          className="w-full px-3 py-2 border border-crm-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent bg-transparent"
+                          className="w-full px-3 py-2 border border-crm-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-transparent"
                         >
                           <option value="English">English</option>
                           <option value="Spanish">Spanish</option>
@@ -469,7 +499,7 @@ export default function AccountSettings() {
                         <div className="space-y-2">
                           {membershipSettings.permissions.map((permission, index) => (
                             <div key={index} className="flex items-center gap-2">
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                 {permission}
                               </span>
                             </div>
@@ -522,7 +552,7 @@ export default function AccountSettings() {
                             onChange={handleNotificationChange}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-blue/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-blue"></div>
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white dark:peer-checked:after:border-gray-300 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-gray-700 after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                         </label>
                       </div>
                       
@@ -541,7 +571,7 @@ export default function AccountSettings() {
                             onChange={handleNotificationChange}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-blue/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-blue"></div>
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white dark:peer-checked:after:border-gray-300 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-gray-700 after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                         </label>
                       </div>
                       
@@ -560,7 +590,7 @@ export default function AccountSettings() {
                             onChange={handleNotificationChange}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-blue/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-blue"></div>
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white dark:peer-checked:after:border-gray-300 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-gray-700 after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                         </label>
                       </div>
                       
@@ -579,7 +609,7 @@ export default function AccountSettings() {
                             onChange={handleNotificationChange}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-blue/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-blue"></div>
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white dark:peer-checked:after:border-gray-300 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-gray-700 after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                         </label>
                       </div>
                       
@@ -598,7 +628,7 @@ export default function AccountSettings() {
                             onChange={handleNotificationChange}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-blue/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-blue"></div>
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white dark:peer-checked:after:border-gray-300 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-gray-700 after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                         </label>
                       </div>
                     </div>
@@ -665,7 +695,7 @@ export default function AccountSettings() {
                             type="checkbox"
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-blue/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-blue"></div>
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white dark:peer-checked:after:border-gray-300 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-gray-700 after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                         </label>
                       </div>
                     </div>

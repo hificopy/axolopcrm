@@ -12,7 +12,7 @@ export const LogoLoader = ({ size = 'default', className }) => {
 
   return (
     <div className={cn("flex items-center justify-center", className)}>
-      <div className="relative">
+      <div className="relative transform-gpu">
         {/* Animated Ring */}
         <motion.div
           className={cn(
@@ -35,7 +35,11 @@ export const LogoLoader = ({ size = 'default', className }) => {
               ease: "easeInOut"
             }
           }}
-          style={{ filter: 'blur(20px)', opacity: 0.6 }}
+          style={{
+            filter: 'blur(20px)',
+            opacity: 0.6,
+            transform: 'translateZ(0)' // Enable hardware acceleration
+          }}
         />
 
         {/* Logo Container */}
@@ -53,11 +57,13 @@ export const LogoLoader = ({ size = 'default', className }) => {
             repeat: Infinity,
             ease: "easeInOut"
           }}
+          // Performance optimization
+          style={{ transform: 'translateZ(0)' }}
         >
           <img
             src="/axolop-logo.png"
             alt="Loading"
-            className="h-3/4 w-3/4 object-contain"
+            className="h-3/4 w-3/4 object-contain will-change-transform"
           />
         </motion.div>
       </div>
@@ -86,6 +92,7 @@ export const Spinner = ({ size = 'default', className }) => {
         repeat: Infinity,
         ease: "linear"
       }}
+      style={{ transform: 'translateZ(0)' }} // Enable hardware acceleration
     />
   );
 };
@@ -121,12 +128,12 @@ export const DotsLoader = ({ className }) => {
 // Full Page Loader
 export const FullPageLoader = ({ message }) => {
   return (
-    <div className="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-white/80 dark:bg-[#0d0f12]/90 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="flex flex-col items-center gap-6">
         <LogoLoader size="lg" />
         {message && (
           <motion.p
-            className="text-gray-600 text-sm font-medium"
+            className="text-gray-600 dark:text-gray-300 text-sm font-medium"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}

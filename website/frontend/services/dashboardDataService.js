@@ -17,93 +17,378 @@ export class DashboardDataService {
   async getSalesMetrics(timeRange = 'month') {
     const { startDate, endDate } = this.getTimeRange(timeRange);
 
+    console.log('📊 [METRICS DEBUG] Fetching sales metrics for:', {
+      timeRange,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString()
+    });
+
     const [deals, pipeline, conversion] = await Promise.all([
       this.getDealsData(startDate, endDate),
       this.getPipelineData(),
       this.getConversionRates(startDate, endDate)
     ]);
 
-    return {
-      totalRevenue: deals.totalRevenue,
-      dealsWon: deals.won,
-      dealsLost: deals.lost,
-      averageDealSize: deals.averageDealSize,
-      pipelineValue: pipeline.totalValue,
-      conversionRate: conversion.rate,
-      salesVelocity: this.calculateSalesVelocity(deals),
+    console.log('📊 [METRICS DEBUG] Raw data fetched:', {
+      deals: {
+        won: deals.won,
+        lost: deals.lost,
+        revenue: deals.totalRevenue,
+        avgDealSize: deals.averageDealSize,
+        avgCycleDays: deals.avgSalesCycleDays
+      },
+      pipeline: {
+        totalValue: pipeline.totalValue,
+        weightedValue: pipeline.weightedValue,
+        totalCount: pipeline.totalCount,
+        dealsCount: pipeline.dealsCount,
+        opportunitiesCount: pipeline.opportunitiesCount
+      },
+      conversion: {
+        rate: conversion.rate,
+        funnel: conversion.funnel
+      }
+    });
+
+    // Calculate win rate from actual won/lost data
+    const winRate = deals.won > 0 && (deals.won + deals.lost) > 0
+      ? (deals.won / (deals.won + deals.lost)) * 100
+      : 0;
+
+    // Validate data integrity
+    const validatedMetrics = {
+      // Revenue metrics
+      totalRevenue: Math.max(0, deals.totalRevenue || 0),
+      revenueByPeriod: deals.historical || [],
+
+      // Deal metrics
+      dealsWon: Math.max(0, deals.won || 0),
+      dealsLost: Math.max(0, deals.lost || 0),
+      activeDeals: Math.max(0, pipeline.totalCount || 0),
+      avgDealSize: Math.max(0, deals.averageDealSize || 0),
+      averageDealSize: Math.max(0, deals.averageDealSize || 0),
+      winRate: Math.min(100, Math.max(0, winRate)),
+
+      // Lead metrics
+      totalLeads: Math.max(0, conversion.total || 0),
+      qualifiedLeads: Math.max(0, conversion.qualified || 0),
+      newLeads: Math.max(0, conversion.total || 0),
+
+      // Pipeline metrics
+      pipelineValue: Math.max(0, pipeline.totalValue || 0),
+      weightedPipelineValue: Math.max(0, pipeline.weightedValue || pipeline.totalValue || 0),
+
+      // Conversion & velocity
+      conversionRate: Math.min(100, Math.max(0, conversion.rate || 0)),
+      conversionFunnel: conversion.funnel || {}, // Full funnel breakdown
+      avgSalesCycle: `${this.calculateSalesVelocity(deals)} days`,
+      salesVelocity: Math.max(0, this.calculateSalesVelocity(deals) || 0),
+      avgSalesCycleDays: Math.max(0, deals.avgSalesCycleDays || 0),
+
+      // Trends
       trend: this.calculateTrend(deals.historical),
+
+      // Additional context
+      opportunitiesCount: Math.max(0, pipeline.opportunitiesCount || 0),
+      dealsCount: Math.max(0, pipeline.dealsCount || 0),
     };
+
+    console.log('✅ [METRICS DEBUG] Validated metrics:', validatedMetrics);
+
+    // Data integrity checks
+    if (validatedMetrics.avgDealSize > validatedMetrics.totalRevenue && validatedMetrics.dealsWon > 0) {
+      console.warn('⚠️  [METRICS WARNING] avgDealSize > totalRevenue - possible data issue');
+    }
+
+    if (validatedMetrics.activeDeals < (validatedMetrics.dealsCount + validatedMetrics.opportunitiesCount)) {
+      console.warn('⚠️  [METRICS WARNING] activeDeals count mismatch');
+    }
+
+    return validatedMetrics;
   }
 
   async getDealsData(startDate, endDate) {
     try {
-      const { data: deals, error } = await supabase
-        .from('deals')
-        .select('*')
-        .gte('created_at', startDate.toISOString())
-        .lte('created_at', endDate.toISOString());
+      // Get both deals and opportunities for comprehensive metrics
+      const [dealsResult, opportunitiesResult] = await Promise.all([
+        supabase
+          .from('deals')
+          .select('*')
+          .gte('created_at', startDate.toISOString())
+          .lte('created_at', endDate.toISOString()),
+        supabase
+          .from('opportunities')
+          .select('id, status, value, created_at, closed_at, stage')
+          .gte('created_at', startDate.toISOString())
+          .lte('created_at', endDate.toISOString())
+      ]);
 
-      if (error) throw error;
+      if (dealsResult.error) throw dealsResult.error;
 
-      const won = deals?.filter(d => d.status === 'WON') || [];
-      const lost = deals?.filter(d => d.status === 'LOST') || [];
-      const totalRevenue = won.reduce((sum, d) => sum + (d.amount || 0), 0);
-      const averageDealSize = won.length > 0 ? totalRevenue / won.length : 0;
+      const deals = dealsResult.data || [];
+      const opportunities = opportunitiesResult.data || [];
+
+      // Calculate from deals table
+      const wonDeals = deals.filter(d => d.status === 'WON' || d.status === 'won') || [];
+      const lostDeals = deals.filter(d => d.status === 'LOST' || d.status === 'lost') || [];
+
+      // Also count opportunities that are won
+      const wonOpportunities = opportunities.filter(o =>
+        o.status === 'won' || o.status === 'WON' || o.stage === 'won' || o.stage === 'WON'
+      ) || [];
+      const lostOpportunities = opportunities.filter(o =>
+        o.status === 'lost' || o.status === 'LOST' || o.stage === 'lost' || o.stage === 'LOST'
+      ) || [];
+
+      // Combine revenue from both sources
+      const dealsRevenue = wonDeals.reduce((sum, d) => sum + (d.amount || d.value || 0), 0);
+      const opportunitiesRevenue = wonOpportunities.reduce((sum, o) => sum + (o.value || 0), 0);
+      const totalRevenue = dealsRevenue + opportunitiesRevenue;
+
+      // Total won count
+      const totalWon = wonDeals.length + wonOpportunities.length;
+      const totalLost = lostDeals.length + lostOpportunities.length;
+
+      // Average deal size
+      const averageDealSize = totalWon > 0 ? totalRevenue / totalWon : 0;
+
+      // Calculate sales cycle duration (days from created to closed)
+      const closedWithDates = [
+        ...wonDeals.filter(d => d.created_at && d.closed_at).map(d => ({
+          created: new Date(d.created_at),
+          closed: new Date(d.closed_at || d.won_at)
+        })),
+        ...wonOpportunities.filter(o => o.created_at && o.closed_at).map(o => ({
+          created: new Date(o.created_at),
+          closed: new Date(o.closed_at)
+        }))
+      ];
+
+      const avgSalesCycleDays = closedWithDates.length > 0
+        ? closedWithDates.reduce((sum, item) => {
+            const days = Math.floor((item.closed - item.created) / (1000 * 60 * 60 * 24));
+            return sum + days;
+          }, 0) / closedWithDates.length
+        : 0;
 
       // Get historical data for trend
       const historicalData = await this.getHistoricalDeals();
 
       return {
         totalRevenue,
-        won: won.length,
-        lost: lost.length,
+        won: totalWon,
+        lost: totalLost,
         averageDealSize,
+        avgSalesCycleDays: Math.round(avgSalesCycleDays),
         historical: historicalData,
-        deals: deals || []
+        deals: deals,
+        opportunities: opportunities
       };
     } catch (error) {
       console.error('Error fetching deals data:', error);
-      return this.getMockDealsData();
+      return {
+        totalRevenue: 0,
+        won: 0,
+        lost: 0,
+        averageDealSize: 0,
+        avgSalesCycleDays: 0,
+        historical: [],
+        deals: [],
+        opportunities: []
+      };
     }
   }
 
   async getPipelineData() {
     try {
-      const { data: pipeline, error } = await supabase
-        .from('deals')
-        .select('*')
-        .in('status', ['NEW', 'QUALIFIED', 'PROPOSAL', 'NEGOTIATION']);
+      // Get both deals and opportunities in pipeline stages
+      const [dealsResult, opportunitiesResult] = await Promise.all([
+        supabase
+          .from('deals')
+          .select('*')
+          .in('status', ['NEW', 'QUALIFIED', 'PROPOSAL', 'NEGOTIATION', 'new', 'qualified', 'proposal', 'negotiation']),
+        supabase
+          .from('opportunities')
+          .select('*')
+          .in('stage', ['NEW', 'QUALIFIED', 'PROPOSAL', 'NEGOTIATION', 'new', 'qualified', 'proposal', 'negotiation', 'discovery', 'demo', 'proposal_sent'])
+      ]);
 
-      if (error) throw error;
+      if (dealsResult.error) throw dealsResult.error;
 
-      const totalValue = pipeline?.reduce((sum, d) => sum + (d.amount || 0), 0) || 0;
-      const byStage = this.groupByStage(pipeline || []);
+      const deals = dealsResult.data || [];
+      const opportunities = opportunitiesResult.data || [];
 
-      return { totalValue, byStage, deals: pipeline || [] };
+      // Calculate total pipeline value from both sources
+      const dealsValue = deals.reduce((sum, d) => sum + (d.amount || d.value || 0), 0);
+      const opportunitiesValue = opportunities.reduce((sum, o) => sum + (o.value || 0), 0);
+      const totalValue = dealsValue + opportunitiesValue;
+
+      // Group by stage
+      const byStage = this.groupByStage([...deals, ...opportunities]);
+
+      // Calculate weighted pipeline value (based on stage probability)
+      const stageProbabilities = {
+        'new': 0.1,
+        'NEW': 0.1,
+        'qualified': 0.25,
+        'QUALIFIED': 0.25,
+        'discovery': 0.3,
+        'demo': 0.4,
+        'proposal': 0.5,
+        'PROPOSAL': 0.5,
+        'proposal_sent': 0.6,
+        'negotiation': 0.7,
+        'NEGOTIATION': 0.7,
+      };
+
+      const weightedValue = [...deals, ...opportunities].reduce((sum, item) => {
+        const stage = item.status || item.stage;
+        const probability = stageProbabilities[stage] || 0.3; // Default 30%
+        const value = item.amount || item.value || 0;
+        return sum + (value * probability);
+      }, 0);
+
+      return {
+        totalValue,
+        weightedValue: Math.round(weightedValue),
+        byStage,
+        deals: [...deals, ...opportunities], // Combined for display
+        dealsCount: deals.length,
+        opportunitiesCount: opportunities.length,
+        totalCount: deals.length + opportunities.length
+      };
     } catch (error) {
       console.error('Error fetching pipeline data:', error);
-      return this.getMockPipelineData();
+      return {
+        totalValue: 0,
+        weightedValue: 0,
+        byStage: {},
+        deals: [],
+        dealsCount: 0,
+        opportunitiesCount: 0,
+        totalCount: 0
+      };
     }
   }
 
   async getConversionRates(startDate, endDate) {
     try {
-      const { data: leads, error } = await supabase
-        .from('leads')
-        .select('status')
-        .gte('created_at', startDate.toISOString())
-        .lte('created_at', endDate.toISOString());
+      console.log('🔄 [CONVERSION DEBUG] Fetching funnel data...');
 
-      if (error) throw error;
+      // Get the full conversion funnel data
+      const [formSubmissions, leads, opportunities, deals] = await Promise.all([
+        supabase
+          .from('form_submissions')
+          .select('id, converted_to_lead, submitted_at')
+          .gte('submitted_at', startDate.toISOString())
+          .lte('submitted_at', endDate.toISOString()),
+        supabase
+          .from('leads')
+          .select('id, status, created_at')
+          .gte('created_at', startDate.toISOString())
+          .lte('created_at', endDate.toISOString()),
+        supabase
+          .from('opportunities')
+          .select('id, status, stage, created_at, lead_id')
+          .gte('created_at', startDate.toISOString())
+          .lte('created_at', endDate.toISOString()),
+        supabase
+          .from('deals')
+          .select('id, status, created_at')
+          .gte('created_at', startDate.toISOString())
+          .lte('created_at', endDate.toISOString())
+      ]);
 
-      const total = leads?.length || 0;
-      const qualified = leads?.filter(l => l.status === 'QUALIFIED').length || 0;
-      const rate = total > 0 ? (qualified / total) * 100 : 0;
+      console.log('🔄 [CONVERSION DEBUG] Raw funnel data:', {
+        formSubmissions: formSubmissions.data?.length || 0,
+        leads: leads.data?.length || 0,
+        opportunities: opportunities.data?.length || 0,
+        deals: deals.data?.length || 0,
+        errors: {
+          forms: formSubmissions.error,
+          leads: leads.error,
+          opportunities: opportunities.error,
+          deals: deals.error
+        }
+      });
 
-      return { rate, total, qualified };
+      // Calculate funnel metrics
+      const totalForms = formSubmissions.data?.length || 0;
+      const formsToLeads = formSubmissions.data?.filter(f => f.converted_to_lead === true).length || 0;
+
+      const totalLeads = leads.data?.length || 0;
+      const qualifiedLeads = leads.data?.filter(l => l.status === 'QUALIFIED').length || 0;
+
+      const totalOpportunities = opportunities.data?.length || 0;
+
+      const totalDeals = deals.data?.length || 0;
+      const wonDeals = deals.data?.filter(d => d.status === 'WON' || d.status === 'won').length || 0;
+
+      // Calculate conversion rates for each stage
+      const formToLeadRate = totalForms > 0 ? (formsToLeads / totalForms) * 100 : 0;
+      const leadToOpportunityRate = totalLeads > 0 ? (totalOpportunities / totalLeads) * 100 : 0;
+      const opportunityToWinRate = totalOpportunities > 0 ? (wonDeals / totalOpportunities) * 100 : 0;
+
+      // Overall conversion rate: Forms → Won Deals
+      const overallConversionRate = totalForms > 0 ? (wonDeals / totalForms) * 100 : 0;
+
+      // Alternative: Leads → Won Deals (if no form data)
+      const leadsToWonRate = totalLeads > 0 ? (wonDeals / totalLeads) * 100 : 0;
+
+      const funnelData = {
+        forms: totalForms,
+        formsToLeads: formsToLeads,
+        formToLeadRate: Math.round(formToLeadRate * 10) / 10,
+
+        leads: totalLeads,
+        qualifiedLeads,
+        leadQualificationRate: Math.round((totalLeads > 0 ? (qualifiedLeads / totalLeads) * 100 : 0) * 10) / 10,
+
+        opportunities: totalOpportunities,
+        leadToOpportunityRate: Math.round(leadToOpportunityRate * 10) / 10,
+
+        deals: totalDeals,
+        wonDeals,
+        opportunityToWinRate: Math.round(opportunityToWinRate * 10) / 10,
+
+        overallConversionRate: Math.round(overallConversionRate * 10) / 10,
+      };
+
+      console.log('✅ [CONVERSION DEBUG] Calculated funnel:', funnelData);
+      console.log('📊 [CONVERSION DEBUG] Selected conversion rate:', totalForms > 0 ? overallConversionRate : leadsToWonRate);
+
+      return {
+        // Use the most relevant conversion rate based on available data
+        rate: totalForms > 0 ? overallConversionRate : leadsToWonRate,
+
+        // Funnel breakdown
+        funnel: funnelData,
+
+        // Legacy format for backwards compatibility
+        total: totalLeads,
+        qualified: qualifiedLeads
+      };
     } catch (error) {
-      console.error('Error fetching conversion rates:', error);
-      return { rate: 0, total: 0, qualified: 0 };
+      console.error('❌ [CONVERSION ERROR]', error);
+      return {
+        rate: 0,
+        funnel: {
+          forms: 0,
+          formsToLeads: 0,
+          formToLeadRate: 0,
+          leads: 0,
+          qualifiedLeads: 0,
+          leadQualificationRate: 0,
+          opportunities: 0,
+          leadToOpportunityRate: 0,
+          deals: 0,
+          wonDeals: 0,
+          opportunityToWinRate: 0,
+          overallConversionRate: 0,
+        },
+        total: 0,
+        qualified: 0
+      };
     }
   }
 
@@ -119,6 +404,7 @@ export class DashboardDataService {
     ]);
 
     return {
+      // Original fields
       campaignsActive: campaigns.active,
       emailsSent: emails.sent,
       openRate: emails.openRate,
@@ -126,6 +412,15 @@ export class DashboardDataService {
       formSubmissions: forms.submissions,
       leadGeneration: forms.leads,
       roi: this.calculateMarketingROI(campaigns, emails),
+
+      // Additional fields for FullMarketingWidget
+      activeCampaigns: campaigns.active,
+      emailOpens: emails.opened,
+      totalSubscribers: emails.totalSubscribers || 0,
+      engagementRate: emails.openRate, // Using open rate as engagement proxy
+      unsubscribeRate: emails.unsubscribeRate || 0.5,
+      avgOpenRate: emails.openRate,
+      newSubscribers: emails.newSubscribers || 0,
     };
   }
 
@@ -140,18 +435,22 @@ export class DashboardDataService {
       if (error) throw error;
 
       const sent = campaigns?.reduce((sum, c) => sum + (c.sent_count || 0), 0) || 0;
+      const delivered = campaigns?.reduce((sum, c) => sum + (c.delivered_count || c.sent_count || 0), 0) || 0;
       const opened = campaigns?.reduce((sum, c) => sum + (c.opened_count || 0), 0) || 0;
       const clicked = campaigns?.reduce((sum, c) => sum + (c.clicked_count || 0), 0) || 0;
 
       return {
         sent,
+        delivered,
+        opened,
+        clicked,
         openRate: sent > 0 ? (opened / sent) * 100 : 0,
         clickRate: sent > 0 ? (clicked / sent) * 100 : 0,
         campaigns: campaigns?.length || 0
       };
     } catch (error) {
       console.error('Error fetching email marketing data:', error);
-      return { sent: 0, openRate: 0, clickRate: 0, campaigns: 0 };
+      return { sent: 0, delivered: 0, opened: 0, clicked: 0, openRate: 0, clickRate: 0, campaigns: 0 };
     }
   }
 
@@ -175,6 +474,58 @@ export class DashboardDataService {
     } catch (error) {
       console.error('Error fetching forms data:', error);
       return { submissions: 0, leads: 0, conversionRate: 0 };
+    }
+  }
+
+  // Alias for getFormsData to match Dashboard component usage
+  async getFormSubmissions(timeRange = 'month') {
+    const { startDate, endDate } = this.getTimeRange(timeRange);
+    const formData = await this.getFormsData(startDate, endDate);
+
+    // Add trend data for the FormSubmissionsWidget
+    const trend = await this.getFormSubmissionsTrend(startDate, endDate);
+
+    return {
+      total: formData.submissions,
+      converted: formData.leads,
+      conversionRate: formData.conversionRate,
+      trend
+    };
+  }
+
+  async getFormSubmissionsTrend(startDate, endDate) {
+    try {
+      // Get submissions grouped by week for the last 6 weeks
+      const weeks = [];
+      const now = new Date();
+
+      for (let i = 5; i >= 0; i--) {
+        const weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - (i * 7));
+        weekStart.setHours(0, 0, 0, 0);
+
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        weekEnd.setHours(23, 59, 59, 999);
+
+        const { data, error } = await supabase
+          .from('form_submissions')
+          .select('id')
+          .gte('submitted_at', weekStart.toISOString())
+          .lte('submitted_at', weekEnd.toISOString());
+
+        if (error) throw error;
+
+        weeks.push({
+          name: `W${6-i}`,
+          value: data?.length || 0
+        });
+      }
+
+      return weeks;
+    } catch (error) {
+      console.error('Error fetching form submissions trend:', error);
+      return [];
     }
   }
 
@@ -216,7 +567,14 @@ export class DashboardDataService {
       };
     } catch (error) {
       console.error('Error fetching P&L data:', error);
-      return this.getMockProfitLossData();
+      return {
+        revenue: 0,
+        expenses: 0,
+        netProfit: 0,
+        profitMargin: 0,
+        expensesByCategory: {},
+        monthlyTrend: []
+      };
     }
   }
 
@@ -358,16 +716,30 @@ export class DashboardDataService {
   }
 
   calculateSalesVelocity(deals) {
-    // Average time from created to won
-    const wonDeals = deals.deals.filter(d => d.status === 'WON');
-    if (wonDeals.length === 0) return 0;
+    // Use the pre-calculated sales cycle days if available
+    if (deals.avgSalesCycleDays !== undefined) {
+      return deals.avgSalesCycleDays;
+    }
 
-    const avgDays = wonDeals.reduce((sum, d) => {
-      const created = new Date(d.created_at);
-      const closed = new Date(d.closed_at || d.won_at);
+    // Fallback: Calculate from deals array
+    const wonDeals = deals.deals?.filter(d => d.status === 'WON' || d.status === 'won') || [];
+    const wonOpportunities = deals.opportunities?.filter(o =>
+      o.status === 'won' || o.status === 'WON' || o.stage === 'won' || o.stage === 'WON'
+    ) || [];
+
+    const allWon = [
+      ...wonDeals.filter(d => d.created_at && (d.closed_at || d.won_at)),
+      ...wonOpportunities.filter(o => o.created_at && o.closed_at)
+    ];
+
+    if (allWon.length === 0) return 0;
+
+    const avgDays = allWon.reduce((sum, item) => {
+      const created = new Date(item.created_at);
+      const closed = new Date(item.closed_at || item.won_at);
       const days = Math.floor((closed - created) / (1000 * 60 * 60 * 24));
-      return sum + days;
-    }, 0) / wonDeals.length;
+      return sum + Math.max(0, days); // Ensure no negative values
+    }, 0) / allWon.length;
 
     return Math.round(avgDays);
   }
@@ -428,7 +800,7 @@ export class DashboardDataService {
       return months;
     } catch (error) {
       console.error('Error fetching historical deals:', error);
-      return this.getMockHistoricalData();
+      return [];
     }
   }
 
@@ -451,66 +823,26 @@ export class DashboardDataService {
     return months;
   }
 
-  // ============= MOCK DATA FALLBACKS =============
-
-  getMockDealsData() {
-    return {
-      totalRevenue: 125450,
-      won: 8,
-      lost: 3,
-      averageDealSize: 15681,
-      historical: this.getMockHistoricalData(),
-      deals: []
-    };
-  }
-
-  getMockPipelineData() {
-    return {
-      totalValue: 340000,
-      byStage: {
-        NEW: 5,
-        QUALIFIED: 8,
-        PROPOSAL: 4,
-        NEGOTIATION: 2
-      },
-      deals: []
-    };
-  }
-
-  getMockProfitLossData() {
-    return {
-      revenue: 125450,
-      expenses: 45200,
-      netProfit: 80250,
-      profitMargin: 64,
-      expensesByCategory: {
-        'Marketing': 15000,
-        'Operations': 20000,
-        'Payroll': 10200
-      },
-      monthlyTrend: [
-        { month: 'Jul', revenue: 95000, expenses: 42000, profit: 53000 },
-        { month: 'Aug', revenue: 108000, expenses: 43500, profit: 64500 },
-        { month: 'Sep', revenue: 112000, expenses: 44000, profit: 68000 },
-        { month: 'Oct', revenue: 118000, expenses: 44800, profit: 73200 },
-        { month: 'Nov', revenue: 125450, expenses: 45200, profit: 80250 },
-      ]
-    };
-  }
-
-  getMockHistoricalData() {
-    return [
-      { month: 'Jul', value: 95000 },
-      { month: 'Aug', value: 108000 },
-      { month: 'Sep', value: 112000 },
-      { month: 'Oct', value: 118000 },
-      { month: 'Nov', value: 125450 },
-      { month: 'Dec', value: 142000 },
-    ];
-  }
+  // ============= HELPER METHODS =============
 
   async getCampaignData(startDate, endDate) {
-    return { active: 5, total: 12 };
+    try {
+      const { data: campaigns, error } = await supabase
+        .from('email_campaigns')
+        .select('*')
+        .gte('created_at', startDate.toISOString())
+        .lte('created_at', endDate.toISOString());
+
+      if (error) throw error;
+
+      const active = campaigns?.filter(c => c.status === 'active').length || 0;
+      const total = campaigns?.length || 0;
+
+      return { active, total };
+    } catch (error) {
+      console.error('Error fetching campaign data:', error);
+      return { active: 0, total: 0 };
+    }
   }
 
   calculateProductsSold(orders) {
@@ -518,15 +850,66 @@ export class DashboardDataService {
   }
 
   async getCartAbandonmentRate(startDate, endDate) {
-    return 28.5; // Mock data
+    try {
+      const { data: carts, error } = await supabase
+        .from('shopping_carts')
+        .select('status')
+        .gte('created_at', startDate.toISOString())
+        .lte('created_at', endDate.toISOString());
+
+      if (error) throw error;
+
+      const total = carts?.length || 0;
+      const abandoned = carts?.filter(c => c.status === 'abandoned').length || 0;
+
+      return total > 0 ? (abandoned / total) * 100 : 0;
+    } catch (error) {
+      console.error('Error calculating cart abandonment rate:', error);
+      return 0;
+    }
   }
 
   getTopProducts(orders) {
-    return []; // To be implemented
+    const productCount = {};
+
+    orders.forEach(order => {
+      order.items?.forEach(item => {
+        const productId = item.product_id;
+        if (!productCount[productId]) {
+          productCount[productId] = { ...item, count: 0 };
+        }
+        productCount[productId].count += item.quantity || 1;
+      });
+    });
+
+    return Object.values(productCount)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
   }
 
   async calculateChurnRate(startDate, endDate) {
-    return 5.2; // Mock data
+    try {
+      const { data: accounts, error } = await supabase
+        .from('accounts')
+        .select('status, churned_at')
+        .gte('churned_at', startDate.toISOString())
+        .lte('churned_at', endDate.toISOString());
+
+      if (error) throw error;
+
+      const churned = accounts?.filter(a => a.status === 'churned').length || 0;
+      const { data: totalAccounts } = await supabase
+        .from('accounts')
+        .select('id')
+        .eq('status', 'active');
+
+      const total = totalAccounts?.length || 0;
+
+      return total > 0 ? (churned / total) * 100 : 0;
+    } catch (error) {
+      console.error('Error calculating churn rate:', error);
+      return 0;
+    }
   }
 }
 

@@ -52,7 +52,7 @@
 
 ## Critical Configuration Constants
 - **Frontend:** Deployed to Vercel (from mastered branch)
-- **Backend API:** http://localhost:3001 (development) / self-hosted in production
+- **Backend API:** http://localhost:3002 (development) / http://axolop.hopto.org:3002 (production via dynamic DNS)
 - **ChromaDB:** http://localhost:8001 (in Docker) / self-hosted in production
 - **Database:** Supabase PostgreSQL Cloud (CRM-specific project, not shared)
 - **Auth:** Supabase Auth with optional Auth0 integration + RLS
@@ -84,8 +84,8 @@
 
 ### Infrastructure Configuration
 - **Frontend:** Deployed to Vercel (from mastered branch)
-- **Backend API:** http://localhost:3001 (development) / self-hosted in production
-- **ChromaDB for AI:** http://localhost:8001 (in Docker) / self-hosted in production
+- **Backend API:** http://localhost:3002 (development) / http://axolop.hopto.org:3002 (production via dynamic DNS)
+- **ChromaDB for AI:** http://localhost:8001 (in Docker) / http://axolop.hopto.org:8001 (production via dynamic DNS)
 - **Database:** Supabase PostgreSQL Cloud
 - **Always use:** Environment variables for these values
 
@@ -111,9 +111,9 @@
    - Description should be brief but clear about what changed
 
 3. **What to include in backup:**
-   - All project files EXCEPT: `.git`, `node_modules`, `dist`, `build`
+   - All project files EXCEPT: `.git`, `node_modules`, `dist`, `build`, `GEMINI.md`, `CLAUDE.md`, `QWEN.md`
    - Use rsync or similar tool to preserve file structure
-   - Command template: `rsync -av --exclude='.git' --exclude='node_modules' --exclude='dist' --exclude='build' . ../[folder]/backup-[timestamp]-[description]/`
+   - Command template: `rsync -av --exclude='.git' --exclude='node_modules' --exclude='dist' --exclude='build' --exclude='GEMINI.md' --exclude='CLAUDE.md' --exclude='QWEN.md' . ../[folder]/backup-[timestamp]-[description]/`
 
 ### Backup Process
 1. **Before any commit or deployment:** Create a backup in the appropriate local folder as specified above.
@@ -204,6 +204,140 @@ Axolop CRM is built to be the best CRM on the planet for ECOMMERCE, SALES/MARKET
   - Git Branch Strategy
   - Deployment Process
   - All deployment and version control rules
+
+### Critical Port Configuration Instructions
+- **NEVER CHANGE PORTS:** Under no circumstances should any AI model change localhost ports for frontend or backend applications
+- **Manual Port Control:** All port changes must be manually controlled by the developer
+- **Current Configuration:** Backend runs on port 3002, frontend on port 3000
+- **Production Backend:** Available at http://axolop.hopto.org:3002 via dynamic DNS
+- **Documentation:** All references to ports 3001 have been updated to 3002
+
+### Critical Deployment Instructions
+- **NEVER PUSH TO PRODUCTION:** Under no circumstances should any AI model commit changes to the `mastered` branch or deploy to Vercel
+- **Human Controlled Releases:** Only the developer (Juan) performs git pushes to production and Vercel deployments
+- **AI Role in Deployment:** AI may create backups and prepare documentation, but cannot make production changes
+- **Backup Required:** Before any release, AI must create proper backups in the appropriate local folders
+- **Version Management:** AI may assist with version documentation but deployment execution is human-only
+
+## Sentry Error Tracking Rules
+These examples should be used as guidance when configuring Sentry functionality within a project.
+
+### Error / Exception Tracking
+
+Use `Sentry.captureException(error)` to capture an exception and log the error in Sentry.
+Use this in try catch blocks or areas where exceptions are expected
+
+### Tracing Examples
+
+Spans should be created for meaningful actions within an applications like button clicks, API calls, and function calls
+Ensure you are creating custom spans with meaningful names and operations
+Use the `Sentry.startSpan` function to create a span
+Child spans can exist within a parent span
+
+#### Custom Span instrumentation in component actions
+
+```javascript
+function TestComponent() {
+  const handleTestButtonClick = () => {
+    // Create a transaction/span to measure performance
+    Sentry.startSpan(
+      {
+        op: "ui.click",
+        name: "Test Button Click",
+      },
+      (span) => {
+        const value = "some config";
+        const metric = "some metric";
+
+        // Metrics can be added to the span
+        span.setAttribute("config", value);
+        span.setAttribute("metric", metric);
+
+        doSomething();
+      },
+    );
+  };
+
+  return (
+    <button type="button" onClick={handleTestButtonClick}>
+      Test Sentry
+    </button>
+  );
+}
+```
+
+#### Custom span instrumentation in API calls
+
+```javascript
+async function fetchUserData(userId) {
+  return Sentry.startSpan(
+    {
+      op: "http.client",
+      name: `GET /api/users/${userId}`,
+    },
+    async () => {
+      const response = await fetch(`/api/users/${userId}`);
+      const data = await response.json();
+      return data;
+    },
+  );
+}
+```
+
+### Logs
+
+Where logs are used, ensure Sentry is imported using `import * as Sentry from "@sentry/react"`
+Enable logging in Sentry using `Sentry.init({ enableLogs: true })`
+Reference the logger using `const { logger } = Sentry`
+Sentry offers a consoleLoggingIntegration that can be used to log specific console error types automatically without instrumenting the individual logger calls
+
+#### Configuration
+
+##### Baseline
+
+```javascript
+import * as Sentry from "@sentry/react";
+
+Sentry.init({
+  dsn: "https://c64f5e2f4e25f2edd658d2321af73cac@o4510394694696960.ingest.us.sentry.io/4510394870136832",
+
+  enableLogs: true,
+});
+```
+
+##### Logger Integration
+
+```javascript
+Sentry.init({
+  dsn: "https://c64f5e2f4e25f2edd658d2321af73cac@o4510394694696960.ingest.us.sentry.io/4510394870136832",
+  integrations: [
+    // send console.log, console.warn, and console.error calls as logs to Sentry
+    Sentry.consoleLoggingIntegration({ levels: ["log", "warn", "error"] }),
+  ],
+});
+```
+
+#### Logger Examples
+
+`logger.fmt` is a template literal function that should be used to bring variables into the structured logs.
+
+```javascript
+logger.trace("Starting database connection", { database: "users" });
+logger.debug(logger.fmt`Cache miss for user: ${userId}`);
+logger.info("Updated profile", { profileId: 345 });
+logger.warn("Rate limit reached for endpoint", {
+  endpoint: "/api/results/",
+  isEnterprise: false,
+});
+logger.error("Failed to process payment", {
+  orderId: "order_123",
+  amount: 99.99,
+});
+logger.fatal("Database connection pool exhausted", {
+  database: "users",
+  activeConnections: 100,
+});
+```
 
 Last Updated: November 13, 2025
 Project Maintainer: Juan D. Romero Herrera

@@ -3,11 +3,38 @@
  * Handles all API calls related to forms
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+import { createClient } from '@supabase/supabase-js';
+
+// Use relative URL for development to go through Vite proxy, absolute URL for production
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api/v1' : 'http://localhost:3002/api/v1');
+
+// Initialize Supabase client for authentication
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
 class FormsAPI {
   constructor() {
     this.baseURL = `${API_BASE_URL}/forms`;
+  }
+
+  /**
+   * Get authorization headers with Supabase token
+   * @returns {Promise<Object>} Headers object with auth token
+   */
+  async getAuthHeaders() {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+
+    if (supabase) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+    }
+
+    return headers;
   }
 
   /**
@@ -21,9 +48,7 @@ class FormsAPI {
 
     const response = await fetch(url, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: await this.getAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -36,12 +61,32 @@ class FormsAPI {
   }
 
   /**
-   * Get a single form by ID
+   * Get a single form by ID (authenticated)
    * @param {string} formId - Form ID
    * @returns {Promise<Object>} Form data
    */
   async getForm(formId) {
     const response = await fetch(`${this.baseURL}/${formId}`, {
+      method: 'GET',
+      headers: await this.getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to fetch form');
+    }
+
+    const data = await response.json();
+    return data.form;
+  }
+
+  /**
+   * Get a public form (no authentication required)
+   * @param {string} formId - Form ID
+   * @returns {Promise<Object>} Public form data
+   */
+  async getPublicForm(formId) {
+    const response = await fetch(`${this.baseURL}/${formId}/public`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -65,9 +110,7 @@ class FormsAPI {
   async createForm(formData) {
     const response = await fetch(this.baseURL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: await this.getAuthHeaders(),
       body: JSON.stringify(formData),
     });
 
@@ -89,9 +132,7 @@ class FormsAPI {
   async updateForm(formId, updates) {
     const response = await fetch(`${this.baseURL}/${formId}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: await this.getAuthHeaders(),
       body: JSON.stringify(updates),
     });
 
@@ -112,9 +153,7 @@ class FormsAPI {
   async deleteForm(formId) {
     const response = await fetch(`${this.baseURL}/${formId}`, {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: await this.getAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -134,9 +173,7 @@ class FormsAPI {
   async duplicateForm(formId) {
     const response = await fetch(`${this.baseURL}/${formId}/duplicate`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: await this.getAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -187,9 +224,7 @@ class FormsAPI {
 
     const response = await fetch(url, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: await this.getAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -212,9 +247,7 @@ class FormsAPI {
 
     const response = await fetch(url, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: await this.getAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -232,9 +265,12 @@ class FormsAPI {
    * @returns {Promise<Blob|Object>} Exported data
    */
   async exportResponses(formId, format = 'json') {
+    const authHeaders = await this.getAuthHeaders();
+    const headers = format === 'csv' ? authHeaders : authHeaders;
+
     const response = await fetch(`${this.baseURL}/${formId}/export?format=${format}`, {
       method: 'GET',
-      headers: format === 'csv' ? {} : { 'Content-Type': 'application/json' },
+      headers: headers,
     });
 
     if (!response.ok) {
@@ -257,9 +293,7 @@ class FormsAPI {
   async getIntegrations(formId) {
     const response = await fetch(`${this.baseURL}/${formId}/integrations`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: await this.getAuthHeaders(),
     });
 
     if (!response.ok) {
@@ -280,9 +314,7 @@ class FormsAPI {
   async addIntegration(formId, integrationData) {
     const response = await fetch(`${this.baseURL}/${formId}/integrations`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: await this.getAuthHeaders(),
       body: JSON.stringify(integrationData),
     });
 
@@ -305,9 +337,7 @@ class FormsAPI {
   async updateIntegration(formId, integrationId, updates) {
     const response = await fetch(`${this.baseURL}/${formId}/integrations/${integrationId}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: await this.getAuthHeaders(),
       body: JSON.stringify(updates),
     });
 
@@ -329,9 +359,7 @@ class FormsAPI {
   async deleteIntegration(formId, integrationId) {
     const response = await fetch(`${this.baseURL}/${formId}/integrations/${integrationId}`, {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: await this.getAuthHeaders(),
     });
 
     if (!response.ok) {
