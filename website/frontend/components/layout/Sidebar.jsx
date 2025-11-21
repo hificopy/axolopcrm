@@ -439,7 +439,7 @@ export default function Sidebar({ isSidebarCollapsed, setIsSidebarCollapsed } = 
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-visible py-2 px-3 scrollbar-thin">
+      <nav className="flex-1 overflow-y-visible py-2 px-1 scrollbar-thin">
         {/* Render Sales section to position it right under Agencies */}
         {(() => {
           const salesCategory = mainCategories.find(cat => cat.name === 'Sales');
