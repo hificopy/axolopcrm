@@ -39,6 +39,11 @@ import {
   Link as LinkIcon,
   Filter,
   Layers,
+  Hash,
+  Square,
+  Folder,
+  MoreHorizontal,
+  ChevronLeft,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -58,11 +63,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import AgenciesSelector from './AgenciesSelector';
 
 // Top-level navigation items
 const topLevelItems = [
-  { name: 'Dashboard', href: '/app/dashboard', icon: LayoutDashboard },
-  { name: 'Calendar', href: '/app/calendar', icon: Calendar }
+  { name: 'Home', href: '/app/home', icon: LayoutDashboard },
 ];
 
 const mainCategories = [
@@ -113,6 +118,30 @@ const mainCategories = [
     ]
   },
   {
+    name: 'Teams',
+    icon: Users,
+    expanded: true,
+    items: [
+      {
+        name: 'Chat',
+        icon: MessageSquare,
+        subItems: [
+          { name: 'Team Chat', href: '/app/team-chat', icon: MessageSquare },
+          { name: 'Direct Messages', href: '/app/direct-messages', icon: MessageSquare },
+        ]
+      },
+      {
+        name: 'Projects',
+        icon: Folder,
+        subItems: [
+          { name: 'Project Management', href: '/app/projects', icon: Folder },
+          { name: 'Task Lists', href: '/app/task-lists', icon: CheckSquare },
+          { name: 'Boards', href: '/app/boards', icon: Square },
+        ]
+      },
+    ]
+  },
+  {
     name: 'Marketing',
     icon: Send,
     expanded: true,
@@ -141,25 +170,32 @@ const mainCategories = [
   }
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isSidebarCollapsed, setIsSidebarCollapsed } = {}) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut, supabase } = useSupabase();
   const { openPopup } = useAffiliatePopup();
   const { isDemoMode, disableDemoMode } = useDemoMode();
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [localSidebarCollapsed, setLocalSidebarCollapsed] = useState(false);
+
+  // Use passed props or fallback to local state
+  const actualIsSidebarCollapsed = isSidebarCollapsed !== undefined ? isSidebarCollapsed : localSidebarCollapsed;
+  const actualSetSidebarCollapsed = setIsSidebarCollapsed !== undefined ? setIsSidebarCollapsed : setLocalSidebarCollapsed;
 
   // Check if current user is the parent account
   const isParentAccount = user?.email === 'axolopcrm@gmail.com';
   const [expandedCategories, setExpandedCategories] = useState({
-    Sales: true,
-    Marketing: true,
-    Service: true,
+    Sales: false,
+    Teams: false,
+    Marketing: false,
+    Service: false,
   });
   const [expandedSubItems, setExpandedSubItems] = useState({
-    Opportunities: true,
-    Conversations: true,
-    Reports: true,
+    Opportunities: false,
+    Conversations: false,
+    Reports: false,
   });
 
   // Placeholder data management
@@ -277,7 +313,24 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="fixed left-0 top-0 h-screen w-64 bg-gradient-to-br from-[hsl(var(--crm-sidebar-gradient-start))] via-[hsl(var(--crm-sidebar-gradient-mid))] to-[hsl(var(--crm-sidebar-gradient-end))] border-r border-gray-800/50 flex flex-col shadow-2xl">
+    <div
+      className={`fixed left-0 top-0 h-screen ${actualIsSidebarCollapsed ? 'w-0 overflow-hidden' : 'w-64'} bg-gradient-to-br from-[hsl(var(--crm-sidebar-gradient-start))] via-[hsl(var(--crm-sidebar-gradient-mid))] to-[hsl(var(--crm-sidebar-gradient-end))] border-r border-gray-800/50 flex flex-col shadow-2xl transition-all duration-300 ease-in-out`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Collapse/Expand Button - appears on hover */}
+      {isHovered && !actualIsSidebarCollapsed && (
+        <button
+          onClick={() => actualSetSidebarCollapsed(true)}
+          className="absolute top-1/2 -right-3 z-50 h-8 w-8 flex items-center justify-center rounded-r-lg bg-[hsl(var(--crm-sidebar-gradient-end))] text-gray-300 hover:bg-[#7b1c14] hover:text-white shadow-lg border border-gray-700/50 transform -translate-y-1/2 transition-all duration-200"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+      )}
+
+      {/* Content - only show when not collapsed */}
+      {!actualIsSidebarCollapsed && (
+        <div className="w-full h-full flex flex-col">
       {/* Logo */}
       <div className="h-24 flex items-center justify-center px-6 border-b border-gray-800/30 bg-gradient-to-b from-black/40 to-transparent backdrop-blur-md">
         <Link
@@ -296,397 +349,515 @@ export default function Sidebar() {
         </Link>
       </div>
 
-      {/* Top Section Icons - CRM, Chat, Task */}
+      {/* Top Section - Main Categories with Home as a category */}
       <div className="px-3 py-4 border-b border-gray-800/30 bg-gradient-to-b from-black/20 to-transparent">
-        <div className="flex items-center justify-center gap-2 mb-3">
-          {/* CRM Icon - Active - Glassmorphic */}
-          <div className="relative group transform-gpu">
-            <button
-              className="relative flex flex-col items-center justify-center w-[72px] h-[72px] rounded-xl backdrop-blur-xl bg-gradient-to-br from-[#7b1c14]/40 via-[#7b1c14]/30 to-[#7b1c14]/20 border-2 border-[#7b1c14]/60 shadow-lg transition-all duration-200 ease-out hover:scale-105 hover:shadow-xl overflow-hidden will-change-transform"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/20 pointer-events-none" />
-              <BarChart3 className="h-6 w-6 text-white relative z-10 mb-1 drop-shadow-lg" />
-              <span className="text-[10px] font-bold text-white relative z-10 tracking-wide drop-shadow-lg">CRM</span>
-              <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-10 h-1 bg-[#7b1c14] rounded-full shadow-lg" />
-            </button>
-          </div>
-
-          {/* Chat Icon - Locked - Glassmorphic */}
-          <div className="relative group transform-gpu">
-            <button
-              disabled
-              className="relative flex flex-col items-center justify-center w-[72px] h-[72px] rounded-xl backdrop-blur-xl bg-gradient-to-br from-gray-700/20 via-gray-800/30 to-gray-900/40 border-2 border-gray-700/40 shadow-md transition-all duration-200 ease-out hover:scale-105 hover:shadow-lg cursor-not-allowed overflow-hidden will-change-transform"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-black/20 pointer-events-none" />
-              <MessageSquare className="h-6 w-6 text-gray-400 relative z-10 mb-1" />
-              <span className="text-[10px] font-bold text-gray-400 relative z-10 tracking-wide">CHAT</span>
-
-              {/* Lock Overlay - Glassmorphic */}
-              <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md z-20">
-                <div className="bg-gray-900/60 backdrop-blur-sm rounded-full p-2 border border-gray-600/40">
-                  <Lock className="h-4 w-4 text-gray-300" />
-                </div>
-              </div>
-            </button>
-
-            {/* Tooltip - Glassmorphic */}
-            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-              <div className="backdrop-blur-xl bg-gray-900/80 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap border border-gray-600/40">
-                Coming in V1.1
-              </div>
-            </div>
-          </div>
-
-          {/* Task Icon - Locked - Glassmorphic */}
-          <div className="relative group transform-gpu">
-            <button
-              disabled
-              className="relative flex flex-col items-center justify-center w-[72px] h-[72px] rounded-xl backdrop-blur-xl bg-gradient-to-br from-gray-700/20 via-gray-800/30 to-gray-900/40 border-2 border-gray-700/40 shadow-md transition-all duration-200 ease-out hover:scale-105 hover:shadow-lg cursor-not-allowed overflow-hidden will-change-transform"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-black/20 pointer-events-none" />
-              <CheckSquare className="h-6 w-6 text-gray-400 relative z-10 mb-1" />
-              <span className="text-[10px] font-bold text-gray-400 relative z-10 tracking-wide">TASKS</span>
-
-              {/* Lock Overlay - Glassmorphic */}
-              <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md z-20">
-                <div className="bg-gray-900/60 backdrop-blur-sm rounded-full p-2 border border-gray-600/40">
-                  <Lock className="h-4 w-4 text-gray-300" />
-                </div>
-              </div>
-            </button>
-
-            {/* Tooltip - Glassmorphic */}
-            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-              <div className="backdrop-blur-xl bg-gray-900/80 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap border border-gray-600/40">
-                Coming in V1.1
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Clear Placeholder Data Button - ABOVE Second Brain */}
-        {showButton && hasPlaceholderData && (
-          <div
-            className={`relative group transform-gpu mt-3 transition-all duration-1000 ${
-              isAnimating ? 'opacity-0 scale-95 -translate-x-full' : 'opacity-100 scale-100 translate-x-0'
-            }`}
-          >
-            <button
-              onClick={handleClearPlaceholderData}
-              disabled={isClearing}
-              className={`w-full flex items-center justify-center py-2.5 px-3 rounded-lg transition-all duration-300 ease-out backdrop-blur-xl bg-gradient-to-r from-gray-700/20 via-gray-800/30 to-gray-900/40 border-2 border-gray-700/40 shadow-lg hover:scale-[1.02] hover:shadow-xl overflow-hidden will-change-transform relative ${
-                isClearing ? 'cursor-wait opacity-70' : 'cursor-pointer hover:from-[#7b1c14]/30 hover:via-[#7b1c14]/20 hover:to-[#7b1c14]/10 hover:border-[#7b1c14]/60'
-              }`}
-            >
-              {/* Glassy overlay - same as Second Brain */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/20 pointer-events-none" />
-
-              {/* Animated glowing effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer pointer-events-none" />
-
-              {isClearing ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent relative z-10 mr-2" />
-                  <span className="text-sm font-bold text-gray-300 relative z-10 tracking-wide">Clearing...</span>
-                </>
-              ) : (
-                <>
-                  <Trash2 className="h-5 w-5 text-white relative z-10 mr-2 drop-shadow-lg" />
-                  <span className="text-sm font-bold text-white relative z-10 tracking-wide drop-shadow-lg">Clear Placeholder Data</span>
-                  <Sparkles className="h-4 w-4 text-yellow-300 relative z-10 ml-2 animate-pulse" />
-                </>
-              )}
-            </button>
-
-            {/* Tooltip */}
-            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-              <div className="backdrop-blur-xl bg-gray-900/90 text-white text-xs px-3 py-1.5 rounded shadow-lg whitespace-nowrap border border-gray-700/60">
-                Remove all demo data permanently
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Second Brain Button - Full Width - Locked - Falls down when Clear button disappears */}
+        {/* Home as a main category - No dropdown */}
         <div
-          className={`relative group transform-gpu transition-all duration-1000 ease-in-out ${
-            isAnimating
-              ? '-translate-y-14 opacity-100' // Falls DOWN to fill the gap
-              : showButton && hasPlaceholderData
-                ? 'translate-y-0 opacity-100' // Normal position when Clear button is showing
-                : '-translate-y-14 opacity-100' // Already in fallen position when no Clear button
+          className={`flex items-center justify-between cursor-pointer rounded-lg mb-1 transition-all duration-200 ease-out overflow-hidden transform-gpu ${
+            location.pathname === '/app/home'
+              ? 'backdrop-blur-xl bg-gradient-to-r from-gray-700/30 via-gray-800/40 to-[hsl(var(--crm-sidebar-hover))]/20 shadow-lg border-l-4 border-white'
+              : 'hover:backdrop-blur-sm hover:bg-gray-500/30 hover:shadow-sm'
           }`}
-          style={{ marginTop: (showButton && hasPlaceholderData && !isAnimating) ? '12px' : '12px' }}
+          onClick={() => navigate('/app/home')}
         >
-          <button
-            disabled
-            className="w-full flex items-center justify-center py-2.5 px-3 rounded-lg transition-all duration-200 ease-out backdrop-blur-xl bg-gradient-to-r from-gray-700/20 via-gray-800/30 to-gray-900/40 border-2 border-gray-700/40 shadow-md hover:scale-[1.02] hover:shadow-lg hover:from-gray-700/30 hover:via-gray-800/40 hover:to-gray-900/50 overflow-hidden cursor-not-allowed will-change-transform"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-black/20 pointer-events-none" />
-            <Brain className="h-5 w-5 text-gray-400 relative z-10 mr-2" />
-            <span className="text-sm font-bold text-gray-400 relative z-10 tracking-wide">Second Brain</span>
-
-            {/* Lock Overlay - Glassmorphic */}
-            <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md z-20">
-              <div className="bg-gray-900/60 backdrop-blur-sm rounded-full p-2 border border-gray-600/40">
-                <Lock className="h-4 w-4 text-gray-300" />
-              </div>
+          {location.pathname === '/app/home' && <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-black/10 pointer-events-none" />}
+          <div className="flex items-center flex-1">
+            <div className={`p-2 rounded-lg mr-3 transition-colors duration-200 ease-out ${
+              location.pathname === '/app/home'
+                ? 'bg-white/20 text-white shadow-inner'
+                : 'text-gray-400 hover:text-white'
+            }`}>
+              <LayoutDashboard className="h-5 w-5 transition-transform duration-200 ease-out" />
             </div>
-          </button>
-
-          {/* Tooltip - Glassmorphic */}
-          <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-            <div className="backdrop-blur-xl bg-gray-900/80 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap border border-gray-600/40">
-              Coming in V1.1
-            </div>
+            <span className={`font-semibold transition-colors duration-200 ease-out ${
+              location.pathname === '/app/home'
+                ? 'text-white'
+                : 'text-gray-300'
+            }`}>Home</span>
           </div>
+          {/* No dropdown icon since this category has no sub-items */}
         </div>
 
-        {/* Dashboard & Calendar - Split Row - No animation, stays in place */}
-        <div className="grid grid-cols-2 gap-2 mt-3">
-          <Link
-            to="/app/dashboard"
-            className={`flex items-center justify-center py-2 px-2 rounded-lg transition-all duration-200 ${
-              location.pathname === '/app/dashboard'
-                ? 'bg-gradient-to-r from-[#7b1c14]/30 via-[#7b1c14]/20 to-transparent text-white border border-[#7b1c14] shadow-md'
-                : 'text-gray-300 hover:bg-[hsl(var(--crm-sidebar-hover))]/50 hover:text-white border border-gray-800/30'
-            }`}
-          >
-            <LayoutDashboard className="h-4 w-4 mr-2" />
-            <span className="text-xs font-medium">Dashboard</span>
-          </Link>
-          <Link
-            to="/app/calendar"
-            className={`flex items-center justify-center py-2 px-2 rounded-lg transition-all duration-200 ${
-              location.pathname === '/app/calendar'
-                ? 'bg-gradient-to-r from-[#7b1c14]/30 via-[#7b1c14]/20 to-transparent text-white border border-[#7b1c14] shadow-md'
-                : 'text-gray-300 hover:bg-[hsl(var(--crm-sidebar-hover))]/50 hover:text-white border border-gray-800/30'
-            }`}
-          >
-            <Calendar className="h-4 w-4 mr-2" />
-            <span className="text-xs font-medium">Calendar</span>
-          </Link>
+        {/* My Tasks button - Same visual styling as Home button */}
+        <div
+          className={`flex items-center justify-between cursor-pointer rounded-lg mb-1 transition-all duration-200 ease-out overflow-hidden transform-gpu ${
+            location.pathname === '/app/todos'
+              ? 'backdrop-blur-xl bg-gradient-to-r from-gray-700/30 via-gray-800/40 to-[hsl(var(--crm-sidebar-hover))]/20 shadow-lg border-l-4 border-white'
+              : 'hover:backdrop-blur-sm hover:bg-gray-500/30 hover:shadow-sm'
+          }`}
+          onClick={() => navigate('/app/todos')}
+        >
+          {location.pathname === '/app/todos' && <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-black/10 pointer-events-none" />}
+          <div className="flex items-center flex-1">
+            <div className={`p-2 rounded-lg mr-3 transition-colors duration-200 ease-out ${
+              location.pathname === '/app/todos'
+                ? 'bg-white/20 text-white shadow-inner'
+                : 'text-gray-400 hover:text-white'
+            }`}>
+              <CheckSquare className="h-5 w-5 transition-transform duration-200 ease-out" />
+            </div>
+            <span className={`font-semibold transition-colors duration-200 ease-out ${
+              location.pathname === '/app/todos'
+                ? 'text-white'
+                : 'text-gray-300'
+            }`}>My Tasks</span>
+          </div>
+          {/* No dropdown icon since this category has no sub-items */}
+        </div>
+
+        {/* More button - Same visual styling as Home button */}
+        <div
+          className={`flex items-center justify-between cursor-pointer rounded-lg mb-1 transition-all duration-200 ease-out overflow-hidden transform-gpu ${
+            location.pathname.startsWith('/app/more')
+              ? 'backdrop-blur-xl bg-gradient-to-r from-gray-700/30 via-gray-800/40 to-[hsl(var(--crm-sidebar-hover))]/20 shadow-lg border-l-4 border-white'
+              : 'hover:backdrop-blur-sm hover:bg-gray-500/30 hover:shadow-sm'
+          }`}
+          onClick={() => navigate('/app/more')}
+        >
+          {location.pathname.startsWith('/app/more') && <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-black/10 pointer-events-none" />}
+          <div className="flex items-center flex-1">
+            <div className={`p-2 rounded-lg mr-3 transition-colors duration-200 ease-out ${
+              location.pathname.startsWith('/app/more')
+                ? 'bg-white/20 text-white shadow-inner'
+                : 'text-gray-400 hover:text-white'
+            }`}>
+              <MoreHorizontal className="h-5 w-5 transition-transform duration-200 ease-out" />
+            </div>
+            <span className={`font-semibold transition-colors duration-200 ease-out ${
+              location.pathname.startsWith('/app/more')
+                ? 'text-white'
+                : 'text-gray-300'
+            }`}>More</span>
+          </div>
+          {/* No dropdown icon since this category has no sub-items */}
+        </div>
+
+        {/* Agencies selector - Between More and Sales */}
+        <div className="mb-1">
+          <AgenciesSelector />
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-4 px-3 scrollbar-thin">
-        <div className="space-y-4">
+      <nav className="flex-1 overflow-y-visible py-2 px-3 scrollbar-thin">
+        {/* Render Sales section to position it right under Agencies */}
+        {(() => {
+          const salesCategory = mainCategories.find(cat => cat.name === 'Sales');
+          const otherCategories = mainCategories.filter(cat => cat.name !== 'Sales');
 
-          {/* Category sections */}
-          {mainCategories.map((category) => {
-            const Icon = category.icon;
-            const isExpanded = expandedCategories[category.name];
-
-            return (
-              <div key={category.name}>
-                {/* Category Header - Glassmorphic */}
-                <div
-                  className={`flex items-center justify-between cursor-pointer rounded-lg mb-1 transition-all duration-200 ease-out overflow-hidden transform-gpu ${
-                    isExpanded
-                      ? (category.name === 'Sales'
-                          ? 'backdrop-blur-xl bg-gradient-to-r from-gray-700/30 via-gray-800/40 to-[hsl(var(--crm-sidebar-hover))]/20 shadow-lg border-l-4 border-primary-green'
-                          : category.name === 'Marketing'
-                            ? 'backdrop-blur-xl bg-gradient-to-r from-gray-700/30 via-gray-800/40 to-[hsl(var(--crm-sidebar-hover))]/20 shadow-lg border-l-4 border-primary-blue'
-                            : 'backdrop-blur-xl bg-gradient-to-r from-gray-700/30 via-gray-800/40 to-[hsl(var(--crm-sidebar-hover))]/20 shadow-lg border-l-4 border-primary-yellow')
-                      : 'hover:backdrop-blur-sm hover:bg-[hsl(var(--crm-sidebar-hover))]/40 hover:shadow-sm'
-                  }`}
-                  onClick={() => toggleCategory(category.name)}
-                >
-                  {isExpanded && <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-black/10 pointer-events-none" />}
-                  <div className="flex items-center flex-1">
-                    <div className={`p-2 rounded-lg mr-3 transition-colors duration-200 ease-out ${
-                      isExpanded
-                        ? (category.name === 'Sales'
-                            ? 'bg-primary-green/20 text-primary-green shadow-inner'
-                            : category.name === 'Marketing'
-                              ? 'bg-primary-blue/20 text-primary-blue shadow-inner'
-                              : 'bg-primary-yellow/20 text-primary-yellow shadow-inner')
-                        : 'text-gray-400 hover:text-white'
-                    }`}>
-                      <Icon className="h-5 w-5 transition-transform duration-200 ease-out" />
+          return (
+            <div className="space-y-4 relative top-[-21px]">
+              {/* Sales section right under Agencies selector */}
+              {salesCategory && (
+                <div key={salesCategory.name}>
+                  {/* Sales Category Header - Positioned right under Agencies */}
+                  <div
+                    className={`flex items-center justify-between cursor-pointer rounded-lg mb-1 transition-all duration-200 ease-out overflow-hidden transform-gpu ${
+                      expandedCategories[salesCategory.name]
+                        ? 'backdrop-blur-xl bg-gradient-to-r from-gray-700/30 via-gray-800/40 to-[hsl(var(--crm-sidebar-hover))]/20 shadow-lg border-l-4 border-primary-green'
+                        : 'hover:backdrop-blur-sm hover:bg-gray-500/30 hover:shadow-sm'
+                    }`}
+                    onClick={() => toggleCategory(salesCategory.name)}
+                  >
+                    {expandedCategories[salesCategory.name] && <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-black/10 pointer-events-none" />}
+                    <div className="flex items-center flex-1">
+                      <div className={`p-2 rounded-lg mr-3 transition-colors duration-200 ease-out ${
+                        expandedCategories[salesCategory.name]
+                          ? 'bg-primary-green/20 text-primary-green shadow-inner'
+                          : 'text-gray-400 hover:text-white'
+                      }`}>
+                        <salesCategory.icon className="h-5 w-5 transition-transform duration-200 ease-out" />
+                      </div>
+                      <span className={`font-semibold transition-colors duration-200 ease-out ${
+                        expandedCategories[salesCategory.name]
+                          ? 'text-white'
+                          : 'text-gray-300'
+                      }`}>{salesCategory.name}</span>
                     </div>
-                    <span className={`font-semibold transition-colors duration-200 ease-out ${
-                      isExpanded
-                        ? 'text-white'
-                        : 'text-gray-300'
-                    }`}>{category.name}</span>
+                    <div className={`transition-all duration-200 ease-out transform ${
+                      expandedCategories[salesCategory.name] ? 'rotate-0' : '-rotate-90'
+                    } will-change-transform`}>
+                      {expandedCategories[salesCategory.name] ?
+                        <ChevronDown className="h-4 w-4 text-gray-400" /> :
+                        <ChevronRight className="h-4 w-4 text-gray-400" />
+                      }
+                    </div>
                   </div>
-                  <div className={`transition-all duration-200 ease-out transform ${
-                    isExpanded ? 'rotate-0' : '-rotate-90'
-                  } will-change-transform`}>
-                    {isExpanded ?
-                      <ChevronDown className="h-4 w-4 text-gray-400" /> :
-                      <ChevronRight className="h-4 w-4 text-gray-400" />
-                    }
-                  </div>
-                </div>
 
-                {/* Category Items */}
-                {isExpanded && (
-                  <div className="ml-3 space-y-1 mt-1 pl-2 border-l-2 border-[hsl(var(--crm-sidebar-hover))]/40 pb-2">
-                    {category.items.map((item) => {
-                      const ItemIcon = item.icon;
-                      const isActive = location.pathname === item.href;
-                      const hasSubItems = item.subItems && item.subItems.length > 0;
-                      const isSubExpanded = expandedSubItems[item.name];
+                  {/* Sales Items when expanded */}
+                  {expandedCategories[salesCategory.name] && (
+                    <div className="ml-3 space-y-1 mt-1 pl-2 border-l-2 border-[hsl(var(--crm-sidebar-hover))]/40 pb-2">
+                      {salesCategory.items.map((item) => {
+                        const ItemIcon = item.icon;
+                        const isActive = location.pathname === item.href;
+                        const hasSubItems = item.subItems && item.subItems.length > 0;
+                        const isSubExpanded = expandedSubItems[item.name];
 
-                      if (hasSubItems) {
-                        return (
-                          <div key={item.name}>
-                            {/* Parent Item with Sub-dropdown */}
-                            <div
-                              className={`flex items-center justify-between py-2 px-3 rounded-lg transition-all duration-200 ml-2 ${
-                                isSubExpanded
-                                  ? 'text-white bg-[hsl(var(--crm-sidebar-hover))]/30'
-                                  : 'text-gray-400 hover:bg-[hsl(var(--crm-sidebar-hover))]/50 hover:text-white'
-                              }`}
-                            >
+                        if (hasSubItems) {
+                          return (
+                            <div key={item.name}>
+                              {/* Parent Item with Sub-dropdown */}
                               <div
-                                className="flex items-center flex-1 cursor-pointer"
-                                onClick={() => {
-                                  // First, check if there's a 'List', 'Pipeline', 'Overview', or 'History' sub-item and navigate to it
-                                  const defaultSubItem = item.subItems.find(sub =>
-                                    sub.name.toLowerCase().includes('list') ||
-                                    sub.name.toLowerCase() === 'pipeline' ||
-                                    sub.name.toLowerCase() === 'overview' ||
-                                    sub.name.toLowerCase() === 'history'
-                                  );
-                                  if (defaultSubItem && defaultSubItem.href) {
-                                    navigate(defaultSubItem.href);
+                                className={`flex items-center justify-between py-2 px-3 rounded-lg transition-all duration-200 ml-2 ${
+                                  isSubExpanded
+                                    ? 'text-white bg-[hsl(var(--crm-sidebar-hover))]/30'
+                                    : 'text-gray-400 hover:bg-gray-500/30 hover:text-white'
+                                }`}
+                              >
+                                <div
+                                  className="flex items-center flex-1 cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    // First, check if there's a 'List', 'Pipeline', 'Overview', or 'History' sub-item and navigate to it
+                                    const defaultSubItem = item.subItems.find(sub =>
+                                      sub.name.toLowerCase().includes('list') ||
+                                      sub.name.toLowerCase() === 'pipeline' ||
+                                      sub.name.toLowerCase() === 'overview' ||
+                                      sub.name.toLowerCase() === 'history'
+                                    );
+                                    if (defaultSubItem && defaultSubItem.href) {
+                                      navigate(defaultSubItem.href);
+                                    }
+                                  }}
+                                >
+                                  <ItemIcon className="h-4 w-4 mr-3" />
+                                  <span className="text-sm">{item.name}</span>
+                                </div>
+
+                                <div
+                                  className="cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleSubItem(item.name);
+                                  }}
+                                >
+                                  {isSubExpanded ?
+                                    <ChevronDown className="h-3 w-3 text-gray-400" /> :
+                                    <ChevronRight className="h-3 w-3 text-gray-400" />
                                   }
-                                }}
-                              >
-                                <ItemIcon className="h-4 w-4 mr-3" />
-                                <span className="text-sm">{item.name}</span>
+                                </div>
                               </div>
 
-                              <div
-                                className="cursor-pointer"
-                                onClick={() => toggleSubItem(item.name)}
-                              >
-                                {isSubExpanded ?
-                                  <ChevronDown className="h-3 w-3 text-gray-400" /> :
-                                  <ChevronRight className="h-3 w-3 text-gray-400" />
-                                }
-                              </div>
-                            </div>
+                              {/* Sub Items */}
+                              {isSubExpanded && (
+                                <div className="ml-6 mt-1 space-y-1">
+                                  {item.subItems.map((subItem) => {
+                                    const SubItemIcon = subItem.icon;
+                                    const isSubActive = location.pathname === subItem.href;
 
-                            {/* Sub Items */}
-                            {isSubExpanded && (
-                              <div className="ml-6 mt-1 space-y-1">
-                                {item.subItems.map((subItem) => {
-                                  const SubItemIcon = subItem.icon;
-                                  const isSubActive = location.pathname === subItem.href;
-
-                                  return subItem.locked ? (
-                                    <div key={subItem.name} className="relative group ml-2">
-                                      <div
-                                        className={`flex items-center py-2 px-3 rounded-lg transition-all duration-200 cursor-not-allowed ${
-                                          'text-gray-500 bg-gray-800/30 border border-gray-700/40 backdrop-blur-sm'
-                                        }`}
-                                      >
-                                        <div className="flex items-center">
-                                          <SubItemIcon className="h-3.5 w-3.5 mr-3 text-gray-500" />
-                                          <span className="text-xs text-gray-500">{subItem.name}</span>
+                                    return subItem.locked ? (
+                                      <div key={subItem.name} className="relative group ml-2">
+                                        <div
+                                          className={`flex items-center py-2 px-3 rounded-lg transition-all duration-200 cursor-not-allowed ${
+                                            'text-gray-500 bg-gray-800/30 border border-gray-700/40 backdrop-blur-sm'
+                                          }`}
+                                        >
+                                          <div className="flex items-center">
+                                            <SubItemIcon className="h-3.5 w-3.5 mr-3 text-gray-500" />
+                                            <span className="text-xs text-gray-500">{subItem.name}</span>
+                                          </div>
+                                          {/* Lock Overlay */}
+                                          <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md z-10 rounded-lg">
+                                            <div className="bg-gray-900/60 backdrop-blur-sm rounded-full p-1 border border-gray-600/40">
+                                              <Lock className="h-3 w-3 text-gray-300" />
+                                            </div>
+                                          </div>
                                         </div>
-                                        {/* Lock Overlay */}
-                                        <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md z-10 rounded-lg">
-                                          <div className="bg-gray-900/60 backdrop-blur-sm rounded-full p-1 border border-gray-600/40">
-                                            <Lock className="h-3 w-3 text-gray-300" />
+                                        {/* Tooltip */}
+                                        <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                          <div className="backdrop-blur-xl bg-gray-900/80 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap border border-gray-600/40">
+                                            Coming in V1.1
                                           </div>
                                         </div>
                                       </div>
-                                      {/* Tooltip */}
-                                      <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                                        <div className="backdrop-blur-xl bg-gray-900/80 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap border border-gray-600/40">
-                                          Coming in V1.1
-                                        </div>
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    <Link
-                                      key={subItem.name}
-                                      to={subItem.href}
-                                      className={`flex items-center py-2 px-3 rounded-lg transition-all duration-200 ${
-                                        isSubActive
-                                          ? (category.name === 'Sales'
-                                              ? 'bg-gradient-to-r from-primary-green/15 via-primary-green/10 to-transparent text-primary-green border-r-2 border-primary-green shadow-inner backdrop-blur-sm'
-                                              : category.name === 'Marketing'
-                                                ? 'bg-gradient-to-r from-primary-blue/15 via-primary-blue/15 to-transparent text-primary-blue border-r-2 border-primary-blue shadow-inner backdrop-blur-sm'
-                                                : 'bg-gradient-to-r from-primary-yellow/15 via-primary-yellow/10 to-transparent text-primary-yellow border-r-2 border-primary-yellow shadow-inner backdrop-blur-sm')
-                                          : 'text-gray-400 hover:bg-[hsl(var(--crm-sidebar-hover))]/50 hover:text-white hover:translate-x-1 hover:backdrop-blur-sm'
-                                      }`}
-                                    >
-                                      <SubItemIcon className="h-3.5 w-3.5 mr-3" />
-                                      <span className="text-xs">{subItem.name}</span>
-                                    </Link>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      }
+                                    ) : (
+                                      <Link
+                                        key={subItem.name}
+                                        to={subItem.href}
+                                        className={`flex items-center py-2 px-3 rounded-lg transition-all duration-200 ${
+                                          isSubActive
+                                            ? 'bg-gradient-to-r from-primary-green/15 via-primary-green/10 to-transparent text-primary-green border-r-2 border-primary-green shadow-inner backdrop-blur-sm'
+                                            : 'text-gray-400 hover:bg-gray-500/30 hover:text-white hover:translate-x-1 hover:backdrop-blur-sm'
+                                        }`}
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <SubItemIcon className="h-3.5 w-3.5 mr-3" />
+                                        <span className="text-xs">{subItem.name}</span>
+                                      </Link>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        }
 
-                      // Regular Item without sub-items
-                      return item.locked ? (
-                        <div key={item.name} className="relative group ml-2">
-                          <div
-                            className={`flex items-center justify-between py-2 px-3 rounded-lg transition-all duration-200 cursor-not-allowed ${
-                              'text-gray-500 bg-gray-800/30 border border-gray-700/40 backdrop-blur-sm'
+                        // Regular Item without sub-items
+                        return item.locked ? (
+                          <div key={item.name} className="relative group ml-2">
+                            <div
+                              className={`flex items-center justify-between py-2 px-3 rounded-lg transition-all duration-200 cursor-not-allowed ${
+                                'text-gray-500 bg-gray-800/30 border border-gray-700/40 backdrop-blur-sm'
+                              }`}
+                            >
+                              <div className="flex items-center">
+                                <ItemIcon className="h-4 w-4 mr-3 text-gray-500" />
+                                <span className="text-sm text-gray-500">{item.name}</span>
+                              </div>
+                              {/* Lock Overlay */}
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md z-10 rounded-lg">
+                                <div className="bg-gray-900/60 backdrop-blur-sm rounded-full p-1 border border-gray-600/40">
+                                  <Lock className="h-3 w-3 text-gray-300" />
+                                </div>
+                              </div>
+                            </div>
+                            {/* Tooltip */}
+                            <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                              <div className="backdrop-blur-xl bg-gray-900/80 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap border border-gray-600/40">
+                                Coming in V1.1
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <Link
+                            key={item.name}
+                            to={item.href}
+                            className={`flex items-center justify-between py-2 px-3 rounded-lg transition-all duration-200 ml-2 ${
+                              isActive
+                                ? 'bg-gradient-to-r from-primary-green/15 via-primary-green/10 to-transparent text-primary-green border-r-2 border-primary-green shadow-inner backdrop-blur-sm'
+                                : 'text-gray-400 hover:bg-gray-500/30 hover:text-white hover:translate-x-1 hover:backdrop-blur-sm'
                             }`}
                           >
                             <div className="flex items-center">
-                              <ItemIcon className="h-4 w-4 mr-3 text-gray-500" />
-                              <span className="text-sm text-gray-500">{item.name}</span>
+                              <ItemIcon className="h-4 w-4 mr-3" />
+                              <span className="text-sm">{item.name}</span>
                             </div>
-                            {/* Lock Overlay */}
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md z-10 rounded-lg">
-                              <div className="bg-gray-900/60 backdrop-blur-sm rounded-full p-1 border border-gray-600/40">
-                                <Lock className="h-3 w-3 text-gray-300" />
+                            {item.badge && (
+                              <Badge className="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-green text-xs">
+                                {item.badge}
+                              </Badge>
+                            )}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Render the rest of the categories (Teams, Marketing, Service) in order */}
+              {otherCategories.map((category) => {
+                const Icon = category.icon;
+                const isExpanded = expandedCategories[category.name];
+
+                return (
+                  <div key={category.name}>
+                    {/* Category Header - Glassmorphic */}
+                    <div
+                      className={`flex items-center justify-between cursor-pointer rounded-lg mb-1 transition-all duration-200 ease-out overflow-hidden transform-gpu ${
+                        isExpanded
+                          ? (category.name === 'Marketing'
+                              ? 'backdrop-blur-xl bg-gradient-to-r from-gray-700/30 via-gray-800/40 to-[hsl(var(--crm-sidebar-hover))]/20 shadow-lg border-l-4 border-primary-blue'
+                              : 'backdrop-blur-xl bg-gradient-to-r from-gray-700/30 via-gray-800/40 to-[hsl(var(--crm-sidebar-hover))]/20 shadow-lg border-l-4 border-primary-yellow')
+                          : 'hover:backdrop-blur-sm hover:bg-gray-500/30 hover:shadow-sm'
+                      }`}
+                      onClick={() => toggleCategory(category.name)}
+                    >
+                      {isExpanded && <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-black/10 pointer-events-none" />}
+                      <div className="flex items-center flex-1">
+                        <div className={`p-2 rounded-lg mr-3 transition-colors duration-200 ease-out ${
+                          isExpanded
+                            ? (category.name === 'Marketing'
+                                ? 'bg-primary-blue/20 text-primary-blue shadow-inner'
+                                : 'bg-primary-yellow/20 text-primary-yellow shadow-inner')
+                            : 'text-gray-400 hover:text-white'
+                        }`}>
+                          <Icon className="h-5 w-5 transition-transform duration-200 ease-out" />
+                        </div>
+                        <span className={`font-semibold transition-colors duration-200 ease-out ${
+                          isExpanded
+                            ? 'text-white'
+                            : 'text-gray-300'
+                        }`}>{category.name}</span>
+                      </div>
+                      <div className={`transition-all duration-200 ease-out transform ${
+                        isExpanded ? 'rotate-0' : '-rotate-90'
+                      } will-change-transform`}>
+                        {isExpanded ?
+                          <ChevronDown className="h-4 w-4 text-gray-400" /> :
+                          <ChevronRight className="h-4 w-4 text-gray-400" />
+                        }
+                      </div>
+                    </div>
+
+                    {/* Category Items */}
+                    {isExpanded && (
+                      <div className="ml-3 space-y-1 mt-1 pl-2 border-l-2 border-[hsl(var(--crm-sidebar-hover))]/40 pb-2">
+                        {category.items.map((item) => {
+                          const ItemIcon = item.icon;
+                          const isActive = location.pathname === item.href;
+                          const hasSubItems = item.subItems && item.subItems.length > 0;
+                          const isSubExpanded = expandedSubItems[item.name];
+
+                          if (hasSubItems) {
+                            return (
+                              <div key={item.name}>
+                                {/* Parent Item with Sub-dropdown */}
+                                <div
+                                  className={`flex items-center justify-between py-2 px-3 rounded-lg transition-all duration-200 ml-2 ${
+                                    isSubExpanded
+                                      ? 'text-white bg-[hsl(var(--crm-sidebar-hover))]/30'
+                                      : 'text-gray-400 hover:bg-gray-500/30 hover:text-white'
+                                  }`}
+                                >
+                                  <div
+                                    className="flex items-center flex-1 cursor-pointer"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      // First, check if there's a 'List', 'Pipeline', 'Overview', or 'History' sub-item and navigate to it
+                                      const defaultSubItem = item.subItems.find(sub =>
+                                        sub.name.toLowerCase().includes('list') ||
+                                        sub.name.toLowerCase() === 'pipeline' ||
+                                        sub.name.toLowerCase() === 'overview' ||
+                                        sub.name.toLowerCase() === 'history'
+                                      );
+                                      if (defaultSubItem && defaultSubItem.href) {
+                                        navigate(defaultSubItem.href);
+                                      }
+                                    }}
+                                  >
+                                    <ItemIcon className="h-4 w-4 mr-3" />
+                                    <span className="text-sm">{item.name}</span>
+                                  </div>
+
+                                  <div
+                                    className="cursor-pointer"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toggleSubItem(item.name);
+                                    }}
+                                  >
+                                    {isSubExpanded ?
+                                      <ChevronDown className="h-3 w-3 text-gray-400" /> :
+                                      <ChevronRight className="h-3 w-3 text-gray-400" />
+                                    }
+                                  </div>
+                                </div>
+
+                                {/* Sub Items */}
+                                {isSubExpanded && (
+                                  <div className="ml-6 mt-1 space-y-1">
+                                    {item.subItems.map((subItem) => {
+                                      const SubItemIcon = subItem.icon;
+                                      const isSubActive = location.pathname === subItem.href;
+
+                                      return subItem.locked ? (
+                                        <div key={subItem.name} className="relative group ml-2">
+                                          <div
+                                            className={`flex items-center py-2 px-3 rounded-lg transition-all duration-200 cursor-not-allowed ${
+                                              'text-gray-500 bg-gray-800/30 border border-gray-700/40 backdrop-blur-sm'
+                                            }`}
+                                          >
+                                            <div className="flex items-center">
+                                              <SubItemIcon className="h-3.5 w-3.5 mr-3 text-gray-500" />
+                                              <span className="text-xs text-gray-500">{subItem.name}</span>
+                                            </div>
+                                            {/* Lock Overlay */}
+                                            <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md z-10 rounded-lg">
+                                              <div className="bg-gray-900/60 backdrop-blur-sm rounded-full p-1 border border-gray-600/40">
+                                                <Lock className="h-3 w-3 text-gray-300" />
+                                              </div>
+                                            </div>
+                                          </div>
+                                          {/* Tooltip */}
+                                          <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                            <div className="backdrop-blur-xl bg-gray-900/80 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap border border-gray-600/40">
+                                              Coming in V1.1
+                                            </div>
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <Link
+                                          key={subItem.name}
+                                          to={subItem.href}
+                                          className={`flex items-center py-2 px-3 rounded-lg transition-all duration-200 ${
+                                            isSubActive
+                                              ? (category.name === 'Marketing'
+                                                  ? 'bg-gradient-to-r from-primary-blue/15 via-primary-blue/15 to-transparent text-primary-blue border-r-2 border-primary-blue shadow-inner backdrop-blur-sm'
+                                                  : 'bg-gradient-to-r from-primary-yellow/15 via-primary-yellow/10 to-transparent text-primary-yellow border-r-2 border-primary-yellow shadow-inner backdrop-blur-sm')
+                                              : 'text-gray-400 hover:bg-gray-500/30 hover:text-white hover:translate-x-1 hover:backdrop-blur-sm'
+                                          }`}
+                                          onClick={(e) => e.stopPropagation()}
+                                        >
+                                          <SubItemIcon className="h-3.5 w-3.5 mr-3" />
+                                          <span className="text-xs">{subItem.name}</span>
+                                        </Link>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          }
+
+                          // Regular Item without sub-items
+                          return item.locked ? (
+                            <div key={item.name} className="relative group ml-2">
+                              <div
+                                className={`flex items-center justify-between py-2 px-3 rounded-lg transition-all duration-200 cursor-not-allowed ${
+                                  'text-gray-500 bg-gray-800/30 border border-gray-700/40 backdrop-blur-sm'
+                                }`}
+                              >
+                                <div className="flex items-center">
+                                  <ItemIcon className="h-4 w-4 mr-3 text-gray-500" />
+                                  <span className="text-sm text-gray-500">{item.name}</span>
+                                </div>
+                                {/* Lock Overlay */}
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md z-10 rounded-lg">
+                                  <div className="bg-gray-900/60 backdrop-blur-sm rounded-full p-1 border border-gray-600/40">
+                                    <Lock className="h-3 w-3 text-gray-300" />
+                                  </div>
+                                </div>
+                              </div>
+                              {/* Tooltip */}
+                              <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                                <div className="backdrop-blur-xl bg-gray-900/80 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap border border-gray-600/40">
+                                  Coming in V1.1
+                                </div>
                               </div>
                             </div>
-                          </div>
-                          {/* Tooltip */}
-                          <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                            <div className="backdrop-blur-xl bg-gray-900/80 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap border border-gray-600/40">
-                              Coming in V1.1
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <Link
-                          key={item.name}
-                          to={item.href}
-                          className={`flex items-center justify-between py-2 px-3 rounded-lg transition-all duration-200 ml-2 ${
-                            isActive
-                              ? (category.name === 'Sales'
-                                  ? 'bg-gradient-to-r from-primary-green/15 via-primary-green/10 to-transparent text-primary-green border-r-2 border-primary-green shadow-inner backdrop-blur-sm'
-                                  : category.name === 'Marketing'
-                                    ? 'bg-gradient-to-r from-primary-blue/15 via-primary-blue/10 to-transparent text-primary-blue border-r-2 border-primary-blue shadow-inner backdrop-blur-sm'
-                                    : 'bg-gradient-to-r from-primary-yellow/15 via-primary-yellow/10 to-transparent text-primary-yellow border-r-2 border-primary-yellow shadow-inner backdrop-blur-sm')
-                              : 'text-gray-400 hover:bg-[hsl(var(--crm-sidebar-hover))]/50 hover:text-white hover:translate-x-1 hover:backdrop-blur-sm'
-                          }`}
-                        >
-                          <div className="flex items-center">
-                            <ItemIcon className="h-4 w-4 mr-3" />
-                            <span className="text-sm">{item.name}</span>
-                          </div>
-                          {item.badge && (
-                            <Badge className="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-green text-xs">
-                              {item.badge}
-                            </Badge>
-                          )}
-                        </Link>
-                      );
-                    })}
+                          ) : (
+                            <Link
+                              key={item.name}
+                              to={item.href}
+                              className={`flex items-center justify-between py-2 px-3 rounded-lg transition-all duration-200 ml-2 ${
+                                isActive
+                                  ? (category.name === 'Marketing'
+                                      ? 'bg-gradient-to-r from-primary-blue/15 via-primary-blue/10 to-transparent text-primary-blue border-r-2 border-primary-blue shadow-inner backdrop-blur-sm'
+                                      : 'bg-gradient-to-r from-primary-yellow/15 via-primary-yellow/10 to-transparent text-primary-yellow border-r-2 border-primary-yellow shadow-inner backdrop-blur-sm')
+                                  : 'text-gray-400 hover:bg-gray-500/30 hover:text-white hover:translate-x-1 hover:backdrop-blur-sm'
+                              }`}
+                            >
+                              <div className="flex items-center">
+                                <ItemIcon className="h-4 w-4 mr-3" />
+                                <span className="text-sm">{item.name}</span>
+                              </div>
+                              {item.badge && (
+                                <Badge className="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-green text-xs">
+                                  {item.badge}
+                                </Badge>
+                              )}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                );
+              })}
+            </div>
+          );
+        })()}
       </nav>
 
       {/* Affiliate Referral Card - Above Settings - Glassmorphic */}
@@ -715,26 +886,11 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* Settings - Sticky at bottom above profile */}
-      <div className="px-3 py-3 bg-black/30 backdrop-blur-sm">
-        <Link
-          to="/app/settings"
-          className={`flex items-center py-2.5 px-3 rounded-lg transition-all duration-200 ${
-            location.pathname.includes('/settings')
-              ? 'bg-gradient-to-r from-[#7b1c14]/30 via-[#7b1c14]/20 to-transparent text-white border-r-4 border-[#7b1c14] shadow-lg backdrop-blur-sm font-semibold'
-              : 'text-gray-300 hover:bg-[hsl(var(--crm-sidebar-hover))]/50 hover:text-white hover:translate-x-1 hover:backdrop-blur-sm'
-          }`}
-        >
-          <Settings className="h-5 w-5 mr-3" />
-          <span className="text-sm">Settings</span>
-        </Link>
-      </div>
-
       {/* User Profile Dropdown */}
       <div className="h-16 border-t border-gray-800/50 px-3 flex items-center bg-black/30 backdrop-blur-sm">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-3 w-full hover:bg-[hsl(var(--crm-sidebar-hover))] rounded-lg p-2 transition-all duration-200">
+            <button className="flex items-center gap-3 w-full hover:bg-gray-500/30 rounded-lg p-2 transition-all duration-200">
               <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[hsl(var(--primary-accent))] to-red-900 flex items-center justify-center text-white font-semibold shadow-lg ring-2 ring-[hsl(var(--primary-accent))]/30">
                 {user?.user_metadata?.full_name?.split(' ').map(n => n[0]).join('').toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U'}
               </div>
