@@ -965,14 +965,14 @@ export default function Sidebar({ isSidebarCollapsed, setIsSidebarCollapsed } = 
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => setShowLogoutDialog(false)}
               >
                 Cancel
               </Button>
-              <Button 
-                variant="destructive" 
+              <Button
+                variant="destructive"
                 onClick={handleConfirmLogout}
               >
                 Log out
@@ -980,7 +980,8 @@ export default function Sidebar({ isSidebarCollapsed, setIsSidebarCollapsed } = 
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </div>
-    </div>
-  );
-}
+      </div> 
+      )} 
+    </div> // Closes the main outer div from line 316
+  ); // Closes the return statement
+} // Closes the Sidebar component
