@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Shield, Lock, Bell, Mail, Globe, CreditCard, LayoutDashboard, Key } from 'lucide-react';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useTheme } from './contexts/ThemeContext';
 import { useLocation } from 'react-router-dom';
 import { useSupabase } from '../context/SupabaseContext';
 import { Button } from '@/components/ui/button';

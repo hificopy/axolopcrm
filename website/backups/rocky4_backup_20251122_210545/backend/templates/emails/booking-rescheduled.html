@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Rescheduled</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        .header {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: #ffffff;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .rescheduled-badge {
+            background-color: #17a2b8;
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 6px;
+            display: inline-block;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+        .comparison-container {
+            display: flex;
+            gap: 20px;
+            margin: 25px 0;
+        }
+        .time-card {
+            flex: 1;
+            padding: 20px;
+            border-radius: 6px;
+        }
+        .old-time {
+            background-color: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            opacity: 0.7;
+        }
+        .new-time {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border: 2px solid #4caf50;
+        }
+        .time-card h3 {
+            margin-top: 0;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #666;
+        }
+        .time-card .event-name {
+            font-weight: 600;
+            font-size: 18px;
+            margin: 10px 0;
+            color: #333;
+        }
+        .time-card .date-time {
+            font-size: 16px;
+            color: #333;
+            margin: 8px 0;
+        }
+        .time-card .detail {
+            font-size: 14px;
+            color: #666;
+            margin: 6px 0;
+        }
+        .new-time-highlight {
+            background-color: #4caf50;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        .new-time-highlight h2 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+        .new-time-highlight p {
+            margin: 0;
+            font-size: 16px;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 14px 32px;
+            background: #17a2b8;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin: 20px 0;
+        }
+        .cta-button:hover {
+            opacity: 0.9;
+        }
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .calendar-links {
+            margin: 25px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .calendar-links h3 {
+            margin-top: 0;
+            font-size: 16px;
+            color: #333;
+        }
+        .calendar-link-item {
+            display: inline-block;
+            margin: 8px 10px 8px 0;
+            padding: 8px 16px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        .footer a {
+            color: #17a2b8;
+            text-decoration: none;
+        }
+        .action-links {
+            margin: 30px 0;
+            text-align: center;
+        }
+        .action-links a {
+            color: #17a2b8;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 14px;
+        }
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 30px 20px;
+            }
+            .header {
+                padding: 30px 20px;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+            .comparison-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Meeting Rescheduled</h1>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <p>Hi {{name}},</p>
+
+            <div style="text-align: center;">
+                <div class="rescheduled-badge">🔄 Time Changed</div>
+            </div>
+
+            <p>Your meeting has been rescheduled to a new time.</p>
+
+            <!-- New Time Highlight -->
+            <div class="new-time-highlight">
+                <h2>New Meeting Time</h2>
+                <p style="font-size: 20px; margin: 10px 0;">{{newFormattedDate}}</p>
+                <p>{{newFormattedTime}} ({{timezone}})</p>
+            </div>
+
+            <!-- Time Comparison -->
+            <div class="comparison-container">
+                <div class="time-card old-time">
+                    <h3>Previous Time</h3>
+                    <div class="date-time">{{oldFormattedDate}}</div>
+                    <div class="detail">{{oldFormattedTime}}</div>
+                </div>
+                <div class="time-card new-time">
+                    <h3>New Time ✓</h3>
+                    <div class="date-time">{{newFormattedDate}}</div>
+                    <div class="detail">{{newFormattedTime}}</div>
+                </div>
+            </div>
+
+            <!-- Meeting Details -->
+            <div style="margin: 30px 0;">
+                <p><strong>Event:</strong> {{eventName}}</p>
+                <p><strong>Duration:</strong> {{duration}} minutes</p>
+                {{#if location}}
+                <p><strong>Location:</strong> {{location}}</p>
+                {{/if}}
+                {{#if hostName}}
+                <p><strong>Host:</strong> {{hostName}}</p>
+                {{/if}}
+            </div>
+
+            <!-- Add to Calendar -->
+            <div class="calendar-links">
+                <h3>Update Your Calendar:</h3>
+                <a href="{{googleCalendarLink}}" class="calendar-link-item">Google Calendar</a>
+                <a href="{{outlookCalendarLink}}" class="calendar-link-item">Outlook</a>
+                <a href="{{icsDownloadLink}}" class="calendar-link-item">Download .ics</a>
+            </div>
+
+            <p>Looking forward to speaking with you at the new time!</p>
+
+            <!-- Action Links -->
+            <div class="action-links">
+                <a href="{{rescheduleLink}}">Reschedule Again</a>
+                <span style="color: #ddd;">|</span>
+                <a href="{{cancelLink}}">Cancel Meeting</a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>This email was sent to {{email}}.</p>
+            <p>
+                <a href="{{companyWebsite}}">{{companyName}}</a>
+            </p>
+            <p style="font-size: 12px; color: #999; margin-top: 20px;">
+                Powered by Axolop CRM
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from './ui/dialog'; // Assuming Shadcn UI dialog
-import { Button } from './ui/button'; // Assuming Shadcn UI button
-import { Input } from './ui/input'; // Assuming Shadcn UI input
-import { Label } from './ui/label'; // Assuming Shadcn UI label
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'; // Assuming Shadcn UI select
-import { RadioGroup, RadioGroupItem } from './ui/radio-group'; // Assuming Shadcn UI radio group
-import { useToast } from './ui/use-toast'; // Assuming Shadcn UI toast
-import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from './ui/dialog';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { useToast } from './ui/use-toast';
+import api from './lib/api';
 
 const LeadImportModal = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,10 +29,7 @@ const LeadImportModal = ({ children }) => {
 
   const fetchPresets = useCallback(async () => {
     try {
-      const token = localStorage.getItem('supabase.auth.token'); // Assuming token is stored here
-      const response = await axios.get(`${API_BASE_URL}/api/leads/presets`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await api.get('/api/leads/presets');
       setPresets(response.data);
     } catch (error) {
       console.error('Error fetching presets:', error);
@@ -111,7 +106,6 @@ const LeadImportModal = ({ children }) => {
     }
     try {
       setIsLoading(true);
-      const token = localStorage.getItem('supabase.auth.token');
       const payloadMapping = {};
       Object.entries(columnMapping).forEach(([csvHeader, crmField]) => {
         if (crmField) { // Only save mapped fields
@@ -124,12 +118,10 @@ const LeadImportModal = ({ children }) => {
         }
       });
 
-      await axios.post(`${API_BASE_URL}/api/leads/presets`, {
+      await api.post('/api/leads/presets', {
         presetName,
         source: selectedSource,
         mapping: payloadMapping,
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
       });
       toast({
         title: 'Success',
@@ -170,10 +162,7 @@ const LeadImportModal = ({ children }) => {
   const handleDeletePreset = async (presetId) => {
     try {
       setIsLoading(true);
-      const token = localStorage.getItem('supabase.auth.token');
-      await axios.delete(`${API_BASE_URL}/api/leads/presets/${presetId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.delete(`/api/leads/presets/${presetId}`);
       toast({
         title: 'Success',
         description: 'Preset deleted successfully!',
@@ -221,15 +210,13 @@ const LeadImportModal = ({ children }) => {
 
     try {
       setIsLoading(true);
-      const token = localStorage.getItem('supabase.auth.token');
       const formData = new FormData();
       formData.append('csvFile', csvFile);
       formData.append('mapping', JSON.stringify(columnMapping)); // Send the mapping
 
-      const response = await axios.post(`${API_BASE_URL}/api/leads/import`, formData, {
+      const response = await api.post('/api/leads/import', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${token}`,
         },
       });
 

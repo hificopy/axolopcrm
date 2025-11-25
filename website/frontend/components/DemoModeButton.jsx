@@ -1,6 +1,6 @@
 import { UserCircle2 } from 'lucide-react';
-import { useDemoMode } from '@/contexts/DemoModeContext';
-import { useSupabase } from '@/context/SupabaseContext';
+import { useDemoMode } from './contexts/DemoModeContext';
+import { useSupabase } from '../context/SupabaseContext';
 
 export default function DemoModeButton() {
   const { user } = useSupabase();
@@ -18,7 +18,7 @@ export default function DemoModeButton() {
         className={`relative h-10 w-10 flex items-center justify-center rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 group overflow-hidden ${
           isDemoMode
             ? 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800'
-            : 'bg-[#7b1c14] hover:bg-[#6b1a12] active:bg-[#5a1810] hover:shadow-red-900/40'
+            : 'bg-[#761B14] hover:bg-[#6b1a12] active:bg-[#5a1810] hover:shadow-red-900/40'
         }`}
       >
         <UserCircle2 className="h-5 w-5 text-white group-hover:text-white transition-colors relative z-10" />

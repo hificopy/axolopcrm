@@ -6,10 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { formatDate } from '@/lib/utils';
-import axios from 'axios';
-import MeetingsPanel from '@/components/MeetingsPanel';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002';
+import api from './lib/api';
+import MeetingsPanel from './components/MeetingsPanel';
 
 const EVENT_TYPES = {
   LEAD_CREATED: { icon: UserPlus, label: 'Lead Created', color: 'bg-blue-500' },
@@ -40,10 +38,7 @@ export default function History() {
   const fetchHistory = useCallback(async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('supabase.auth.token');
-      const response = await axios.get(`${API_BASE_URL}/api/history`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await api.get('/api/history');
 
       setHistoryEvents(response.data);
       setFilteredEvents(response.data);
@@ -215,7 +210,7 @@ export default function History() {
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
               History & Meetings
-              <span className="ml-3 text-[#7b1c14]">●</span>
+              <span className="ml-3 text-[#761B14]">●</span>
             </h1>
             <p className="text-sm text-gray-600 mt-2 font-medium">
               Complete activity log, audit trail, and today's meeting schedule
@@ -268,14 +263,14 @@ export default function History() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-5 border border-[#7b1c14]/30 shadow-md hover:shadow-lg transition-all duration-300">
+          <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-5 border border-[#761B14]/30 shadow-md hover:shadow-lg transition-all duration-300">
             <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-[#7b1c14]/10">
-                <Clock className="h-5 w-5 text-[#7b1c14]" />
+              <div className="p-2 rounded-lg bg-[#761B14]/10">
+                <Clock className="h-5 w-5 text-[#761B14]" />
               </div>
               <div>
-                <div className="text-xs font-semibold text-[#7b1c14] uppercase tracking-wide">This Month</div>
-                <div className="text-3xl font-bold text-[#7b1c14] mt-1">{stats.thisMonthEvents}</div>
+                <div className="text-xs font-semibold text-[#761B14] uppercase tracking-wide">This Month</div>
+                <div className="text-3xl font-bold text-[#761B14] mt-1">{stats.thisMonthEvents}</div>
               </div>
             </div>
           </div>
@@ -294,7 +289,7 @@ export default function History() {
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#7b1c14]"
+            className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#761B14]"
           >
             <option value="ALL">All Types</option>
             <option value="LEAD_CREATED">Lead Created</option>
@@ -310,7 +305,7 @@ export default function History() {
           <select
             value={filterDateRange}
             onChange={(e) => setFilterDateRange(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#7b1c14]"
+            className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#761B14]"
           >
             <option value="ALL">All Time</option>
             <option value="TODAY">Today</option>
@@ -325,12 +320,12 @@ export default function History() {
       <div className="flex-1 overflow-auto p-4 sm:p-6 bg-gray-50">
         {loading ? (
           <div className="flex flex-col items-center justify-center h-full">
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-[#7b1c14] mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-[#761B14] mb-4"></div>
             <p className="text-gray-600 font-medium">Loading history...</p>
           </div>
         ) : filteredEvents.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <HistoryIcon className="h-16 w-16 text-[#7b1c14]/30 mb-4" />
+            <HistoryIcon className="h-16 w-16 text-[#761B14]/30 mb-4" />
             <h3 className="text-xl font-bold text-gray-900 mb-2">No history events found</h3>
             <p className="text-gray-600">
               {searchTerm || filterType !== 'ALL' || filterDateRange !== 'ALL'

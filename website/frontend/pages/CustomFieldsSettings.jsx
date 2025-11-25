@@ -9,9 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
-import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002';
+import api from './lib/api';
 
 const FIELD_TYPES = [
   { value: 'text', label: 'Text', icon: '📝' },
@@ -62,11 +60,8 @@ export default function CustomFieldsSettings() {
   const fetchCustomFields = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('supabase.auth.token');
       const params = selectedEntityFilter !== 'all' ? `?entityType=${selectedEntityFilter}` : '';
-      const response = await axios.get(`${API_BASE_URL}/api/custom-fields/definitions${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await api.get(`/api/custom-fields/definitions${params}`);
       setCustomFields(response.data);
     } catch (error) {
       console.error('Error fetching custom fields:', error);
@@ -155,26 +150,19 @@ export default function CustomFieldsSettings() {
     }
 
     try {
-      const token = localStorage.getItem('supabase.auth.token');
       const payload = {
         ...formData,
         field_name: fieldName,
       };
 
       if (editingField) {
-        await axios.put(
-          `${API_BASE_URL}/api/custom-fields/definitions/${editingField.id}`,
-          payload,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        await api.put(`/api/custom-fields/definitions/${editingField.id}`, payload);
         toast({
           title: 'Success',
           description: 'Custom field updated successfully!',
         });
       } else {
-        await axios.post(`${API_BASE_URL}/api/custom-fields/definitions`, payload, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await api.post('/api/custom-fields/definitions', payload);
         toast({
           title: 'Success',
           description: 'Custom field created successfully!',
@@ -199,10 +187,7 @@ export default function CustomFieldsSettings() {
     }
 
     try {
-      const token = localStorage.getItem('supabase.auth.token');
-      await axios.delete(`${API_BASE_URL}/api/custom-fields/definitions/${field.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.delete(`/api/custom-fields/definitions/${field.id}`);
       toast({
         title: 'Success',
         description: 'Custom field deleted successfully!',
@@ -249,7 +234,7 @@ export default function CustomFieldsSettings() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
-              <Settings className="h-8 w-8 text-[#7b1c14]" />
+              <Settings className="h-8 w-8 text-[#761B14]" />
               Custom Fields
             </h1>
             <p className="text-sm text-gray-600 mt-2 font-medium">
@@ -260,7 +245,7 @@ export default function CustomFieldsSettings() {
           <Button
             variant="default"
             size="default"
-            className="gap-2 bg-[#7b1c14] hover:bg-[#6b1a12]"
+            className="gap-2 bg-[#761B14] hover:bg-[#6b1a12]"
             onClick={() => openModal()}
           >
             <Plus className="h-4 w-4" />
@@ -289,7 +274,7 @@ export default function CustomFieldsSettings() {
       <div className="flex-1 overflow-auto p-4 sm:p-6 bg-gray-50">
         {loading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-[#7b1c14]"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-[#761B14]"></div>
           </div>
         ) : customFields.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 bg-white rounded-xl border border-gray-200">
@@ -298,7 +283,7 @@ export default function CustomFieldsSettings() {
             <p className="text-gray-600 mb-6">Create your first custom field to get started</p>
             <Button
               variant="default"
-              className="gap-2 bg-[#7b1c14] hover:bg-[#6b1a12]"
+              className="gap-2 bg-[#761B14] hover:bg-[#6b1a12]"
               onClick={() => openModal()}
             >
               <Plus className="h-4 w-4" />
@@ -558,7 +543,7 @@ export default function CustomFieldsSettings() {
             <Button
               variant="default"
               onClick={handleSave}
-              className="bg-[#7b1c14] hover:bg-[#6b1a12]"
+              className="bg-[#761B14] hover:bg-[#6b1a12]"
             >
               <Save className="h-4 w-4 mr-2" />
               {editingField ? 'Update' : 'Create'}

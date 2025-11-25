@@ -3,10 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import axios from 'axios';
+import { contactsApi } from './lib/api';
 import { useToast } from '@/components/ui/use-toast';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002';
 
 const CreateContactModal = ({ isOpen, onClose, onContactCreated }) => {
   const [firstName, setFirstName] = useState('');
@@ -22,7 +20,6 @@ const CreateContactModal = ({ isOpen, onClose, onContactCreated }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const token = localStorage.getItem('supabase.auth.token');
       const contactData = {
         first_name: firstName,
         last_name: lastName,
@@ -32,9 +29,7 @@ const CreateContactModal = ({ isOpen, onClose, onContactCreated }) => {
         title,
       };
 
-      const response = await axios.post(`${API_BASE_URL}/api/contacts`, contactData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await contactsApi.create(contactData);
 
       toast({
         title: 'Success',

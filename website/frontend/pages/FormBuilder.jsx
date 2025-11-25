@@ -25,14 +25,17 @@ import {
   XCircle,
   Building,
   Bell,
-  Copy
+  Copy,
+  Workflow
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useToast } from '@/components/ui/use-toast';
 import { validateFormLogic } from '@/utils/formLogicEngine';
 import formsApi from '@/services/formsApi';
+import WorkflowTab from './formBuilder/WorkflowTab';
 
 // Available question types for conversational forms
 const questionTypes = [
@@ -51,10 +54,13 @@ const questionTypes = [
 export default function FormBuilder() {
   const { formId } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [form, setForm] = useState({
     id: 'new-form',
     title: 'Untitled Form',
     description: 'Describe what this form is about',
+    is_active: false,
+    is_published: false,
     settings: {
       branding: true,
       analytics: true,
@@ -107,11 +113,24 @@ export default function FormBuilder() {
   const [error, setError] = useState(null);
 
   const [selectedQuestion, setSelectedQuestion] = useState(null);
-  const [activeTab, setActiveTab] = useState('builder'); // builder, settings, preview
   const [formMode, setFormMode] = useState('standard'); // standard, lead-qualification
   const [leadScores, setLeadScores] = useState({}); // Store lead scores for each question option
   const [showTriggers, setShowTriggers] = useState(false);
   const [showScoringPopup, setShowScoringPopup] = useState(false);
+  const [showWorkflow, setShowWorkflow] = useState(false);
+  const [workflowNodes, setWorkflowNodes] = useState([
+    { id: 'start', type: 'start', position: { x: 250, y: 50 }, data: { label: 'Start' } }
+  ]);
+  const [workflowEdges, setWorkflowEdges] = useState([]);
+  const [endings, setEndings] = useState([
+    {
+      id: 'end-default',
+      title: 'Thank You!',
+      message: 'Your response has been recorded.',
+      icon: 'success',
+      mark_as_qualified: null,
+    }
+  ]);
   const [responses, setResponses] = useState({});
   const [previewMode, setPreviewMode] = useState('desktop'); // desktop, mobile
 
@@ -120,7 +139,21 @@ export default function FormBuilder() {
     if (formId && formId !== 'new' && !formId.startsWith('new-')) {
       formsApi.getForm(formId)
         .then(formData => {
-          setForm(formData);
+          // Ensure settings exists with default values
+          const formWithSettings = {
+            ...formData,
+            settings: {
+              branding: true,
+              analytics: true,
+              notifications: true,
+              mode: 'standard',
+              theme: 'default',
+              create_contact: false,
+              contact_mapping: {},
+              ...(formData.settings || {}) // Merge with existing settings if any
+            }
+          };
+          setForm(formWithSettings);
           // Initialize lead scoring fields for existing questions
           const questionsWithScoring = (formData.questions || []).map(q => ({
             ...q,
@@ -221,7 +254,7 @@ export default function FormBuilder() {
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center bg-gray-50">
+      <div className="h-full min-h-screen flex items-center justify-center pt-[150px] bg-gray-50">
         <div className="text-center">
           <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
           <p className="text-crm-text-secondary">Loading form...</p>
@@ -232,7 +265,7 @@ export default function FormBuilder() {
 
   if (error) {
     return (
-      <div className="h-full flex items-center justify-center bg-gray-50">
+      <div className="h-full min-h-screen flex items-center justify-center pt-[150px] bg-gray-50">
         <div className="text-center">
           <h2 className="text-xl font-bold text-crm-text-primary mb-2">Error Loading Form</h2>
           <p className="text-crm-text-secondary mb-4">{error.message}</p>
@@ -254,41 +287,106 @@ export default function FormBuilder() {
             placeholder="Form Title"
           />
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowWorkflow(true)}
+            >
+              <Workflow className="h-4 w-4 mr-2" />
+              Workflow
+            </Button>
+
+            {/* Publish Toggle */}
+            <div className="flex items-center gap-2 px-3 py-1.5 border rounded-md bg-white">
+              <label className="flex items-center cursor-pointer gap-2">
+                <span className="text-sm font-medium text-gray-700">
+                  {form.is_active ? 'Published' : 'Draft'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setForm({ ...form, is_active: !form.is_active, is_published: !form.is_published });
+                  }}
+                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                    form.is_active ? 'bg-green-600' : 'bg-gray-300'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      form.is_active ? 'translate-x-5' : 'translate-x-0.5'
+                    }`}
+                  />
+                </button>
+              </label>
+            </div>
+
             <Button
               variant="outline"
               size="sm"
               onClick={async () => {
+                console.log('🔵 [SAVE] Button clicked!');
+                console.log('🔵 [SAVE] formId:', formId);
+                console.log('🔵 [SAVE] form.id:', form.id);
+                console.log('🔵 [SAVE] form.title:', form.title);
+                console.log('🔵 [SAVE] questions count:', questions.length);
+
                 try {
                   if (formId && formId !== 'new' && !formId.startsWith('new-')) {
+                    console.log('🟡 [SAVE] Updating existing form...');
                     // Update existing form
                     await formsApi.updateForm(form.id, {
                       title: form.title,
                       description: form.description,
                       questions: questions,
+                      settings: form.settings,
+                      workflow_nodes: workflowNodes,
+                      workflow_edges: workflowEdges,
+                      endings: endings,
+                      is_active: form.is_active,
+                      is_published: form.is_published
+                    });
+                    console.log('✅ [SAVE] Form updated successfully');
+                  } else {
+                    console.log('🟢 [SAVE] Creating NEW form...');
+                    console.log('🟢 [SAVE] Data to send:', {
+                      title: form.title,
+                      description: form.description,
+                      questionsCount: questions.length,
                       settings: form.settings
                     });
-                    alert(`Form "${form.title}" updated successfully!`);
-                  } else {
+
                     // Create new form
+                    console.log('🟢 [SAVE] Calling formsApi.createForm()...');
                     const newForm = await formsApi.createForm({
                       title: form.title,
                       description: form.description,
                       questions: questions,
-                      settings: form.settings
+                      settings: form.settings,
+                      workflow_nodes: workflowNodes,
+                      workflow_edges: workflowEdges,
+                      endings: endings,
+                      is_active: form.is_active,
+                      is_published: form.is_published
                     });
+                    console.log('✅ [SAVE] API returned:', newForm);
 
                     // Update state with new form ID
                     setForm(newForm);
+                    console.log('✅ [SAVE] State updated');
 
                     // Navigate to the new form's edit page
                     navigate(`/app/forms/builder/${newForm.id}`, { replace: true });
-
-                    alert(`New form "${form.title}" created successfully!`);
+                    console.log('✅ [SAVE] Navigation triggered');
                   }
                 } catch (error) {
-                  console.error('Error saving form:', error);
-                  alert(`Error saving form: ${error.message}`);
+                  console.error('❌ [SAVE] Error saving form:', error);
+                  console.error('❌ [SAVE] Error details:', error.message, error.stack);
+                  toast({
+                    title: "Error saving form",
+                    description: error.message,
+                    variant: "destructive",
+                  });
                 }
               }}
             >
@@ -301,9 +399,8 @@ export default function FormBuilder() {
               onClick={() => {
                 if (form.id && form.id !== 'new-form' && !form.id.toString().startsWith('new-')) {
                   window.open(`${window.location.origin}/forms/preview/${form.id}`, '_blank');
-                } else {
-                  alert('Please save the form first before previewing.');
                 }
+                // Silently do nothing if form not saved yet
               }}
             >
               <Eye className="h-4 w-4 mr-2" />
@@ -316,10 +413,9 @@ export default function FormBuilder() {
                 if (form.id && form.id !== 'new-form' && !form.id.toString().startsWith('new-')) {
                   const formUrl = `${window.location.origin}/forms/preview/${form.id}`;
                   navigator.clipboard.writeText(formUrl);
-                  alert('Form link copied to clipboard!');
-                } else {
-                  alert('Please save the form first to get a shareable link.');
+                  // Silently copy to clipboard without popup
                 }
+                // Silently do nothing if form not saved yet
               }}
             >
               <Copy className="h-4 w-4 mr-2" />
@@ -332,40 +428,15 @@ export default function FormBuilder() {
                 if (form.id && form.id !== 'new-form' && !form.id.toString().startsWith('new-')) {
                   const embedCode = formsApi.generateEmbedCode(form.id);
                   navigator.clipboard.writeText(embedCode.directLink);
-                  alert(`Form link copied to clipboard!\n\n${embedCode.directLink}`);
-                } else {
-                  alert('Please save the form first before sharing.');
+                  // Silently copy to clipboard without popup
                 }
+                // Silently do nothing if form not saved yet
               }}
             >
               <Share2 className="h-4 w-4 mr-2" />
               Share
             </Button>
           </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Button 
-            variant={activeTab === 'builder' ? 'default' : 'ghost'} 
-            size="sm"
-            onClick={() => setActiveTab('builder')}
-          >
-            Build
-          </Button>
-          <Button 
-            variant={activeTab === 'settings' ? 'default' : 'ghost'} 
-            size="sm"
-            onClick={() => setActiveTab('settings')}
-          >
-            Settings
-          </Button>
-          <Button 
-            variant={activeTab === 'preview' ? 'default' : 'ghost'} 
-            size="sm"
-            onClick={() => setActiveTab('preview')}
-          >
-            Preview
-          </Button>
         </div>
       </div>
 
@@ -717,11 +788,11 @@ export default function FormBuilder() {
                             // Calculate lead score and submit form
                             const totalScore = calculateLeadScore();
                             console.warn('Form submitted with responses:', responses, 'Lead Score:', totalScore);
-                            
+
                             // In a real application, this would save to the CRM
                             // formsApi.submitForm(form.id, responses, totalScore);
-                            
-                            alert(`Form "${form.title}" submitted successfully!\nLead Score: ${totalScore} points`);
+
+                            // Silently submit without popup
                           }
                         }}
                       >
@@ -1491,15 +1562,15 @@ export default function FormBuilder() {
                     <span className="text-sm font-medium text-crm-text-primary">Contact Creation</span>
                     <input
                       type="checkbox"
-                      checked={form.settings.create_contact || false}
+                      checked={form.settings?.create_contact || false}
                       onChange={(e) => {
-                        const newSettings = { ...form.settings, create_contact: e.target.checked };
+                        const newSettings = { ...(form.settings || {}), create_contact: e.target.checked };
                         setForm({ ...form, settings: newSettings });
                       }}
                       className="rounded"
                     />
                   </div>
-                  {form.settings.create_contact && (
+                  {form.settings?.create_contact && (
                     <p className="text-xs text-crm-text-secondary">
                       Automatically create contacts from form submissions
                     </p>
@@ -1849,6 +1920,38 @@ export default function FormBuilder() {
               <Button variant="outline" onClick={() => setShowScoringPopup(false)}>
                 Close
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Workflow Modal */}
+      {showWorkflow && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-crm-dark-primary rounded-lg w-full h-[90vh] max-w-7xl flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+              <h2 className="text-xl font-semibold text-crm-text-primary">Form Workflow</h2>
+              <Button variant="ghost" size="sm" onClick={() => setShowWorkflow(false)}>
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <WorkflowTab
+                form={form}
+                questions={questions}
+                setQuestions={setQuestions}
+                workflowNodes={workflowNodes}
+                setWorkflowNodes={setWorkflowNodes}
+                workflowEdges={workflowEdges}
+                setWorkflowEdges={setWorkflowEdges}
+                endings={endings}
+                setEndings={setEndings}
+                onSave={() => {
+                  // Workflow data is saved with the form automatically
+                  setShowWorkflow(false);
+                }}
+                onBack={() => setShowWorkflow(false)}
+              />
             </div>
           </div>
         </div>

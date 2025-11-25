@@ -10,18 +10,40 @@ import {
   MessageSquare,
   QrCode,
   Code,
-  Check
+  Check,
+  Rocket,
+  Globe,
+  Clock,
+  Edit2,
+  Eye,
+  AlertCircle,
+  CheckCircle
 } from 'lucide-react';
+import formsApi from '@/services/formsApi';
 
 export default function ShareTab({ form, setForm }) {
   const [copied, setCopied] = useState(null);
+  const [publishing, setPublishing] = useState(false);
+  const [publishHistory, setPublishHistory] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [customSlug, setCustomSlug] = useState('');
+  const [editingSlug, setEditingSlug] = useState(false);
+  const [publishError, setPublishError] = useState(null);
 
-  const formUrl = form.id && form.id !== 'new-form'
+  // Determine if form is published
+  const isPublished = form.is_published && form.published_slug;
+
+  // Generate URLs
+  const publishedUrl = isPublished && form.published_slug
+    ? `${window.location.origin}/${form.user_agency_alias || 'agency'}/${form.published_slug}`
+    : null;
+
+  const previewUrl = form.id && form.id !== 'new-form'
     ? `${window.location.origin}/forms/preview/${form.id}`
     : 'Save the form first to get a shareable link';
 
   const embedCode = form.id && form.id !== 'new-form'
-    ? `<iframe src="${formUrl}" width="100%" height="600" frameborder="0"></iframe>`
+    ? `<iframe src="${previewUrl}" width="100%" height="600" frameborder="0"></iframe>`
     : '';
 
   const popupCode = form.id && form.id !== 'new-form'
@@ -57,6 +79,29 @@ export default function ShareTab({ form, setForm }) {
     });
   }, [form.settings]);
 
+  // Load publish history when form changes
+  useEffect(() => {
+    if (form.id && form.id !== 'new-form' && isPublished) {
+      loadPublishHistory();
+    }
+  }, [form.id, isPublished]);
+
+  const loadPublishHistory = async () => {
+    if (!form.id || form.id === 'new-form') return;
+
+    setLoadingHistory(true);
+    try {
+      const response = await formsApi.getPublishHistory(form.id);
+      if (response.success) {
+        setPublishHistory(response.history || []);
+      }
+    } catch (error) {
+      console.error('Error loading publish history:', error);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
   const updateFormShareSettings = (key, value) => {
     setForm(prevForm => ({
       ...prevForm,
@@ -76,16 +121,92 @@ export default function ShareTab({ form, setForm }) {
     setTimeout(() => setCopied(null), 2000);
   };
 
-  const handleOpenForm = () => {
-    if (formUrl && form.id !== 'new-form') {
-      window.open(formUrl, '_blank');
+  const handleOpenForm = (url) => {
+    if (url) {
+      window.open(url, '_blank');
+    }
+  };
+
+  const handlePublish = async () => {
+    if (form.id === 'new-form') {
+      alert('Please save the form first before publishing.');
+      return;
+    }
+
+    if (!form.questions || form.questions.length === 0) {
+      setPublishError('Cannot publish form without questions.');
+      return;
+    }
+
+    setPublishing(true);
+    setPublishError(null);
+
+    try {
+      const options = customSlug ? { customSlug } : {};
+      const response = await formsApi.publishForm(form.id, options);
+
+      if (response.success) {
+        // Update form with published data
+        setForm(prev => ({
+          ...prev,
+          ...response.form,
+          user_agency_alias: response.form.user_agency_alias
+        }));
+
+        // Reload publish history
+        await loadPublishHistory();
+
+        alert(`Form published successfully! Version ${response.version}\n\nPublic URL: ${response.publicUrl}`);
+      }
+    } catch (error) {
+      console.error('Error publishing form:', error);
+      setPublishError(error.message || 'Failed to publish form');
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  const handleUnpublish = async () => {
+    if (!confirm('Are you sure you want to unpublish this form? It will no longer be accessible to the public.')) {
+      return;
+    }
+
+    try {
+      const response = await formsApi.unpublishForm(form.id);
+      if (response.success) {
+        setForm(prev => ({ ...prev, ...response.form }));
+        alert('Form unpublished successfully');
+      }
+    } catch (error) {
+      console.error('Error unpublishing form:', error);
+      alert('Failed to unpublish form: ' + error.message);
+    }
+  };
+
+  const handleUpdateSlug = async () => {
+    if (!customSlug || !customSlug.trim()) {
+      alert('Please enter a valid slug');
+      return;
+    }
+
+    try {
+      const response = await formsApi.updateFormSlug(form.id, customSlug.trim());
+      if (response.success) {
+        setForm(prev => ({ ...prev, ...response.form }));
+        setEditingSlug(false);
+        alert('Slug updated successfully!');
+      }
+    } catch (error) {
+      console.error('Error updating slug:', error);
+      alert('Failed to update slug: ' + error.message);
     }
   };
 
   const handleSocialShare = (platform) => {
+    const shareUrl = publishedUrl || previewUrl;
     let shareLink = '';
     const text = encodeURIComponent(`Check out my new form: ${form.title}`);
-    const url = encodeURIComponent(formUrl);
+    const url = encodeURIComponent(shareUrl);
 
     if (form.id === 'new-form') {
       alert('Please save the form first before sharing.');
@@ -114,44 +235,257 @@ export default function ShareTab({ form, setForm }) {
     }
   };
 
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   return (
     <div className="h-full overflow-y-auto bg-gray-50 p-8">
       <div className="max-w-5xl mx-auto space-y-6">
         <div>
-          <h2 className="text-2xl font-bold text-crm-text-primary mb-2">Share</h2>
+          <h2 className="text-2xl font-bold text-crm-text-primary mb-2">Share & Publish</h2>
           <p className="text-crm-text-secondary">
-            Share your form via link, embed, or social media
+            Publish your form and share it with your audience
           </p>
         </div>
 
-        {/* Direct Link */}
+        {/* Publishing Section */}
+        <Card className="border-2 border-blue-200 bg-blue-50/50">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Rocket className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <CardTitle>Publish Form</CardTitle>
+                  <CardDescription>
+                    {isPublished
+                      ? `Published as version ${form.published_version || 1}`
+                      : 'Publish your form to make it accessible to the public'}
+                  </CardDescription>
+                </div>
+              </div>
+              {isPublished && (
+                <div className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                  <CheckCircle className="h-4 w-4" />
+                  Published
+                </div>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {publishError && (
+              <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                <span>{publishError}</span>
+              </div>
+            )}
+
+            {/* Published URL */}
+            {isPublished && publishedUrl && (
+              <div>
+                <Label className="flex items-center gap-2 mb-2">
+                  <Globe className="h-4 w-4 text-green-600" />
+                  Public URL
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={publishedUrl}
+                    readOnly
+                    className="flex-1 font-mono text-sm bg-white"
+                  />
+                  <Button
+                    variant="outline"
+                    onClick={() => handleCopy(publishedUrl, 'published-url')}
+                  >
+                    {copied === 'published-url' ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleOpenForm(publishedUrl)}
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Custom Slug */}
+            <div>
+              <Label className="flex items-center gap-2 mb-2">
+                <Edit2 className="h-4 w-4" />
+                Form Slug {isPublished && '(URL path)'}
+              </Label>
+              {editingSlug || !isPublished ? (
+                <div className="flex gap-2">
+                  <Input
+                    value={customSlug || form.published_slug || ''}
+                    onChange={(e) => setCustomSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
+                    placeholder="my-awesome-form"
+                    className="flex-1 font-mono text-sm"
+                  />
+                  {editingSlug && (
+                    <>
+                      <Button variant="outline" onClick={handleUpdateSlug}>
+                        Save
+                      </Button>
+                      <Button variant="outline" onClick={() => setEditingSlug(false)}>
+                        Cancel
+                      </Button>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    value={form.published_slug || ''}
+                    readOnly
+                    className="flex-1 font-mono text-sm bg-gray-100"
+                  />
+                  <Button variant="outline" onClick={() => {
+                    setCustomSlug(form.published_slug);
+                    setEditingSlug(true);
+                  }}>
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+              <p className="text-xs text-crm-text-secondary mt-1">
+                Lowercase letters, numbers, and hyphens only. This will be part of your public URL.
+              </p>
+            </div>
+
+            {/* Publish/Unpublish Buttons */}
+            <div className="flex gap-2 pt-2">
+              {isPublished ? (
+                <>
+                  <Button
+                    onClick={handlePublish}
+                    disabled={publishing || form.id === 'new-form'}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    {publishing ? 'Publishing...' : `Republish (v${(form.published_version || 0) + 1})`}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleUnpublish}
+                  >
+                    Unpublish
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  onClick={handlePublish}
+                  disabled={publishing || form.id === 'new-form'}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  {publishing ? 'Publishing...' : 'Publish Form'}
+                </Button>
+              )}
+            </div>
+
+            {/* Last Published Info */}
+            {isPublished && form.published_at && (
+              <div className="flex items-center gap-2 text-sm text-crm-text-secondary pt-2 border-t">
+                <Clock className="h-4 w-4" />
+                <span>Last published: {formatDate(form.published_at)}</span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Publish History */}
+        {isPublished && publishHistory.length > 0 && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Clock className="h-5 w-5 text-purple-600" />
+                </div>
+                <div>
+                  <CardTitle>Publish History</CardTitle>
+                  <CardDescription>All published versions of this form</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {loadingHistory ? (
+                <div className="text-center py-4 text-crm-text-secondary">Loading history...</div>
+              ) : (
+                <div className="space-y-2">
+                  {publishHistory.slice().reverse().map((entry) => (
+                    <div
+                      key={entry.version}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center w-8 h-8 bg-purple-100 text-purple-600 rounded-full font-semibold text-sm">
+                          v{entry.version}
+                        </div>
+                        <div>
+                          <div className="font-medium text-sm">Version {entry.version}</div>
+                          <div className="text-xs text-crm-text-secondary">
+                            {formatDate(entry.published_at)}
+                          </div>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          // Could implement version preview/restore here
+                          alert('Version preview coming soon!');
+                        }}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Preview Link (for testing before publishing) */}
         <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-100 rounded-lg">
-                <ExternalLink className="h-5 w-5 text-red-600" />
+              <div className="p-2 bg-orange-100 rounded-lg">
+                <Eye className="h-5 w-5 text-orange-600" />
               </div>
               <div>
-                <CardTitle>Direct Link</CardTitle>
-                <CardDescription>Share your form with a simple link</CardDescription>
+                <CardTitle>Preview Link</CardTitle>
+                <CardDescription>Test your form before publishing (requires login)</CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label>Form URL</Label>
+              <Label>Preview URL</Label>
               <div className="flex gap-2 mt-1">
                 <Input
-                  value={formUrl}
+                  value={previewUrl}
                   readOnly
                   className="flex-1 font-mono text-sm"
                 />
                 <Button
                   variant="outline"
-                  onClick={() => handleCopy(formUrl, 'url')}
+                  onClick={() => handleCopy(previewUrl, 'preview-url')}
                   disabled={form.id === 'new-form'}
                 >
-                  {copied === 'url' ? (
+                  {copied === 'preview-url' ? (
                     <Check className="h-4 w-4" />
                   ) : (
                     <Copy className="h-4 w-4" />
@@ -161,16 +495,10 @@ export default function ShareTab({ form, setForm }) {
             </div>
 
             {form.id !== 'new-form' && (
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={handleOpenForm}>
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Open Form
-                </Button>
-                <Button variant="outline" onClick={() => alert('QR Code generation is not yet implemented.')} disabled={form.id === 'new-form'}>
-                  <QrCode className="h-4 w-4 mr-2" />
-                  Generate QR Code (Placeholder)
-                </Button>
-              </div>
+              <Button variant="outline" onClick={() => handleOpenForm(previewUrl)}>
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Open Preview
+              </Button>
             )}
           </CardContent>
         </Card>
@@ -297,7 +625,9 @@ export default function ShareTab({ form, setForm }) {
               </div>
               <div>
                 <CardTitle>Social Media</CardTitle>
-                <CardDescription>Share on social platforms</CardDescription>
+                <CardDescription>
+                  Share {isPublished ? 'your published form' : 'the preview link'} on social platforms
+                </CardDescription>
               </div>
             </div>
           </CardHeader>

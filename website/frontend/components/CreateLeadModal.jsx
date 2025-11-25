@@ -5,10 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import axios from 'axios';
+import { leadsApi } from './lib/api';
 import { useToast } from '@/components/ui/use-toast';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002';
 
 const CreateLeadModal = ({ isOpen, onClose, onLeadCreated }) => {
   const [name, setName] = useState('');
@@ -26,7 +24,6 @@ const CreateLeadModal = ({ isOpen, onClose, onLeadCreated }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const token = localStorage.getItem('supabase.auth.token');
       const leadData = {
         name,
         email,
@@ -39,9 +36,7 @@ const CreateLeadModal = ({ isOpen, onClose, onLeadCreated }) => {
         custom_fields: {}, // Placeholder for custom fields
       };
 
-      const response = await axios.post(`${API_BASE_URL}/api/leads`, leadData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await leadsApi.create(leadData);
 
       toast({
         title: 'Success',

@@ -1,13 +1,13 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
-import { useDemoMode } from '../contexts/DemoModeContext';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { createClient } from "@supabase/supabase-js";
+import { useDemoMode } from "../contexts/DemoModeContext";
 
 const SupabaseContext = createContext();
 
 export const useSupabase = () => {
   const context = useContext(SupabaseContext);
   if (!context) {
-    throw new Error('useSupabase must be used within a SupabaseProvider');
+    throw new Error("useSupabase must be used within a SupabaseProvider");
   }
   return context;
 };
@@ -27,45 +27,85 @@ export const SupabaseProvider = ({ children }) => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+    console.log("Supabase env vars:", {
+      supabaseUrl: supabaseUrl ? "set" : "not set",
+      supabaseAnonKey: supabaseAnonKey ? "set" : "not set",
+    });
+
     if (!supabaseUrl || !supabaseAnonKey) {
-      console.warn('Supabase environment variables are not set, using mock client for development');
+      console.warn(
+        "Supabase environment variables are not set, using mock client for development",
+      );
       // Create a mock client for development
       setSupabase({
         auth: {
-          getSession: () => Promise.resolve({ data: { session: null }, error: null }),
-          onAuthStateChange: () => ({ 
-            data: { 
-              subscription: { 
-                unsubscribe: () => {} 
-              } 
-            } 
+          getSession: () =>
+            Promise.resolve({ data: { session: null }, error: null }),
+          onAuthStateChange: () => ({
+            data: {
+              subscription: {
+                unsubscribe: () => {},
+              },
+            },
           }),
-          signInWithOAuth: () => Promise.reject(new Error('Supabase not configured')),
+          signInWithOAuth: () =>
+            Promise.reject(new Error("Supabase not configured")),
           signOut: () => Promise.resolve({ error: null }),
-          signInWithPassword: () => Promise.reject(new Error('Supabase not configured')),
-          signUp: () => Promise.reject(new Error('Supabase not configured')),
-          resetPasswordForEmail: () => Promise.reject(new Error('Supabase not configured')),
-          getUser: () => Promise.resolve({ data: { user: null }, error: null })
-        }
+          signInWithPassword: () =>
+            Promise.reject(new Error("Supabase not configured")),
+          signUp: () => Promise.reject(new Error("Supabase not configured")),
+          resetPasswordForEmail: () =>
+            Promise.reject(new Error("Supabase not configured")),
+          getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+        },
       });
+
+      // Don't wait - set loading to false immediately
       setLoading(false);
       return;
     }
 
-    const client = createClient(supabaseUrl, supabaseAnonKey);
+    const client = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        // Enable automatic token refresh
+        autoRefreshToken: true,
+        // Persist session across tabs
+        persistSession: true,
+        // Detect session changes from other tabs
+        detectSessionInUrl: true,
+        // Use localStorage for better multi-tab sync (default, but explicit)
+        storage: window.localStorage,
+        // Automatic flow type detection
+        flowType: "pkce",
+      },
+    });
     setSupabase(client);
 
     // Get initial session
     const getInitialSession = async () => {
+      const startTime = Date.now();
       try {
-        const { data: { session }, error } = await client.auth.getSession();
+        const {
+          data: { session },
+          error,
+        } = await client.auth.getSession();
         if (!error && session) {
           setSession(session);
           setUser(session.user);
         }
       } catch (error) {
-        console.error('Error getting initial session:', error);
+        console.error("Error getting initial session:", error);
       }
+
+      // Ensure loading screen shows for minimum 800ms to display the animation
+      const elapsedTime = Date.now() - startTime;
+      const minLoadTime = 800;
+      if (elapsedTime < minLoadTime) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, minLoadTime - elapsedTime),
+        );
+      }
+
       setLoading(false);
     };
 
@@ -73,12 +113,12 @@ export const SupabaseProvider = ({ children }) => {
 
     // Listen for auth changes
     if (client) {
-      const { data: { subscription } } = client.auth.onAuthStateChange(
-        (_event, session) => {
-          setSession(session);
-          setUser(session?.user || null);
-        }
-      );
+      const {
+        data: { subscription },
+      } = client.auth.onAuthStateChange((_event, session) => {
+        setSession(session);
+        setUser(session?.user || null);
+      });
 
       return () => {
         if (subscription) {
@@ -93,12 +133,12 @@ export const SupabaseProvider = ({ children }) => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: provider,
       options: {
-        redirectTo: `${window.location.origin}/app/dashboard`, // Redirect to dashboard after OAuth
+        redirectTo: `${window.location.origin}/app/home`, // Redirect to home after OAuth
       },
     });
 
     if (error) {
-      console.error('OAuth sign-in error:', error);
+      console.error("OAuth sign-in error:", error);
       throw error;
     }
   };
@@ -107,7 +147,7 @@ export const SupabaseProvider = ({ children }) => {
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
-      console.error('Sign-out error:', error);
+      console.error("Sign-out error:", error);
       throw error;
     }
   };
@@ -118,12 +158,12 @@ export const SupabaseProvider = ({ children }) => {
       email,
       password,
     });
-    
+
     if (error) {
-      console.error('Email sign-in error:', error);
+      console.error("Email sign-in error:", error);
       throw error;
     }
-    
+
     return data;
   };
 
@@ -134,15 +174,15 @@ export const SupabaseProvider = ({ children }) => {
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: options // Additional user metadata
-      }
+        data: options, // Additional user metadata
+      },
     });
-    
+
     if (error) {
-      console.error('Sign-up error:', error);
+      console.error("Sign-up error:", error);
       throw error;
     }
-    
+
     return data;
   };
 
@@ -151,9 +191,9 @@ export const SupabaseProvider = ({ children }) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/update-password`,
     });
-    
+
     if (error) {
-      console.error('Password reset error:', error);
+      console.error("Password reset error:", error);
       throw error;
     }
   };

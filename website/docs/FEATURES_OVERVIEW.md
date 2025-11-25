@@ -9,6 +9,7 @@
 Tired of juggling GoHighLevel, ClickUp, Notion, Miro, and 10+ disconnected tools?
 
 **Replace your entire tool stack:**
+
 - ❌ GoHighLevel ($497/month)
 - ❌ Typeform/Jotform ($100/month)
 - ❌ ClickUp/Asana ($50/month)
@@ -27,6 +28,7 @@ Tired of juggling GoHighLevel, ClickUp, Notion, Miro, and 10+ disconnected tools
 Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 
 ### 🧠 Local AI Second Brain
+
 - **Private AI Processing** - Your data stays local, never sent to external AI services
 - **Intelligent Knowledge Base** - AI-powered search across all your business knowledge
 - **Context-Aware Insights** - AI understands your business context and history
@@ -34,6 +36,7 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - **RAG (Retrieval-Augmented Generation)** - ChromaDB integration for semantic search
 
 ### 🗺️ Mind Maps & Visual Planning
+
 - **Visual Strategy Planning** - Map out business strategies like Miro
 - **Project Visualization** - See project dependencies and timelines visually
 - **Brainstorming Canvas** - Collaborative ideation and planning
@@ -41,6 +44,7 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - **Replaces:** Miro, Lucidchart, Whimsical
 
 ### 📋 Built-in Project Management
+
 - **Tasks & Workflows** - Full project management like ClickUp
 - **Team Collaboration** - Assign tasks, track progress, set deadlines
 - **Kanban Boards** - Visual task management
@@ -49,6 +53,7 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - **Replaces:** ClickUp, Asana, Monday.com
 
 ### 📚 Knowledge Base & Second Brain
+
 - **Notion-like Notes** - Rich text editor with blocks
 - **Wiki & Documentation** - Build internal knowledge bases
 - **AI-Enhanced Search** - Find anything instantly with semantic search
@@ -61,9 +66,11 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 ## 📊 Core CRM Features
 
 ### Lead Management
-**Status:** ✅ Complete
+
+**Status:** 🚧 Mostly Complete (Minor bugs)
 
 **Capabilities:**
+
 - **AI-Powered Lead Scoring** - Automatically score leads based on engagement, demographics, and behavior
 - **Custom Fields** - Unlimited custom fields for any data structure
 - **Lead Source Tracking** - Track where leads come from (campaigns, forms, referrals)
@@ -74,15 +81,18 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - **Lead Routing** - Round-robin, territory-based, or custom routing
 
 **AI Features:**
+
 - Sentiment analysis from email interactions
 - Engagement score calculation
 - Next-best-action recommendations
 - Churn risk prediction
 
 ### Contact Management
-**Status:** ✅ Complete
+
+**Status:** 🚧 Mostly Complete (Minor bugs)
 
 **Capabilities:**
+
 - **360° Contact View** - See everything about a contact in one place
 - **Relationship Mapping** - Track relationships between contacts and companies
 - **Social Media Integration** - Pull data from LinkedIn, Twitter, etc.
@@ -93,9 +103,11 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - **Tags & Labels** - Organize contacts with custom tags
 
 ### Opportunity Pipeline
-**Status:** ✅ Complete
+
+**Status:** 🚧 Mostly Complete (Minor bugs)
 
 **Capabilities:**
+
 - **Kanban Board View** - Drag-and-drop deal management
 - **Multiple Pipelines** - Different pipelines for different products/teams
 - **Win/Loss Analysis** - Track why deals are won or lost
@@ -106,6 +118,7 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - **Deal Collaboration** - Multiple team members can work on deals
 
 **Reporting:**
+
 - Sales velocity metrics
 - Average deal size
 - Win rate by source/rep
@@ -113,9 +126,11 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - Pipeline coverage ratio
 
 ### Activity Tracking
-**Status:** ✅ Complete
+
+**Status:** 🚧 Mostly Complete (Minor bugs)
 
 **Capabilities:**
+
 - **Automatic Activity Logging** - Emails, calls, meetings auto-logged
 - **Manual Activity Entry** - Add notes, tasks, calls manually
 - **Activity Types** - Calls, emails, meetings, notes, tasks
@@ -124,9 +139,11 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - **Activity Templates** - Save common notes as templates
 
 ### Dashboard & Analytics
-**Status:** ✅ Complete
+
+**Status:** 🚧 Basic Implementation (Limited widgets)
 
 **Capabilities:**
+
 - **Customizable Widgets** - Drag-and-drop dashboard builder
 - **Real-Time Metrics** - Live updates as data changes
 - **Sales Metrics** - Revenue, pipeline, win rate, velocity
@@ -137,6 +154,7 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - **Scheduled Reports** - Auto-send reports via email
 
 **Available Widgets:**
+
 - Revenue chart (with time periods)
 - Pipeline value
 - Win rate
@@ -148,12 +166,66 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 
 ---
 
+## 🏢 Agency Management & User Hierarchy
+
+### Multi-Agency System
+
+**Status:** ✅ Complete
+
+**Capabilities:**
+
+- **Multi-Tenant Architecture** - Complete data isolation between agencies
+- **Agency Creation** - Create and manage multiple agencies per account
+- **Agency Limits** - Tier-based limits on agencies and users
+- **Data Security** - Complete separation of agency data
+- **Cross-Agency Switching** - Easy switching between agencies
+
+### User Hierarchy & Permissions
+
+**Status:** ✅ Complete
+
+**User Types:**
+
+- **God Mode** - axolopcrm@gmail.com (unlimited access)
+- **Agency Admins** - Paying users with full management permissions
+- **Seated Users** - Team members with read-only access
+- **Free Users** - Users without agency ownership
+- **Trial Users** - Temporary full access during trial period
+
+**Permission System:**
+
+- **Role-Based Access Control** - Granular permissions by role
+- **Feature Access Control** - Tier-based feature availability
+- **Seat Management** - 3 free seats + $12/seat per month
+- **User Isolation** - Users only see their agency's data
+
+### Subscription Management
+
+**Status:** 🚧 Backend Complete, Frontend Mock
+
+**Implemented:**
+
+- **Subscription Tiers** - Sales ($67), Build ($187), Scale ($349)
+- **Feature Enforcement** - Backend limits by tier
+- **User Limits** - Enforcement of user and agency limits
+- **Storage Limits** - Tier-based storage quotas
+
+**Missing:**
+
+- **Stripe Integration** - Payment processing not implemented
+- **Trial System** - 14-day trial not implemented
+- **Subscription Lifecycle** - No upgrade/downgrade workflows
+
+---
+
 ## 📞 Communication Features
 
 ### Live Calls (Sales Dialer)
-**Status:** ✅ Complete | **Replaces:** Close CRM, Aircall
+
+**Status:** ❌ Not Implemented | **Replaces:** Close CRM, Aircall
 
 **Capabilities:**
+
 - **Click-to-Call** - Call leads directly from CRM
 - **Call Queue Management** - Prioritize and organize calls
 - **Auto-Dialer** - Automatically dial next lead in queue
@@ -167,6 +239,7 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - **Call Analytics** - Track metrics, performance, trends
 
 **AI Features:**
+
 - Real-time conversation insights
 - Coaching suggestions during calls
 - Automatic follow-up task creation
@@ -178,9 +251,11 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 **Setup Guide:** [docs/setup/INTEGRATION_GUIDE.md](setup/INTEGRATION_GUIDE.md)
 
 ### Email Integration
-**Status:** ✅ Complete | **Replaces:** Gmail, Outlook plugins
+
+**Status:** 🚧 Basic Implementation | **Replaces:** Gmail, Outlook plugins
 
 **Capabilities:**
+
 - **Gmail Integration** - Two-way sync with Gmail
 - **Email Tracking** - Know when emails are opened/clicked
 - **Email Templates** - Save and reuse email templates
@@ -191,9 +266,11 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - **Attachment Tracking** - Track when attachments are opened
 
 ### Calendar & Scheduling
-**Status:** ✅ Complete | **Replaces:** iClosed, Calendly, Chili Piper
+
+**Status:** 🚧 Basic Implementation (Bugs present) | **Replaces:** iClosed, Calendly, Chili Piper
 
 **Capabilities:**
+
 - **Google Calendar Sync** - Two-way sync with Google Calendar
 - **Booking Links** - Share personalized booking links
 - **Meeting Types** - Configure different meeting types
@@ -214,9 +291,11 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 ## 📧 Email Marketing
 
 ### Email Campaigns
-**Status:** ✅ Complete | **Replaces:** Klaviyo, ActiveCampaign, Mailchimp
+
+**Status:** 🚧 Basic Implementation | **Replaces:** Klaviyo, ActiveCampaign, Mailchimp
 
 **Capabilities:**
+
 - **Drag-and-Drop Builder** - Visual email builder
 - **Email Templates** - Pre-built and custom templates
 - **Personalization** - Dynamic content based on contact data
@@ -231,6 +310,7 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - **Spam Score Checker** - Check before sending
 
 **Analytics:**
+
 - Open rate
 - Click-through rate
 - Conversion rate
@@ -245,9 +325,11 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 **Setup Guide:** [docs/sendgrid/SENDGRID_QUICK_REFERENCE.md](sendgrid/SENDGRID_QUICK_REFERENCE.md)
 
 ### Email Automation
-**Status:** ✅ Complete
+
+**Status:** 🚧 Basic Implementation (Limited features)
 
 **Capabilities:**
+
 - **Welcome Series** - Automated onboarding emails
 - **Re-engagement Campaigns** - Win back inactive contacts
 - **Lead Nurturing** - Educate leads over time
@@ -262,9 +344,11 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 ## 📝 Forms & Data Collection
 
 ### Form Builder
-**Status:** ✅ Complete | **Replaces:** Typeform, Jotform, Google Forms
+
+**Status:** 🚧 Mostly Complete (Bugs present) | **Replaces:** Typeform, Jotform, Google Forms
 
 **Capabilities:**
+
 - **Drag-and-Drop Builder** - Visual form builder
 - **20+ Field Types** - Text, email, phone, file upload, rating, etc.
 - **Conditional Logic** - Show/hide fields based on answers
@@ -282,6 +366,7 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - **Email Notifications** - Get notified of submissions
 
 **Use Cases:**
+
 - Lead capture forms
 - Contact forms
 - Survey forms
@@ -297,9 +382,11 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 ## ⚡ Automation & Workflows
 
 ### Workflow Automation
-**Status:** ✅ Complete | **Replaces:** Zapier, Make, ActiveCampaign automations
+
+**Status:** 🚧 Basic Implementation (Limited features) | **Replaces:** Zapier, Make, ActiveCampaign automations
 
 **Capabilities:**
+
 - **Visual Workflow Builder** - Drag-and-drop automation builder
 - **Triggers** - 50+ trigger types
 - **Actions** - 100+ action types
@@ -314,6 +401,7 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - **Multi-Branch Logic** - Complex decision trees
 
 **Available Triggers:**
+
 - Form submission
 - Lead created
 - Contact updated
@@ -327,6 +415,7 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - Custom events
 
 **Available Actions:**
+
 - Send email
 - Create task
 - Update contact
@@ -341,6 +430,7 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - Slack notification
 
 **Workflow Templates:**
+
 - Lead scoring automation
 - Welcome email series
 - Meeting reminder sequence
@@ -357,9 +447,11 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 ## 🤖 AI Features
 
 ### AI Meeting Intelligence
-**Status:** ✅ Complete
+
+**Status:** ❌ Not Implemented
 
 **Capabilities:**
+
 - **Call Transcription** - OpenAI Whisper speech-to-text
 - **Sentiment Analysis** - Detect positive/negative/neutral sentiment
 - **Topic Extraction** - Identify key topics discussed
@@ -372,9 +464,11 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - **Keyword Tracking** - Track mentions of products, competitors
 
 ### AI Lead Scoring
-**Status:** ✅ Complete
+
+**Status:** 🚧 Basic Implementation
 
 **Capabilities:**
+
 - **Engagement Scoring** - Score based on interactions
 - **Demographic Scoring** - Score based on fit
 - **Behavioral Scoring** - Score based on actions
@@ -384,9 +478,11 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - **Score Triggers** - Automation based on score changes
 
 ### AI Email Analysis
-**Status:** ✅ Complete
+
+**Status:** ❌ Not Implemented
 
 **Capabilities:**
+
 - **Email Categorization** - Auto-categorize incoming emails
 - **Priority Detection** - Flag urgent emails
 - **Sentiment Analysis** - Detect customer sentiment
@@ -394,9 +490,11 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - **Auto-Response Suggestions** - AI-suggested replies
 
 ### RAG with ChromaDB
-**Status:** ✅ Complete
+
+**Status:** 🚧 Basic Implementation
 
 **Capabilities:**
+
 - **Semantic Search** - Search by meaning, not just keywords
 - **Knowledge Base** - Store and retrieve company knowledge
 - **Document Embeddings** - Vectorize documents for AI
@@ -410,9 +508,11 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 ## 📊 Advanced Features
 
 ### Custom Reports
+
 **Status:** ✅ Complete
 
 **Capabilities:**
+
 - **Report Builder** - Drag-and-drop report creator
 - **50+ Metrics** - Revenue, pipeline, activities, etc.
 - **Custom Calculations** - Create custom formulas
@@ -425,9 +525,11 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - **Drill-Down** - Click to see underlying data
 
 ### Integrations
+
 **Status:** ✅ Complete
 
 **Available Integrations:**
+
 - **Twilio** - Calling and SMS
 - **SendGrid** - Email marketing
 - **Google Calendar** - Calendar sync
@@ -439,6 +541,7 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - **Redis** - Caching and queues
 
 **Coming Soon:**
+
 - Slack
 - Zoom
 - Stripe
@@ -447,9 +550,11 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - WordPress
 
 ### API & Webhooks
+
 **Status:** ✅ Complete
 
 **Capabilities:**
+
 - **REST API** - Full CRUD operations
 - **Webhooks** - Real-time event notifications
 - **API Keys** - Secure authentication
@@ -463,9 +568,11 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 ## 🚀 Coming Soon
 
 ### Second Brain (Beta Q2 2025)
+
 **Status:** 📋 Planned | **Replaces:** Notion, Roam Research, Obsidian
 
 **Planned Capabilities:**
+
 - **Rich Documents** - Markdown, tables, code blocks, embeds
 - **Bi-Directional Links** - [[wiki-style]] linking between notes
 - **Knowledge Graph** - Visual map of your knowledge
@@ -478,9 +585,11 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - **Daily Notes** - Automatic daily note creation
 
 ### Miro Replacement (Beta Q3 2025)
+
 **Status:** 📋 Planned | **Replaces:** Miro, Figma, Lucidchart
 
 **Planned Capabilities:**
+
 - **Infinite Canvas** - Unlimited workspace
 - **Visual Workflows** - Map processes visually
 - **Sticky Notes** - Brainstorm ideas
@@ -491,9 +600,11 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 - **Presentation Mode** - Present your boards
 
 ### Slack Alternative (Beta Q4 2025)
+
 **Status:** 📋 Planned | **Replaces:** Slack, Microsoft Teams
 
 **Planned Capabilities:**
+
 - **Team Chat** - Channels and DMs
 - **Voice/Video Calls** - Built-in conferencing
 - **File Sharing** - Share files within conversations
@@ -507,7 +618,9 @@ Traditional CRMs only handle contacts and deals. Axolop goes far beyond:
 ## 💡 Key Differentiators
 
 ### 1. **AI-First Approach**
+
 Every feature is enhanced with AI:
+
 - Lead scoring
 - Call transcription & analysis
 - Email categorization
@@ -516,25 +629,30 @@ Every feature is enhanced with AI:
 - Next-best-action recommendations
 
 ### 2. **All-in-One Platform**
+
 Stop paying for 10+ tools:
+
 - CRM + Email + Calls + Forms + Automation
 - One database, one interface, one bill
 - Data flows seamlessly between features
 - No more Zapier connectors
 
 ### 3. **Built for Modern Teams**
+
 - Real-time collaboration
 - Mobile-responsive design
 - Fast, intuitive interface
 - Powerful yet simple
 
 ### 4. **Open & Extensible**
+
 - Full REST API
 - Webhooks for everything
 - Custom fields everywhere
 - Build custom integrations
 
 ### 5. **Privacy-Focused**
+
 - Self-hosted option available
 - Data encryption at rest and in transit
 - GDPR compliant
@@ -545,6 +663,7 @@ Stop paying for 10+ tools:
 ## 📈 Pricing Advantage
 
 **GoHighLevel Agency Owner Stack:**
+
 - GoHighLevel: $497/month
 - Typeform/Jotform: $100/month
 - ClickUp/Asana: $50/month
@@ -556,17 +675,22 @@ Stop paying for 10+ tools:
 - **Total: $1,524/month**
 
 **Axolop CRM:**
-- **All features included**
-- **One platform, one price**
-- **$149/month**
-- **Save $1,375/month = Raise 20% of your profit margins**
+
+- **All core features included**
+- **One platform, tiered pricing**
+- **Sales: $67/month | Build: $187/month | Scale: $349/month**
+- **Save $1,155-$1,375/month = Raise 15-20% of your profit margins**
+
+**Note:** Some advanced features (AI Meeting Intelligence, Live Calls, Mind Maps) are planned but not yet implemented. See [Implementation Status](docs/implementation/IMPLEMENTATION_STATUS.md) for current feature availability.
 
 ---
 
 ## 🎯 Target Customers
 
 ### Primary: GoHighLevel Agency Owners (ICP)
+
 **The perfect customer for Axolop:**
+
 - Currently using GoHighLevel ($497/month)
 - Juggling Typeform, ClickUp, Notion, Miro, iClosed
 - Spending $1,500+/month on multiple tools
@@ -575,6 +699,7 @@ Stop paying for 10+ tools:
 - Tired of context switching between 10+ apps
 
 **Why Axolop is the new age CRM GoHighLevel agencies need:**
+
 - **Local AI Second Brain** - Private AI processing, not cloud-based prompts
 - **Built-in Project Management** - Full ClickUp functionality, not basic task lists
 - **Mind Maps & Visual Planning** - Native Miro-like canvas, not just flowcharts
@@ -585,12 +710,14 @@ Stop paying for 10+ tools:
 ### Secondary Markets
 
 **B2B Service Agencies:**
+
 - Marketing agencies
 - Design & dev agencies
 - Consultancies
 - Professional services
 
 **Other Industries:**
+
 - E-commerce businesses
 - Real estate
 - SaaS companies

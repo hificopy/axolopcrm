@@ -35,7 +35,14 @@ import {
   CheckSquare,
   Star,
   FileText,
-  GripHorizontal
+  GripHorizontal,
+  Video,
+  Image,
+  ExternalLink,
+  MessageSquare,
+  ThumbsUp,
+  ThumbsDown,
+  Flag
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,13 +52,41 @@ import ConditionalLogicEditor from './ConditionalLogicEditor';
 import DraggablePanel from './DraggablePanel';
 
 // Custom node components
-function StartNode({ data }) {
+function StartNode({ data, selected }) {
+  const formTitle = data.formTitle || 'Untitled Form';
+  const formDescription = data.formDescription || '';
+  const welcomeMessage = data.welcomeMessage || '';
+
   return (
-    <div className="px-6 py-4 shadow-xl rounded-xl bg-green-500 text-white border-2 border-green-600 transition-all duration-200 hover:scale-105">
+    <div className={`px-6 py-4 shadow-xl rounded-xl bg-gradient-to-br from-[#1a1d24] via-[#252a35] to-[#2d3342] border-2 ${
+      selected ? 'border-primary ring-2 ring-offset-2 ring-primary' : 'border-[#3d4556]'
+    } min-w-[320px] max-w-[400px] transition-all duration-200 hover:scale-105`}>
       <Handle type="source" position={Position.Bottom} />
-      <div className="flex items-center gap-3">
-        <Play className="h-5 w-5" />
-        <div className="font-bold text-lg">Start</div>
+      <div className="space-y-2">
+        {/* Blue START label */}
+        <div className="flex items-center gap-2 mb-3">
+          <Play className="h-4 w-4 text-blue-400" />
+          <span className="text-xs font-bold tracking-wider text-blue-400 uppercase">START</span>
+        </div>
+
+        {/* Form Title */}
+        <div className="font-semibold text-base text-white">
+          {formTitle}
+        </div>
+
+        {/* Form Description */}
+        {formDescription && (
+          <div className="text-sm text-gray-300 line-clamp-2">
+            {formDescription}
+          </div>
+        )}
+
+        {/* Welcome Message */}
+        {welcomeMessage && (
+          <div className="text-xs text-gray-400 italic border-t border-gray-600 pt-2 mt-2 line-clamp-2">
+            {welcomeMessage}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -60,12 +95,83 @@ function StartNode({ data }) {
 function QuestionNode({ data, selected }) {
   const hasConditionalLogic = data.question?.conditional_logic?.length > 0;
   const hasLeadScoring = data.question?.lead_scoring_enabled;
+  const placeholder = data.question?.placeholder || '';
+  const hasValidation = data.question?.validation || false;
+
+  const [showHandle, setShowHandle] = React.useState(false);
+  const [isHovering, setIsHovering] = React.useState(false);
+  const hoverTimerRef = React.useRef(null);
+
+  const handleMouseEnter = () => {
+    setIsHovering(true);
+    hoverTimerRef.current = setTimeout(() => {
+      setShowHandle(true);
+    }, 1000); // 1 second
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovering(false);
+    setShowHandle(false);
+    if (hoverTimerRef.current) {
+      clearTimeout(hoverTimerRef.current);
+    }
+  };
+
+  React.useEffect(() => {
+    return () => {
+      if (hoverTimerRef.current) {
+        clearTimeout(hoverTimerRef.current);
+      }
+    };
+  }, []);
 
   return (
-    <div className={`px-6 py-4 shadow-xl rounded-xl bg-white dark:bg-[#1a1d24] border-2 ${
-      selected ? 'border-primary ring-2 ring-offset-2 ring-primary' : 'border-gray-300 dark:border-gray-700'
-    } min-w-[280px] max-w-[400px] transition-all duration-200 hover:scale-105`}>
+    <div
+      className={`relative px-6 py-4 shadow-xl rounded-xl bg-white dark:bg-[#1a1d24] border-2 ${
+        selected ? 'border-primary ring-2 ring-offset-2 ring-primary' : 'border-gray-300 dark:border-gray-700'
+      } min-w-[280px] max-w-[400px] transition-all duration-200 hover:scale-105 group`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <Handle type="target" position={Position.Top} />
+
+      {/* Bottom center: + button that morphs into connection handle */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 z-20">
+        {/* Connection Handle - shows after 1 second hover */}
+        <div
+          className={`transition-all duration-500 ${
+            showHandle ? 'opacity-100 scale-100' : 'opacity-0 scale-50 pointer-events-none'
+          }`}
+        >
+          <Handle
+            type="source"
+            position={Position.Bottom}
+            className="!static !transform-none !w-4 !h-4 !bg-gray-900 dark:!bg-gray-100 !border-2 !border-white shadow-lg"
+          />
+        </div>
+
+        {/* Plus Button - shows initially, fades out after 1 second */}
+        {data.onQuickAdd && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              data.onQuickAdd(data.question?.id || data.id, data.question?.type);
+            }}
+            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ${
+              showHandle ? 'opacity-0 scale-50 pointer-events-none' : 'opacity-100 scale-100'
+            } ${
+              isHovering ? 'w-8 h-8 bg-gradient-to-br from-[#1a1d24] via-[#252a35] to-[#2d3342]' : 'w-6 h-6 bg-gradient-to-br from-[#1a1d24] via-[#252a35] to-[#2d3342]'
+            } text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl z-10 border border-gray-600`}
+            style={{
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+            }}
+            title="Add same question type"
+          >
+            <Plus className={`transition-all duration-300 ${isHovering ? 'h-5 w-5' : 'h-4 w-4'}`} />
+          </button>
+        )}
+      </div>
+
       <div className="space-y-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
@@ -75,15 +181,20 @@ function QuestionNode({ data, selected }) {
             <div className="text-sm text-crm-text-secondary capitalize mt-1">
               {data.question?.type || 'question'}
             </div>
+            {placeholder && (
+              <div className="text-xs text-crm-text-secondary italic mt-1 truncate">
+                "{placeholder}"
+              </div>
+            )}
           </div>
           {data.question?.required && (
             <span className="text-red-500 text-sm flex-shrink-0">*</span>
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {hasConditionalLogic && (
-            <div className="flex items-center gap-1 px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded text-xs font-medium">
+            <div className="flex items-center gap-1 px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded text-xs font-medium">
               <GitBranch className="h-3 w-3" />
               <span>Logic</span>
             </div>
@@ -94,9 +205,14 @@ function QuestionNode({ data, selected }) {
               <span>Scored</span>
             </div>
           )}
+          {hasValidation && (
+            <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded text-xs font-medium">
+              <CheckCircle2 className="h-3 w-3" />
+              <span>Validated</span>
+            </div>
+          )}
         </div>
       </div>
-      <Handle type="source" position={Position.Bottom} />
     </div>
   );
 }
@@ -104,32 +220,72 @@ function QuestionNode({ data, selected }) {
 function EndNode({ data, selected }) {
   const isQualified = data.ending?.mark_as_qualified === true;
   const isDisqualified = data.ending?.mark_as_qualified === false;
+  const redirectUrl = data.ending?.redirect_url || '';
+  const createContact = data.ending?.create_contact || false;
 
-  let bgColor = 'bg-gray-500';
-  let borderColor = 'border-gray-600';
+  let bgColor = 'bg-gray-100 dark:bg-gray-800';
+  let textColor = 'text-gray-900 dark:text-gray-100';
+  let borderColor = 'border-gray-400';
+  let badgeColor = 'bg-gray-500';
   let icon = <CheckCircle2 className="h-5 w-5" />;
+  let statusLabel = 'Neutral';
 
   if (isQualified) {
-    bgColor = 'bg-green-500';
-    borderColor = 'border-green-600';
-    icon = <CheckCircle2 className="h-5 w-5" />;
+    bgColor = 'bg-green-50 dark:bg-green-900/20';
+    textColor = 'text-green-900 dark:text-green-100';
+    borderColor = 'border-green-500';
+    badgeColor = 'bg-green-500';
+    icon = <CheckCircle2 className="h-5 w-5 text-green-600" />;
+    statusLabel = 'Qualified';
   } else if (isDisqualified) {
-    bgColor = 'bg-red-500';
-    borderColor = 'border-red-600';
-    icon = <XCircle className="h-5 w-5" />;
+    bgColor = 'bg-red-50 dark:bg-red-900/20';
+    textColor = 'text-red-900 dark:text-red-100';
+    borderColor = 'border-red-500';
+    badgeColor = 'bg-red-500';
+    icon = <XCircle className="h-5 w-5 text-red-600" />;
+    statusLabel = 'Disqualified';
   }
 
   return (
-    <div className={`px-6 py-4 shadow-xl rounded-xl ${bgColor} text-white border-2 ${borderColor} ${
+    <div className={`px-6 py-4 shadow-xl rounded-xl ${bgColor} border-2 ${borderColor} ${
       selected ? 'ring-2 ring-offset-2 ring-primary' : ''
-    } min-w-[280px] transition-all duration-200 hover:scale-105`}>
+    } min-w-[320px] max-w-[400px] transition-all duration-200 hover:scale-105`}>
       <Handle type="target" position={Position.Top} />
-      <div className="flex items-center gap-3">
-        {icon}
-        <div>
-          <div className="font-bold text-base">{data.ending?.title || data.label}</div>
-          {data.ending?.message && (
-            <div className="text-sm opacity-90 mt-1 line-clamp-2">{data.ending.message}</div>
+      <div className="space-y-3">
+        {/* Header with icon and status badge */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-2">
+            {icon}
+            <span className={`text-xs font-bold tracking-wider uppercase ${textColor}`}>END</span>
+          </div>
+          <span className={`px-2 py-0.5 ${badgeColor} text-white text-xs font-medium rounded`}>
+            {statusLabel}
+          </span>
+        </div>
+
+        {/* Title */}
+        <div className={`font-bold text-base ${textColor}`}>
+          {data.ending?.title || data.label}
+        </div>
+
+        {/* Message */}
+        {data.ending?.message && (
+          <div className={`text-sm ${textColor} opacity-90 line-clamp-3`}>
+            {data.ending.message}
+          </div>
+        )}
+
+        {/* Additional info */}
+        <div className="space-y-1 text-xs border-t border-current opacity-30 pt-2">
+          {redirectUrl && (
+            <div className={`${textColor} opacity-70 truncate`}>
+              → Redirects to: {redirectUrl}
+            </div>
+          )}
+          {createContact && (
+            <div className={`${textColor} opacity-70`}>
+              ✓ Creates contact
+            </div>
           )}
         </div>
       </div>
@@ -164,12 +320,6 @@ export default function WorkflowTab({
   const [editingEnding, setEditingEnding] = useState(null);
   const [showWorkflowInfo, setShowWorkflowInfo] = useState(true);
   const [showQuestionPanel, setShowQuestionPanel] = useState(false);
-
-  // Draggable toolbar state
-  const [toolbarPosition, setToolbarPosition] = useState({ x: null, y: 24 });
-  const [isDraggingToolbar, setIsDraggingToolbar] = useState(false);
-  const [toolbarDragOffset, setToolbarDragOffset] = useState({ x: 0, y: 0 });
-  const toolbarRef = React.useRef(null);
 
   // Update parent state when nodes/edges change
   const handleNodesChange = useCallback((changes) => {
@@ -220,15 +370,68 @@ export default function WorkflowTab({
     setSelectedNode(null);
   }, []);
 
-  // Add new ending
-  const addEnding = () => {
-    const newEnding = {
+  // Configure start screen
+  const configureStartScreen = (screenType) => {
+    // Find the start node
+    const startNode = nodes.find(n => n.type === 'start');
+    if (startNode) {
+      setSelectedNode(startNode);
+    }
+    setShowQuestionPanel(false);
+    // User can then edit it in the right panel
+  };
+
+  // Add new ending with type
+  const addEnding = (endingType = 'neutral') => {
+    let newEnding = {
       id: `end-${Date.now()}`,
       title: 'New Ending',
       message: 'Thank you for your response.',
       icon: 'success',
       mark_as_qualified: null,
+      create_contact: false,
+      redirect_url: ''
     };
+
+    // Configure ending based on type
+    switch (endingType) {
+      case 'qualified':
+        newEnding = {
+          ...newEnding,
+          title: 'Qualified Lead',
+          message: 'Thank you! We\'ll be in touch soon.',
+          mark_as_qualified: true,
+          create_contact: true
+        };
+        break;
+      case 'disqualified':
+        newEnding = {
+          ...newEnding,
+          title: 'Thank You',
+          message: 'Thank you for your interest. We\'ll keep you updated.',
+          mark_as_qualified: false
+        };
+        break;
+      case 'redirect':
+        newEnding = {
+          ...newEnding,
+          title: 'Redirecting...',
+          message: 'Thank you! Redirecting you now...',
+          redirect_url: 'https://example.com'
+        };
+        break;
+      case 'contact':
+        newEnding = {
+          ...newEnding,
+          title: 'Success!',
+          message: 'Your information has been saved.',
+          create_contact: true
+        };
+        break;
+      default:
+        // Keep default neutral ending
+        break;
+    }
 
     setEndings(prevEndings => [...prevEndings, newEnding]);
 
@@ -247,6 +450,8 @@ export default function WorkflowTab({
       setWorkflowNodes(updatedNodes);
       return updatedNodes;
     });
+
+    setShowQuestionPanel(false);
   };
 
   // Update question in the main questions array and in the nodes
@@ -297,7 +502,8 @@ export default function WorkflowTab({
         },
         data: {
           label: newQuestion.label,
-          question: newQuestion
+          question: newQuestion,
+          onQuickAdd: handleQuickAdd
         }
       };
       const updatedNodes = [...prevNodes, newNode];
@@ -306,6 +512,170 @@ export default function WorkflowTab({
     });
 
     setShowQuestionPanel(false);
+  };
+
+  // Quick add handler - adds a new question connected from source node
+  const handleQuickAdd = useCallback((sourceNodeId, questionType) => {
+    // If question type is provided, directly add the same type
+    if (questionType) {
+      // Find source node
+      const sourceNode = nodes.find(n => n.id === sourceNodeId);
+      const newQuestion = {
+        id: `q-${Date.now()}`,
+        type: questionType,
+        label: `New ${questionType} Question`,
+        placeholder: 'Enter your answer',
+        required: false,
+        options: questionType === 'select' || questionType === 'radio' || questionType === 'checkbox'
+          ? ['Option 1', 'Option 2', 'Option 3']
+          : undefined,
+        conditional_logic: [],
+        lead_scoring_enabled: false,
+        lead_scoring_rules: [],
+      };
+
+      // Add to questions array
+      setQuestions(prevQuestions => [...prevQuestions, newQuestion]);
+
+      // Position below source node
+      let newX = 250;
+      let newY = 200;
+      if (sourceNode) {
+        newX = sourceNode.position.x + 50;
+        newY = sourceNode.position.y + 180;
+      }
+
+      // Add question node to workflow
+      setNodes(prevNodes => {
+        const newNode = {
+          id: newQuestion.id,
+          type: 'question',
+          position: { x: newX, y: newY },
+          data: {
+            label: newQuestion.label,
+            question: newQuestion,
+            onQuickAdd: handleQuickAdd
+          }
+        };
+        const updatedNodes = [...prevNodes, newNode];
+        setWorkflowNodes(updatedNodes);
+
+        // Auto-connect
+        setEdges(prevEdges => {
+          const newEdge = {
+            id: `e-${sourceNodeId}-${newQuestion.id}`,
+            source: sourceNodeId,
+            target: newQuestion.id,
+            type: 'smoothstep',
+            animated: true,
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+            },
+          };
+          const updatedEdges = [...prevEdges, newEdge];
+          setWorkflowEdges(updatedEdges);
+          return updatedEdges;
+        });
+
+        // Auto-select new node
+        setTimeout(() => {
+          setSelectedNode(newNode);
+        }, 100);
+
+        return updatedNodes;
+      });
+    } else {
+      // Open question panel and set up auto-connection
+      setShowQuestionPanel(true);
+      // Store source node for auto-connection after question is created
+      window.__quickAddSourceNodeId = sourceNodeId;
+    }
+  }, [nodes, setQuestions, setNodes, setWorkflowNodes, setEdges, setWorkflowEdges]);
+
+  // Enhanced add question with auto-connection support
+  const addQuestionWithConnection = (questionType, sourceNodeId = null) => {
+    const newQuestion = {
+      id: `q-${Date.now()}`,
+      type: questionType,
+      label: `New ${questionType} Question`,
+      placeholder: 'Enter your answer',
+      required: false,
+      options: questionType === 'select' || questionType === 'radio' || questionType === 'checkbox'
+        ? ['Option 1', 'Option 2', 'Option 3']
+        : undefined,
+      conditional_logic: [],
+      lead_scoring_enabled: false,
+      lead_scoring_rules: [],
+    };
+
+    // Add to questions array
+    setQuestions(prevQuestions => [...prevQuestions, newQuestion]);
+
+    // Find source node position for smart positioning
+    let newX = 250;
+    let newY = 200;
+
+    if (sourceNodeId) {
+      const sourceNode = nodes.find(n => n.id === sourceNodeId);
+      if (sourceNode) {
+        // Position below and slightly to the right of source
+        newX = sourceNode.position.x + 50;
+        newY = sourceNode.position.y + 180;
+      }
+    } else {
+      const questionNodes = nodes.filter(n => n.type === 'question');
+      newX = 250 + (questionNodes.length % 3) * 250;
+      newY = 200 + Math.floor(questionNodes.length / 3) * 150;
+    }
+
+    // Add question node to workflow
+    setNodes(prevNodes => {
+      const newNode = {
+        id: newQuestion.id,
+        type: 'question',
+        position: { x: newX, y: newY },
+        data: {
+          label: newQuestion.label,
+          question: newQuestion,
+          onQuickAdd: handleQuickAdd
+        }
+      };
+      const updatedNodes = [...prevNodes, newNode];
+      setWorkflowNodes(updatedNodes);
+
+      // Auto-connect if source node provided
+      if (sourceNodeId) {
+        setEdges(prevEdges => {
+          const newEdge = {
+            id: `e-${sourceNodeId}-${newQuestion.id}`,
+            source: sourceNodeId,
+            target: newQuestion.id,
+            type: 'smoothstep',
+            animated: true,
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+            },
+          };
+          const updatedEdges = [...prevEdges, newEdge];
+          setWorkflowEdges(updatedEdges);
+          return updatedEdges;
+        });
+
+        // Auto-select new node
+        setTimeout(() => {
+          setSelectedNode(newNode);
+        }, 100);
+      }
+
+      return updatedNodes;
+    });
+
+    setShowQuestionPanel(false);
+
+    // Clear temporary source node
+    if (window.__quickAddSourceNodeId) {
+      delete window.__quickAddSourceNodeId;
+    }
   };
 
   // Delete selected node or edge
@@ -330,55 +700,38 @@ export default function WorkflowTab({
     }
   };
 
-  // Toolbar drag handlers
-  const handleToolbarMouseDown = (e) => {
-    if (e.target.closest('.toolbar-drag-handle') && toolbarRef.current) {
-      setIsDraggingToolbar(true);
-      const rect = toolbarRef.current.getBoundingClientRect();
-      setToolbarDragOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
-      });
-    }
-  };
-
-  const handleToolbarMouseMove = React.useCallback((e) => {
-    if (isDraggingToolbar && toolbarRef.current) {
-      const rect = toolbarRef.current.getBoundingClientRect();
-      const newX = e.clientX - toolbarDragOffset.x;
-      const newY = e.clientY - toolbarDragOffset.y;
-
-      const maxX = window.innerWidth - rect.width;
-      const maxY = window.innerHeight - rect.height;
-
-      setToolbarPosition({
-        x: Math.max(0, Math.min(newX, maxX)),
-        y: Math.max(0, Math.min(newY, maxY))
-      });
-    }
-  }, [isDraggingToolbar, toolbarDragOffset]);
-
-  const handleToolbarMouseUp = React.useCallback(() => {
-    setIsDraggingToolbar(false);
-  }, []);
-
-  React.useEffect(() => {
-    if (isDraggingToolbar) {
-      window.addEventListener('mousemove', handleToolbarMouseMove);
-      window.addEventListener('mouseup', handleToolbarMouseUp);
-      return () => {
-        window.removeEventListener('mousemove', handleToolbarMouseMove);
-        window.removeEventListener('mouseup', handleToolbarMouseUp);
-      };
-    }
-  }, [isDraggingToolbar, handleToolbarMouseMove, handleToolbarMouseUp]);
+  // Enrich nodes with dynamic data (form info for start node, callbacks for question nodes)
+  const enrichedNodes = useMemo(() => {
+    return nodes.map(node => {
+      if (node.type === 'start') {
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            formTitle: form?.title || 'Untitled Form',
+            formDescription: form?.description || '',
+            welcomeMessage: form?.settings?.welcomeMessage || ''
+          }
+        };
+      } else if (node.type === 'question') {
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            onQuickAdd: handleQuickAdd
+          }
+        };
+      }
+      return node;
+    });
+  }, [nodes, form, handleQuickAdd]);
 
   return (
     <div className="absolute inset-0 flex">
       {/* Main Workflow Canvas */}
       <div className="flex-1 relative bg-gray-50 dark:bg-[#0d0f12]">
         <ReactFlow
-          nodes={nodes}
+          nodes={enrichedNodes}
           edges={edges}
           onNodesChange={handleNodesChange}
           onEdgesChange={handleEdgesChange}
@@ -417,28 +770,16 @@ export default function WorkflowTab({
           </Button>
         </div>
 
-        {/* Center Top - Workflow Actions - Draggable */}
-        <div
-          ref={toolbarRef}
-          onMouseDown={handleToolbarMouseDown}
-          className="fixed bg-white/95 dark:bg-[#1a1d24]/95 rounded-xl shadow-xl border border-crm-border p-3 flex items-center gap-3 backdrop-blur-sm cursor-move z-40"
-          style={{
-            left: toolbarPosition.x !== null ? `${toolbarPosition.x}px` : '50%',
-            top: `${toolbarPosition.y}px`,
-            transform: toolbarPosition.x !== null ? 'none' : 'translateX(-50%)'
-          }}
-        >
-          <div className="toolbar-drag-handle flex items-center gap-2 cursor-move pr-2 border-r border-crm-border">
-            <GripHorizontal className="h-4 w-4 text-crm-text-secondary" />
-          </div>
+        {/* Bottom Center - Workflow Actions */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/95 dark:bg-[#1a1d24]/95 rounded-xl shadow-xl border border-crm-border p-3 flex items-center gap-3 backdrop-blur-sm z-40">
           <Button
             size="sm"
             variant="outline"
             onClick={() => setShowQuestionPanel(!showQuestionPanel)}
-            title="Add Question"
+            title="Add Element"
           >
             <Plus className="h-4 w-4 mr-1" />
-            Add Question
+            Add Element
           </Button>
           <Button
             size="sm"
@@ -499,71 +840,93 @@ export default function WorkflowTab({
         <DraggablePanel
           isOpen={showQuestionPanel}
           onClose={() => setShowQuestionPanel(false)}
-          title="Add Question"
-          defaultPosition="bottom"
+          title="Add Element"
+          defaultPosition="above-bottom"
         >
-          <div className="grid grid-cols-3 gap-3">
-            {/* Text Inputs */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-semibold text-crm-text-secondary uppercase tracking-wider mb-2">Text Input</h4>
-              <Button variant="outline" className="w-full justify-start text-sm h-10 hover:bg-blue-50" onClick={() => addQuestion('text')}>
-                <Type className="w-4 h-4 mr-2 text-blue-600" />
-                Short Text
-              </Button>
-              <Button variant="outline" className="w-full justify-start text-sm h-10 hover:bg-blue-50" onClick={() => addQuestion('textarea')}>
-                <FileText className="w-4 h-4 mr-2 text-blue-600" />
-                Long Text
-              </Button>
-              <Button variant="outline" className="w-full justify-start text-sm h-10 hover:bg-blue-50" onClick={() => addQuestion('email')}>
-                <Mail className="w-4 h-4 mr-2 text-blue-600" />
-                Email
-              </Button>
-              <Button variant="outline" className="w-full justify-start text-sm h-10 hover:bg-blue-50" onClick={() => addQuestion('tel')}>
-                <Phone className="w-4 h-4 mr-2 text-blue-600" />
-                Phone
-              </Button>
-              <Button variant="outline" className="w-full justify-start text-sm h-10 hover:bg-blue-50" onClick={() => addQuestion('number')}>
-                <Hash className="w-4 h-4 mr-2 text-blue-600" />
-                Number
-              </Button>
+          <div className="space-y-4">
+            {/* Start Screens Section */}
+            <div>
+              <h4 className="text-xs font-semibold text-crm-text-secondary uppercase tracking-wider mb-2">Start Screens</h4>
+              <div className="grid grid-cols-3 gap-2">
+                <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-green-50" onClick={() => configureStartScreen('welcome')}>
+                  <Play className="w-3 h-3 mr-1 text-green-600" />
+                  Welcome
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-green-50" onClick={() => configureStartScreen('video')}>
+                  <Video className="w-3 h-3 mr-1 text-green-600" />
+                  Video
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-green-50" onClick={() => configureStartScreen('image')}>
+                  <Image className="w-3 h-3 mr-1 text-green-600" />
+                  Image
+                </Button>
+              </div>
             </div>
 
-            {/* Selection */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-semibold text-crm-text-secondary uppercase tracking-wider mb-2">Selection</h4>
-              <Button variant="outline" className="w-full justify-start text-sm h-10 hover:bg-purple-50" onClick={() => addQuestion('select')}>
-                <List className="w-4 h-4 mr-2 text-purple-600" />
-                Dropdown
-              </Button>
-              <Button variant="outline" className="w-full justify-start text-sm h-10 hover:bg-purple-50" onClick={() => addQuestion('radio')}>
-                <CheckCircle2 className="w-4 h-4 mr-2 text-purple-600" />
-                Radio Buttons
-              </Button>
-              <Button variant="outline" className="w-full justify-start text-sm h-10 hover:bg-purple-50" onClick={() => addQuestion('checkbox')}>
-                <CheckSquare className="w-4 h-4 mr-2 text-purple-600" />
-                Checkboxes
-              </Button>
-              <Button variant="outline" className="w-full justify-start text-sm h-10 hover:bg-purple-50" onClick={() => addQuestion('toggle')}>
-                <ToggleLeft className="w-4 h-4 mr-2 text-purple-600" />
-                Toggle Switch
-              </Button>
+            {/* Question Types Section */}
+            <div>
+              <h4 className="text-xs font-semibold text-crm-text-secondary uppercase tracking-wider mb-2">Questions</h4>
+              <div className="grid grid-cols-5 gap-2">
+                <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-blue-50" onClick={() => addQuestionWithConnection('text', window.__quickAddSourceNodeId)}>
+                  <Type className="w-3 h-3 mr-1 text-blue-600" />
+                  Text
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-blue-50" onClick={() => addQuestionWithConnection('email', window.__quickAddSourceNodeId)}>
+                  <Mail className="w-3 h-3 mr-1 text-blue-600" />
+                  Email
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-blue-50" onClick={() => addQuestionWithConnection('tel', window.__quickAddSourceNodeId)}>
+                  <Phone className="w-3 h-3 mr-1 text-blue-600" />
+                  Phone
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-purple-50" onClick={() => addQuestionWithConnection('select', window.__quickAddSourceNodeId)}>
+                  <List className="w-3 h-3 mr-1 text-purple-600" />
+                  Dropdown
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-purple-50" onClick={() => addQuestionWithConnection('radio', window.__quickAddSourceNodeId)}>
+                  <CheckCircle2 className="w-3 h-3 mr-1 text-purple-600" />
+                  Radio
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-purple-50" onClick={() => addQuestionWithConnection('checkbox', window.__quickAddSourceNodeId)}>
+                  <CheckSquare className="w-3 h-3 mr-1 text-purple-600" />
+                  Checkbox
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-green-50" onClick={() => addQuestionWithConnection('date', window.__quickAddSourceNodeId)}>
+                  <Calendar className="w-3 h-3 mr-1 text-green-600" />
+                  Date
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-green-50" onClick={() => addQuestionWithConnection('rating', window.__quickAddSourceNodeId)}>
+                  <Star className="w-3 h-3 mr-1 text-green-600" />
+                  Rating
+                </Button>
+              </div>
             </div>
 
-            {/* Special */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-semibold text-crm-text-secondary uppercase tracking-wider mb-2">Special</h4>
-              <Button variant="outline" className="w-full justify-start text-sm h-10 hover:bg-green-50" onClick={() => addQuestion('date')}>
-                <Calendar className="w-4 h-4 mr-2 text-green-600" />
-                Date
-              </Button>
-              <Button variant="outline" className="w-full justify-start text-sm h-10 hover:bg-green-50" onClick={() => addQuestion('time')}>
-                <Calendar className="w-4 h-4 mr-2 text-green-600" />
-                Time
-              </Button>
-              <Button variant="outline" className="w-full justify-start text-sm h-10 hover:bg-green-50" onClick={() => addQuestion('rating')}>
-                <Star className="w-4 h-4 mr-2 text-green-600" />
-                Rating
-              </Button>
+            {/* End Screens Section */}
+            <div>
+              <h4 className="text-xs font-semibold text-crm-text-secondary uppercase tracking-wider mb-2">End Screens</h4>
+              <div className="grid grid-cols-5 gap-2">
+                <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-gray-50" onClick={() => addEnding('neutral')}>
+                  <MessageSquare className="w-3 h-3 mr-1 text-gray-600" />
+                  Thank You
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-green-50" onClick={() => addEnding('qualified')}>
+                  <ThumbsUp className="w-3 h-3 mr-1 text-green-600" />
+                  Qualified
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-red-50" onClick={() => addEnding('disqualified')}>
+                  <ThumbsDown className="w-3 h-3 mr-1 text-red-600" />
+                  Disqualified
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-blue-50" onClick={() => addEnding('redirect')}>
+                  <ExternalLink className="w-3 h-3 mr-1 text-blue-600" />
+                  Redirect
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-purple-50" onClick={() => addEnding('contact')}>
+                  <Flag className="w-3 h-3 mr-1 text-purple-600" />
+                  Contact
+                </Button>
+              </div>
             </div>
           </div>
         </DraggablePanel>

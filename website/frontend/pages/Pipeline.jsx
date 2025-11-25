@@ -5,12 +5,13 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002';
+import { dealsApi } from './lib/api';
+import { useAgency } from '@/hooks/useAgency';
+import ViewOnlyBadge from '@/components/ui/view-only-badge';
 
 const Pipeline = () => {
   const { toast } = useToast();
+  const { isReadOnly, canEdit, canCreate } = useAgency();
   const [opportunities, setOpportunities] = useState([]);
   const [stages, setStages] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -21,11 +22,7 @@ const Pipeline = () => {
   const fetchOpportunities = useCallback(async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('supabase.auth.token');
-      const response = await axios.get(`${API_BASE_URL}/api/opportunities`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
+      const response = await dealsApi.getAll();
       const data = response.data;
       setOpportunities(data);
 
@@ -172,9 +169,9 @@ const Pipeline = () => {
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center">
+      <div className="h-full min-h-screen flex items-center justify-center pt-[150px]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7b1c14] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#761B14] mx-auto mb-4"></div>
           <p className="text-crm-text-secondary">Loading pipeline...</p>
         </div>
       </div>
@@ -187,9 +184,15 @@ const Pipeline = () => {
       <div className="bg-white dark:bg-[#1a1d24] border-b border-crm-border px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-crm-text-primary">Pipeline</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-semibold text-crm-text-primary">Pipeline</h1>
+              {isReadOnly() && <ViewOnlyBadge />}
+            </div>
             <p className="text-sm text-crm-text-secondary mt-1">
-              Track deals through your sales process
+              {isReadOnly()
+                ? 'View deals through your sales process - Read-only access'
+                : 'Track deals through your sales process'
+              }
             </p>
           </div>
 
@@ -211,10 +214,12 @@ const Pipeline = () => {
               <Download className="h-4 w-4" />
               <span>Export</span>
             </Button>
-            <Button variant="default" size="default" className="gap-2" onClick={handleCreateDeal}>
-              <Plus className="h-4 w-4" />
-              <span>New Deal</span>
-            </Button>
+            {canCreate() && (
+              <Button variant="default" size="default" className="gap-2" onClick={handleCreateDeal}>
+                <Plus className="h-4 w-4" />
+                <span>New Deal</span>
+              </Button>
+            )}
           </div>
         </div>
 
@@ -363,10 +368,12 @@ const Pipeline = () => {
             <p className="text-crm-text-secondary mb-6">
               Get started by creating your first deal opportunity
             </p>
-            <Button variant="default" size="default" className="gap-2" onClick={handleCreateDeal}>
-              <Plus className="h-4 w-4" />
-              <span>Create Your First Deal</span>
-            </Button>
+            {canCreate() && (
+              <Button variant="default" size="default" className="gap-2" onClick={handleCreateDeal}>
+                <Plus className="h-4 w-4" />
+                <span>Create Your First Deal</span>
+              </Button>
+            )}
           </div>
         )}
       </div>
@@ -460,12 +467,14 @@ const Pipeline = () => {
                 </div>
               )}
 
-              <div className="flex gap-2">
-                <Button variant="default" className="flex-1">
-                  <Edit3 className="h-4 w-4 mr-2" />
-                  Edit Deal
-                </Button>
-                <Button variant="outline" className="flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                {canEdit() && (
+                  <Button variant="default" className="min-w-[40px] flex-1 sm:flex-none">
+                    <Edit3 className="h-4 w-4 mr-2" />
+                    Edit Deal
+                  </Button>
+                )}
+                <Button variant="outline" className="min-w-[40px] flex-1 sm:flex-none">
                   <User className="h-4 w-4 mr-2" />
                   Contact
                 </Button>

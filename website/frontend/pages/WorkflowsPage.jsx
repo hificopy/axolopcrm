@@ -7,8 +7,11 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import EnhancedFlowBuilder from '../components/workflows/EnhancedFlowBuilder';
+import { useAgency } from '@/hooks/useAgency';
+import ViewOnlyBadge from '@/components/ui/view-only-badge';
 
 const WorkflowsPage = () => {
+  const { isReadOnly, canEdit, canCreate } = useAgency();
   const [workflows, setWorkflows] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -177,31 +180,36 @@ const WorkflowsPage = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-crm-text-primary flex items-center gap-3">
-                <Zap className="w-8 h-8 text-primary" />
-                Automation Workflows
-              </h1>
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl font-bold text-crm-text-primary flex items-center gap-3">
+                  <Zap className="w-8 h-8 text-primary" />
+                  Automation Workflows
+                </h1>
+                {isReadOnly() && <ViewOnlyBadge />}
+              </div>
               <p className="text-crm-text-secondary mt-1">
-                Create powerful automations to streamline your sales and marketing
+                {isReadOnly() ? 'View automation workflows - Read-only access' : 'Create powerful automations to streamline your sales and marketing'}
               </p>
             </div>
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setShowTemplates(true)}
-                className="flex items-center gap-2"
-              >
-                <Layers className="w-4 h-4" />
-                Browse Templates
-              </Button>
-              <Button
-                onClick={handleCreateWorkflow}
-                className="flex items-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Create Workflow
-              </Button>
-            </div>
+            {canCreate() && (
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowTemplates(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Layers className="w-4 h-4" />
+                  Browse Templates
+                </Button>
+                <Button
+                  onClick={handleCreateWorkflow}
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Create Workflow
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Search and Filters */}
@@ -339,45 +347,55 @@ const WorkflowsPage = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="flex gap-2 ml-4">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleEditWorkflow(workflow)}
-                        title="Edit"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleDuplicateWorkflow(workflow.id)}
-                        title="Duplicate"
-                      >
-                        <Copy className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleToggleWorkflow(workflow)}
-                        title={workflow.is_active ? 'Deactivate' : 'Activate'}
-                      >
-                        {workflow.is_active ? (
-                          <Pause className="w-4 h-4" />
-                        ) : (
-                          <Play className="w-4 h-4" />
+                    {!isReadOnly() && (
+                      <div className="flex gap-2 ml-4">
+                        {canEdit() && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleEditWorkflow(workflow)}
+                            title="Edit"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
                         )}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleDeleteWorkflow(workflow.id)}
-                        title="Delete"
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+                        {canCreate() && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleDuplicateWorkflow(workflow.id)}
+                            title="Duplicate"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                        )}
+                        {canEdit() && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleToggleWorkflow(workflow)}
+                            title={workflow.is_active ? 'Deactivate' : 'Activate'}
+                          >
+                            {workflow.is_active ? (
+                              <Pause className="w-4 h-4" />
+                            ) : (
+                              <Play className="w-4 h-4" />
+                            )}
+                          </Button>
+                        )}
+                        {canEdit() && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleDeleteWorkflow(workflow.id)}
+                            title="Delete"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

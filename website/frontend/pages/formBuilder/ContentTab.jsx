@@ -19,6 +19,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { InfoTooltipInline } from '@/components/ui/info-tooltip';
 import QuestionSettingsPanel from './QuestionSettingsPanel'; // Import the new component
 import QuestionRenderer from './QuestionRenderer'; // Import the new component
 
@@ -199,45 +201,94 @@ export default function ContentTab({ form, setForm, questions, setQuestions, onQ
                   <p className="text-crm-text-secondary mt-1">{form.description}</p>
                 </div>
 
-                {/* Question */}
-                <div className="p-6 sm:p-8">
-                  <div className="mb-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2 text-sm text-crm-text-secondary">
-                        <span className="font-medium">
-                          Question {questions.findIndex(q => q.id === selectedQuestion.id) + 1}
-                        </span>
-                        {selectedQuestion.required && <span className="text-red-500">*</span>}
+                {/* Sequential Mode - Show one question at a time */}
+                {form.settings?.displayMode === 'sequential' && (
+                  <div className="p-6 sm:p-8">
+                    <div className="mb-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2 text-sm text-crm-text-secondary">
+                          <span className="font-medium">
+                            Question {questions.findIndex(q => q.id === selectedQuestion.id) + 1}
+                          </span>
+                          {selectedQuestion.required && <span className="text-red-500">*</span>}
+                        </div>
+                      </div>
+
+                      <h2 className="text-lg font-semibold text-crm-text-primary mb-4">
+                        {selectedQuestion.title}
+                      </h2>
+
+                      {/* Question Input */}
+                      <div className="mt-4">
+                        <QuestionRenderer
+                          question={selectedQuestion}
+                          value={responses[selectedQuestion.id]}
+                          onChange={(val) => setResponses(prev => ({ ...prev, [selectedQuestion.id]: val }))}
+                        />
                       </div>
                     </div>
 
-                    <h2 className="text-lg font-semibold text-crm-text-primary mb-4">
-                      {selectedQuestion.title}
-                    </h2>
-
-                    {/* Question Input */}
-                    <div className="mt-4">
-                      <QuestionRenderer
-                        question={selectedQuestion}
-                        value={responses[selectedQuestion.id]}
-                        onChange={(val) => setResponses(prev => ({ ...prev, [selectedQuestion.id]: val }))}
-                      />
+                    {/* Progress bar */}
+                    <div className="mt-6">
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-primary h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${((questions.findIndex(q => q.id === selectedQuestion.id) + 1) / questions.length) * 100}%` }}
+                        ></div>
+                      </div>
+                      <div className="text-right text-xs text-crm-text-secondary mt-1">
+                        {questions.findIndex(q => q.id === selectedQuestion.id) + 1} of {questions.length}
+                      </div>
                     </div>
                   </div>
+                )}
 
-                  {/* Progress bar */}
-                  <div className="mt-6">
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-primary h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${((questions.findIndex(q => q.id === selectedQuestion.id) + 1) / questions.length) * 100}%` }}
-                      ></div>
-                    </div>
-                    <div className="text-right text-xs text-crm-text-secondary mt-1">
-                      {questions.findIndex(q => q.id === selectedQuestion.id) + 1} of {questions.length}
+                {/* Regular Mode - Show all questions vertically stacked */}
+                {form.settings?.displayMode === 'regular' && (
+                  <div className="p-6 sm:p-8 overflow-y-auto max-h-[calc(100vh-300px)]">
+                    <div className="space-y-6">
+                      {questions.map((question, index) => (
+                        <div
+                          key={question.id}
+                          className={`pb-6 border-b border-gray-200 last:border-b-0 ${
+                            question.id === selectedQuestion.id ? 'bg-primary/5 p-4 rounded-lg -m-4 mb-2' : ''
+                          }`}
+                        >
+                          <div className="flex items-start gap-3 mb-3">
+                            <div className="flex-shrink-0 bg-primary text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-semibold">
+                              {index + 1}
+                            </div>
+                            <div className="flex-1">
+                              <h2 className="text-base font-semibold text-crm-text-primary">
+                                {question.title}
+                                {question.required && <span className="text-red-500 ml-1">*</span>}
+                              </h2>
+                            </div>
+                          </div>
+
+                          {/* Question Input */}
+                          <div className="ml-10">
+                            <QuestionRenderer
+                              question={question}
+                              value={responses[question.id]}
+                              onChange={(val) => setResponses(prev => ({ ...prev, [question.id]: val }))}
+                            />
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Submit Button */}
+                      <div className="flex justify-end pt-4">
+                        <button
+                          type="button"
+                          className="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:opacity-90 transition-all"
+                        >
+                          Submit Form
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           ) : (
@@ -284,6 +335,40 @@ export default function ContentTab({ form, setForm, questions, setQuestions, onQ
               <span>Form Outline</span>
               <span className="text-sm text-crm-text-secondary">{questions.length} questions</span>
             </h3>
+
+            {/* Display Mode Toggle */}
+            <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-crm-border">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="display-mode" className="text-sm font-medium text-crm-text-primary">
+                    Sequential Mode
+                  </Label>
+                  <InfoTooltipInline
+                    content="Sequential mode shows one question at a time (like Typeform). This approach gets 40-60% higher conversion rates compared to traditional long forms. Turn off for a regular vertical form showing all questions at once."
+                    delay={500}
+                  />
+                </div>
+                <Switch
+                  id="display-mode"
+                  checked={form.settings?.displayMode === 'sequential'}
+                  onCheckedChange={(checked) => {
+                    setForm({
+                      ...form,
+                      settings: {
+                        ...form.settings,
+                        displayMode: checked ? 'sequential' : 'regular'
+                      }
+                    });
+                  }}
+                />
+              </div>
+              <p className="text-xs text-crm-text-secondary">
+                {form.settings?.displayMode === 'sequential'
+                  ? '✅ One question at a time (recommended for higher conversions)'
+                  : 'All questions visible on one page'
+                }
+              </p>
+            </div>
 
             <div className="space-y-2">
               {questions.map((question, index) => {

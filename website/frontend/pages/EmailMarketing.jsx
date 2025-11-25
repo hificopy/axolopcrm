@@ -31,13 +31,14 @@ import { useToast } from '@/components/ui/use-toast';
 import Newsletter from '../components/email-marketing/Newsletter';
 import EmailAnalytics from '../components/email-marketing/EmailAnalytics';
 import FlowBuilder from '../components/email-marketing/FlowBuilder';
-import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002';
+import { emailCampaignsApi, workflowsApi } from './lib/api';
+import { useAgency } from '@/hooks/useAgency';
+import ViewOnlyBadge from '@/components/ui/view-only-badge';
 
 const EmailMarketing = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isReadOnly, canEdit, canCreate } = useAgency();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [campaigns, setCampaigns] = useState([]);
   const [workflows, setWorkflows] = useState([]);
@@ -46,24 +47,61 @@ const EmailMarketing = () => {
   const [loading, setLoading] = useState(true);
   const [showWorkflowBuilder, setShowWorkflowBuilder] = useState(false);
   const [selectedWorkflowId, setSelectedWorkflowId] = useState(null);
+  const [dashboardStats, setDashboardStats] = useState({
+    totalCampaigns: 0,
+    activeWorkflows: 0,
+    emailsSent: 0,
+    avgOpenRate: 0,
+  });
 
   // Fetch data from API
   const fetchEmailMarketingData = useCallback(async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('supabase.auth.token');
-      const headers = { Authorization: `Bearer ${token}` };
-
-      // Fetch campaigns, workflows, and templates in parallel
-      const [campaignsRes, workflowsRes, templatesRes] = await Promise.all([
-        axios.get(`${API_BASE_URL}/api/email-marketing/campaigns`, { headers }).catch(() => ({ data: [] })),
-        axios.get(`${API_BASE_URL}/api/email-marketing/workflows`, { headers }).catch(() => ({ data: [] })),
-        axios.get(`${API_BASE_URL}/api/email-marketing/templates`, { headers }).catch(() => ({ data: [] })),
+      // Fetch campaigns, workflows, templates, and dashboard stats in parallel
+      const [campaignsRes, workflowsRes, templatesRes, dashboardRes] = await Promise.all([
+        emailCampaignsApi.getAll().catch(() => ({ data: { campaigns: [] } })),
+        workflowsApi.getAll().catch(() => ({ data: { workflows: [] } })),
+        emailCampaignsApi.getTemplates().catch(() => ({ data: { templates: [] } })),
+        emailCampaignsApi.getDashboard().catch(() => ({ data: { metrics: {}, topCampaigns: [], recentCampaigns: [] } })),
       ]);
 
-      setCampaigns(campaignsRes.data || []);
-      setWorkflows(workflowsRes.data || []);
-      setTemplates(templatesRes.data || []);
+      // Handle different response formats (array or paginated object)
+      const campaignData = campaignsRes.data?.campaigns || campaignsRes.data || [];
+      const workflowData = workflowsRes.data?.workflows || workflowsRes.data || [];
+      const templateData = templatesRes.data?.templates || templatesRes.data || [];
+      const dashboardData = dashboardRes.data || {};
+
+      setCampaigns(campaignData);
+      setWorkflows(workflowData);
+      setTemplates(templateData);
+
+      // Calculate dashboard stats from real data
+      const totalCampaigns = campaignData.length;
+      const activeWorkflows = workflowData.filter(w => w.is_active).length;
+
+      // Calculate total emails sent and avg open rate from campaigns
+      let totalSent = 0;
+      let totalOpens = 0;
+      let campaignsWithStats = 0;
+
+      campaignData.forEach(campaign => {
+        const sent = campaign.stats?.sent || campaign.total_sent || 0;
+        const openRate = campaign.stats?.openRate || campaign.open_rate || 0;
+        totalSent += sent;
+        if (openRate > 0) {
+          totalOpens += openRate;
+          campaignsWithStats++;
+        }
+      });
+
+      // Use dashboard metrics if available, otherwise calculate from campaigns
+      setDashboardStats({
+        totalCampaigns: dashboardData.metrics?.totalCampaigns || totalCampaigns,
+        activeWorkflows: dashboardData.metrics?.activeWorkflows || activeWorkflows,
+        emailsSent: dashboardData.metrics?.emailsSent || totalSent,
+        avgOpenRate: dashboardData.metrics?.avgOpenRate || (campaignsWithStats > 0 ? (totalOpens / campaignsWithStats).toFixed(1) : 0),
+      });
     } catch (error) {
       console.error('Error fetching email marketing data:', error);
       toast({
@@ -76,6 +114,12 @@ const EmailMarketing = () => {
       setCampaigns([]);
       setWorkflows([]);
       setTemplates([]);
+      setDashboardStats({
+        totalCampaigns: 0,
+        activeWorkflows: 0,
+        emailsSent: 0,
+        avgOpenRate: 0,
+      });
     } finally {
       setLoading(false);
     }
@@ -101,19 +145,16 @@ const EmailMarketing = () => {
 
   const handleSaveWorkflow = async (workflowData) => {
     try {
-      const token = localStorage.getItem('supabase.auth.token');
-      const headers = { Authorization: `Bearer ${token}` };
-
       if (workflowData.id) {
         // Update existing workflow
-        await axios.put(`${API_BASE_URL}/api/email-marketing/workflows/${workflowData.id}`, workflowData, { headers });
+        await workflowsApi.update(workflowData.id, workflowData);
         toast({
           title: 'Success',
           description: 'Workflow updated successfully.',
         });
       } else {
         // Create new workflow
-        await axios.post(`${API_BASE_URL}/api/email-marketing/workflows`, workflowData, { headers });
+        await workflowsApi.create(workflowData);
         toast({
           title: 'Success',
           description: 'Workflow created successfully.',
@@ -158,9 +199,9 @@ const EmailMarketing = () => {
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center">
+      <div className="h-full min-h-screen flex items-center justify-center pt-[150px]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#7b1c14] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#761B14] mx-auto mb-4"></div>
           <p className="text-crm-text-secondary">Loading email marketing...</p>
         </div>
       </div>
@@ -185,21 +226,29 @@ const EmailMarketing = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-crm-text-primary">Email Marketing</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-crm-text-primary">Email Marketing</h1>
+            {isReadOnly() && <ViewOnlyBadge />}
+          </div>
           <p className="text-crm-text-secondary mt-1">
-            Create campaigns, automate workflows, and engage your audience
+            {isReadOnly()
+              ? 'View campaigns, workflows, and audience engagement - Read-only access'
+              : 'Create campaigns, automate workflows, and engage your audience'
+            }
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={handleCreateWorkflow} variant="outline" className="flex items-center gap-2">
-            <Zap className="w-4 h-4" />
-            New Workflow
-          </Button>
-          <Button onClick={handleCreateCampaign} className="flex items-center gap-2">
-            <Mail className="w-4 h-4" />
-            New Campaign
-          </Button>
-        </div>
+        {canCreate() && (
+          <div className="flex gap-2">
+            <Button onClick={handleCreateWorkflow} variant="outline" className="flex items-center gap-2">
+              <Zap className="w-4 h-4" />
+              New Workflow
+            </Button>
+            <Button onClick={handleCreateCampaign} className="flex items-center gap-2">
+              <Mail className="w-4 h-4" />
+              New Campaign
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Stats Cards */}
@@ -211,7 +260,7 @@ const EmailMarketing = () => {
             </div>
             <div>
               <p className="text-sm text-crm-text-secondary">Total Campaigns</p>
-              <p className="text-2xl font-bold text-crm-text-primary">24</p>
+              <p className="text-2xl font-bold text-crm-text-primary">{dashboardStats.totalCampaigns}</p>
             </div>
           </CardContent>
         </Card>
@@ -222,7 +271,7 @@ const EmailMarketing = () => {
             </div>
             <div>
               <p className="text-sm text-crm-text-secondary">Active Workflows</p>
-              <p className="text-2xl font-bold text-crm-text-primary">8</p>
+              <p className="text-2xl font-bold text-crm-text-primary">{dashboardStats.activeWorkflows}</p>
             </div>
           </CardContent>
         </Card>
@@ -233,7 +282,7 @@ const EmailMarketing = () => {
             </div>
             <div>
               <p className="text-sm text-crm-text-secondary">Emails Sent</p>
-              <p className="text-2xl font-bold text-crm-text-primary">12,458</p>
+              <p className="text-2xl font-bold text-crm-text-primary">{dashboardStats.emailsSent.toLocaleString()}</p>
             </div>
           </CardContent>
         </Card>
@@ -244,7 +293,7 @@ const EmailMarketing = () => {
             </div>
             <div>
               <p className="text-sm text-crm-text-secondary">Avg. Open Rate</p>
-              <p className="text-2xl font-bold text-crm-text-primary">28.4%</p>
+              <p className="text-2xl font-bold text-crm-text-primary">{dashboardStats.avgOpenRate}%</p>
             </div>
           </CardContent>
         </Card>
@@ -474,11 +523,11 @@ const EmailMarketing = () => {
                           <span className="text-crm-text-primary">{workflow.createdAt}</span>
                         </div>
                       </div>
-                      <div className="flex gap-2 mt-4">
+                      <div className="flex flex-wrap items-center gap-2 mt-4">
                         <Button
                           variant="outline"
                           size="sm"
-                          className="flex-1"
+                          className="min-w-[40px] flex-1 sm:flex-none"
                           onClick={() => handleEditWorkflow(workflow.id)}
                         >
                           <Edit className="w-4 h-4 mr-2" />
@@ -487,7 +536,7 @@ const EmailMarketing = () => {
                         <Button
                           variant={workflow.isActive ? "outline" : "default"}
                           size="sm"
-                          className="flex-1"
+                          className="min-w-[40px] flex-1 sm:flex-none"
                         >
                           {workflow.isActive ? (
                             <>

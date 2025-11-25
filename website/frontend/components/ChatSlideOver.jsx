@@ -142,7 +142,7 @@ export default function ChatSlideOver() {
       <div className="fixed top-3 right-[160px] z-50">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="relative h-10 w-10 flex items-center justify-center rounded-lg bg-[#7b1c14] text-white hover:bg-[#6b1a12] active:bg-[#5a1810] shadow-lg hover:shadow-xl hover:shadow-red-900/40 transition-all duration-200 group overflow-hidden"
+          className="relative h-10 w-10 flex items-center justify-center rounded-lg bg-[#761B14] text-white hover:bg-[#6b1a12] active:bg-[#5a1810] shadow-lg hover:shadow-xl hover:shadow-red-900/40 transition-all duration-200 group overflow-hidden"
           style={{ position: 'fixed', top: '12px', right: '160px' }}
         >
           <MessageSquare className="h-5 w-5 text-white group-hover:text-white transition-colors relative z-10" />
@@ -167,7 +167,7 @@ export default function ChatSlideOver() {
         style={{ maxHeight: 'calc(100vh - 6rem)' }}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-[#7b1c14] to-[#6b1a12] text-white px-4 py-3 rounded-t-lg">
+        <div className="bg-gradient-to-r from-[#761B14] to-[#6b1a12] text-white px-4 py-3 rounded-t-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <MessageSquare className="h-5 w-5" />
@@ -195,14 +195,14 @@ export default function ChatSlideOver() {
                   onClick={() => switchChannel(channel)}
                   className={`w-full flex items-center gap-2 px-2 py-2 rounded-lg text-sm transition-all ${
                     activeChannel.id === channel.id
-                      ? 'bg-[#7b1c14] text-white shadow-md'
+                      ? 'bg-[#761B14] text-white shadow-md'
                       : 'text-gray-700 hover:bg-gray-200'
                   }`}
                 >
                   <Hash className="h-3.5 w-3.5 flex-shrink-0" />
                   <span className="flex-1 text-left truncate">{channel.name}</span>
                   {channel.unread > 0 && activeChannel.id !== channel.id && (
-                    <span className="bg-[#7b1c14] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    <span className="bg-[#761B14] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                       {channel.unread}
                     </span>
                   )}
@@ -229,7 +229,7 @@ export default function ChatSlideOver() {
               {activeChannel.messages.map((msg) => (
                 <div key={msg.id} className="flex gap-3">
                   {/* Avatar */}
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-[#7b1c14] to-[#6b1a12] flex items-center justify-center text-white text-xs font-bold">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-[#761B14] to-[#6b1a12] flex items-center justify-center text-white text-xs font-bold">
                     {msg.avatar}
                   </div>
 
@@ -260,12 +260,12 @@ export default function ChatSlideOver() {
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                  className="flex-1 h-9 text-sm border-gray-300 focus:ring-[#7b1c14] focus:border-[#7b1c14]"
+                  className="flex-1 h-9 text-sm border-gray-300 focus:ring-[#761B14] focus:border-[#761B14]"
                 />
                 <Button
                   onClick={sendMessage}
                   size="sm"
-                  className="bg-[#7b1c14] hover:bg-[#6b1a12] h-9 px-3"
+                  className="bg-[#761B14] hover:bg-[#6b1a12] h-9 px-3"
                 >
                   <Send className="h-4 w-4" />
                 </Button>

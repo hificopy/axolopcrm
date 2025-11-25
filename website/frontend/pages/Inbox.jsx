@@ -41,13 +41,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/components/ui/use-toast';
-import axios from 'axios';
-import ComposeEmailModal from '@/components/ComposeEmailModal'; // Import ComposeEmailModal
-import MeetingsPanel from '@/components/MeetingsPanel'; // Import MeetingsPanel
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002';
+import api from './lib/api';
+import { leadsApi, contactsApi } from './lib/api';
+import ComposeEmailModal from './components/ComposeEmailModal'; // Import ComposeEmailModal
+import MeetingsPanel from './components/MeetingsPanel'; // Import MeetingsPanel
+import { useAgency } from '@/hooks/useAgency';
 
 const Inbox = () => {
+  const { canCreate } = useAgency();
   const [emails, setEmails] = useState([]);
   const [selectedEmail, setSelectedEmail] = useState(null);
   const [activeFolder, setActiveFolder] = useState('inbox');
@@ -71,10 +72,7 @@ const Inbox = () => {
 
   const checkGmailConnection = useCallback(async () => {
     try {
-      const token = localStorage.getItem('supabase.auth.token');
-      const response = await axios.get(`${API_BASE_URL}/api/gmail/profile`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await api.get('/api/gmail/profile');
       if (response.data && response.data.emailAddress) {
         setIsGmailConnected(true);
       }
@@ -87,10 +85,7 @@ const Inbox = () => {
   const fetchEmails = useCallback(async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('supabase.auth.token');
-      const response = await axios.get(`${API_BASE_URL}/api/inbox`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await api.get('/api/inbox');
       setEmails(response.data);
     } catch (error) {
       console.error('Error fetching emails:', error);
@@ -124,12 +119,7 @@ const Inbox = () => {
     // Mark as read if not already
     if (!email.read) {
       try {
-        const token = localStorage.getItem('supabase.auth.token');
-        const response = await axios.put(
-          `${API_BASE_URL}/api/inbox/${email.id}`,
-          { read: true },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const response = await api.put(`/api/inbox/${email.id}`, { read: true });
         setEmails((prevEmails) =>
           prevEmails.map((e) => (e.id === email.id ? { ...e, read: true } : e))
         );
@@ -146,7 +136,6 @@ const Inbox = () => {
   };
 
   const handleAction = async (action, emailId) => {
-    const token = localStorage.getItem('supabase.auth.token');
     let updateData = {};
     let successMessage = '';
     let errorMessage = '';
@@ -185,11 +174,7 @@ const Inbox = () => {
     }
 
     try {
-      const response = await axios.put(
-        `${API_BASE_URL}/api/inbox/${emailId}`,
-        updateData,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await api.put(`/api/inbox/${emailId}`, updateData);
       setEmails((prevEmails) =>
         prevEmails.map((e) => (e.id === emailId ? response.data : e))
       );
@@ -208,7 +193,6 @@ const Inbox = () => {
 
   const handleConvertLead = async (email) => {
     try {
-      const token = localStorage.getItem('supabase.auth.token');
       const leadData = {
         name: email.sender,
         email: email.sender_email, // Use sender_email from backend
@@ -224,9 +208,7 @@ const Inbox = () => {
           identified_descriptors: email.potential?.descriptors,
         },
       };
-      const response = await axios.post(`${API_BASE_URL}/api/leads`, leadData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await leadsApi.create(leadData);
       toast({
         title: 'Success',
         description: `Lead "${response.data.name}" created successfully.`,
@@ -245,7 +227,6 @@ const Inbox = () => {
 
   const handleAddContact = async (email) => {
     try {
-      const token = localStorage.getItem('supabase.auth.token');
       const contactData = {
         first_name: email.sender.split(' ')[0],
         last_name: email.sender.split(' ').slice(1).join(' ') || '',
@@ -259,9 +240,7 @@ const Inbox = () => {
           identified_descriptors: email.potential?.descriptors,
         },
       };
-      const response = await axios.post(`${API_BASE_URL}/api/contacts`, contactData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await contactsApi.create(contactData);
       toast({
         title: 'Success',
         description: `Contact "${response.data.first_name} ${response.data.last_name}" created successfully.`,
@@ -281,10 +260,7 @@ const Inbox = () => {
   const handleSyncGmail = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('supabase.auth.token');
-      const response = await axios.post(`${API_BASE_URL}/api/inbox/sync-gmail`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await api.post('/api/inbox/sync-gmail');
       toast({
         title: 'Sync Complete',
         description: `${response.data.count} emails synced from Gmail.`,
@@ -302,9 +278,28 @@ const Inbox = () => {
     }
   };
 
-  const handleConnectGmail = () => {
-    const token = localStorage.getItem('supabase.auth.token');
-    window.location.href = `${API_BASE_URL}/api/gmail/auth?token=${token}`; // Pass token for backend auth
+  const handleConnectGmail = async () => {
+    try {
+      // Get the current session token for auth handoff
+      const { data: { session } } = await import('@supabase/supabase-js').then(async ({ createClient }) => {
+        const supabase = createClient(
+          import.meta.env.VITE_SUPABASE_URL,
+          import.meta.env.VITE_SUPABASE_ANON_KEY
+        );
+        return supabase.auth.getSession();
+      });
+
+      const token = session?.access_token;
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002';
+      window.location.href = `${API_BASE_URL}/api/gmail/auth?token=${token}`; // Pass token for backend auth
+    } catch (error) {
+      console.error('Error connecting Gmail:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to connect Gmail. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const getFolderCount = (folder) => emails.filter((email) => email.labels.includes(folder)).length;
@@ -314,14 +309,16 @@ const Inbox = () => {
     <div className="flex h-full bg-[#0f1014]">
       {/* Left Sidebar - Folders */}
       <div className="w-48 md:w-52 border-r border-gray-800 bg-[#13151a] flex flex-col hidden sm:flex">
-        <div className="p-3">
-          <Button
-            className="w-full flex items-center justify-center gap-2 bg-[#7b1c14] hover:bg-[#6b1a12] text-white"
-            onClick={() => setIsComposeModalOpen(true)}
-          >
-            <Plus className="h-4 w-4" /> Compose
-          </Button>
-        </div>
+        {canCreate() && (
+          <div className="p-3">
+            <Button
+              className="w-full flex items-center justify-center gap-2 bg-[#761B14] hover:bg-[#6b1a12] text-white"
+              onClick={() => setIsComposeModalOpen(true)}
+            >
+              <Plus className="h-4 w-4" /> Compose
+            </Button>
+          </div>
+        )}
         <ScrollArea className="flex-1 py-2">
           <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
             <a
@@ -429,7 +426,7 @@ const Inbox = () => {
                   <TabIcon className="h-4 w-4" />
                   <span className="text-sm font-medium">{tab.label}</span>
                   {tab.count > 0 && (
-                    <Badge className="ml-1 bg-[#7b1c14] text-white text-xs px-1.5 py-0">
+                    <Badge className="ml-1 bg-[#761B14] text-white text-xs px-1.5 py-0">
                       {tab.count}
                     </Badge>
                   )}
@@ -571,11 +568,11 @@ const Inbox = () => {
                     <p className="text-xs text-crm-text-secondary mt-1">
                       Keywords: {selectedEmail.potential.descriptors.join(', ')}
                     </p>
-                    <div className="flex gap-2 mt-4">
-                      <Button size="sm" onClick={() => handleConvertLead(selectedEmail)}>
+                    <div className="flex flex-wrap items-center gap-2 mt-4">
+                      <Button size="sm" className="min-w-[40px] flex-1 sm:flex-none" onClick={() => handleConvertLead(selectedEmail)}>
                         <Plus className="h-4 w-4 mr-2" /> Convert to Lead
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => handleAddContact(selectedEmail)}>
+                      <Button variant="outline" size="sm" className="min-w-[40px] flex-1 sm:flex-none" onClick={() => handleAddContact(selectedEmail)}>
                         <User className="h-4 w-4 mr-2" /> Add to Contact
                       </Button>
                     </div>

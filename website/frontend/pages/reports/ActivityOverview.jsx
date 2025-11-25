@@ -43,7 +43,7 @@ export default function ActivityOverview() {
             <Button
               variant="outline"
               size="default"
-              className="bg-[#7b1c14] hover:bg-[#6b1a12] text-white border-none"
+              className="bg-[#761B14] hover:bg-[#6b1a12] text-white border-none"
             >
               Save As...
             </Button>
@@ -67,7 +67,7 @@ export default function ActivityOverview() {
             <select
               value={timeRange}
               onChange={(e) => setTimeRange(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#7b1c14]"
+              className="px-3 py-1.5 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#761B14]"
             >
               <option>This Week</option>
               <option>This Month</option>
@@ -81,7 +81,7 @@ export default function ActivityOverview() {
             <select
               value={compareMode}
               onChange={(e) => setCompareMode(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#7b1c14]"
+              className="px-3 py-1.5 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#761B14]"
             >
               <option value="">Compare to</option>
               <option>Previous Period</option>
@@ -94,7 +94,7 @@ export default function ActivityOverview() {
             <select
               value={selectedLeads}
               onChange={(e) => setSelectedLeads(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#7b1c14]"
+              className="px-3 py-1.5 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#761B14]"
             >
               <option>All Leads</option>
               <option>My Leads</option>
@@ -107,7 +107,7 @@ export default function ActivityOverview() {
             <select
               value={selectedUsers}
               onChange={(e) => setSelectedUsers(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#7b1c14]"
+              className="px-3 py-1.5 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#761B14]"
             >
               <option>All Users with data</option>
               <option>Active Users</option>
@@ -146,7 +146,7 @@ export default function ActivityOverview() {
           ))}
 
           {/* Add a tile button */}
-          <Card className="bg-white border-2 border-dashed border-gray-300 hover:border-[#7b1c14] hover:bg-gray-50 transition-colors cursor-pointer">
+          <Card className="bg-white border-2 border-dashed border-gray-300 hover:border-[#761B14] hover:bg-gray-50 transition-colors cursor-pointer">
             <CardContent className="p-6 flex flex-col items-center justify-center h-full min-h-[160px]">
               <Plus className="h-8 w-8 text-gray-400 mb-2" />
               <span className="text-sm text-gray-600">Add a tile</span>

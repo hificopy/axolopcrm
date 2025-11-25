@@ -56,7 +56,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import axios from 'axios';
-import SEO from '@/components/SEO';
+import SEO from './components/SEO';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -143,12 +143,12 @@ const Landing = () => {
 
   // Dynamic SEO content based on affiliate
   const seoTitle = affiliateName
-    ? `Join ${affiliateName}'s Team - Axolop CRM | The New Age CRM with Local AI Second Brain`
-    : 'Axolop CRM - The New Age CRM with Local AI Second Brain | All-in-One Platform';
+    ? `Join ${affiliateName}'s Team - Axolop | The New Age CRM with Local AI Second Brain`
+    : 'Axolop - The New Age CRM with Local AI Second Brain | All-in-One Platform';
 
   const seoDescription = affiliateName
-    ? `Join ${affiliateName}'s team with a 30-day free trial of Axolop CRM. The New Age CRM with Local AI Second Brain. All-in-one platform replacing 10+ SaaS tools.`
-    : 'Axolop CRM: The New Age CRM with Local AI Second Brain. Replace 10+ tools with our all-in-one platform. HubSpot competitor for ECOMMERCE, B2B BUSINESS, REAL ESTATE. Features: AI assistant, Project Management, Mind Maps, Marketing Automation.';
+    ? `Join ${affiliateName}'s team with a 30-day free trial of Axolop. The New Age CRM with Local AI Second Brain. All-in-one platform replacing 10+ SaaS tools.`
+    : 'Axolop: The New Age CRM with Local AI Second Brain. Replace 10+ tools with our all-in-one platform. HubSpot competitor for ECOMMERCE, B2B BUSINESS, REAL ESTATE. Features: AI assistant, Project Management, Mind Maps, Marketing Automation.';
 
   useEffect(() => {
     // GSAP animations for hero section
@@ -227,8 +227,8 @@ const Landing = () => {
     <div className="min-h-screen bg-black text-white">
       {/* Dynamic SEO Meta Tags */}
       <SEO
-        title="Axolop CRM - The New Age CRM with Local AI Second Brain | All-in-One Platform"
-        description="Axolop CRM: The New Age CRM with Local AI Second Brain. Replace 10+ tools with our all-in-one platform. HubSpot competitor for ECOMMERCE, B2B BUSINESS, REAL ESTATE. Features: AI assistant, Project Management, Mind Maps, Marketing Automation."
+        title="Axolop - The New Age CRM with Local AI Second Brain | All-in-One Platform"
+        description="Axolop: The New Age CRM with Local AI Second Brain. Replace 10+ tools with our all-in-one platform. HubSpot competitor for ECOMMERCE, B2B BUSINESS, REAL ESTATE. Features: AI assistant, Project Management, Mind Maps, Marketing Automation."
         keywords="CRM, Axolop, HubSpot alternative, AI CRM, sales automation, marketing automation, project management, mind maps, business automation, GoHighLevel competitor, e-commerce CRM, B2B CRM, real estate CRM, AI assistant"
         affiliateName={affiliateName}
       />
@@ -241,7 +241,7 @@ const Landing = () => {
             <div className="flex items-center">
               <div className="relative group">
                 {/* Subtle Accent Glow */}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#7b1c14]/0 via-[#7b1c14]/20 to-[#7b1c14]/0 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#761B14]/0 via-[#761B14]/20 to-[#761B14]/0 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                 {/* Logo */}
                 <img
@@ -281,7 +281,7 @@ const Landing = () => {
               </Button>
               <Button
                 onClick={handleGetStarted}
-                className="relative overflow-hidden bg-gradient-to-br from-[#7b1c14]/40 via-[#7b1c14]/30 to-[#7b1c14]/20 hover:from-[#7b1c14]/60 hover:via-[#7b1c14]/50 hover:to-[#7b1c14]/40 text-white border-2 border-[#7b1c14]/60 shadow-lg backdrop-blur-xl transition-all duration-300"
+                className="relative overflow-hidden bg-gradient-to-br from-[#761B14]/40 via-[#761B14]/30 to-[#761B14]/20 hover:from-[#761B14]/60 hover:via-[#761B14]/50 hover:to-[#761B14]/40 text-white border-2 border-[#761B14]/60 shadow-lg backdrop-blur-xl transition-all duration-300"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/20 pointer-events-none" />
                 <span className="relative z-10 flex items-center">
@@ -300,7 +300,7 @@ const Landing = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="fixed top-16 left-0 right-0 z-40 bg-gradient-to-r from-[#7b1c14] via-[#8b2214] to-[#7b1c14] border-b-2 border-[#ff6b4a]/30 shadow-2xl backdrop-blur-xl"
+          className="fixed top-16 left-0 right-0 z-40 bg-gradient-to-r from-[#761B14] via-[#8b2214] to-[#761B14] border-b-2 border-[#ff6b4a]/30 shadow-2xl backdrop-blur-xl"
         >
           <div className="max-w-7xl mx-auto px-6 lg:px-8 py-6 text-center">
             <div className="flex flex-col items-center gap-2">
@@ -323,8 +323,8 @@ const Landing = () => {
       <section ref={heroRef} className={`${affiliateName ? 'pt-48' : 'pt-28'} pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden relative`}>
         {/* Background Effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#7b1c14]/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#7b1c14]/5 rounded-full blur-3xl"></div>
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#761B14]/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#761B14]/5 rounded-full blur-3xl"></div>
         </div>
 
         <div className="max-w-7xl mx-auto relative z-10">
@@ -335,29 +335,25 @@ const Landing = () => {
               transition={{ duration: 0.5 }}
               className="mb-6"
             >
-              <Badge className="relative overflow-hidden bg-gradient-to-r from-[#7b1c14]/40 via-[#7b1c14]/30 to-[#7b1c14]/20 text-white border-2 border-[#7b1c14]/60 backdrop-blur-xl px-4 py-2 text-sm font-bold shadow-lg">
+              <Badge className="relative overflow-hidden bg-gradient-to-r from-[#761B14]/40 via-[#761B14]/30 to-[#761B14]/20 text-white border-2 border-[#761B14]/60 backdrop-blur-xl px-4 py-2 text-sm font-bold shadow-lg">
                 <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/20 pointer-events-none" />
                 <span className="relative z-10">The Break Up With Your Tools CRM</span>
               </Badge>
             </motion.div>
 
-            <h1 className="hero-title text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight text-white drop-shadow-2xl" style={{ opacity: 1 }}>
-              The New Age of CRMs
-              <br />
-              with Local AI Second Brain
+            <h1 className="hero-title text-3xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight text-white drop-shadow-2xl" style={{ opacity: 1 }}>
+              Replace all your agency's tools with Axolop&trade;
             </h1>
 
-            <p className="hero-subtitle text-xl sm:text-2xl text-gray-400 mb-8 max-w-4xl mx-auto font-normal" style={{ opacity: 1 }}>
-              Tired of juggling GoHighLevel, ClickUp, Notion, Miro, and 10+ disconnected tools?
-              <br />
-              We do way more than a traditional CRM: Project Management, Mind Maps, Marketing Automation, and a Local AI Second Brain, all unified. Built for agency owners ready to raise 20% of profit margins.
+            <p className="hero-subtitle text-lg sm:text-xl text-gray-400 mb-8 max-w-4xl mx-auto font-normal" style={{ opacity: 1 }}>
+              Easily replace 10+ business tools with one AI-powered CRM platform with integrated marketing automation, project management, and AI assistant in minutes. No switching between apps required. Built for agency owners.
             </p>
 
             <div className="hero-cta flex flex-col sm:flex-row items-center justify-center gap-4 mb-6" style={{ opacity: 1 }}>
               <Button
                 size="lg"
                 onClick={handleGetStarted}
-                className="relative overflow-hidden bg-gradient-to-br from-[#7b1c14]/40 via-[#7b1c14]/30 to-[#7b1c14]/20 hover:from-[#7b1c14]/60 hover:via-[#7b1c14]/50 hover:to-[#7b1c14]/40 text-white text-lg px-10 py-7 rounded-xl border-2 border-[#7b1c14]/60 shadow-2xl backdrop-blur-xl transition-all duration-300 transform hover:scale-105"
+                className="relative overflow-hidden bg-gradient-to-br from-[#761B14]/40 via-[#761B14]/30 to-[#761B14]/20 hover:from-[#761B14]/60 hover:via-[#761B14]/50 hover:to-[#761B14]/40 text-white text-lg px-10 py-7 rounded-xl border-2 border-[#761B14]/60 shadow-2xl backdrop-blur-xl transition-all duration-300 transform hover:scale-105"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/20 pointer-events-none" />
                 <span className="relative z-10 flex items-center font-bold">
@@ -370,7 +366,7 @@ const Landing = () => {
               <Button
                 size="lg"
                 variant="outline"
-                className="relative overflow-hidden text-white border-2 border-gray-700/50 hover:border-[#7b1c14]/60 bg-white/5 hover:bg-[#7b1c14]/10 text-lg px-10 py-7 rounded-xl backdrop-blur-xl transition-all duration-300"
+                className="relative overflow-hidden text-white border-2 border-gray-700/50 hover:border-[#761B14]/60 bg-white/5 hover:bg-[#761B14]/10 text-lg px-10 py-7 rounded-xl backdrop-blur-xl transition-all duration-300"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-black/10 pointer-events-none" />
                 <span className="relative z-10 flex items-center">
@@ -392,7 +388,7 @@ const Landing = () => {
           {/* Real App Dashboard Preview - Based on Actual Screenshot */}
           <div className="hero-dashboard relative max-w-6xl mx-auto" style={{ willChange: 'transform, opacity' }}>
             {/* Glow Effect */}
-            <div className="absolute -inset-4 bg-gradient-to-r from-[#7b1c14]/20 via-[#a03a2e]/20 to-[#7b1c14]/20 rounded-3xl blur-2xl"></div>
+            <div className="absolute -inset-4 bg-gradient-to-r from-[#761B14]/20 via-[#9A392D]/20 to-[#761B14]/20 rounded-3xl blur-2xl"></div>
 
             <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-800/50">
               {/* macOS Window Controls */}
@@ -419,11 +415,11 @@ const Landing = () => {
                   <div className="px-3 py-4 border-b border-gray-800/30">
                     <div className="flex items-center justify-between gap-2 mb-3">
                       {/* CRM - Active */}
-                      <button className="relative flex flex-col items-center justify-center flex-1 h-16 rounded-xl backdrop-blur-xl bg-gradient-to-br from-[#7b1c14]/40 via-[#7b1c14]/30 to-[#7b1c14]/20 border-2 border-[#7b1c14]/60 shadow-lg transition-all duration-300 hover:scale-105 overflow-hidden">
+                      <button className="relative flex flex-col items-center justify-center flex-1 h-16 rounded-xl backdrop-blur-xl bg-gradient-to-br from-[#761B14]/40 via-[#761B14]/30 to-[#761B14]/20 border-2 border-[#761B14]/60 shadow-lg transition-all duration-300 hover:scale-105 overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/20 pointer-events-none" />
                         <BarChart3 className="h-5 w-5 text-white relative z-10 mb-1" />
                         <span className="text-[9px] font-bold text-white relative z-10">CRM</span>
-                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-[#7b1c14] rounded-full" />
+                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-[#761B14] rounded-full" />
                       </button>
 
                       {/* Chat - Locked */}
@@ -456,7 +452,7 @@ const Landing = () => {
 
                     {/* Dashboard & Calendar */}
                     <div className="grid grid-cols-2 gap-2 mt-2">
-                      <button className="flex items-center justify-center py-2 px-2 rounded-lg bg-gradient-to-r from-[#7b1c14]/30 via-[#7b1c14]/20 to-transparent text-white border border-[#7b1c14] text-xs font-medium">
+                      <button className="flex items-center justify-center py-2 px-2 rounded-lg bg-gradient-to-r from-[#761B14]/30 via-[#761B14]/20 to-transparent text-white border border-[#761B14] text-xs font-medium">
                         <LayoutDashboard className="h-3.5 w-3.5 mr-1.5" />
                         Dashboard
                       </button>
@@ -708,7 +704,7 @@ const Landing = () => {
                       {/* Total Revenue */}
                       <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                         <div className="text-sm text-gray-600 mb-2">TOTAL REVENUE</div>
-                        <div className="text-4xl font-bold text-[#7b1c14] mb-2">$125k</div>
+                        <div className="text-4xl font-bold text-[#761B14] mb-2">$125k</div>
                         <div className="flex items-center text-sm text-green-600 font-semibold">
                           <TrendingUp className="h-4 w-4 mr-1" />
                           +12.5%
@@ -763,7 +759,7 @@ const Landing = () => {
                       <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 rounded-xl bg-[#7b1c14] flex items-center justify-center">
+                            <div className="w-10 h-10 rounded-xl bg-[#761B14] flex items-center justify-center">
                               <DollarSign className="h-5 w-5 text-white" />
                             </div>
                             <div>
@@ -779,11 +775,11 @@ const Landing = () => {
                         {/* Simplified Chart Visual */}
                         <div className="h-32 bg-gradient-to-br from-red-50 to-rose-50 rounded-lg flex items-end px-4 pb-4">
                           <div className="flex-1 h-full flex items-end justify-around">
-                            <div className="w-8 bg-gradient-to-t from-[#7b1c14] to-[#a03a2e] rounded-t" style={{ height: '60%' }}></div>
-                            <div className="w-8 bg-gradient-to-t from-[#7b1c14] to-[#a03a2e] rounded-t" style={{ height: '75%' }}></div>
-                            <div className="w-8 bg-gradient-to-t from-[#7b1c14] to-[#a03a2e] rounded-t" style={{ height: '65%' }}></div>
-                            <div className="w-8 bg-gradient-to-t from-[#7b1c14] to-[#a03a2e] rounded-t" style={{ height: '85%' }}></div>
-                            <div className="w-8 bg-gradient-to-t from-[#7b1c14] to-[#a03a2e] rounded-t" style={{ height: '90%' }}></div>
+                            <div className="w-8 bg-gradient-to-t from-[#761B14] to-[#9A392D] rounded-t" style={{ height: '60%' }}></div>
+                            <div className="w-8 bg-gradient-to-t from-[#761B14] to-[#9A392D] rounded-t" style={{ height: '75%' }}></div>
+                            <div className="w-8 bg-gradient-to-t from-[#761B14] to-[#9A392D] rounded-t" style={{ height: '65%' }}></div>
+                            <div className="w-8 bg-gradient-to-t from-[#761B14] to-[#9A392D] rounded-t" style={{ height: '85%' }}></div>
+                            <div className="w-8 bg-gradient-to-t from-[#761B14] to-[#9A392D] rounded-t" style={{ height: '90%' }}></div>
                           </div>
                         </div>
                         <div className="grid grid-cols-3 gap-4 mt-4 text-xs">
@@ -797,7 +793,7 @@ const Landing = () => {
                           </div>
                           <div className="text-center">
                             <div className="text-gray-500">Lowest</div>
-                            <div className="font-bold text-[#7b1c14]">$95,000</div>
+                            <div className="font-bold text-[#761B14]">$95,000</div>
                           </div>
                         </div>
                       </div>
@@ -897,7 +893,7 @@ const Landing = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08, duration: 0.4 }}
-                className="text-2xl font-bold text-gray-600 hover:text-[#7b1c14] transition-all duration-300 cursor-pointer"
+                className="text-2xl font-bold text-gray-600 hover:text-[#761B14] transition-all duration-300 cursor-pointer"
               >
                 {company}
               </motion.div>
@@ -922,8 +918,8 @@ const Landing = () => {
               viewport={{ once: true }}
               className="inline-block mb-5"
             >
-              <div className="px-4 py-2 rounded-full bg-gradient-to-r from-[#7b1c14]/20 via-[#d4463c]/20 to-[#7b1c14]/20 border border-[#7b1c14]/40">
-                <span className="text-sm font-semibold bg-gradient-to-r from-[#7b1c14] via-[#d4463c] to-[#7b1c14] bg-clip-text text-transparent">
+              <div className="px-4 py-2 rounded-full bg-gradient-to-r from-[#761B14]/20 via-[#d4463c]/20 to-[#761B14]/20 border border-[#761B14]/40">
+                <span className="text-sm font-semibold bg-gradient-to-r from-[#761B14] via-[#d4463c] to-[#761B14] bg-clip-text text-transparent">
                   THE NEW AGE OF CRMS
                 </span>
               </div>
@@ -958,15 +954,15 @@ const Landing = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="group relative overflow-hidden bg-gradient-to-br from-gray-900/50 to-black/50 backdrop-blur-sm rounded-3xl p-10 border-2 border-gray-800/50 hover:border-[#7b1c14]/60 transition-all duration-500 hover:shadow-[0_20px_70px_-10px_rgba(212,70,60,0.5)]"
+              className="group relative overflow-hidden bg-gradient-to-br from-gray-900/50 to-black/50 backdrop-blur-sm rounded-3xl p-10 border-2 border-gray-800/50 hover:border-[#761B14]/60 transition-all duration-500 hover:shadow-[0_20px_70px_-10px_rgba(212,70,60,0.5)]"
             >
               {/* Brand color glow */}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#7b1c14]/20 dark:bg-[#d4463c]/20 blur-3xl rounded-full" />
+                <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#761B14]/20 dark:bg-[#d4463c]/20 blur-3xl rounded-full" />
               </div>
 
               <div className="relative z-10">
-                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#7b1c14] to-[#d4463c] flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500 shadow-2xl shadow-[#7b1c14]/50">
+                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#761B14] to-[#d4463c] flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500 shadow-2xl shadow-[#761B14]/50">
                   <Brain className="h-10 w-10 text-white" />
                 </div>
                 <h3 className="text-3xl font-bold text-white mb-4">Local AI Second Brain</h3>
@@ -981,7 +977,7 @@ const Landing = () => {
                     'Semantic search across all business data'
                   ].map((feature, i) => (
                     <li key={i} className="flex items-start gap-3 text-gray-400 group-hover:text-white transition-colors">
-                      <div className="w-2 h-2 rounded-full bg-[#7b1c14] mt-2 flex-shrink-0 group-hover:shadow-lg group-hover:shadow-[#7b1c14]/50 transition-shadow" />
+                      <div className="w-2 h-2 rounded-full bg-[#761B14] mt-2 flex-shrink-0 group-hover:shadow-lg group-hover:shadow-[#761B14]/50 transition-shadow" />
                       <span className="text-base">{feature}</span>
                     </li>
                   ))}
@@ -1112,7 +1108,7 @@ const Landing = () => {
             <Button
               size="lg"
               onClick={handleGetStarted}
-              className="relative overflow-hidden bg-gradient-to-r from-[#7b1c14] via-[#d4463c] to-[#7b1c14] text-white text-lg px-12 py-8 rounded-2xl border-2 border-[#7b1c14] shadow-2xl transition-all duration-300 transform hover:scale-105 group"
+              className="relative overflow-hidden bg-gradient-to-r from-[#761B14] via-[#d4463c] to-[#761B14] text-white text-lg px-12 py-8 rounded-2xl border-2 border-[#761B14] shadow-2xl transition-all duration-300 transform hover:scale-105 group"
             >
               <span className="relative z-10 flex items-center font-bold text-xl">
                 Experience the new age CRM
@@ -1138,8 +1134,8 @@ const Landing = () => {
               viewport={{ once: true }}
               className="inline-block mb-5"
             >
-              <div className="px-4 py-2 rounded-full bg-gradient-to-r from-[#7b1c14]/10 via-[#d4463c]/10 to-[#7b1c14]/10 border border-[#7b1c14]/20">
-                <span className="text-sm font-semibold bg-gradient-to-r from-[#7b1c14] via-[#d4463c] to-[#7b1c14] bg-clip-text text-transparent">
+              <div className="px-4 py-2 rounded-full bg-gradient-to-r from-[#761B14]/10 via-[#d4463c]/10 to-[#761B14]/10 border border-[#761B14]/20">
+                <span className="text-sm font-semibold bg-gradient-to-r from-[#761B14] via-[#d4463c] to-[#761B14] bg-clip-text text-transparent">
                   100+ FEATURES
                 </span>
               </div>
@@ -1149,7 +1145,7 @@ const Landing = () => {
                 Everything you need in one
               </span>
               <br />
-              <span className="bg-gradient-to-r from-[#7b1c14] via-[#d4463c] to-[#7b1c14] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#761B14] via-[#d4463c] to-[#761B14] bg-clip-text text-transparent">
                 converged workspace
               </span>
             </h2>
@@ -1167,11 +1163,11 @@ const Landing = () => {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.01, duration: 0.3 }}
-                className="group relative overflow-hidden bg-gray-900/50 rounded-2xl p-5 border border-gray-800/50 hover:border-[#7b1c14]/50 hover:bg-gray-900/80 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-[#7b1c14]/20"
+                className="group relative overflow-hidden bg-gray-900/50 rounded-2xl p-5 border border-gray-800/50 hover:border-[#761B14]/50 hover:bg-gray-900/80 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-[#761B14]/20"
               >
                 <div className="relative z-10">
-                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#7b1c14]/20 to-[#d4463c]/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
-                    <Icon className="h-5 w-5 text-[#d4463c] group-hover:text-[#7b1c14] transition-colors" />
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#761B14]/20 to-[#d4463c]/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
+                    <Icon className="h-5 w-5 text-[#d4463c] group-hover:text-[#761B14] transition-colors" />
                   </div>
                   <h3 className="text-xs font-medium text-gray-400 group-hover:text-white transition-colors leading-tight">{feature}</h3>
                 </div>
@@ -1186,13 +1182,13 @@ const Landing = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="group relative overflow-hidden bg-gradient-to-br from-gray-900/50 to-black/50 backdrop-blur-sm rounded-3xl p-10 border-2 border-gray-800/50 hover:border-[#7b1c14]/60 transition-all duration-500 hover:shadow-[0_20px_70px_-10px_rgba(123,28,20,0.4)]"
+              className="group relative overflow-hidden bg-gradient-to-br from-gray-900/50 to-black/50 backdrop-blur-sm rounded-3xl p-10 border-2 border-gray-800/50 hover:border-[#761B14]/60 transition-all duration-500 hover:shadow-[0_20px_70px_-10px_rgba(123,28,20,0.4)]"
             >
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
                 <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#d4463c]/20 blur-3xl rounded-full" />
               </div>
               <div className="relative z-10">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#7b1c14] to-[#d4463c] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-[#7b1c14]/30">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#761B14] to-[#d4463c] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-[#761B14]/30">
                   <BarChart3 className="h-8 w-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-3">Complete CRM & Sales</h3>
@@ -1270,7 +1266,7 @@ const Landing = () => {
               viewport={{ once: true }}
               className="inline-block mb-8"
             >
-              <Badge className="relative overflow-hidden bg-[#7b1c14]/20 text-white border border-[#7b1c14]/40 backdrop-blur-xl px-6 py-3 text-sm font-bold shadow-lg hover:bg-[#7b1c14]/30 transition-all">
+              <Badge className="relative overflow-hidden bg-[#761B14]/20 text-white border border-[#761B14]/40 backdrop-blur-xl px-6 py-3 text-sm font-bold shadow-lg hover:bg-[#761B14]/30 transition-all">
                 <span className="relative z-10">The All-in-One Platform</span>
               </Badge>
             </motion.div>
@@ -1312,7 +1308,7 @@ const Landing = () => {
                   transition={{ delay: i * 0.06 }}
                   className="group relative overflow-hidden bg-gray-900/60 backdrop-blur-sm rounded-xl p-4 border border-gray-800/60 flex items-center justify-between hover:border-[#d4463c]/40 hover:bg-gray-900/80 transition-all duration-300 shadow-sm hover:shadow-md"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#7b1c14]/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#761B14]/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="flex-1 relative z-10">
                     <div className="font-semibold text-white text-base group-hover:text-gray-100 transition-colors">
                       {tool.name}
@@ -1325,7 +1321,7 @@ const Landing = () => {
                   </div>
                 </motion.div>
               ))}
-              <div className="relative overflow-hidden bg-gradient-to-r from-[#7b1c14]/30 to-[#d4463c]/30 backdrop-blur-sm rounded-xl p-5 border-2 border-[#d4463c]/40 flex items-center justify-between font-bold text-xl shadow-lg mt-4">
+              <div className="relative overflow-hidden bg-gradient-to-r from-[#761B14]/30 to-[#d4463c]/30 backdrop-blur-sm rounded-xl p-5 border-2 border-[#d4463c]/40 flex items-center justify-between font-bold text-xl shadow-lg mt-4">
                 <span className="text-white relative z-10">Total Monthly Cost:</span>
                 <span className="text-white text-2xl relative z-10">$1,524</span>
               </div>
@@ -1341,10 +1337,10 @@ const Landing = () => {
                 className="relative overflow-hidden bg-gradient-to-br from-gray-900/80 via-gray-900/60 to-gray-900/80 rounded-3xl p-10 border-2 border-[#d4463c]/40 shadow-[0_20px_80px_-20px_rgba(123,28,20,0.4)] hover:shadow-[0_30px_100px_-20px_rgba(212,70,60,0.6)] transition-all duration-500"
               >
                 {/* Subtle Shine Effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#7b1c14]/10 via-transparent to-[#14787b]/5 opacity-50"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-[#761B14]/10 via-transparent to-[#14787b]/5 opacity-50"></div>
 
                 <div className="relative z-10">
-                  <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-[#7b1c14] to-[#d4463c] rounded-2xl flex items-center justify-center shadow-xl transform hover:scale-110 hover:rotate-3 transition-transform duration-300">
+                  <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-[#761B14] to-[#d4463c] rounded-2xl flex items-center justify-center shadow-xl transform hover:scale-110 hover:rotate-3 transition-transform duration-300">
                     <img
                       src="/axolop-logo.png"
                       alt="Axolop"
@@ -1357,7 +1353,7 @@ const Landing = () => {
                   </h3>
 
                   <div className="mb-2">
-                    <span className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#7b1c14] via-[#d4463c] to-[#7b1c14]">$149</span>
+                    <span className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#761B14] via-[#d4463c] to-[#761B14]">$149</span>
                     <span className="text-xl text-gray-400">/mo</span>
                   </div>
 
@@ -1388,7 +1384,7 @@ const Landing = () => {
 
                   <Button
                     onClick={handleGetStarted}
-                    className="w-full bg-gradient-to-r from-[#7b1c14] to-[#d4463c] hover:from-[#d4463c] hover:to-[#7b1c14] text-white text-base py-6 rounded-xl shadow-lg transform hover:scale-105 transition-all font-semibold"
+                    className="w-full bg-gradient-to-r from-[#761B14] to-[#d4463c] hover:from-[#d4463c] hover:to-[#761B14] text-white text-base py-6 rounded-xl shadow-lg transform hover:scale-105 transition-all font-semibold"
                   >
                     Start Free Forever
                     <ArrowRight className="ml-2 h-5 w-5" />
@@ -1412,7 +1408,7 @@ const Landing = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <div className="w-24 h-24 mx-auto mb-8 bg-gradient-to-br from-[#7b1c14] to-[#d4463c] rounded-2xl flex items-center justify-center shadow-lg border-2 border-[#d4463c]/40">
+            <div className="w-24 h-24 mx-auto mb-8 bg-gradient-to-br from-[#761B14] to-[#d4463c] rounded-2xl flex items-center justify-center shadow-lg border-2 border-[#d4463c]/40">
               <Brain className="h-12 w-12 text-white" />
             </div>
 
@@ -1420,7 +1416,7 @@ const Landing = () => {
               <span className="text-white">A new era of business,</span>
               <br />
               <span className="text-white">with </span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#7b1c14] via-[#d4463c] to-[#7b1c14]">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#761B14] via-[#d4463c] to-[#761B14]">
                 AI Agents
               </span>
             </h2>
@@ -1437,8 +1433,8 @@ const Landing = () => {
                   icon: Brain,
                   label: '@AI Agent',
                   desc: 'Your 24/7 intelligent assistant that never sleeps',
-                  gradient: 'from-[#7b1c14] to-[#d4463c]',
-                  color: '#7b1c14'
+                  gradient: 'from-[#761B14] to-[#d4463c]',
+                  color: '#761B14'
                 },
                 {
                   icon: Zap,
@@ -1480,7 +1476,7 @@ const Landing = () => {
             <Button
               size="lg"
               onClick={handleGetStarted}
-              className="mt-12 bg-gradient-to-r from-[#7b1c14] via-[#d4463c] to-[#7b1c14] hover:from-[#d4463c] hover:via-[#7b1c14] hover:to-[#d4463c] text-white text-base px-10 py-6 rounded-xl shadow-lg transform hover:scale-105 transition-all font-semibold"
+              className="mt-12 bg-gradient-to-r from-[#761B14] via-[#d4463c] to-[#761B14] hover:from-[#d4463c] hover:via-[#761B14] hover:to-[#d4463c] text-white text-base px-10 py-6 rounded-xl shadow-lg transform hover:scale-105 transition-all font-semibold"
             >
               Try AI Agents Free
               <Sparkles className="ml-2 h-5 w-5" />
@@ -1502,7 +1498,7 @@ const Landing = () => {
               viewport={{ once: true }}
               className="inline-block mb-6"
             >
-              <Badge className="bg-[#7b1c14]/20 text-white border border-[#d4463c]/40 px-6 py-3 text-sm font-bold">
+              <Badge className="bg-[#761B14]/20 text-white border border-[#d4463c]/40 px-6 py-3 text-sm font-bold">
                 Feature Comparison
               </Badge>
             </motion.div>
@@ -1522,7 +1518,7 @@ const Landing = () => {
                   <th className="px-6 py-5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Feature</th>
                   <th className="px-6 py-5 text-center">
                     <div className="flex items-center justify-center space-x-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7b1c14] to-[#d4463c] flex items-center justify-center shadow-md">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#761B14] to-[#d4463c] flex items-center justify-center shadow-md">
                         <Heart className="h-4 w-4 text-white" />
                       </div>
                       <span className="text-base font-bold text-white">Axolop</span>
@@ -1866,7 +1862,7 @@ const Landing = () => {
               <Button
                 size="lg"
                 onClick={handleGetStarted}
-                className="bg-gradient-to-r from-[#7b1c14] to-[#a03a2e] hover:from-[#a03a2e] hover:to-[#7b1c14] text-white text-xl px-12 py-8 rounded-2xl shadow-2xl transform hover:scale-105 transition-all"
+                className="bg-gradient-to-r from-[#761B14] to-[#9A392D] hover:from-[#9A392D] hover:to-[#761B14] text-white text-xl px-12 py-8 rounded-2xl shadow-2xl transform hover:scale-105 transition-all"
               >
                 {affiliateRef
                   ? (affiliateName ? `Join ${affiliateName}'s Team Now` : 'Claim Your 30-Day Trial')
@@ -1916,7 +1912,7 @@ const Landing = () => {
                 <a href="#" className="text-gray-400 hover:text-[#14787b] transition-colors">
                   <Star className="h-6 w-6" />
                 </a>
-                <a href="#" className="text-gray-400 hover:text-[#7b1c14] transition-colors">
+                <a href="#" className="text-gray-400 hover:text-[#761B14] transition-colors">
                   <Star className="h-6 w-6" />
                 </a>
               </div>
@@ -1945,10 +1941,10 @@ const Landing = () => {
             <div>
               <h4 className="font-bold mb-6 text-white text-lg">Support</h4>
               <ul className="space-y-3 text-gray-300">
-                <li><a href="#" className="hover:text-[#7b1c14] transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-[#7b1c14] transition-colors">Contact Us</a></li>
-                <li><a href="#" className="hover:text-[#7b1c14] transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-[#7b1c14] transition-colors">Terms of Service</a></li>
+                <li><a href="#" className="hover:text-[#761B14] transition-colors">Help Center</a></li>
+                <li><a href="#" className="hover:text-[#761B14] transition-colors">Contact Us</a></li>
+                <li><a href="#" className="hover:text-[#761B14] transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-[#761B14] transition-colors">Terms of Service</a></li>
               </ul>
             </div>
           </div>

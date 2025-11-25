@@ -581,7 +581,7 @@ const EnhancedFlowBuilder = ({ workflowId = null, onSave }) => {
             size="sm"
             onClick={saveWorkflow}
             disabled={isSaving}
-            className="bg-[#7b1c14] hover:bg-[#6a1811] text-white"
+            className="bg-[#761B14] hover:bg-[#6a1811] text-white"
           >
             <Save className="w-4 h-4 mr-2" />
             {isSaving ? 'Saving...' : 'Save'}

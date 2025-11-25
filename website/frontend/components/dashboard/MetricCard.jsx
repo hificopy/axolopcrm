@@ -1,6 +1,7 @@
-import { motion } from 'framer-motion';
-import { TrendingUp, TrendingDown, Sparkles } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { motion } from "framer-motion";
+import { TrendingUp, TrendingDown, Sparkles } from "lucide-react";
+import { Card, CardContent } from "./components/ui/card";
+import MetricLoadingState from "./components/ui/metric-loading-state";
 
 export default function MetricCard({
   title,
@@ -8,51 +9,56 @@ export default function MetricCard({
   icon: Icon,
   trend,
   trendValue,
-  color = 'blue',
+  color = "blue",
   delay = 0,
   subtitle,
-  additionalInfo
+  additionalInfo,
+  // New props for sync issue handling
+  isLoading = false,
+  isReliable = true,
+  syncStatus = null,
+  showSyncIcon = false,
 }) {
   const colorClasses = {
     blue: {
-      bg: 'bg-gradient-to-br from-blue-500 to-blue-600',
-      text: 'text-blue-600 dark:text-blue-400',
-      lightBg: 'bg-blue-50 dark:bg-blue-950/30',
-      ring: 'ring-blue-500/20',
-      glow: 'shadow-blue-500/20'
+      bg: "bg-gradient-to-br from-blue-500 to-blue-600",
+      text: "text-blue-600 dark:text-blue-400",
+      lightBg: "bg-blue-50 dark:bg-blue-950/30",
+      ring: "ring-blue-500/20",
+      glow: "shadow-blue-500/20",
     },
     green: {
-      bg: 'bg-gradient-to-br from-emerald-500 to-emerald-600',
-      text: 'text-emerald-600 dark:text-emerald-400',
-      lightBg: 'bg-emerald-50 dark:bg-emerald-950/30',
-      ring: 'ring-emerald-500/20',
-      glow: 'shadow-emerald-500/20'
+      bg: "bg-gradient-to-br from-emerald-500 to-emerald-600",
+      text: "text-emerald-600 dark:text-emerald-400",
+      lightBg: "bg-emerald-50 dark:bg-emerald-950/30",
+      ring: "ring-emerald-500/20",
+      glow: "shadow-emerald-500/20",
     },
     yellow: {
-      bg: 'bg-gradient-to-br from-amber-500 to-amber-600',
-      text: 'text-amber-600 dark:text-amber-400',
-      lightBg: 'bg-amber-50 dark:bg-amber-950/30',
-      ring: 'ring-amber-500/20',
-      glow: 'shadow-amber-500/20'
+      bg: "bg-gradient-to-br from-amber-500 to-amber-600",
+      text: "text-amber-600 dark:text-amber-400",
+      lightBg: "bg-amber-50 dark:bg-amber-950/30",
+      ring: "ring-amber-500/20",
+      glow: "shadow-amber-500/20",
     },
     accent: {
-      bg: 'bg-gradient-to-br from-[#7b1c14] to-[#a03a2e]',
-      text: 'text-[#7b1c14] dark:text-[#d4463c]',
-      lightBg: 'bg-red-50 dark:bg-red-950/30',
-      ring: 'ring-[#7b1c14]/20',
-      glow: 'shadow-[#7b1c14]/20'
+      bg: "bg-gradient-to-br from-[#761B14] to-[#9A392D]",
+      text: "text-[#761B14] dark:text-[#d4463c]",
+      lightBg: "bg-red-50 dark:bg-red-950/30",
+      ring: "ring-[#761B14]/20",
+      glow: "shadow-[#761B14]/20",
     },
     gray: {
-      bg: 'bg-gradient-to-br from-gray-600 to-gray-700',
-      text: 'text-gray-600 dark:text-gray-400',
-      lightBg: 'bg-gray-50 dark:bg-gray-950/30',
-      ring: 'ring-gray-500/20',
-      glow: 'shadow-gray-500/20'
-    }
+      bg: "bg-gradient-to-br from-gray-600 to-gray-700",
+      text: "text-gray-600 dark:text-gray-400",
+      lightBg: "bg-gray-50 dark:bg-gray-950/30",
+      ring: "ring-gray-500/20",
+      glow: "shadow-gray-500/20",
+    },
   };
 
   const colors = colorClasses[color] || colorClasses.blue;
-  const isPositiveTrend = trend === 'up';
+  const isPositiveTrend = trend === "up";
 
   return (
     <motion.div
@@ -62,9 +68,13 @@ export default function MetricCard({
       whileHover={{ y: -4, scale: 1.02, transition: { duration: 0.2 } }}
       className="h-full w-full"
     >
-      <Card className={`h-full w-full overflow-hidden hover:${colors.ring} transition-all duration-300 hover:shadow-xl hover:${colors.glow} relative group`}>
+      <Card
+        className={`h-full w-full overflow-hidden hover:${colors.ring} transition-all duration-300 hover:shadow-xl hover:${colors.glow} relative group`}
+      >
         {/* Animated background gradient on hover */}
-        <div className={`absolute inset-0 ${colors.lightBg} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+        <div
+          className={`absolute inset-0 ${colors.lightBg} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
+        />
 
         <CardContent className="p-6 h-full flex flex-col justify-center relative z-10">
           {/* Icon Badge - Floating top right */}
@@ -85,26 +95,35 @@ export default function MetricCard({
 
           {/* Main Value - Centered and Prominent */}
           <div className="flex-1 flex items-center justify-center my-4">
-            <motion.p
-              className={`text-5xl font-bold ${colors.text} tracking-tight`}
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: delay + 0.2, type: "spring" }}
-            >
-              {value}
-            </motion.p>
+            {isLoading || !isReliable ? (
+              <MetricLoadingState
+                size="text-5xl"
+                showIcon={showSyncIcon}
+                className="font-bold tracking-tight"
+                tooltip={syncStatus?.message || "Syncing data..."}
+              />
+            ) : (
+              <motion.p
+                className={`text-5xl font-bold ${colors.text} tracking-tight`}
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: delay + 0.2, type: "spring" }}
+              >
+                {value}
+              </motion.p>
+            )}
           </div>
 
           {/* Trend Indicator */}
-          {trendValue && (
+          {trendValue && !isLoading && isReliable && (
             <motion.div
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: delay + 0.3 }}
               className={`flex items-center justify-center gap-2 text-sm font-semibold px-3 py-2 rounded-lg ${
                 isPositiveTrend
-                  ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400'
-                  : 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400'
+                  ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400"
+                  : "bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400"
               }`}
             >
               {isPositiveTrend ? (
@@ -125,7 +144,7 @@ export default function MetricCard({
           )}
 
           {/* Additional Info - Compact at bottom */}
-          {additionalInfo && additionalInfo.length > 0 && (
+          {additionalInfo && additionalInfo.length > 0 && !isLoading && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -133,9 +152,16 @@ export default function MetricCard({
               className="mt-4 pt-4 border-t border-crm-border/50 space-y-2"
             >
               {additionalInfo.slice(0, 2).map((info, idx) => (
-                <div key={idx} className="flex justify-between items-center text-xs">
-                  <span className="text-crm-text-secondary font-medium">{info.label}</span>
-                  <span className={`font-bold ${colors.text}`}>{info.value}</span>
+                <div
+                  key={idx}
+                  className="flex justify-between items-center text-xs"
+                >
+                  <span className="text-crm-text-secondary font-medium">
+                    {info.label}
+                  </span>
+                  <span className={`font-bold ${colors.text}`}>
+                    {info.value}
+                  </span>
                 </div>
               ))}
             </motion.div>
@@ -143,7 +169,9 @@ export default function MetricCard({
         </CardContent>
 
         {/* Decorative corner accent */}
-        <div className={`absolute bottom-0 left-0 w-20 h-20 ${colors.bg} opacity-10 blur-2xl rounded-full -mb-10 -ml-10`} />
+        <div
+          className={`absolute bottom-0 left-0 w-20 h-20 ${colors.bg} opacity-10 blur-2xl rounded-full -mb-10 -ml-10`}
+        />
       </Card>
     </motion.div>
   );

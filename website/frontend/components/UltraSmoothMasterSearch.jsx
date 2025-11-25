@@ -46,21 +46,21 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useTheme } from './contexts/ThemeContext';
 
 // Comprehensive category configuration with brand colors
 const categoryConfig = {
   leads: {
     icon: UserPlus,
     label: 'Leads',
-    color: 'from-[#7b1c14] via-[#8b2419] to-[#9b2c1e]',
+    color: 'from-[#761B14] via-[#8b2419] to-[#9b2c1e]',
     glow: 'shadow-[0_0_20px_rgba(123,28,20,0.4)]',
     actions: ['Open Profile', 'Edit', 'Convert to Contact'],
   },
   contacts: {
     icon: Users,
     label: 'Contacts',
-    color: 'from-[#7b1c14] via-[#8b2419] to-[#9b2c1e]',
+    color: 'from-[#761B14] via-[#8b2419] to-[#9b2c1e]',
     glow: 'shadow-[0_0_20px_rgba(123,28,20,0.4)]',
     actions: ['Open Profile', 'Edit', 'Send Email'],
   },
@@ -130,7 +130,7 @@ const categoryConfig = {
   navigation: {
     icon: Navigation,
     label: 'Pages',
-    color: 'from-[#7b1c14] via-[#8b2419] to-[#9b2c1e]',
+    color: 'from-[#761B14] via-[#8b2419] to-[#9b2c1e]',
     glow: 'shadow-[0_0_20px_rgba(123,28,20,0.4)]',
     actions: ['Go to Page', 'Open in New Tab'],
   },
@@ -559,7 +559,7 @@ export default function UltraSmoothMasterSearch({ isOpen, onClose }) {
         onClick={onClose}
       >
         {/* Premium Backdrop */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black/85 via-[#7b1c14]/15 to-black/85 backdrop-blur-xl" />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/85 via-[#761B14]/15 to-black/85 backdrop-blur-xl" />
 
         {/* Ambient Glow Effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -573,7 +573,7 @@ export default function UltraSmoothMasterSearch({ isOpen, onClose }) {
               repeat: Infinity,
               ease: 'easeInOut',
             }}
-            className="absolute top-0 left-1/4 w-96 h-96 bg-[#7b1c14]/20 rounded-full blur-[120px]"
+            className="absolute top-0 left-1/4 w-96 h-96 bg-[#761B14]/20 rounded-full blur-[120px]"
           />
         </div>
 
@@ -588,15 +588,15 @@ export default function UltraSmoothMasterSearch({ isOpen, onClose }) {
           style={{
             background: 'linear-gradient(135deg, rgba(26, 29, 36, 0.97) 0%, rgba(13, 15, 18, 0.99) 100%)',
             backdropFilter: 'blur(40px)',
-            border: '1px solid rgba(123, 28, 20, 0.3)',
-            boxShadow: '0 0 60px rgba(123, 28, 20, 0.25), 0 25px 50px rgba(0, 0, 0, 0.4)',
+            border: '1px solid rgba(118, 27, 20, 0.3)',
+            boxShadow: '0 0 60px rgba(118, 27, 20, 0.25), 0 25px 50px rgba(0, 0, 0, 0.4)',
           }}
         >
           {/* Glassmorphic overlay */}
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-black/10 pointer-events-none" />
 
           {/* Premium gradient accent */}
-          <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-[#7b1c14] to-transparent" />
+          <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-[#761B14] to-transparent" />
 
           {/* Header */}
           <div className="relative">
@@ -606,8 +606,8 @@ export default function UltraSmoothMasterSearch({ isOpen, onClose }) {
                 animate={loading ? { rotate: 360 } : {}}
                 transition={loading ? { duration: 1, repeat: Infinity, ease: 'linear' } : {}}
               >
-                <Search className={`h-6 w-6 transition-colors duration-200 ${loading ? 'text-[#7b1c14]/60' : 'text-[#7b1c14]'}`} />
-                {!loading && <div className="absolute inset-0 bg-[#7b1c14]/20 blur-xl" />}
+                <Search className={`h-6 w-6 transition-colors duration-200 ${loading ? 'text-[#761B14]/60' : 'text-[#761B14]'}`} />
+                {!loading && <div className="absolute inset-0 bg-[#761B14]/20 blur-xl" />}
               </motion.div>
               <input
                 ref={inputRef}
@@ -655,12 +655,12 @@ export default function UltraSmoothMasterSearch({ isOpen, onClose }) {
                 border-radius: 3px;
               }
               div::-webkit-scrollbar-thumb {
-                background: rgba(123, 28, 20, 0.6);
+                background: rgba(118, 27, 20, 0.6);
                 border-radius: 3px;
                 transition: background 0.2s;
               }
               div::-webkit-scrollbar-thumb:hover {
-                background: rgba(123, 28, 20, 0.8);
+                background: rgba(118, 27, 20, 0.8);
               }
             `}</style>
 
@@ -675,13 +675,13 @@ export default function UltraSmoothMasterSearch({ isOpen, onClose }) {
                   className="flex flex-col items-center justify-center py-16 px-6 text-center"
                 >
                   <div className="relative mb-6">
-                    <div className="rounded-full bg-gradient-to-br from-[#7b1c14]/30 to-[#7b1c14]/10 p-6 backdrop-blur-xl border border-[#7b1c14]/30">
-                      <Search className="h-12 w-12 text-[#7b1c14]" />
+                    <div className="rounded-full bg-gradient-to-br from-[#761B14]/30 to-[#761B14]/10 p-6 backdrop-blur-xl border border-[#761B14]/30">
+                      <Search className="h-12 w-12 text-[#761B14]" />
                     </div>
                     <motion.div
                       animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
                       transition={{ duration: 2, repeat: Infinity }}
-                      className="absolute inset-0 bg-[#7b1c14]/20 blur-2xl rounded-full"
+                      className="absolute inset-0 bg-[#761B14]/20 blur-2xl rounded-full"
                     />
                   </div>
                   <p className="text-white text-xl font-light mb-2">No results found</p>
@@ -710,13 +710,13 @@ export default function UltraSmoothMasterSearch({ isOpen, onClose }) {
                   className="flex flex-col items-center justify-center py-16 px-6 text-center"
                 >
                   <div className="relative mb-6">
-                    <div className="rounded-full bg-gradient-to-br from-[#7b1c14]/30 to-[#7b1c14]/10 p-6 backdrop-blur-xl border border-[#7b1c14]/30">
-                      <Sparkles className="h-12 w-12 text-[#7b1c14]" />
+                    <div className="rounded-full bg-gradient-to-br from-[#761B14]/30 to-[#761B14]/10 p-6 backdrop-blur-xl border border-[#761B14]/30">
+                      <Sparkles className="h-12 w-12 text-[#761B14]" />
                     </div>
                     <motion.div
                       animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }}
                       transition={{ duration: 3, repeat: Infinity }}
-                      className="absolute inset-0 bg-[#7b1c14]/20 blur-2xl rounded-full"
+                      className="absolute inset-0 bg-[#761B14]/20 blur-2xl rounded-full"
                     />
                   </div>
                   <p className="text-white text-xl font-light mb-3">Search anything in your CRM</p>
@@ -891,7 +891,7 @@ export default function UltraSmoothMasterSearch({ isOpen, onClose }) {
                             onClick={() => handleSelectResult(result)}
                             className={`w-full flex items-start gap-4 px-5 py-4 transition-all duration-150 ${
                               isSelected
-                                ? 'bg-gradient-to-r from-[#7b1c14]/20 to-transparent border-l-2 border-[#7b1c14]'
+                                ? 'bg-gradient-to-r from-[#761B14]/20 to-transparent border-l-2 border-[#761B14]'
                                 : 'hover:bg-white/5 border-l-2 border-transparent'
                             }`}
                             style={isSelected ? { backdropFilter: 'blur(10px)' } : {}}
@@ -942,7 +942,7 @@ export default function UltraSmoothMasterSearch({ isOpen, onClose }) {
                             <ArrowRight
                               className={`h-5 w-5 flex-shrink-0 transition-all duration-150 ${
                                 isSelected
-                                  ? 'text-[#7b1c14] translate-x-1'
+                                  ? 'text-[#761B14] translate-x-1'
                                   : 'text-gray-600 group-hover:text-gray-400 group-hover:translate-x-1'
                               }`}
                             />
@@ -964,7 +964,7 @@ export default function UltraSmoothMasterSearch({ isOpen, onClose }) {
                                     e.stopPropagation();
                                     handleQuickAction(result, action);
                                   }}
-                                  className="px-3 py-1 text-xs bg-white/10 hover:bg-[#7b1c14]/30 text-white rounded-lg backdrop-blur-sm border border-white/10 transition-colors"
+                                  className="px-3 py-1 text-xs bg-white/10 hover:bg-[#761B14]/30 text-white rounded-lg backdrop-blur-sm border border-white/10 transition-colors"
                                 >
                                   {action}
                                 </motion.button>
@@ -1024,7 +1024,7 @@ export default function UltraSmoothMasterSearch({ isOpen, onClose }) {
           )}
 
           {/* Bottom Glow */}
-          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#7b1c14]/50 to-transparent" />
+          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#761B14]/50 to-transparent" />
         </motion.div>
       </motion.div>
     </AnimatePresence>

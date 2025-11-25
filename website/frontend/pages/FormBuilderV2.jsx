@@ -37,6 +37,7 @@ export default function FormBuilderV2() {
       theme: 'default',
       create_contact: false,
       contact_mapping: {},
+      displayMode: 'sequential', // 'sequential' or 'regular' - default to sequential for better conversions
     }
   });
 
@@ -161,7 +162,14 @@ export default function FormBuilderV2() {
     if (formId && formId !== 'new' && !formId.startsWith('new-')) {
       formsApi.getForm(formId)
         .then(formData => {
-          setForm(formData);
+          // Ensure displayMode defaults to 'sequential'
+          setForm({
+            ...formData,
+            settings: {
+              ...formData.settings,
+              displayMode: formData.settings?.displayMode || 'sequential'
+            }
+          });
           const questionsWithDefaults = (formData.questions || []).map(q => ({
             ...q,
             lead_scoring_enabled: q.lead_scoring_enabled || false,
@@ -245,7 +253,7 @@ export default function FormBuilderV2() {
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center bg-gray-50">
+      <div className="h-full min-h-screen flex items-center justify-center pt-[150px] bg-gray-50">
         <div className="text-center">
           <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
           <p className="text-crm-text-secondary">Loading form...</p>
@@ -256,7 +264,7 @@ export default function FormBuilderV2() {
 
   if (error) {
     return (
-      <div className="h-full flex items-center justify-center bg-gray-50">
+      <div className="h-full min-h-screen flex items-center justify-center pt-[150px] bg-gray-50">
         <div className="text-center">
           <h2 className="text-xl font-bold text-crm-text-primary mb-2">Error Loading Form</h2>
           <p className="text-crm-text-secondary mb-4">{error.message}</p>
@@ -268,27 +276,54 @@ export default function FormBuilderV2() {
 
   return (
     <div className="h-full flex flex-col bg-gray-50">
-      {/* Top Bar - Form Title and Save */}
-      <div className="bg-white border-b border-crm-border px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      {/* Top Bar - Form Title and Actions */}
+      <div className="bg-white border-b border-crm-border py-3 px-4 flex items-center gap-3 overflow-x-auto">
+        {/* Form Title - Compact on left */}
+        <div className="flex-shrink-0" style={{ width: '150px' }}>
           <Input
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className="text-xl font-semibold border-none focus:ring-0 h-auto py-2 px-3 w-96"
+            className="text-sm font-semibold border-none focus:ring-0 h-auto py-2 px-2"
             placeholder="Form Title"
           />
         </div>
 
-        <div className="flex items-center gap-3">
+        {/* Action Buttons - On the left side */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setActiveTab('workflow')}
+            className="min-w-[100px]"
+          >
+            <WorkflowIcon className="h-4 w-4 mr-2" />
+            Workflow
+          </Button>
+
+          <div className="flex items-center gap-2 px-3 py-1.5 border border-crm-border rounded-md">
+            <span className="text-sm text-crm-text-secondary">Draft</span>
+            <button
+              className="relative inline-flex h-5 w-9 items-center rounded-full transition-colors bg-gray-200"
+              onClick={() => {
+                // Toggle draft/active status
+                setForm({ ...form, status: form.status === 'active' ? 'draft' : 'active' });
+              }}
+            >
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${form.status === 'active' ? 'translate-x-4' : 'translate-x-1'}`} />
+            </button>
+          </div>
+
           <Button
             variant="outline"
             size="sm"
             onClick={handleSave}
             disabled={saving}
+            className="min-w-[80px]"
           >
             <Save className="h-4 w-4 mr-2" />
             {saving ? 'Saving...' : 'Save'}
           </Button>
+
           <Button
             variant="outline"
             size="sm"
@@ -299,9 +334,26 @@ export default function FormBuilderV2() {
                 alert('Please save the form first before previewing.');
               }
             }}
+            className="min-w-[90px]"
           >
             <Eye className="h-4 w-4 mr-2" />
             Preview
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              if (form.id && form.id !== 'new-form') {
+                const shareUrl = `${window.location.origin}/forms/preview/${form.id}`;
+                navigator.clipboard.writeText(shareUrl);
+                alert('Link copied to clipboard!');
+              }
+            }}
+            className="min-w-[100px]"
+          >
+            <Share2 className="h-4 w-4 mr-2" />
+            Copy Link
           </Button>
         </div>
       </div>

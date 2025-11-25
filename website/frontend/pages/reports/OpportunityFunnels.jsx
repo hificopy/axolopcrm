@@ -15,7 +15,7 @@ export default function OpportunityFunnels() {
           <Button
             variant="outline"
             size="default"
-            className="bg-[#7b1c14] hover:bg-[#6b1a12] text-white border-none"
+            className="bg-[#761B14] hover:bg-[#6b1a12] text-white border-none"
           >
             Export Report
           </Button>
@@ -28,7 +28,7 @@ export default function OpportunityFunnels() {
             <select
               value={timeRange}
               onChange={(e) => setTimeRange(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#7b1c14]"
+              className="px-3 py-1.5 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#761B14]"
             >
               <option>This Month</option>
               <option>This Quarter</option>
@@ -44,7 +44,7 @@ export default function OpportunityFunnels() {
         <Card className="bg-white">
           <CardHeader className="border-b border-gray-200">
             <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-[#7b1c14]" />
+              <TrendingUp className="h-5 w-5 text-[#761B14]" />
               Sales Funnel Visualization
             </CardTitle>
           </CardHeader>
@@ -53,9 +53,9 @@ export default function OpportunityFunnels() {
               <div className="mb-6">
                 {/* Funnel Visualization */}
                 <svg width="300" height="250" viewBox="0 0 300 250">
-                  <path d="M 50 20 L 250 20 L 200 80 L 100 80 Z" fill="#e0e7ff" stroke="#7b1c14" strokeWidth="2" />
-                  <path d="M 100 80 L 200 80 L 175 140 L 125 140 Z" fill="#c7d2fe" stroke="#7b1c14" strokeWidth="2" />
-                  <path d="M 125 140 L 175 140 L 160 200 L 140 200 Z" fill="#a5b4fc" stroke="#7b1c14" strokeWidth="2" />
+                  <path d="M 50 20 L 250 20 L 200 80 L 100 80 Z" fill="#e0e7ff" stroke="#761B14" strokeWidth="2" />
+                  <path d="M 100 80 L 200 80 L 175 140 L 125 140 Z" fill="#c7d2fe" stroke="#761B14" strokeWidth="2" />
+                  <path d="M 125 140 L 175 140 L 160 200 L 140 200 Z" fill="#a5b4fc" stroke="#761B14" strokeWidth="2" />
                   <text x="150" y="50" textAnchor="middle" fill="#374151" fontSize="14">Leads: 0</text>
                   <text x="150" y="110" textAnchor="middle" fill="#374151" fontSize="14">Qualified: 0</text>
                   <text x="150" y="170" textAnchor="middle" fill="#374151" fontSize="14">Closed: 0</text>

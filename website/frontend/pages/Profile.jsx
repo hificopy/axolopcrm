@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Camera, MapPin, Mail, Phone, Calendar, Globe, X } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Camera, MapPin, Mail, Phone, Calendar, Globe, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -7,10 +7,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useSupabase } from '../context/SupabaseContext';
 import { useDemoMode } from '../contexts/DemoModeContext';
+import { supabase } from '../config/supabaseClient';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002';
 
 export default function Profile() {
   const { user: supabaseUser } = useSupabase();
   const { isDemoMode, disableDemoMode } = useDemoMode();
+
+  const fileInputRef = useRef(null);
 
   const [user, setUser] = useState({
     id: supabaseUser?.id || '1',
@@ -24,9 +29,12 @@ export default function Profile() {
     role: 'Admin',
     joinDate: supabaseUser?.created_at ? new Date(supabaseUser.created_at).toISOString().split('T')[0] : '2024-01-15',
     bio: supabaseUser?.user_metadata?.bio || 'Passionate entrepreneur focused on building innovative CRM solutions and AI-powered systems for businesses.',
-    avatar: supabaseUser?.user_metadata?.avatar_url || null,
+    avatar: supabaseUser?.user_metadata?.avatar_url || supabaseUser?.user_metadata?.picture || null,
     website: supabaseUser?.user_metadata?.website || 'https://axolop.com',
   });
+
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
 
   // Update user state when supabaseUser changes
   useEffect(() => {
@@ -43,7 +51,7 @@ export default function Profile() {
         role: 'Admin',
         joinDate: supabaseUser.created_at ? new Date(supabaseUser.created_at).toISOString().split('T')[0] : '2024-01-15',
         bio: supabaseUser.user_metadata?.bio || 'Passionate entrepreneur focused on building innovative CRM solutions and AI-powered systems for businesses.',
-        avatar: supabaseUser.user_metadata?.avatar_url || null,
+        avatar: supabaseUser.user_metadata?.avatar_url || supabaseUser.user_metadata?.picture || null,
         website: supabaseUser.user_metadata?.website || 'https://axolop.com',
       });
     }
@@ -60,10 +68,134 @@ export default function Profile() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setUploadError('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError('Image must be less than 5MB');
+      return;
+    }
+
+    try {
+      setUploadingAvatar(true);
+      setUploadError(null);
+
+      // Convert file to base64
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        try {
+          const base64Data = reader.result;
+
+          // Get session token
+          const { data: { session } } = await supabase.auth.getSession();
+          if (!session) {
+            throw new Error('Not authenticated');
+          }
+
+          // Upload avatar via API
+          const response = await fetch(`${API_BASE_URL}/api/v1/users/me/avatar`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${session.access_token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              file_data: base64Data,
+              file_name: file.name,
+              content_type: file.type,
+            }),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to upload avatar');
+          }
+
+          const result = await response.json();
+
+          // Update local user state with new avatar
+          setUser(prev => ({
+            ...prev,
+            avatar: result.data.profile_picture
+          }));
+
+          setFormData(prev => ({
+            ...prev,
+            avatar: result.data.profile_picture
+          }));
+
+          // Refresh the page to update avatar in header
+          window.location.reload();
+        } catch (error) {
+          console.error('Avatar upload error:', error);
+          setUploadError(error.message);
+        } finally {
+          setUploadingAvatar(false);
+        }
+      };
+
+      reader.onerror = () => {
+        setUploadError('Failed to read file');
+        setUploadingAvatar(false);
+      };
+
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Avatar upload error:', error);
+      setUploadError(error.message);
+      setUploadingAvatar(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setUser(formData);
-    setIsEditing(false);
+
+    try {
+      // Get session token
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Not authenticated');
+      }
+
+      // Update profile via API
+      const response = await fetch('/api/v1/users/me', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          first_name: formData.name.split(' ')[0],
+          last_name: formData.name.split(' ').slice(1).join(' '),
+          phone: formData.phone,
+          company: formData.company,
+          job_title: formData.title,
+          timezone: formData.timezone,
+          bio: formData.bio,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update profile');
+      }
+
+      const result = await response.json();
+      setUser(formData);
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Profile update error:', error);
+      alert('Failed to update profile: ' + error.message);
+    }
   };
 
   const handleCancel = () => {
@@ -108,17 +240,46 @@ export default function Profile() {
       <div className="flex-1 overflow-auto p-6">
         <div className="max-w-4xl mx-auto">
           {/* Profile Header */}
-          <div className="bg-white rounded-lg border border-crm-border p-6 mb-6">
+          <div className="bg-white dark:bg-[#1a1d24] rounded-lg border border-crm-border p-6 mb-6">
+            {uploadError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
+                {uploadError}
+              </div>
+            )}
+
             <div className="flex items-start gap-6">
               <div className="relative">
-                <div className="h-24 w-24 rounded-full bg-primary flex items-center justify-center text-white text-2xl font-semibold">
-                  {user.name.split(' ').map(n => n[0]).join('')}
-                </div>
-                {isEditing && (
-                  <button className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white hover:bg-red-600 transition-colors">
-                    <Camera className="h-4 w-4" />
-                  </button>
+                {user.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    className="h-24 w-24 rounded-full object-cover border-2 border-gray-200"
+                  />
+                ) : (
+                  <div className="h-24 w-24 rounded-full bg-primary flex items-center justify-center text-white text-2xl font-semibold">
+                    {user.name.split(' ').map(n => n[0]).join('')}
+                  </div>
                 )}
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  className="hidden"
+                />
+
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingAvatar}
+                  className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {uploadingAvatar ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Camera className="h-4 w-4" />
+                  )}
+                </button>
               </div>
               
               <div className="flex-1">

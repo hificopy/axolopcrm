@@ -11,9 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
-import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002';
+import api from './lib/api';
 
 const ComposeEmailModal = ({ isOpen, onClose, onEmailSent, initialTo = '', initialSubject = '', initialBody = '' }) => {
   const [to, setTo] = useState(initialTo);
@@ -34,12 +32,7 @@ const ComposeEmailModal = ({ isOpen, onClose, onEmailSent, initialTo = '', initi
 
     setIsSending(true);
     try {
-      const token = localStorage.getItem('supabase.auth.token');
-      await axios.post(
-        `${API_BASE_URL}/api/inbox/send`,
-        { to, subject, body },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.post('/api/inbox/send', { to, subject, body });
       toast({
         title: 'Success',
         description: 'Email sent successfully!',

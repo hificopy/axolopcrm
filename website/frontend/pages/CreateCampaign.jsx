@@ -17,9 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/use-toast';
-import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3002';
+import api from './lib/api';
 
 const CreateCampaign = () => {
   const navigate = useNavigate();
@@ -75,12 +73,9 @@ const CreateCampaign = () => {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const token = localStorage.getItem('supabase.auth.token');
-      await axios.post(`${API_BASE_URL}/api/campaigns`, {
+      await api.post('/api/campaigns', {
         ...campaignData,
         status: 'DRAFT'
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
       });
 
       toast({
@@ -113,12 +108,9 @@ const CreateCampaign = () => {
 
     setIsSendingTest(true);
     try {
-      const token = localStorage.getItem('supabase.auth.token');
-      await axios.post(`${API_BASE_URL}/api/campaigns/test`, {
+      await api.post('/api/campaigns/test', {
         ...campaignData,
         recipients: campaignData.testRecipients
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
       });
 
       toast({
@@ -149,13 +141,10 @@ const CreateCampaign = () => {
 
     setIsSending(true);
     try {
-      const token = localStorage.getItem('supabase.auth.token');
-      await axios.post(`${API_BASE_URL}/api/campaigns/send`, {
+      await api.post('/api/campaigns/send', {
         ...campaignData,
         status: 'SENT',
         sentAt: new Date().toISOString()
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
       });
 
       toast({

@@ -86,7 +86,7 @@ const KateOnboarding = ({ onComplete }) => {
   if (showHearts) {
     // Hearts animation
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#7b1c14] via-[#a03323] to-[#d96b5c] flex items-center justify-center overflow-hidden relative">
+      <div className="min-h-screen bg-gradient-to-br from-[#761B14] via-[#a03323] to-[#d96b5c] flex items-center justify-center overflow-hidden relative">
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
           {[...Array(30)].map((_, i) => (
@@ -132,13 +132,13 @@ const KateOnboarding = ({ onComplete }) => {
             className="mb-8"
           >
             <div className="relative inline-block">
-              <div className="absolute -inset-4 bg-gradient-to-r from-[#7b1c14] to-[#d96b5c] rounded-full blur-lg opacity-30"></div>
-              <Heart className="w-24 h-24 text-[#7b1c14] mx-auto relative z-10" fill="currentColor" />
+              <div className="absolute -inset-4 bg-gradient-to-r from-[#761B14] to-[#d96b5c] rounded-full blur-lg opacity-30"></div>
+              <Heart className="w-24 h-24 text-[#761B14] mx-auto relative z-10" fill="currentColor" />
             </div>
           </motion.div>
 
           <motion.h1
-            className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-[#7b1c14] via-[#a03323] to-[#d96b5c] bg-clip-text text-transparent mb-8"
+            className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-[#761B14] via-[#a03323] to-[#d96b5c] bg-clip-text text-transparent mb-8"
             initial={{ opacity: 0, y: -30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
@@ -164,7 +164,7 @@ const KateOnboarding = ({ onComplete }) => {
               No pierdas la fe, bebé. Estamos tan cerca del éxito y de nuestra felicidad.
             </p>
 
-            <p className="text-2xl font-semibold text-[#7b1c14] mt-8">
+            <p className="text-2xl font-semibold text-[#761B14] mt-8">
               ¡Tus $10K de Axolop están garantizados, mi amor!
             </p>
 
@@ -186,7 +186,7 @@ const KateOnboarding = ({ onComplete }) => {
                   onComplete();
                 }, 500);
               }}
-              className="bg-gradient-to-r from-[#7b1c14] to-[#d96b5c] hover:from-[#a03323] hover:to-[#e68a77] text-white px-10 py-5 text-xl rounded-xl shadow-xl font-bold transition-all duration-300 transform hover:scale-105"
+              className="bg-gradient-to-r from-[#761B14] to-[#d96b5c] hover:from-[#a03323] hover:to-[#e68a77] text-white px-10 py-5 text-xl rounded-xl shadow-xl font-bold transition-all duration-300 transform hover:scale-105"
             >
               Continuar al CRM <Flower className="ml-3 h-6 w-6" />
             </Button>

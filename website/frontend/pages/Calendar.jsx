@@ -9,6 +9,8 @@ import CalendarVisibilityControls from '../components/calendar/CalendarVisibilit
 import EventDetailModal from '../components/calendar/EventDetailModal';
 import CreateEventModal from '../components/calendar/CreateEventModal';
 import { useToast } from '../components/ui/use-toast';
+import { useAgency } from '@/hooks/useAgency';
+import ViewOnlyBadge from '@/components/ui/view-only-badge';
 import {
   Calendar as CalendarIcon,
   Settings,
@@ -24,6 +26,7 @@ import {
 export default function Calendar() {
   const { toast } = useToast();
   const calendarRef = useRef(null);
+  const { isReadOnly, canEdit, canCreate } = useAgency();
 
   // State
   const [events, setEvents] = useState([]);
@@ -282,12 +285,12 @@ export default function Calendar() {
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-50">
+      <div className="h-full min-h-screen flex items-center justify-center pt-[150px] bg-gradient-to-br from-gray-50 via-white to-gray-50">
         <div className="text-center">
           <div className="relative">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-[#7b1c14] mx-auto mb-6"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-[#761B14] mx-auto mb-6"></div>
             <div className="absolute inset-0 animate-pulse">
-              <div className="rounded-full h-16 w-16 border-4 border-[#7b1c14]/20 mx-auto"></div>
+              <div className="rounded-full h-16 w-16 border-4 border-[#761B14]/20 mx-auto"></div>
             </div>
           </div>
           <p className="text-gray-700 font-medium text-lg">Loading your calendar...</p>
@@ -305,15 +308,23 @@ export default function Calendar() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-3">
-                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-[#7b1c14] to-[#a03a2e] flex items-center justify-center shadow-lg">
+                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-[#761B14] to-[#9A392D] flex items-center justify-center shadow-lg">
                   <CalendarIcon className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
-                    Calendar
-                  </h1>
-                  <p className="text-sm text-gray-600">
-                    {calendarMode === 'calendar' ? 'Manage all your meetings, calls & events' : 'Plan your content marketing strategy'}
+                  <div className="flex items-center gap-3">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+                      Calendar
+                    </h1>
+                    {isReadOnly() && <ViewOnlyBadge />}
+                  </div>
+                  <p className="text-sm text-gray-600 mt-2">
+                    {isReadOnly()
+                      ? 'View meetings, calls & events - Read-only access'
+                      : calendarMode === 'calendar'
+                        ? 'Manage all your meetings, calls & events'
+                        : 'Plan your content marketing strategy'
+                    }
                   </p>
                 </div>
               </div>
@@ -324,7 +335,7 @@ export default function Calendar() {
                   onClick={() => setCalendarMode('calendar')}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 ${
                     calendarMode === 'calendar'
-                      ? 'bg-gradient-to-r from-[#7b1c14] to-[#a03a2e] text-white shadow-lg scale-105'
+                      ? 'bg-gradient-to-r from-[#761B14] to-[#9A392D] text-white shadow-lg scale-105'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
                   }`}
                 >
@@ -336,7 +347,7 @@ export default function Calendar() {
                   disabled={true}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 cursor-not-allowed opacity-50 ${
                     calendarMode === 'content'
-                      ? 'bg-gradient-to-r from-[#7b1c14] to-[#a03a2e] text-white shadow-lg scale-105'
+                      ? 'bg-gradient-to-r from-[#761B14] to-[#9A392D] text-white shadow-lg scale-105'
                       : 'text-gray-600'
                   }`}
                 >
@@ -354,7 +365,7 @@ export default function Calendar() {
               <div className="flex items-center gap-2 bg-white rounded-xl px-3 py-2 shadow-sm border border-gray-200">
                 <button
                   onClick={() => handleNavigate('today')}
-                  className="px-3 py-1.5 text-sm font-semibold text-gray-700 hover:text-[#7b1c14] hover:bg-gray-100 rounded-lg transition-all"
+                  className="px-3 py-1.5 text-sm font-semibold text-gray-700 hover:text-[#761B14] hover:bg-gray-100 rounded-lg transition-all"
                 >
                   Today
                 </button>
@@ -383,7 +394,7 @@ export default function Calendar() {
                   onClick={() => handleViewChange('dayGridMonth')}
                   className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                     currentView === 'dayGridMonth'
-                      ? 'bg-white text-[#7b1c14] shadow-md'
+                      ? 'bg-white text-[#761B14] shadow-md'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
@@ -393,7 +404,7 @@ export default function Calendar() {
                   onClick={() => handleViewChange('timeGridWeek')}
                   className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                     currentView === 'timeGridWeek'
-                      ? 'bg-white text-[#7b1c14] shadow-md'
+                      ? 'bg-white text-[#761B14] shadow-md'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
@@ -403,7 +414,7 @@ export default function Calendar() {
                   onClick={() => handleViewChange('timeGridDay')}
                   className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                     currentView === 'timeGridDay'
-                      ? 'bg-white text-[#7b1c14] shadow-md'
+                      ? 'bg-white text-[#761B14] shadow-md'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
@@ -413,7 +424,7 @@ export default function Calendar() {
                   onClick={() => handleViewChange('listWeek')}
                   className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                     currentView === 'listWeek'
-                      ? 'bg-white text-[#7b1c14] shadow-md'
+                      ? 'bg-white text-[#761B14] shadow-md'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
@@ -439,13 +450,15 @@ export default function Calendar() {
                 <Settings className="h-5 w-5 text-gray-600" />
               </button>
 
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="flex items-center gap-2 bg-gradient-to-r from-[#7b1c14] to-[#a03a2e] text-white px-5 py-2.5 rounded-xl hover:shadow-lg transition-all font-semibold shadow-md hover:scale-105"
-              >
-                <Plus className="h-5 w-5" />
-                <span>New Event</span>
-              </button>
+              {canCreate() && (
+                <button
+                  onClick={() => setShowCreateModal(true)}
+                  className="flex items-center gap-2 bg-gradient-to-r from-[#761B14] to-[#9A392D] text-white px-5 py-2.5 rounded-xl hover:shadow-lg transition-all font-semibold shadow-md hover:scale-105"
+                >
+                  <Plus className="h-5 w-5" />
+                  <span>New Event</span>
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -511,33 +524,33 @@ export default function Calendar() {
           <div className="flex-1 p-6">
             <div className="h-full bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
               <style>{`
-                /* FullCalendar Custom Styling for Axolop CRM */
+                /* FullCalendar Custom Styling for Axolop */
                 .fc {
                   --fc-border-color: #e5e7eb;
-                  --fc-button-bg-color: #7b1c14;
-                  --fc-button-border-color: #7b1c14;
-                  --fc-button-hover-bg-color: #a03a2e;
-                  --fc-button-hover-border-color: #a03a2e;
+                  --fc-button-bg-color: #761B14;
+                  --fc-button-border-color: #761B14;
+                  --fc-button-hover-bg-color: #9A392D;
+                  --fc-button-hover-border-color: #9A392D;
                   --fc-button-active-bg-color: #6b1a12;
                   --fc-button-active-border-color: #6b1a12;
-                  --fc-today-bg-color: rgba(123, 28, 20, 0.05);
-                  --fc-event-bg-color: #7b1c14;
-                  --fc-event-border-color: #7b1c14;
+                  --fc-today-bg-color: rgba(118, 27, 20, 0.05);
+                  --fc-event-bg-color: #761B14;
+                  --fc-event-border-color: #761B14;
                 }
 
                 .fc .fc-button-primary {
-                  background: linear-gradient(to right, #7b1c14, #a03a2e);
+                  background: linear-gradient(to right, #761B14, #9A392D);
                   border: none;
                   border-radius: 0.5rem;
                   font-weight: 600;
                   text-transform: capitalize;
                   padding: 0.5rem 1rem;
-                  box-shadow: 0 2px 4px rgba(123, 28, 20, 0.2);
+                  box-shadow: 0 2px 4px rgba(118, 27, 20, 0.2);
                   transition: all 0.3s;
                 }
 
                 .fc .fc-button-primary:hover {
-                  box-shadow: 0 4px 8px rgba(123, 28, 20, 0.3);
+                  box-shadow: 0 4px 8px rgba(118, 27, 20, 0.3);
                   transform: translateY(-1px);
                 }
 
@@ -575,11 +588,11 @@ export default function Calendar() {
                 }
 
                 .fc-daygrid-day.fc-day-today {
-                  background: linear-gradient(135deg, rgba(123, 28, 20, 0.03), rgba(160, 58, 46, 0.03));
+                  background: linear-gradient(135deg, rgba(118, 27, 20, 0.03), rgba(160, 58, 46, 0.03));
                 }
 
                 .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
-                  background: linear-gradient(to right, #7b1c14, #a03a2e);
+                  background: linear-gradient(to right, #761B14, #9A392D);
                   color: white;
                   border-radius: 50%;
                   width: 2rem;
@@ -597,10 +610,10 @@ export default function Calendar() {
                 headerToolbar={false}
                 events={events}
                 eventClick={handleEventClick}
-                dateClick={handleDateClick}
-                editable={true}
-                selectable={true}
-                selectMirror={true}
+                dateClick={canCreate() ? handleDateClick : undefined}
+                editable={canEdit()}
+                selectable={canCreate()}
+                selectMirror={canCreate()}
                 dayMaxEvents={true}
                 weekends={true}
                 height="100%"
@@ -766,6 +779,7 @@ export default function Calendar() {
       {showEventModal && selectedEvent && (
         <EventDetailModal
           event={selectedEvent}
+          canEdit={canEdit()}
           onClose={() => {
             setShowEventModal(false);
             setSelectedEvent(null);
@@ -784,6 +798,7 @@ export default function Calendar() {
       {/* Create Event Modal */}
       {showCreateModal && (
         <CreateEventModal
+          canCreate={canCreate()}
           onClose={() => setShowCreateModal(false)}
           onCreate={async () => {
             await loadEvents();

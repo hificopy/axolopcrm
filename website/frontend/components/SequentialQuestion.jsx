@@ -22,7 +22,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import AutoCapturePrivacyNotice from '@/components/AutoCapturePrivacyNotice';
+import AutoCapturePrivacyNotice from './components/AutoCapturePrivacyNotice';
 
 /**
  * Shared Sequential Question Component for both Forms and Meetings
@@ -38,7 +38,7 @@ const SequentialQuestion = ({
   setCurrentQuestionIndex = () => {},
   isMeetingMode = false, // Set to true for meetings, false for forms
   theme = 'light',
-  brandColorPrimary = '#7b1c14',
+  brandColorPrimary = '#761B14',
   brandColorSecondary = '#4a0f0a',
   useGradient = true,
   fontColor = '#1F2A37',

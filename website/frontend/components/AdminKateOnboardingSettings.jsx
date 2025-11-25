@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { authApi } from '@/lib/api';
+import { authApi } from './lib/api';
 
 const AdminKateOnboardingSettings = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -90,7 +90,7 @@ const AdminKateOnboardingSettings = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#7b1c14]"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#761B14]"></div>
       </div>
     );
   }
@@ -131,11 +131,11 @@ const AdminKateOnboardingSettings = () => {
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Add a new message..."
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7b1c14] focus:border-transparent"
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#761B14] focus:border-transparent"
           />
           <button
             onClick={handleAddMessage}
-            className="bg-[#7b1c14] hover:bg-[#8b2c24] text-white px-4 py-2 rounded-lg transition-colors"
+            className="bg-[#761B14] hover:bg-[#8b2c24] text-white px-4 py-2 rounded-lg transition-colors"
           >
             Add
           </button>
@@ -143,7 +143,7 @@ const AdminKateOnboardingSettings = () => {
         
         <button
           onClick={handleSave}
-          className="bg-[#7b1c14] hover:bg-[#8b2c24] text-white px-6 py-3 rounded-lg font-medium transition-colors"
+          className="bg-[#761B14] hover:bg-[#8b2c24] text-white px-6 py-3 rounded-lg font-medium transition-colors"
         >
           Save Changes
         </button>

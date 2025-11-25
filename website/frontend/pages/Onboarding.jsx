@@ -17,8 +17,8 @@ import {
   Check
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import SequentialQuestion from '@/components/SequentialQuestion';
-import KateOnboarding from '@/components/KateOnboarding';
+import SequentialQuestion from './components/SequentialQuestion';
+import KateOnboarding from './components/KateOnboarding';
 
 /**
  * Onboarding Experience - Strategic Form to Tailor CRM Setup
@@ -827,7 +827,7 @@ export default function Onboarding() {
             {[...Array(20)].map((_, i) => (
               <motion.div
                 key={i}
-                className="absolute w-2 h-2 bg-gradient-to-br from-[#7b1c14]/20 to-[#ff6b4a]/20 rounded-full"
+                className="absolute w-2 h-2 bg-gradient-to-br from-[#761B14]/20 to-[#ff6b4a]/20 rounded-full"
                 initial={{
                   x: Math.random() * 400 - 200,
                   y: Math.random() * 400 - 200,
@@ -860,9 +860,9 @@ export default function Onboarding() {
                 <motion.div
                   animate={{
                     boxShadow: [
-                      "0 0 0 0 rgba(123, 28, 20, 0)",
-                      "0 0 0 40px rgba(123, 28, 20, 0.1)",
-                      "0 0 0 80px rgba(123, 28, 20, 0)",
+                      "0 0 0 0 rgba(118, 27, 20, 0)",
+                      "0 0 0 40px rgba(118, 27, 20, 0.1)",
+                      "0 0 0 80px rgba(118, 27, 20, 0)",
                     ],
                   }}
                   transition={{ duration: 2, repeat: Infinity }}
@@ -872,7 +872,7 @@ export default function Onboarding() {
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="bg-gradient-to-br from-[#7b1c14] to-[#ff6b4a] p-8 rounded-full"
+                    className="bg-gradient-to-br from-[#761B14] to-[#ff6b4a] p-8 rounded-full"
                   >
                     <IconComponent className="w-24 h-24 text-white" />
                   </motion.div>
@@ -978,7 +978,7 @@ export default function Onboarding() {
             {[...Array(20)].map((_, i) => (
               <motion.div
                 key={i}
-                className="absolute w-2 h-2 bg-gradient-to-br from-[#7b1c14]/20 to-[#ff6b4a]/20 rounded-full"
+                className="absolute w-2 h-2 bg-gradient-to-br from-[#761B14]/20 to-[#ff6b4a]/20 rounded-full"
                 initial={{
                   x: Math.random() * 400 - 200,
                   y: Math.random() * 400 - 200,
@@ -1009,15 +1009,15 @@ export default function Onboarding() {
               <motion.div
                 animate={{
                   boxShadow: [
-                    "0 0 0 0 rgba(123, 28, 20, 0)",
-                    "0 0 0 40px rgba(123, 28, 20, 0.1)",
-                    "0 0 0 80px rgba(123, 28, 20, 0)",
+                    "0 0 0 0 rgba(118, 27, 20, 0)",
+                    "0 0 0 40px rgba(118, 27, 20, 0.1)",
+                    "0 0 0 80px rgba(118, 27, 20, 0)",
                   ],
                 }}
                 transition={{ duration: 2, repeat: Infinity }}
                 className="inline-block rounded-full"
               >
-                <div className="bg-gradient-to-br from-[#7b1c14] to-[#ff6b4a] p-8 rounded-full">
+                <div className="bg-gradient-to-br from-[#761B14] to-[#ff6b4a] p-8 rounded-full">
                   <Sparkles className="w-24 h-24 text-white" />
                 </div>
               </motion.div>
@@ -1028,7 +1028,7 @@ export default function Onboarding() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
-            className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-[#7b1c14] to-[#ff6b4a] bg-clip-text text-transparent mb-4"
+            className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-[#761B14] to-[#ff6b4a] bg-clip-text text-transparent mb-4"
           >
             {affiliateName ? `Welcome, ${affiliateName}!` : "Let's Build Your Perfect CRM"}
           </motion.h1>
@@ -1054,7 +1054,7 @@ export default function Onboarding() {
             {[...Array(3)].map((_, i) => (
               <motion.div
                 key={i}
-                className="w-3 h-3 bg-gradient-to-r from-[#7b1c14] to-[#ff6b4a] rounded-full"
+                className="w-3 h-3 bg-gradient-to-r from-[#761B14] to-[#ff6b4a] rounded-full"
                 animate={{
                   scale: [1, 1.5, 1],
                   opacity: [0.5, 1, 0.5],
@@ -1090,7 +1090,7 @@ export default function Onboarding() {
               transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
               className="mb-6 inline-block"
             >
-              <Brain className="w-16 h-16 text-[#7b1c14]" />
+              <Brain className="w-16 h-16 text-[#761B14]" />
             </motion.div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Analyzing your needs...</h2>
             <p className="text-gray-600">Our AI is crafting the perfect CRM experience for you</p>
@@ -1140,7 +1140,7 @@ export default function Onboarding() {
             {/* Affiliate Badge - 30 Day Trial */}
             {affiliateRef && (
               <div className="absolute top-0 right-0">
-                <div className="bg-gradient-to-r from-[#7b1c14] to-[#ff6b4a] text-white px-6 py-2 rounded-bl-2xl shadow-lg">
+                <div className="bg-gradient-to-r from-[#761B14] to-[#ff6b4a] text-white px-6 py-2 rounded-bl-2xl shadow-lg">
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4" />
                     <span className="font-bold text-sm">30-DAY FREE TRIAL</span>
@@ -1158,7 +1158,7 @@ export default function Onboarding() {
                 </p>
               </div>
               <div className="text-right">
-                <div className="text-4xl font-bold text-[#7b1c14]">{plan.price}</div>
+                <div className="text-4xl font-bold text-[#761B14]">{plan.price}</div>
                 {plan.price !== 'Custom' && <div className="text-gray-500">/month</div>}
               </div>
             </div>
@@ -1198,7 +1198,7 @@ export default function Onboarding() {
               className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-2xl p-8 mb-8 shadow-lg"
             >
               <div className="flex items-center gap-3 mb-6">
-                <Zap className="w-6 h-6 text-[#7b1c14]" />
+                <Zap className="w-6 h-6 text-[#761B14]" />
                 <h3 className="text-2xl font-bold text-gray-900">We'll Set Up For You</h3>
               </div>
               <p className="text-gray-600 mb-4">
@@ -1207,7 +1207,7 @@ export default function Onboarding() {
               <ul className="space-y-2">
                 {recommendedPlan.setupRecommendations.map((item, index) => (
                   <li key={index} className="flex items-center gap-3">
-                    <Target className="w-5 h-5 text-[#7b1c14]" />
+                    <Target className="w-5 h-5 text-[#761B14]" />
                     <span className="text-gray-700">{item}</span>
                   </li>
                 ))}
@@ -1225,7 +1225,7 @@ export default function Onboarding() {
             <Button
               size="lg"
               onClick={handleContinueToSignup}
-              className="relative overflow-hidden bg-gradient-to-r from-[#7b1c14] to-[#ff6b4a] hover:from-[#8b2c24] hover:to-[#ff7b5a] text-white text-xl px-12 py-8 rounded-xl shadow-xl transition-all duration-300 transform hover:scale-105"
+              className="relative overflow-hidden bg-gradient-to-r from-[#761B14] to-[#ff6b4a] hover:from-[#8b2c24] hover:to-[#ff7b5a] text-white text-xl px-12 py-8 rounded-xl shadow-xl transition-all duration-300 transform hover:scale-105"
             >
               <span className="relative z-10 flex items-center font-bold">
                 <Sparkles className="mr-3 h-6 w-6" />
@@ -1271,7 +1271,7 @@ export default function Onboarding() {
             setCurrentQuestionIndex={setCurrentQuestionIndex}
             isMeetingMode={false}
             theme="light"
-            brandColorPrimary="#7b1c14"
+            brandColorPrimary="#761B14"
             brandColorSecondary="#ff6b4a"
             useGradient={true}
             fontColor="#111827"

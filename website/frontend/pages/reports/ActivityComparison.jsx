@@ -16,7 +16,7 @@ export default function ActivityComparison() {
           <Button
             variant="outline"
             size="default"
-            className="bg-[#7b1c14] hover:bg-[#6b1a12] text-white border-none"
+            className="bg-[#761B14] hover:bg-[#6b1a12] text-white border-none"
           >
             Export Data
           </Button>
@@ -29,7 +29,7 @@ export default function ActivityComparison() {
             <select
               value={timeRange}
               onChange={(e) => setTimeRange(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#7b1c14]"
+              className="px-3 py-1.5 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#761B14]"
             >
               <option>This Week</option>
               <option>This Month</option>
@@ -43,7 +43,7 @@ export default function ActivityComparison() {
             <select
               value={selectedUsers}
               onChange={(e) => setSelectedUsers(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#7b1c14]"
+              className="px-3 py-1.5 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#761B14]"
             >
               <option>All Users</option>
               <option>Active Users</option>
@@ -58,7 +58,7 @@ export default function ActivityComparison() {
         <Card className="bg-white">
           <CardHeader className="border-b border-gray-200">
             <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-[#7b1c14]" />
+              <BarChart3 className="h-5 w-5 text-[#761B14]" />
               Activity Comparison Chart
             </CardTitle>
           </CardHeader>

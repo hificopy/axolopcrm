@@ -5,6 +5,8 @@ import {
   BarChart3, List, Grid, Download, RefreshCw
 } from 'lucide-react';
 import CallDialer from '../components/CallDialer';
+import { useAgency } from '@/hooks/useAgency';
+import ViewOnlyBadge from '@/components/ui/view-only-badge';
 
 /**
  * Calls Page - Main interface for live calls feature
@@ -12,6 +14,8 @@ import CallDialer from '../components/CallDialer';
  */
 
 const Calls = () => {
+  const { isReadOnly, canCreate } = useAgency();
+
   // State
   const [activeView, setActiveView] = useState('dialer'); // dialer, history, queue, analytics
   const [calls, setCalls] = useState([]);
@@ -158,17 +162,24 @@ const Calls = () => {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Live Calls</h1>
-            <p className="text-gray-600 mt-1">Manage your calls and call queue</p>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold text-gray-900">Live Calls</h1>
+              {isReadOnly() && <ViewOnlyBadge />}
+            </div>
+            <p className="text-gray-600 mt-1">
+              {isReadOnly() ? 'View call history and analytics - Read-only access' : 'Manage your calls and call queue'}
+            </p>
           </div>
 
-          <button
-            onClick={handleGetNextCall}
-            className="px-6 py-3 bg-[#7b1c14] text-white rounded-lg hover:bg-[#5a1410] flex items-center space-x-2 shadow-lg transform hover:scale-105 transition-all"
-          >
-            <Play size={20} />
-            <span className="font-semibold">Next Call</span>
-          </button>
+          {canCreate() && (
+            <button
+              onClick={handleGetNextCall}
+              className="px-6 py-3 bg-[#761B14] text-white rounded-lg hover:bg-[#5a1410] flex items-center space-x-2 shadow-lg transform hover:scale-105 transition-all"
+            >
+              <Play size={20} />
+              <span className="font-semibold">Next Call</span>
+            </button>
+          )}
         </div>
 
         {/* Today's Stats */}
@@ -234,7 +245,7 @@ const Calls = () => {
             onClick={() => setActiveView('dialer')}
             className={`px-4 py-2 font-medium transition-colors ${
               activeView === 'dialer'
-                ? 'text-[#7b1c14] border-b-2 border-[#7b1c14]'
+                ? 'text-[#761B14] border-b-2 border-[#761B14]'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -245,7 +256,7 @@ const Calls = () => {
             onClick={() => setActiveView('queue')}
             className={`px-4 py-2 font-medium transition-colors ${
               activeView === 'queue'
-                ? 'text-[#7b1c14] border-b-2 border-[#7b1c14]'
+                ? 'text-[#761B14] border-b-2 border-[#761B14]'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -256,7 +267,7 @@ const Calls = () => {
             onClick={() => setActiveView('history')}
             className={`px-4 py-2 font-medium transition-colors ${
               activeView === 'history'
-                ? 'text-[#7b1c14] border-b-2 border-[#7b1c14]'
+                ? 'text-[#761B14] border-b-2 border-[#761B14]'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -267,7 +278,7 @@ const Calls = () => {
             onClick={() => setActiveView('analytics')}
             className={`px-4 py-2 font-medium transition-colors ${
               activeView === 'analytics'
-                ? 'text-[#7b1c14] border-b-2 border-[#7b1c14]'
+                ? 'text-[#761B14] border-b-2 border-[#761B14]'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -304,7 +315,7 @@ const Calls = () => {
                   </p>
                   <button
                     onClick={handleGetNextCall}
-                    className="px-6 py-3 bg-[#7b1c14] text-white rounded-lg hover:bg-[#5a1410] inline-flex items-center space-x-2"
+                    className="px-6 py-3 bg-[#761B14] text-white rounded-lg hover:bg-[#5a1410] inline-flex items-center space-x-2"
                   >
                     <Play size={20} />
                     <span>Start Calling</span>
@@ -380,12 +391,12 @@ const Calls = () => {
                   <input
                     type="text"
                     placeholder="Search calls..."
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7b1c14] focus:border-transparent"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#761B14] focus:border-transparent"
                     value={filters.searchTerm}
                     onChange={(e) => setFilters({ ...filters, searchTerm: e.target.value })}
                   />
                   <select
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#7b1c14] focus:border-transparent"
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#761B14] focus:border-transparent"
                     value={filters.disposition}
                     onChange={(e) => setFilters({ ...filters, disposition: e.target.value })}
                   >
@@ -470,7 +481,7 @@ const Calls = () => {
           {/* Today's Meetings/Callbacks */}
           <div className="bg-white rounded-lg border border-gray-200 p-4">
             <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
-              <Calendar size={18} className="mr-2 text-[#7b1c14]" />
+              <Calendar size={18} className="mr-2 text-[#761B14]" />
               Today's Callbacks
             </h3>
             <div className="space-y-3">
