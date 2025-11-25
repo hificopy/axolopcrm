@@ -122,9 +122,9 @@
    - Description should be brief but clear about what changed
 
 3. **What to include in backup:**
-   - All project files EXCEPT: `.git`, `node_modules`, `dist`, `build`
+   - All project files EXCEPT: `.git`, `node_modules`, `dist`, `build`, `GEMINI.md`, `CLAUDE.md`, `QWEN.md`
    - Use rsync or similar tool to preserve file structure
-   - Command template: `rsync -av --exclude='.git' --exclude='node_modules' --exclude='dist' --exclude='build' . ../[folder]/backup-[timestamp]-[description]/`
+   - Command template: `rsync -av --exclude='.git' --exclude='node_modules' --exclude='dist' --exclude='build' --exclude='GEMINI.md' --exclude='CLAUDE.md' --exclude='QWEN.md' . ../[folder]/backup-[timestamp]-[description]/`
 
 ### Backup Process
 1. **Before any commit or deployment:** Create a backup in the appropriate local folder as specified above.
@@ -222,6 +222,13 @@ Axolop CRM is built to be the best CRM on the planet for ECOMMERCE, SALES/MARKET
 - **Current Configuration:** Backend runs on port 3002, frontend on port 3000
 - **Production Backend:** Available at http://axolop.hopto.org:3002 via dynamic DNS
 - **Documentation:** All references to ports 3001 have been updated to 3002
+
+### Critical Deployment Instructions
+- **NEVER PUSH TO PRODUCTION:** Under no circumstances should any AI model commit changes to the `mastered` branch or deploy to Vercel
+- **Human Controlled Releases:** Only the developer (Juan) performs git pushes to production and Vercel deployments
+- **AI Role in Deployment:** AI may create backups and prepare documentation, but cannot make production changes
+- **Backup Required:** Before any release, AI must create proper backups in the appropriate local folders
+- **Version Management:** AI may assist with version documentation but deployment execution is human-only
 
 ### Critical Deployment Instructions
 - **NEVER PUSH TO PRODUCTION:** Under no circumstances should any AI model commit changes to the `mastered` branch or deploy to Vercel
