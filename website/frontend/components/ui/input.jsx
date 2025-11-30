@@ -12,7 +12,7 @@ const Input = React.forwardRef(({ className, type = 'text', ...props }, ref) => 
         'placeholder:text-gray-400 dark:placeholder:text-gray-500',
         'transition-all duration-200',
         'hover:border-gray-300 hover:shadow-sm dark:hover:border-gray-600',
-        'focus-visible:outline-none focus-visible:border-[#761B14] focus-visible:ring-2 focus-visible:ring-[#761B14]/20',
+        'focus-visible:outline-none focus-visible:border-[#3F0D28] focus-visible:ring-2 focus-visible:ring-[#3F0D28]/20',
         'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-50 dark:disabled:bg-[#0d0f12]',
         className
       )}

@@ -3,10 +3,12 @@ import { createClient } from '@supabase/supabase-js';
 import EmailService from '../services/email-service.js';
 import SendGridAnalyticsSync from '../services/sendgrid-analytics-sync.js';
 import { extractAgencyContext } from '../middleware/agency-access.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Apply agency context extraction to all routes
+// Apply authentication and agency context extraction to all routes
+router.use(protect);
 router.use(extractAgencyContext);
 
 // Initialize Supabase

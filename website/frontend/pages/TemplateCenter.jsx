@@ -176,7 +176,7 @@ export default function TemplateCenter() {
         navigate(`/app/meetings?template=${template.id}`);
         break;
       case 'reports':
-        navigate(`/app/reports?template=${template.id}`);
+        navigate(`/app/home?template=${template.id}`);
         break;
       default:
         console.log('Use template:', template);

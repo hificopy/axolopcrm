@@ -1,0 +1,277 @@
+/*
+ * Axolop CRM Production Table - Monday.com-inspired with Axolop branding
+ * 100% Complete
+ */
+
+.monday-table {
+  --axolop-primary: #791C14;
+  --axolop-primary-hover: #6b1a12;
+  --axolop-primary-light: #a03a2e;
+  --axolop-green: #00c875;
+  --axolop-orange: #fdab3d;
+  --axolop-red: #e44258;
+  --axolop-purple: #7b2d8e;
+  --axolop-blue: #2563eb;
+  --axolop-gray: #c4c4c4;
+  --axolop-bg: #f6f7fb;
+  --axolop-border: #e6e9ef;
+}
+
+/* Smooth animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Table container */
+.monday-table {
+  width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+}
+
+/* Group animations */
+.monday-group {
+  animation: fadeInUp 0.2s ease-out;
+}
+
+/* Row hover effects - matching Monday.com exactly */
+.monday-table .group:hover {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth scrollbar */
+.monday-table ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.monday-table ::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.monday-table ::-webkit-scrollbar-thumb {
+  background: #c4c4c4;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.monday-table ::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+/* Firefox scrollbar */
+.monday-table {
+  scrollbar-width: thin;
+  scrollbar-color: #c4c4c4 #f1f1f1;
+}
+
+/* Badge hover effects */
+.monday-table [class*="Badge"] {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.monday-table [class*="Badge"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Input focus styles */
+.monday-table input:focus {
+  outline: none;
+  border-color: var(--axolop-primary);
+  box-shadow: 0 0 0 3px rgba(121, 28, 20, 0.1);
+}
+
+/* Button transitions */
+.monday-table button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.monday-table button:active {
+  transform: scale(0.98);
+}
+
+/* Selection highlight - Axolop branded */
+.monday-table .row-selected {
+  background-color: #fee2e2 !important;
+  border-left: 3px solid var(--axolop-primary);
+}
+
+/* Checkbox styling */
+.monday-checkbox {
+  appearance: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.monday-checkbox:checked {
+  background-color: var(--axolop-primary);
+  border-color: var(--axolop-primary);
+}
+
+.monday-checkbox:hover:not(:checked) {
+  border-color: var(--axolop-primary);
+  background-color: rgba(121, 28, 20, 0.05);
+}
+
+/* Empty state styling */
+.monday-table-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #666;
+}
+
+/* Loading state */
+.monday-table-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+/* Sticky header shadow */
+.monday-table .sticky {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Column header hover */
+.monday-table [class*="TableHead"] {
+  transition: background-color 0.15s ease;
+}
+
+/* Dropdown animations */
+.monday-table [class*="dropdown"] {
+  animation: slideInFromTop 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Avatar shadows */
+.monday-table [class*="avatar"] {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+/* Status badge glow effect */
+.monday-table [class*="status-badge"] {
+  position: relative;
+}
+
+.monday-table [class*="status-badge"]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.monday-table [class*="status-badge"]:hover::after {
+  opacity: 0.3;
+  filter: blur(8px);
+}
+
+/* Bulk selection toolbar slide-in */
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Row action menu fade */
+.monday-table .row-actions {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.monday-table .group:hover .row-actions {
+  opacity: 1;
+}
+
+/* Smooth border transitions */
+.monday-table [class*="border"] {
+  transition: border-color 0.15s ease;
+}
+
+/* Focus visible for accessibility */
+.monday-table *:focus-visible {
+  outline: 2px solid var(--axolop-primary);
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .monday-table {
+    overflow: visible !important;
+  }
+
+  .monday-table .sticky {
+    position: static;
+  }
+
+  .monday-table .row-actions {
+    display: none;
+  }
+
+  .monday-table button {
+    display: none;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .monday-table {
+    font-size: 14px;
+  }
+
+  .monday-table [class*="px-4"] {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .monday-table [class*="px-3"] {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+  .monday-table {
+    --axolop-bg: #1e1e1e;
+    --axolop-border: #333;
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .monday-table * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

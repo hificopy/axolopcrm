@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Onboarding Debug</title>
+    <script type="module">
+      // Test importing question flows directly
+      import { getQuestionsForIndustry } from "/frontend/lib/onboarding/questionFlows.js";
+
+      console.log("✅ Question flows imported");
+
+      // Test getting questions
+      const questions = getQuestionsForIndustry("Marketing Agency");
+      console.log("✅ Got questions:", questions.length);
+      console.log("First question:", questions[0]);
+
+      // Update UI
+      document.getElementById("status").innerHTML = `
+            <h2>✅ Successfully loaded ${questions.length} questions</h2>
+            <p>First question: ${questions[0]?.title}</p>
+            <div id="questions"></div>
+        `;
+
+      // Display all questions
+      const questionsDiv = document.getElementById("questions");
+      questions.forEach((q, i) => {
+        const div = document.createElement("div");
+        div.style.padding = "10px";
+        div.style.border = "1px solid #ccc";
+        div.style.margin = "5px 0";
+        div.innerHTML = `<strong>Q${i + 1}:</strong> ${q.title}`;
+        questionsDiv.appendChild(div);
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Onboarding Debug Test</h1>
+    <div id="status">Loading...</div>
+  </body>
+</html>

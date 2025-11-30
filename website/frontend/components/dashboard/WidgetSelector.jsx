@@ -12,136 +12,87 @@ import {
   LayoutGrid,
   Sparkles,
   Filter,
-  Search
+  Search,
+  Target,
+  Award,
+  Calendar,
+  Clock,
+  CheckSquare,
+  Activity,
+  PieChart,
+  Briefcase,
+  UserCheck,
+  Phone,
+  MessageSquare,
+  Zap,
+  ArrowUpRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-// Available widget types
+// Comprehensive widget library for agency owners - 35+ widgets
 const WIDGET_CATEGORIES = {
-  metrics: {
-    name: 'Metrics',
-    icon: BarChart3,
+  sales: {
+    name: 'Sales & Revenue',
+    icon: DollarSign,
     widgets: [
       {
         id: 'total-revenue',
         name: 'Total Revenue',
         icon: DollarSign,
         component: 'MetricCard',
-        props: {
-          title: 'Total Revenue',
-          color: 'accent',
-          subtitle: 'Current period',
-          additionalInfo: [
-            { label: 'This Month', value: '$0' },
-            { label: 'Last Month', value: '$0' }
-          ]
-        },
+        props: { title: 'Total Revenue', color: 'accent', subtitle: 'Current period' },
         description: 'Revenue metrics with trend'
       },
       {
-        id: 'active-deals',
-        name: 'Active Deals',
+        id: 'revenue-chart',
+        name: 'Revenue Chart',
+        icon: BarChart3,
+        component: 'RevenueChart',
+        props: { title: 'Revenue Overview' },
+        description: 'Revenue over time with gradient'
+      },
+      {
+        id: 'mrr',
+        name: 'Monthly Recurring Revenue',
         icon: TrendingUp,
         component: 'MetricCard',
-        props: {
-          title: 'Active Deals',
-          color: 'blue',
-          subtitle: 'In pipeline',
-          additionalInfo: [
-            { label: 'Won', value: '0' },
-            { label: 'Lost', value: '0' }
-          ]
-        },
-        description: 'Active deal count with status'
-      },
-      {
-        id: 'new-leads',
-        name: 'New Leads',
-        icon: Users,
-        component: 'MetricCard',
-        props: {
-          title: 'New Leads',
-          color: 'green',
-          subtitle: 'This period',
-          additionalInfo: [
-            { label: 'Qualified', value: '0' },
-            { label: 'Unqualified', value: '0' }
-          ]
-        },
-        description: 'New leads with qualification'
-      },
-      {
-        id: 'conversion-rate',
-        name: 'Conversion Rate',
-        icon: Percent,
-        component: 'MetricCard',
-        props: {
-          title: 'Conversion Rate',
-          color: 'yellow',
-          subtitle: 'Lead to customer',
-          additionalInfo: [
-            { label: 'This Month', value: '0%' },
-            { label: 'Last Month', value: '0%' }
-          ]
-        },
-        description: 'Conversion rate with history'
+        props: { title: 'MRR', color: 'accent', subtitle: 'Recurring revenue' },
+        description: 'Monthly recurring revenue tracking'
       },
       {
         id: 'avg-deal-size',
-        name: 'Avg. Deal Size',
+        name: 'Average Deal Size',
         icon: DollarSign,
         component: 'MetricCard',
-        props: {
-          title: 'Avg. Deal Size',
-          color: 'green',
-          subtitle: 'Per closed deal',
-          additionalInfo: [
-            { label: 'Smallest', value: '$0' },
-            { label: 'Largest', value: '$0' }
-          ]
-        },
-        description: 'Average deal value metrics'
+        props: { title: 'Avg. Deal Size', color: 'accent', subtitle: 'Per closed deal' },
+        description: 'Average value of closed deals'
       },
       {
-        id: 'active-accounts',
-        name: 'Active Accounts',
-        icon: Users,
+        id: 'win-rate',
+        name: 'Win Rate',
+        icon: Award,
         component: 'MetricCard',
-        props: {
-          title: 'Active Accounts',
-          color: 'blue',
-          subtitle: 'Customer base',
-          additionalInfo: [
-            { label: 'New', value: '0' },
-            { label: 'Churned', value: '0' }
-          ]
-        },
-        description: 'Account metrics'
+        props: { title: 'Win Rate', color: 'accent', subtitle: 'Deals won vs lost' },
+        description: 'Percentage of deals won'
       },
       {
-        id: 'customer-ltv',
-        name: 'Customer LTV',
-        icon: DollarSign,
+        id: 'sales-velocity',
+        name: 'Sales Velocity',
+        icon: Zap,
         component: 'MetricCard',
-        props: {
-          title: 'Customer LTV',
-          color: 'accent',
-          subtitle: 'Average lifetime value',
-          additionalInfo: [
-            { label: 'Avg. Revenue', value: '$0' },
-            { label: 'Retention', value: '0 mo' }
-          ]
-        },
-        description: 'Customer lifetime value'
+        props: { title: 'Sales Velocity', color: 'accent', subtitle: 'Avg. days to close' },
+        description: 'Speed of closing deals'
       },
-    ]
-  },
-  full: {
-    name: 'Full',
-    icon: LayoutGrid,
-    widgets: [
+      {
+        id: 'pipeline-value',
+        name: 'Pipeline Value',
+        icon: TrendingUp,
+        component: 'MetricCard',
+        props: { title: 'Pipeline Value', color: 'accent', subtitle: 'Total opportunity value' },
+        description: 'Total value in pipeline'
+      },
       {
         id: 'full-sales',
         name: 'Sales Overview',
@@ -150,21 +101,51 @@ const WIDGET_CATEGORIES = {
         props: {},
         description: 'Complete sales metrics dashboard'
       },
+    ]
+  },
+  leads: {
+    name: 'Lead Management',
+    icon: Users,
+    widgets: [
       {
-        id: 'full-marketing',
-        name: 'Marketing Performance',
-        icon: Mail,
-        component: 'FullMarketingWidget',
-        props: {},
-        description: 'Complete marketing analytics'
+        id: 'new-leads',
+        name: 'New Leads',
+        icon: Users,
+        component: 'MetricCard',
+        props: { title: 'New Leads', color: 'accent', subtitle: 'This period' },
+        description: 'New leads acquired'
       },
       {
-        id: 'revenue-chart',
-        name: 'Revenue Chart',
-        icon: BarChart3,
-        component: 'RevenueChart',
-        props: { title: 'Revenue Overview' },
-        description: 'Revenue over time visualization'
+        id: 'active-leads',
+        name: 'Active Leads',
+        icon: UserCheck,
+        component: 'MetricCard',
+        props: { title: 'Active Leads', color: 'accent', subtitle: 'In pipeline' },
+        description: 'Currently active leads'
+      },
+      {
+        id: 'lead-source',
+        name: 'Lead Sources',
+        icon: PieChart,
+        component: 'MetricCard',
+        props: { title: 'Top Lead Source', color: 'accent', subtitle: 'Best performing' },
+        description: 'Lead source breakdown'
+      },
+      {
+        id: 'lead-qualification-rate',
+        name: 'Qualification Rate',
+        icon: Target,
+        component: 'MetricCard',
+        props: { title: 'Qualification Rate', color: 'accent', subtitle: 'Leads qualified' },
+        description: 'Lead qualification percentage'
+      },
+      {
+        id: 'hot-leads',
+        name: 'Hot Leads',
+        icon: Zap,
+        component: 'MetricCard',
+        props: { title: 'Hot Leads', color: 'accent', subtitle: 'High score leads' },
+        description: 'High-priority leads'
       },
       {
         id: 'conversion-funnel',
@@ -172,23 +153,45 @@ const WIDGET_CATEGORIES = {
         icon: Filter,
         component: 'ConversionFunnelWidget',
         props: {},
-        description: 'Lead conversion funnel'
+        description: 'Lead to customer journey'
       },
       {
-        id: 'profit-margin',
-        name: 'Profit & Loss',
-        icon: DollarSign,
-        component: 'ProfitMarginWidget',
-        props: {},
-        description: 'Profit and loss analysis'
+        id: 'conversion-rate',
+        name: 'Conversion Rate',
+        icon: Percent,
+        component: 'MetricCard',
+        props: { title: 'Conversion Rate', color: 'accent', subtitle: 'Lead to customer' },
+        description: 'Overall conversion rate'
       },
+    ]
+  },
+  marketing: {
+    name: 'Marketing',
+    icon: Mail,
+    widgets: [
       {
-        id: 'email-marketing',
-        name: 'Email Marketing',
+        id: 'active-campaigns',
+        name: 'Active Campaigns',
         icon: Mail,
-        component: 'EmailMarketingWidget',
-        props: {},
-        description: 'Email campaign metrics'
+        component: 'MetricCard',
+        props: { title: 'Active Campaigns', color: 'accent', subtitle: 'Running now' },
+        description: 'Current active campaigns'
+      },
+      {
+        id: 'email-open-rate',
+        name: 'Email Open Rate',
+        icon: Mail,
+        component: 'MetricCard',
+        props: { title: 'Open Rate', color: 'accent', subtitle: 'Email opens' },
+        description: 'Email open percentage'
+      },
+      {
+        id: 'click-through-rate',
+        name: 'Click-Through Rate',
+        icon: ArrowUpRight,
+        component: 'MetricCard',
+        props: { title: 'CTR', color: 'accent', subtitle: 'Link clicks' },
+        description: 'Email click-through rate'
       },
       {
         id: 'form-submissions',
@@ -198,12 +201,158 @@ const WIDGET_CATEGORIES = {
         props: {},
         description: 'Form submission analytics'
       },
+      {
+        id: 'form-conversion-rate',
+        name: 'Form Conversion Rate',
+        icon: Target,
+        component: 'MetricCard',
+        props: { title: 'Form Conv. Rate', color: 'accent', subtitle: 'Forms to leads' },
+        description: 'Form to lead conversion'
+      },
+      {
+        id: 'full-marketing',
+        name: 'Marketing Performance',
+        icon: Mail,
+        component: 'FullMarketingWidget',
+        props: {},
+        description: 'Complete marketing analytics'
+      },
+    ]
+  },
+  tasks: {
+    name: 'Tasks & Productivity',
+    icon: CheckSquare,
+    widgets: [
+      {
+        id: 'tasks-due-today',
+        name: 'Tasks Due Today',
+        icon: Clock,
+        component: 'MetricCard',
+        props: { title: 'Due Today', color: 'accent', subtitle: 'Tasks pending' },
+        description: 'Tasks due today count'
+      },
+      {
+        id: 'overdue-tasks',
+        name: 'Overdue Tasks',
+        icon: CheckSquare,
+        component: 'MetricCard',
+        props: { title: 'Overdue', color: 'accent', subtitle: 'Past due date' },
+        description: 'Overdue task count'
+      },
+      {
+        id: 'tasks-completed',
+        name: 'Tasks Completed',
+        icon: Award,
+        component: 'MetricCard',
+        props: { title: 'Completed', color: 'accent', subtitle: 'This week' },
+        description: 'Tasks completed this week'
+      },
+      {
+        id: 'activity-feed',
+        name: 'Recent Activity',
+        icon: Activity,
+        component: 'MetricCard',
+        props: { title: 'Activity', color: 'accent', subtitle: 'Recent actions' },
+        description: 'Recent activity feed'
+      },
+      {
+        id: 'team-performance',
+        name: 'Team Performance',
+        icon: Users,
+        component: 'MetricCard',
+        props: { title: 'Team Score', color: 'accent', subtitle: 'Productivity index' },
+        description: 'Team productivity metrics'
+      },
+    ]
+  },
+  calendar: {
+    name: 'Calendar & Meetings',
+    icon: Calendar,
+    widgets: [
+      {
+        id: 'upcoming-meetings',
+        name: 'Upcoming Meetings',
+        icon: Calendar,
+        component: 'MetricCard',
+        props: { title: 'Upcoming', color: 'accent', subtitle: 'Scheduled meetings' },
+        description: 'Next scheduled meetings'
+      },
+      {
+        id: 'meetings-this-week',
+        name: 'Meetings This Week',
+        icon: Calendar,
+        component: 'MetricCard',
+        props: { title: 'This Week', color: 'accent', subtitle: 'Meetings count' },
+        description: 'Meetings scheduled this week'
+      },
+      {
+        id: 'no-show-rate',
+        name: 'No-Show Rate',
+        icon: Clock,
+        component: 'MetricCard',
+        props: { title: 'No-Show Rate', color: 'accent', subtitle: 'Missed meetings' },
+        description: 'Meeting no-show percentage'
+      },
+      {
+        id: 'calls-today',
+        name: 'Calls Today',
+        icon: Phone,
+        component: 'MetricCard',
+        props: { title: 'Calls Today', color: 'accent', subtitle: 'Scheduled calls' },
+        description: 'Calls scheduled for today'
+      },
+    ]
+  },
+  financial: {
+    name: 'Financial',
+    icon: PieChart,
+    widgets: [
+      {
+        id: 'profit-margin',
+        name: 'Profit Margin',
+        icon: PieChart,
+        component: 'ProfitMarginWidget',
+        props: {},
+        description: 'Profit and loss analysis'
+      },
+      {
+        id: 'revenue-vs-expenses',
+        name: 'Revenue vs Expenses',
+        icon: BarChart3,
+        component: 'MetricCard',
+        props: { title: 'Net Profit', color: 'accent', subtitle: 'Revenue - Expenses' },
+        description: 'Net profit calculation'
+      },
+      {
+        id: 'active-clients',
+        name: 'Active Clients',
+        icon: Briefcase,
+        component: 'MetricCard',
+        props: { title: 'Active Clients', color: 'accent', subtitle: 'Current customers' },
+        description: 'Active client count'
+      },
+      {
+        id: 'customer-ltv',
+        name: 'Customer LTV',
+        icon: DollarSign,
+        component: 'MetricCard',
+        props: { title: 'Customer LTV', color: 'accent', subtitle: 'Lifetime value' },
+        description: 'Customer lifetime value'
+      },
+      {
+        id: 'active-accounts',
+        name: 'Active Accounts',
+        icon: Users,
+        component: 'MetricCard',
+        props: { title: 'Active Accounts', color: 'accent', subtitle: 'Customer base' },
+        description: 'Total active accounts'
+      },
     ]
   }
 };
 
 export default function WidgetSelector({ isOpen, onClose, onAddWidget }) {
-  const [selectedCategory, setSelectedCategory] = useState('metrics');
+  const [selectedCategory, setSelectedCategory] = useState('sales');
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleAddWidget = (widget) => {
@@ -257,7 +406,7 @@ export default function WidgetSelector({ isOpen, onClose, onAddWidget }) {
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-crm-border">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#761B14] to-[#9A392D] flex items-center justify-center">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#3F0D28] to-[#3F0D28] flex items-center justify-center">
                   <LayoutGrid className="h-5 w-5 text-white" />
                 </div>
                 <div>
@@ -286,20 +435,20 @@ export default function WidgetSelector({ isOpen, onClose, onAddWidget }) {
 
             {/* Categories */}
             {!searchQuery && (
-              <div className="flex gap-2 p-4 border-b border-crm-border overflow-x-auto">
+              <div className="flex flex-wrap gap-2 p-4 border-b border-crm-border">
                 {Object.entries(WIDGET_CATEGORIES).map(([key, category]) => {
                   const Icon = category.icon;
                   return (
                     <button
                       key={key}
                       onClick={() => setSelectedCategory(key)}
-                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+                      className={`inline-flex items-center justify-center gap-1.5 h-8 px-2.5 rounded-lg text-xs transition-colors ${
                         selectedCategory === key
-                          ? 'bg-[#761B14] text-white'
-                          : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                          ? 'bg-[#3F0D28] text-white font-medium'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 font-medium'
                       }`}
                     >
-                      <Icon className="h-4 w-4" />
+                      <Icon className="h-3.5 w-3.5 flex-shrink-0" />
                       <span>{category.name}</span>
                     </button>
                   );
@@ -317,15 +466,15 @@ export default function WidgetSelector({ isOpen, onClose, onAddWidget }) {
                       key={widget.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="group border border-crm-border rounded-lg p-4 hover:border-[#761B14] hover:shadow-md transition-all cursor-pointer"
+                      className="group border border-crm-border rounded-lg p-4 hover:border-[#3F0D28] hover:shadow-md transition-all cursor-pointer"
                       onClick={() => handleAddWidget(widget)}
                     >
                       <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 flex items-center justify-center group-hover:from-[#761B14]/10 group-hover:to-[#761B14]/20 transition-colors">
-                          <Icon className="h-5 w-5 text-gray-600 dark:text-gray-400 group-hover:text-[#761B14] dark:group-hover:text-[#d4463c]" />
+                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 flex items-center justify-center group-hover:from-[#3F0D28]/10 group-hover:to-[#3F0D28]/20 transition-colors">
+                          <Icon className="h-5 w-5 text-gray-600 dark:text-gray-400 group-hover:text-[#3F0D28] dark:group-hover:text-[#3F0D28]" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="font-medium text-sm text-crm-text-primary group-hover:text-[#761B14] transition-colors">
+                          <h3 className="font-medium text-sm text-crm-text-primary group-hover:text-[#3F0D28] transition-colors">
                             {widget.name}
                           </h3>
                           <p className="text-xs text-crm-text-secondary mt-1">

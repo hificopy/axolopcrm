@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Simple Test</title>
+  </head>
+  <body>
+    <div
+      id="root"
+      style="
+        padding: 20px;
+        font-size: 24px;
+        background: yellow;
+        color: black;
+        height: 100vh;
+      "
+    >
+      Simple Test - You should see this yellow box with black text
+    </div>
+
+    <script>
+      console.log("Simple test script loaded");
+      setTimeout(() => {
+        document.getElementById("root").style.background = "lightblue";
+        console.log("Background changed to lightblue");
+      }, 2000);
+    </script>
+  </body>
+</html>

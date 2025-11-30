@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { leadsApi } from './lib/api';
+import { leadsApi } from '@/lib/api';
 import { useToast } from '@/components/ui/use-toast';
 
 const CreateLeadModal = ({ isOpen, onClose, onLeadCreated }) => {
@@ -24,12 +24,23 @@ const CreateLeadModal = ({ isOpen, onClose, onLeadCreated }) => {
     e.preventDefault();
     setLoading(true);
     try {
+      // Safely parse address JSON
+      let parsedAddress = null;
+      if (address) {
+        try {
+          parsedAddress = JSON.parse(address);
+        } catch (parseError) {
+          console.warn('Invalid address JSON format, using raw string:', parseError);
+          parsedAddress = { raw: address }; // Store as raw string if not valid JSON
+        }
+      }
+
       const leadData = {
         name,
         email,
         phone,
         website,
-        address: address ? JSON.parse(address) : null, // Assuming address is JSON string
+        address: parsedAddress,
         type,
         status,
         value: parseFloat(value) || 0,

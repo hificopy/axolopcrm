@@ -84,7 +84,7 @@ function PriorityCell({ value, editable, onChange, columnKey }) {
   if (!editable) {
     const normalizedValue = value?.toString().toLowerCase() || 'medium';
     const priorityConfig = {
-      critical: { bg: '#761B14', text: 'white', label: 'Critical', icon: '⚠️' },
+      critical: { bg: '#3F0D28', text: 'white', label: 'Critical', icon: '⚠️' },
       high: { bg: '#e44258', text: 'white', label: 'High', icon: null },
       medium: { bg: '#fdab3d', text: 'white', label: 'Medium', icon: null },
       low: { bg: '#2563eb', text: 'white', label: 'Low', icon: null },
@@ -132,11 +132,11 @@ function DateCell({ value }) {
   return (
     <div className="flex items-center gap-2">
       {isOverdue && (
-        <AlertTriangle className="h-3.5 w-3.5 text-red-500 flex-shrink-0" />
+        <AlertTriangle className="h-3.5 w-3.5 text-[#3F0D28] flex-shrink-0" />
       )}
       <span className={cn(
         'text-sm',
-        isOverdue ? 'text-red-600 font-medium' : 'text-gray-700'
+        isOverdue ? 'text-[#3F0D28] font-medium' : 'text-gray-700'
       )}>
         {formattedDate}
       </span>
@@ -219,7 +219,7 @@ function TextCell({ value, editable, onChange, columnKey }) {
           }
         }}
         autoFocus
-        className="h-8 px-2 text-sm border-[#761B14] focus:ring-[#761B14]"
+        className="h-8 px-2 text-sm border-[#3F0D28] focus:ring-[#3F0D28]"
         onClick={(e) => e.stopPropagation()}
       />
     );
@@ -268,7 +268,7 @@ function CommentsCell({ value, onClick }) {
     >
       <MessageSquare className="h-4 w-4 text-gray-600" />
       {count > 0 && (
-        <span className="absolute -top-1 -right-1 bg-[#761B14] text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
+        <span className="absolute -top-1 -right-1 bg-[#3F0D28] text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
           {count > 9 ? '9+' : count}
         </span>
       )}

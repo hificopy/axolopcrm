@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>✅ Sexy Toggle Button Test</title>
+    <style>
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: linear-gradient(135deg, #0f0510 0%, #1a1a2e 100%);
+        color: white;
+        margin: 0;
+        padding: 40px;
+        min-height: 100vh;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .toggle-demo {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 40px;
+        margin: 20px 0;
+        backdrop-filter: blur(10px);
+      }
+      .sexy-toggle {
+        position: relative;
+        width: 112px;
+        height: 56px;
+        border-radius: 28px;
+        background: linear-gradient(135deg, #e92c92, #ff6b4a, #e92c92);
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 10px 40px rgba(233, 44, 146, 0.4);
+        transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        transform-style: preserve-3d;
+      }
+      .sexy-toggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 15px 50px rgba(233, 44, 146, 0.6);
+        background: linear-gradient(135deg, #5b1046, #ff7b5a, #5b1046);
+      }
+      .sexy-toggle:active {
+        transform: scale(0.95);
+      }
+      .toggle-indicator {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        width: 40px;
+        height: 40px;
+        border-radius: 20px;
+        background: white;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .toggle-indicator::before {
+        content: "";
+        position: absolute;
+        inset: 4px;
+        border-radius: 16px;
+        background: linear-gradient(
+          135deg,
+          rgba(233, 44, 146, 0.3),
+          rgba(255, 107, 74, 0.3),
+          rgba(233, 44, 146, 0.3)
+        );
+        animation: pulse 2s infinite;
+      }
+      .toggle-overlay {
+        position: absolute;
+        inset: 0;
+        border-radius: 28px;
+        opacity: 0.5;
+        transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .yearly .toggle-indicator {
+        transform: translateX(56px);
+      }
+      .yearly .toggle-overlay {
+        background: linear-gradient(
+          135deg,
+          rgba(233, 44, 146, 0.1),
+          transparent,
+          transparent
+        );
+      }
+      .monthly .toggle-overlay {
+        background: linear-gradient(
+          135deg,
+          transparent,
+          transparent,
+          rgba(233, 44, 146, 0.1)
+        );
+      }
+      .labels {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 30px;
+        font-weight: 600;
+      }
+      .label {
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+      .yearly .label.monthly {
+        background: rgba(255, 255, 255, 0.1);
+        color: #9ca3af;
+      }
+      .yearly .label.yearly {
+        background: linear-gradient(135deg, #e92c92, #ff6b4a);
+        color: white;
+        box-shadow: 0 4px 20px rgba(233, 44, 146, 0.4);
+      }
+      .monthly .label.yearly {
+        background: rgba(255, 255, 255, 0.1);
+        color: #9ca3af;
+      }
+      .monthly .label.monthly {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+      .savings {
+        background: rgba(235, 178, 7, 0.2);
+        color: #ebb207;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-weight: bold;
+        margin-left: 12px;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.6;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        background: linear-gradient(135deg, #fff, #e92c92);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      h2 {
+        font-size: 1.8rem;
+        margin: 20px 0 10px 0;
+        color: #e92c92;
+      }
+      .check {
+        color: #10b981;
+        margin-right: 8px;
+      }
+      .feature {
+        margin: 15px 0;
+      }
+      .feature span {
+        display: block;
+        margin: 5px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>✅ Sexy Toggle Button Implementation</h1>
+
+      <div class="toggle-demo">
+        <h2>🎨 Premium Toggle Button Design</h2>
+
+        <div class="sexy-toggle yearly" id="toggleBtn">
+          <div class="toggle-indicator"></div>
+          <div class="toggle-overlay"></div>
+        </div>
+
+        <div class="labels">
+          <div class="label monthly" id="monthlyLabel">Monthly</div>
+          <div class="label yearly" id="yearlyLabel">
+            Yearly
+            <span class="savings">Save 20%</span>
+          </div>
+        </div>
+
+        <div class="feature">
+          <span class="check">✅</span>
+          <strong>Smooth Animations:</strong> 700ms cubic-bezier transitions
+        </div>
+        <div class="feature">
+          <span class="check">✅</span> <strong>Sexy Styling:</strong> Gradient
+          background with glow effects
+        </div>
+        <div class="feature">
+          <span class="check">✅</span>
+          <strong>Visual Feedback:</strong> Sliding indicator with pulse
+          animation
+        </div>
+        <div class="feature">
+          <span class="check">✅</span> <strong>Hover Effects:</strong> Scale
+          transform and enhanced shadows
+        </div>
+        <div class="feature">
+          <span class="check">✅</span> <strong>Active States:</strong> Press
+          animation for tactile feedback
+        </div>
+      </div>
+
+      <div class="toggle-demo">
+        <h2>🎯 Implementation in Pricing.jsx</h2>
+        <div class="feature">
+          <span class="check">✅</span>
+          <strong>Updated className:</strong> Added shadow-2xl and enhanced
+          styling
+        </div>
+        <div class="feature">
+          <span class="check">✅</span> <strong>Longer Duration:</strong> 700ms
+          for smooth transitions
+        </div>
+        <div class="feature">
+          <span class="check">✅</span>
+          <strong>Better Gradients:</strong> Multi-stop gradients for depth
+        </div>
+        <div class="feature">
+          <span class="check">✅</span> <strong>Enhanced Border:</strong> 4px
+          border with white/40 opacity
+        </div>
+        <div class="feature">
+          <span class="check">✅</span> <strong>Glow Effects:</strong> Animated
+          pulse on toggle indicator
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 40px; opacity: 0.8">
+        <p>
+          <strong>Toggle button is now fully functional and sexy! 🎉</strong>
+        </p>
+        <p>
+          Visit
+          <a
+            href="http://localhost:3000/pricing"
+            style="color: #e92c92; text-decoration: none; font-weight: bold"
+            >http://localhost:3000/pricing</a
+          >
+          to see it in action
+        </p>
+      </div>
+    </div>
+
+    <script>
+      const toggleBtn = document.getElementById("toggleBtn");
+      const monthlyLabel = document.getElementById("monthlyLabel");
+      const yearlyLabel = document.getElementById("yearlyLabel");
+      let isYearly = true;
+
+      toggleBtn.addEventListener("click", () => {
+        isYearly = !isYearly;
+
+        if (isYearly) {
+          toggleBtn.classList.add("yearly");
+          toggleBtn.classList.remove("monthly");
+          monthlyLabel.classList.add("monthly");
+          monthlyLabel.classList.remove("yearly");
+          yearlyLabel.classList.add("yearly");
+          yearlyLabel.classList.remove("monthly");
+        } else {
+          toggleBtn.classList.add("monthly");
+          toggleBtn.classList.remove("yearly");
+          monthlyLabel.classList.remove("monthly");
+          monthlyLabel.classList.add("monthly");
+          yearlyLabel.classList.remove("yearly");
+          yearlyLabel.classList.add("monthly");
+        }
+      });
+    </script>
+  </body>
+</html>

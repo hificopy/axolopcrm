@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Filter, Calendar, CheckSquare, Clock, AlertTriangle, TrendingUp, Target, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { MondayTable } from './components/MondayTable';
-import { tasksApi } from './lib/api';
+import { MondayTable } from '@/components/MondayTable';
+import { tasksApi } from '@/lib/api';
 import { useToast } from '@/components/ui/use-toast';
 import { InfoTooltipInline } from '@/components/ui/info-tooltip';
 
@@ -410,7 +410,7 @@ export default function MyWork() {
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
               My Work
-              <span className="ml-3 text-[#761B14]">●</span>
+              <span className="ml-3 text-[#3F0D28]">●</span>
             </h1>
             <p className="text-sm text-gray-600 mt-2 font-medium">
               Track and manage your tasks, projects, and deadlines
@@ -424,7 +424,7 @@ export default function MyWork() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-[#761B14]/20 focus:border-[#761B14] transition-all"
+                className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-[#3F0D28]/20 focus:border-[#3F0D28] transition-all"
               >
                 <option value="all">All Status</option>
                 <option value="not-started">Not Started</option>
@@ -434,7 +434,7 @@ export default function MyWork() {
               <select
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
-                className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-[#761B14]/20 focus:border-[#761B14] transition-all"
+                className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white focus:ring-2 focus:ring-[#3F0D28]/20 focus:border-[#3F0D28] transition-all"
               >
                 <option value="all">All Priority</option>
                 <option value="critical">Critical</option>
@@ -464,8 +464,8 @@ export default function MyWork() {
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 mt-6">
           <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-3 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-[#761B14]/10">
-                <CheckSquare className="h-4 w-4 text-[#761B14]" />
+              <div className="p-1.5 rounded-lg bg-[#3F0D28]/10">
+                <CheckSquare className="h-4 w-4 text-[#3F0D28]" />
               </div>
               <div>
                 <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">Total</div>
@@ -510,14 +510,14 @@ export default function MyWork() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-red-50 to-red-100/50 rounded-xl p-3 border border-red-200 shadow-sm hover:shadow-md transition-all duration-300">
+          <div className="bg-gradient-to-br from-[#3F0D28]/5 to-[#3F0D28]/10 rounded-xl p-3 border border-[#3F0D28]/20 shadow-sm hover:shadow-md transition-all duration-300">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-red-500/10">
-                <AlertTriangle className="h-4 w-4 text-red-600" />
+              <div className="p-1.5 rounded-lg bg-[#3F0D28]/10">
+                <AlertTriangle className="h-4 w-4 text-[#3F0D28]" />
               </div>
               <div>
-                <div className="text-[10px] font-semibold text-red-700 uppercase tracking-wide">High Priority</div>
-                <div className="text-lg font-bold text-red-600">{stats.highPriority}</div>
+                <div className="text-[10px] font-semibold text-[#3F0D28] uppercase tracking-wide">High Priority</div>
+                <div className="text-lg font-bold text-[#3F0D28]">{stats.highPriority}</div>
               </div>
             </div>
           </div>
@@ -546,14 +546,14 @@ export default function MyWork() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-xl p-3 border border-blue-200 shadow-sm hover:shadow-md transition-all duration-300">
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-xl p-3 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
             <div className="flex items-center gap-2">
               <div className="p-1.5 rounded-lg bg-blue-500/10">
-                <TrendingUp className="h-4 w-4 text-blue-600" />
+                <TrendingUp className="h-4 w-4 text-[#3F0D28]" />
               </div>
               <div>
                 <div className="text-[10px] font-semibold text-blue-700 uppercase tracking-wide">Completion</div>
-                <div className="text-lg font-bold text-blue-600">{stats.completionRate}%</div>
+                <div className="text-lg font-bold text-[#3F0D28]">{stats.completionRate}%</div>
               </div>
             </div>
           </div>
@@ -565,7 +565,7 @@ export default function MyWork() {
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="flex flex-col items-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-[#761B14] mb-4"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-[#3F0D28] mb-4"></div>
               <p className="text-gray-600 font-medium">Loading tasks...</p>
             </div>
           </div>

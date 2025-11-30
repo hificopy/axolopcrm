@@ -2,6 +2,7 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Helper functions for Supabase
+-- ========================================
 
 -- Function to increment a column value
 CREATE OR REPLACE FUNCTION increment_column(table_name TEXT, column_name TEXT, row_id UUID)
@@ -10,6 +11,22 @@ BEGIN
   EXECUTE format('UPDATE %I SET %I = %I + 1 WHERE id = %L', table_name, column_name, column_name, row_id);
 END;
 $$ LANGUAGE plpgsql;
+
+-- 1. AUTH USERS TABLE (for authentication)
+CREATE TABLE IF NOT EXISTS auth.users (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  email TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  salt TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Enable Row Level Security for auth.users table
+ALTER TABLE auth.users ENABLE ROW LEVEL SECURITY;
+
+-- Index for email lookups
+CREATE INDEX IF NOT EXISTS idx_auth_users_email ON auth.users(email);
 
 -- Table for Leads
 CREATE TABLE public.leads (

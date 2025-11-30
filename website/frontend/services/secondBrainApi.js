@@ -3,7 +3,9 @@
  * Handles all API calls related to Second Brain (Logic, Maps, Notes)
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? "/api/v1" : `${window.location.origin}/api/v1`);
 
 class SecondBrainAPI {
   constructor() {
@@ -21,19 +23,19 @@ class SecondBrainAPI {
    */
   async getNodes(params = {}) {
     const queryString = new URLSearchParams(params).toString();
-    const url = `${this.baseURL}/nodes${queryString ? `?${queryString}` : ''}`;
+    const url = `${this.baseURL}/nodes${queryString ? `?${queryString}` : ""}`;
 
     const response = await fetch(url, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      credentials: 'include',
+      credentials: "include",
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to fetch nodes');
+      throw new Error(error.error || "Failed to fetch nodes");
     }
 
     return await response.json();
@@ -46,16 +48,16 @@ class SecondBrainAPI {
    */
   async getNode(nodeId) {
     const response = await fetch(`${this.baseURL}/nodes/${nodeId}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      credentials: 'include',
+      credentials: "include",
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to fetch node');
+      throw new Error(error.error || "Failed to fetch node");
     }
 
     return await response.json();
@@ -68,17 +70,17 @@ class SecondBrainAPI {
    */
   async createNode(nodeData) {
     const response = await fetch(`${this.baseURL}/nodes`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      credentials: 'include',
+      credentials: "include",
       body: JSON.stringify(nodeData),
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to create node');
+      throw new Error(error.error || "Failed to create node");
     }
 
     return await response.json();
@@ -92,17 +94,17 @@ class SecondBrainAPI {
    */
   async updateNode(nodeId, updates) {
     const response = await fetch(`${this.baseURL}/nodes/${nodeId}`, {
-      method: 'PUT',
+      method: "PUT",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      credentials: 'include',
+      credentials: "include",
       body: JSON.stringify(updates),
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to update node');
+      throw new Error(error.error || "Failed to update node");
     }
 
     return await response.json();
@@ -115,16 +117,16 @@ class SecondBrainAPI {
    */
   async deleteNode(nodeId) {
     const response = await fetch(`${this.baseURL}/nodes/${nodeId}`, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      credentials: 'include',
+      credentials: "include",
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to delete node');
+      throw new Error(error.error || "Failed to delete node");
     }
 
     return await response.json();
@@ -136,16 +138,16 @@ class SecondBrainAPI {
    */
   async getConnections() {
     const response = await fetch(`${this.baseURL}/connections`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      credentials: 'include',
+      credentials: "include",
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to fetch connections');
+      throw new Error(error.error || "Failed to fetch connections");
     }
 
     return await response.json();
@@ -158,17 +160,17 @@ class SecondBrainAPI {
    */
   async createConnection(connectionData) {
     const response = await fetch(`${this.baseURL}/connections`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      credentials: 'include',
+      credentials: "include",
       body: JSON.stringify(connectionData),
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to create connection');
+      throw new Error(error.error || "Failed to create connection");
     }
 
     return await response.json();
@@ -180,17 +182,20 @@ class SecondBrainAPI {
    * @returns {Promise<Object>} Success response
    */
   async deleteConnection(connectionId) {
-    const response = await fetch(`${this.baseURL}/connections/${connectionId}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await fetch(
+      `${this.baseURL}/connections/${connectionId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
       },
-      credentials: 'include',
-    });
+    );
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to delete connection');
+      throw new Error(error.error || "Failed to delete connection");
     }
 
     return await response.json();
@@ -204,17 +209,17 @@ class SecondBrainAPI {
    */
   async linkToCRM(nodeId, linkData) {
     const response = await fetch(`${this.baseURL}/nodes/${nodeId}/link-crm`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      credentials: 'include',
+      credentials: "include",
       body: JSON.stringify(linkData),
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to link to CRM');
+      throw new Error(error.error || "Failed to link to CRM");
     }
 
     return await response.json();
@@ -227,16 +232,16 @@ class SecondBrainAPI {
    */
   async getCRMLinks(nodeId) {
     const response = await fetch(`${this.baseURL}/nodes/${nodeId}/crm-links`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      credentials: 'include',
+      credentials: "include",
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to fetch CRM links');
+      throw new Error(error.error || "Failed to fetch CRM links");
     }
 
     return await response.json();
@@ -249,17 +254,17 @@ class SecondBrainAPI {
    */
   async syncCRMData(options = {}) {
     const response = await fetch(`${this.baseURL}/sync-crm`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      credentials: 'include',
+      credentials: "include",
       body: JSON.stringify(options),
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to sync CRM data');
+      throw new Error(error.error || "Failed to sync CRM data");
     }
 
     return await response.json();
@@ -271,149 +276,188 @@ class SecondBrainAPI {
 
   async getMaps(params = {}) {
     const queryString = new URLSearchParams(params).toString();
-    const url = `${this.baseURL}/maps${queryString ? `?${queryString}` : ''}`;
+    const url = `${this.baseURL}/maps${queryString ? `?${queryString}` : ""}`;
     const response = await fetch(url, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to fetch maps');
+    if (!response.ok)
+      throw new Error((await response.json()).error || "Failed to fetch maps");
     return await response.json();
   }
 
   async getMap(mapId) {
     const response = await fetch(`${this.baseURL}/maps/${mapId}`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to fetch map');
+    if (!response.ok)
+      throw new Error((await response.json()).error || "Failed to fetch map");
     return await response.json();
   }
 
   async createMap(mapData) {
     const response = await fetch(`${this.baseURL}/maps`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(mapData),
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to create map');
+    if (!response.ok)
+      throw new Error((await response.json()).error || "Failed to create map");
     return await response.json();
   }
 
   async updateMap(mapId, updates) {
     const response = await fetch(`${this.baseURL}/maps/${mapId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(updates),
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to update map');
+    if (!response.ok)
+      throw new Error((await response.json()).error || "Failed to update map");
     return await response.json();
   }
 
   async deleteMap(mapId) {
     const response = await fetch(`${this.baseURL}/maps/${mapId}`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to delete map');
+    if (!response.ok)
+      throw new Error((await response.json()).error || "Failed to delete map");
     return await response.json();
   }
 
   async duplicateMap(mapId) {
     const response = await fetch(`${this.baseURL}/maps/${mapId}/duplicate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to duplicate map');
+    if (!response.ok)
+      throw new Error(
+        (await response.json()).error || "Failed to duplicate map",
+      );
     return await response.json();
   }
 
   async getMapObjects(mapId) {
     const response = await fetch(`${this.baseURL}/maps/${mapId}/objects`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to fetch objects');
+    if (!response.ok)
+      throw new Error(
+        (await response.json()).error || "Failed to fetch objects",
+      );
     return await response.json();
   }
 
   async createMapObject(mapId, objectData) {
     const response = await fetch(`${this.baseURL}/maps/${mapId}/objects`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(objectData),
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to create object');
+    if (!response.ok)
+      throw new Error(
+        (await response.json()).error || "Failed to create object",
+      );
     return await response.json();
   }
 
   async updateMapObject(mapId, objectId, updates) {
-    const response = await fetch(`${this.baseURL}/maps/${mapId}/objects/${objectId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify(updates),
-    });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to update object');
+    const response = await fetch(
+      `${this.baseURL}/maps/${mapId}/objects/${objectId}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(updates),
+      },
+    );
+    if (!response.ok)
+      throw new Error(
+        (await response.json()).error || "Failed to update object",
+      );
     return await response.json();
   }
 
   async deleteMapObject(mapId, objectId) {
-    const response = await fetch(`${this.baseURL}/maps/${mapId}/objects/${objectId}`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-    });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to delete object');
+    const response = await fetch(
+      `${this.baseURL}/maps/${mapId}/objects/${objectId}`,
+      {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      },
+    );
+    if (!response.ok)
+      throw new Error(
+        (await response.json()).error || "Failed to delete object",
+      );
     return await response.json();
   }
 
   async bulkUpdateMapObjects(mapId, updates) {
     const response = await fetch(`${this.baseURL}/maps/${mapId}/objects/bulk`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ updates }),
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to bulk update');
+    if (!response.ok)
+      throw new Error((await response.json()).error || "Failed to bulk update");
     return await response.json();
   }
 
   async getMapConnectors(mapId) {
     const response = await fetch(`${this.baseURL}/maps/${mapId}/connectors`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to fetch connectors');
+    if (!response.ok)
+      throw new Error(
+        (await response.json()).error || "Failed to fetch connectors",
+      );
     return await response.json();
   }
 
   async createMapConnector(mapId, connectorData) {
     const response = await fetch(`${this.baseURL}/maps/${mapId}/connectors`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(connectorData),
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to create connector');
+    if (!response.ok)
+      throw new Error(
+        (await response.json()).error || "Failed to create connector",
+      );
     return await response.json();
   }
 
   async deleteMapConnector(mapId, connectorId) {
-    const response = await fetch(`${this.baseURL}/maps/${mapId}/connectors/${connectorId}`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-    });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to delete connector');
+    const response = await fetch(
+      `${this.baseURL}/maps/${mapId}/connectors/${connectorId}`,
+      {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      },
+    );
+    if (!response.ok)
+      throw new Error(
+        (await response.json()).error || "Failed to delete connector",
+      );
     return await response.json();
   }
 
@@ -423,148 +467,175 @@ class SecondBrainAPI {
 
   async getNotes(params = {}) {
     const queryString = new URLSearchParams(params).toString();
-    const url = `${this.baseURL}/notes${queryString ? `?${queryString}` : ''}`;
+    const url = `${this.baseURL}/notes${queryString ? `?${queryString}` : ""}`;
     const response = await fetch(url, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to fetch notes');
+    if (!response.ok)
+      throw new Error((await response.json()).error || "Failed to fetch notes");
     return await response.json();
   }
 
   async getNote(noteId) {
     const response = await fetch(`${this.baseURL}/notes/${noteId}`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to fetch note');
+    if (!response.ok)
+      throw new Error((await response.json()).error || "Failed to fetch note");
     return await response.json();
   }
 
   async getNoteBySlug(slug) {
     const response = await fetch(`${this.baseURL}/notes/slug/${slug}`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to fetch note');
+    if (!response.ok)
+      throw new Error((await response.json()).error || "Failed to fetch note");
     return await response.json();
   }
 
   async createNote(noteData) {
     const response = await fetch(`${this.baseURL}/notes`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(noteData),
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to create note');
+    if (!response.ok)
+      throw new Error((await response.json()).error || "Failed to create note");
     return await response.json();
   }
 
   async updateNote(noteId, updates) {
     const response = await fetch(`${this.baseURL}/notes/${noteId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(updates),
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to update note');
+    if (!response.ok)
+      throw new Error((await response.json()).error || "Failed to update note");
     return await response.json();
   }
 
   async deleteNote(noteId) {
     const response = await fetch(`${this.baseURL}/notes/${noteId}`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to delete note');
+    if (!response.ok)
+      throw new Error((await response.json()).error || "Failed to delete note");
     return await response.json();
   }
 
   async duplicateNote(noteId) {
     const response = await fetch(`${this.baseURL}/notes/${noteId}/duplicate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to duplicate note');
+    if (!response.ok)
+      throw new Error(
+        (await response.json()).error || "Failed to duplicate note",
+      );
     return await response.json();
   }
 
   async moveNoteToFolder(noteId, folder) {
     const response = await fetch(`${this.baseURL}/notes/${noteId}/move`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ folder }),
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to move note');
+    if (!response.ok)
+      throw new Error((await response.json()).error || "Failed to move note");
     return await response.json();
   }
 
   async getBacklinks(noteId) {
     const response = await fetch(`${this.baseURL}/notes/${noteId}/backlinks`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to fetch backlinks');
+    if (!response.ok)
+      throw new Error(
+        (await response.json()).error || "Failed to fetch backlinks",
+      );
     return await response.json();
   }
 
   async searchNotes(query, params = {}) {
     const queryString = new URLSearchParams({ q: query, ...params }).toString();
-    const response = await fetch(`${this.baseURL}/notes/search?${queryString}`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-    });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to search notes');
+    const response = await fetch(
+      `${this.baseURL}/notes/search?${queryString}`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      },
+    );
+    if (!response.ok)
+      throw new Error(
+        (await response.json()).error || "Failed to search notes",
+      );
     return await response.json();
   }
 
   async getFolders() {
     const response = await fetch(`${this.baseURL}/notes/folders`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to fetch folders');
+    if (!response.ok)
+      throw new Error(
+        (await response.json()).error || "Failed to fetch folders",
+      );
     return await response.json();
   }
 
   async getTags() {
     const response = await fetch(`${this.baseURL}/notes/tags`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to fetch tags');
+    if (!response.ok)
+      throw new Error((await response.json()).error || "Failed to fetch tags");
     return await response.json();
   }
 
   async getNoteComments(noteId) {
     const response = await fetch(`${this.baseURL}/notes/${noteId}/comments`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to fetch comments');
+    if (!response.ok)
+      throw new Error(
+        (await response.json()).error || "Failed to fetch comments",
+      );
     return await response.json();
   }
 
   async addNoteComment(noteId, commentData) {
     const response = await fetch(`${this.baseURL}/notes/${noteId}/comments`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(commentData),
     });
-    if (!response.ok) throw new Error((await response.json()).error || 'Failed to add comment');
+    if (!response.ok)
+      throw new Error((await response.json()).error || "Failed to add comment");
     return await response.json();
   }
 
@@ -578,14 +649,14 @@ class SecondBrainAPI {
    */
   async checkHealth() {
     const response = await fetch(`${this.baseURL}/health`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
     if (!response.ok) {
-      throw new Error('Second Brain API is unhealthy');
+      throw new Error("Second Brain API is unhealthy");
     }
 
     return await response.json();

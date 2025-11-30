@@ -194,7 +194,7 @@ const TourTooltip = ({ step, onNext, onPrevious, onComplete, isFirst, isLast }) 
                   className="gap-1 bg-green-600 hover:bg-green-700"
                   size="sm"
                 >
-                  Get Started!
+                  Start Free Trial!
                   <ArrowRight className="h-3 w-3" />
                 </Button>
               ) : (
@@ -393,88 +393,6 @@ export const useTour = (tourKey = 'dashboard') => {
     hasCompletedTour,
     hasSkippedTour
   };
-};
-
-// Quick Start Checklist Component
-export const QuickStartChecklist = () => {
-  const [checkedItems, setCheckedItems] = useState([]);
-  
-  const checklistItems = [
-    { id: 'add-lead', label: 'Add your first lead', href: '/app/leads' },
-    { id: 'create-form', label: 'Create a simple form', href: '/app/forms' },
-    { id: 'check-calendar', label: 'Check your calendar', href: '/app/calendar' },
-    { id: 'explore-dashboard', label: 'Explore dashboard widgets', href: '/app/home' },
-    { id: 'try-search', label: 'Try universal search (⌘K)', href: null }
-  ];
-  
-  const handleCheck = (itemId) => {
-    setCheckedItems(prev => 
-      prev.includes(itemId) 
-        ? prev.filter(id => id !== itemId)
-        : [...prev, itemId]
-    );
-  };
-  
-  const completedCount = checkedItems.length;
-  const totalCount = checklistItems.length;
-  const progressPercentage = (completedCount / totalCount) * 100;
-  
-  return (
-    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Get Started in 5 Steps</h3>
-        <span className="text-sm font-medium text-blue-600">
-          {completedCount}/{totalCount} Complete
-        </span>
-      </div>
-      
-      {/* Progress bar */}
-      <div className="w-full bg-blue-200 rounded-full h-2 mb-4">
-        <div 
-          className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300"
-          style={{ width: `${progressPercentage}%` }}
-        />
-      </div>
-      
-      {/* Checklist items */}
-      <div className="space-y-2">
-        {checklistItems.map(item => (
-          <label
-            key={item.id}
-            className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/50 cursor-pointer transition-colors"
-          >
-            <input
-              type="checkbox"
-              checked={checkedItems.includes(item.id)}
-              onChange={() => handleCheck(item.id)}
-              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-            />
-            <span className="flex-1 text-sm text-gray-700">
-              {item.href ? (
-                <a 
-                  href={item.href} 
-                  className="text-blue-600 hover:text-blue-800 underline"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {item.label}
-                </a>
-              ) : (
-                item.label
-              )}
-            </span>
-          </label>
-        ))}
-      </div>
-      
-      {completedCount === totalCount && (
-        <div className="mt-4 p-3 bg-green-100 border border-green-200 rounded-lg">
-          <p className="text-sm text-green-800 font-medium">
-            🎉 Congratulations! You\'ve completed the quick start guide!
-          </p>
-        </div>
-      )}
-    </div>
-  );
 };
 
 export default InteractiveTour;

@@ -76,7 +76,7 @@ const InfiniteCanvas = ({
     switch (obj.type) {
       case 'rectangle':
       case 'shape':
-        ctx.fillStyle = obj.style?.fill || '#761B14';
+        ctx.fillStyle = obj.style?.fill || '#3F0D28';
         ctx.strokeStyle = obj.style?.stroke || '#ffffff';
         ctx.lineWidth = obj.style?.strokeWidth || 2;
 
@@ -164,13 +164,13 @@ const InfiniteCanvas = ({
 
     // Draw selection handles
     if (isSelected) {
-      ctx.strokeStyle = '#761B14';
+      ctx.strokeStyle = '#3F0D28';
       ctx.lineWidth = 2;
       ctx.strokeRect(obj.position_x - 2, obj.position_y - 2, obj.width + 4, obj.height + 4);
 
       // Resize handles
       const handleSize = 8;
-      ctx.fillStyle = '#761B14';
+      ctx.fillStyle = '#3F0D28';
       const handles = [
         { x: obj.position_x, y: obj.position_y }, // top-left
         { x: obj.position_x + obj.width, y: obj.position_y }, // top-right
@@ -334,7 +334,7 @@ const InfiniteCanvas = ({
         height: 0,
         z_index: objects.length,
         data: selectedTool === 'sticky_note' ? { text: '', color: '#FFD700' } : {},
-        style: selectedTool === 'rectangle' ? { fill: '#761B14', rx: 10 } : selectedTool === 'circle' ? { fill: '#4C7FFF' } : {},
+        style: selectedTool === 'rectangle' ? { fill: '#3F0D28', rx: 10 } : selectedTool === 'circle' ? { fill: '#4C7FFF' } : {},
       });
     }
   }, [selectedTool, objects, selectedObjectId, screenToCanvas, findObjectAt, findResizeHandleAt, snapToGrid, onObjectSelect]);

@@ -31,7 +31,7 @@ import { useToast } from '@/components/ui/use-toast';
 import Newsletter from '../components/email-marketing/Newsletter';
 import EmailAnalytics from '../components/email-marketing/EmailAnalytics';
 import FlowBuilder from '../components/email-marketing/FlowBuilder';
-import { emailCampaignsApi, workflowsApi } from './lib/api';
+import { emailCampaignsApi, workflowsApi } from '@/lib/api';
 import { useAgency } from '@/hooks/useAgency';
 import ViewOnlyBadge from '@/components/ui/view-only-badge';
 
@@ -130,7 +130,7 @@ const EmailMarketing = () => {
   }, [fetchEmailMarketingData]);
 
   const handleCreateCampaign = () => {
-    navigate('/app/email-marketing/campaigns/create');
+    navigate('/app/email-marketing/create');
   };
 
   const handleCreateWorkflow = () => {
@@ -175,7 +175,7 @@ const EmailMarketing = () => {
   };
 
   const handleCreateTemplate = () => {
-    navigate('/app/email-marketing/templates/create');
+    navigate('/app/email-marketing/create');
   };
 
   const getStatusBadgeVariant = (status) => {
@@ -201,7 +201,7 @@ const EmailMarketing = () => {
     return (
       <div className="h-full min-h-screen flex items-center justify-center pt-[150px]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#761B14] mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#3F0D28] mx-auto mb-4"></div>
           <p className="text-crm-text-secondary">Loading email marketing...</p>
         </div>
       </div>
@@ -255,8 +255,8 @@ const EmailMarketing = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-4">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <Mail className="w-6 h-6 text-red-600" />
+            <div className="p-2 bg-[#3F0D28]/10 rounded-lg">
+              <Mail className="w-6 h-6 text-[#3F0D28]" />
             </div>
             <div>
               <p className="text-sm text-crm-text-secondary">Total Campaigns</p>
@@ -267,7 +267,7 @@ const EmailMarketing = () => {
         <Card>
           <CardContent className="p-4 flex items-center gap-4">
             <div className="p-2 bg-green-100 rounded-lg">
-              <Zap className="w-6 h-6 text-green-600" />
+              <Zap className="w-6 h-6 text-emerald-700" />
             </div>
             <div>
               <p className="text-sm text-crm-text-secondary">Active Workflows</p>
@@ -347,7 +347,7 @@ const EmailMarketing = () => {
                         <p className="text-sm text-crm-text-secondary">{campaign.subject}</p>
                         <div className="flex items-center gap-4 mt-2 text-sm">
                           <span>{campaign.sent} sent</span>
-                          <span className="text-green-600">{campaign.openRate}% open</span>
+                          <span className="text-emerald-700">{campaign.openRate}% open</span>
                           <span className="text-primary">{campaign.clickRate}% click</span>
                         </div>
                       </div>
@@ -379,8 +379,8 @@ const EmailMarketing = () => {
                         <p className="text-sm text-crm-text-secondary">{workflow.description}</p>
                         <div className="flex items-center gap-4 mt-2 text-sm">
                           <span>{workflow.executionCount} runs</span>
-                          <span className="text-green-600">{workflow.successCount} success</span>
-                          <span className="text-red-600">{workflow.failureCount} failed</span>
+                          <span className="text-emerald-700">{workflow.successCount} success</span>
+                          <span className="text-[#3F0D28]">{workflow.failureCount} failed</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -512,11 +512,11 @@ const EmailMarketing = () => {
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-crm-text-secondary">Success:</span>
-                          <span className="text-green-600">{workflow.successCount}</span>
+                          <span className="text-emerald-700">{workflow.successCount}</span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-crm-text-secondary">Failed:</span>
-                          <span className="text-red-600">{workflow.failureCount}</span>
+                          <span className="text-[#3F0D28]">{workflow.failureCount}</span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-crm-text-secondary">Created:</span>

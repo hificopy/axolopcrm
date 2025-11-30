@@ -1,0 +1,699 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom scrollbar for dashboard widgets */
+.dashboard-widget {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(123, 28, 20, 0.3) transparent;
+}
+
+.dashboard-widget::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.dashboard-widget::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dashboard-widget::-webkit-scrollbar-thumb {
+  background-color: rgba(123, 28, 20, 0.3);
+  border-radius: 3px;
+}
+
+.dashboard-widget::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(123, 28, 20, 0.5);
+}
+
+@layer base {
+  :root {
+    /* Close CRM Color Variables */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    --primary: 4 85% 27%; /* #7b1c14 - Brand Accent Red */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 10%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 10%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 4 85% 27%; /* Brand Accent Red for focus rings */
+
+    /* Additional Close CRM Colors - Triadic Color Theory (Light & Vibrant) */
+    /* Base: Red-Orange #7b1c14 (4° 85% 27%) */
+    /* Triadic harmony with high lightness for readability */
+    --primary-blue: 204 90% 58%; /* #5BB9F5 - Bright Sky Blue (triadic, light & readable) */
+    --primary-green: 142 65% 50%; /* #2DCE89 - Emerald Green (triadic, vibrant & distinct) */
+    --primary-yellow: 38 92% 58%; /* #F5A623 - Bright Saffron (analogous, warm & visible) */
+    --primary-black: 0 0% 6%; /* #101010 - Main black for Axolop */
+    --primary-accent: 4 85% 27%; /* #7b1c14 - Accent color for Axolop */
+    --crm-text-primary: 0 0% 6%; /* #101010 */
+    --crm-text-secondary: 0 0% 40%; /* #666666 */
+    --crm-bg-light: 0 0% 98%; /* #F7F7F7 */
+    --crm-border: 0 0% 90%; /* #E5E5E5 */
+    --crm-sidebar: 0 0% 6%; /* #101010 - Dark sidebar for Axolop */
+    --crm-sidebar-gradient-start: 4 85% 8%; /* Deep burgundy-black */
+    --crm-sidebar-gradient-mid: 0 0% 6%; /* Main black #101010 */
+    --crm-sidebar-gradient-end: 4 60% 10%; /* Warm dark accent */
+    --crm-sidebar-hover: 4 70% 15%; /* Warm hover with red undertones */
+    --crm-sidebar-active: 4 85% 27%; /* Accent red #7b1c14 */
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 216 20% 5%;
+    --foreground: 0 0% 100%;
+
+    --card: 216 20% 5%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 216 20% 5%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 4 85% 50%; /* #7b1c14 lighter for dark mode */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 4 85% 50%; /* Brand Accent Red for dark mode focus rings */
+
+    /* Dark mode specific colors - Triadic Color Theory (Light & Vibrant) */
+    --primary-blue: 204 90% 65%; /* Brighter sky blue for dark mode */
+    --primary-green: 142 65% 58%; /* Brighter emerald green for dark mode */
+    --primary-yellow: 38 92% 65%; /* Brighter saffron for dark mode */
+    --primary-black: 0 0% 98%; /* #101010 equivalent in dark mode */
+    --primary-accent: 4 85% 50%; /* #7b1c14 lighter in dark mode */
+    --crm-text-primary: 0 0% 100%;
+    --crm-text-secondary: 0 0% 70%;
+    --crm-bg-light: 216 20% 5%; /* Darker neutral background #0d0f12 */
+    --crm-border: 0 0% 20%;
+    /* Sidebar remains identical in both light and dark mode */
+    --crm-sidebar: 0 0% 6%; /* #101010 - Dark sidebar for Axolop */
+    --crm-sidebar-gradient-start: 4 85% 8%; /* Deep burgundy-black */
+    --crm-sidebar-gradient-mid: 0 0% 6%; /* Main black #101010 */
+    --crm-sidebar-gradient-end: 4 60% 10%; /* Warm dark accent */
+    --crm-sidebar-hover: 4 70% 15%; /* Warm hover with red undertones */
+    --crm-sidebar-active: 4 85% 27%; /* Accent red #7b1c14 */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    /* Smooth transitions for all elements */
+    transition: background-color, color, border-color, box-shadow 150ms ease-in-out;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    /* Enable smooth scrolling globally */
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    /* Better font rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Close CRM Typography - Premium Hierarchy */
+  h1 {
+    @apply font-bold tracking-tight;
+  }
+
+  h2 {
+    @apply font-bold;
+  }
+
+  h3, h4 {
+    @apply font-semibold;
+  }
+
+  h5, h6 {
+    @apply font-medium;
+  }
+
+  /* Scrollbar styling (Close CRM style) */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    @apply bg-gray-700;
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-600;
+  }
+}
+
+@layer components {
+  /* Close CRM Button Styles */
+  .btn-primary {
+    @apply bg-primary-blue text-white hover:bg-blue-600 active:bg-blue-700
+           px-4 py-2 rounded-lg font-medium transition-colors duration-150
+           focus:outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300
+           px-4 py-2 rounded-lg font-medium transition-colors duration-150
+           focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2;
+  }
+
+  .btn-success {
+    @apply bg-primary-green text-white hover:bg-green-600 active:bg-green-700
+           px-4 py-2 rounded-lg font-medium transition-colors duration-150
+           focus:outline-none focus:ring-2 focus:ring-primary-green focus:ring-offset-2;
+  }
+
+  /* Close CRM Input Styles */
+  .input-primary {
+    @apply w-full px-3 py-2 border border-crm-border rounded-lg
+           focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent
+           placeholder:text-gray-400 text-sm;
+  }
+
+  /* Close CRM Card Styles */
+  .card-crm {
+    @apply bg-white dark:bg-[#1a1d24] border border-crm-border rounded-lg shadow-crm-card
+           hover:shadow-crm-hover transition-shadow duration-150;
+  }
+
+  /* Close CRM Sidebar Styles */
+  .sidebar-item {
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
+           text-gray-300 hover:bg-crm-sidebar-hover hover:text-white
+           transition-colors duration-150 cursor-pointer;
+  }
+
+  .sidebar-item-active {
+    @apply bg-crm-sidebar-active text-white;
+  }
+
+  /* Close CRM Table Styles - Premium Edition */
+  .table-crm {
+    @apply w-full text-sm text-left;
+  }
+
+  .table-crm thead {
+    @apply border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800;
+  }
+
+  .table-crm th {
+    @apply px-4 py-3.5 font-semibold text-xs uppercase tracking-wider text-gray-600 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700;
+  }
+
+  .table-crm td {
+    @apply px-4 py-3.5 border-b border-gray-100 dark:border-gray-700;
+  }
+
+  .table-crm tbody tr {
+    @apply hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer border-l-2 border-l-transparent hover:border-l-[#7b1c14] hover:shadow-sm;
+  }
+
+  .table-crm tbody tr:last-child td {
+    @apply border-b-0;
+  }
+
+  /* Close CRM Badge Styles */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-blue {
+    @apply bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300;
+  }
+
+  .badge-green {
+    @apply bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300;
+  }
+
+  .badge-yellow {
+    @apply bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300;
+  }
+
+  .badge-red {
+    @apply bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300;
+  }
+
+  .badge-gray {
+    @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300;
+  }
+}
+
+@layer utilities {
+  /* Custom scrollbar utilities */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Close CRM specific utilities */
+  .crm-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .crm-section {
+    @apply py-6;
+  }
+
+  .crm-section-title {
+    @apply text-lg font-semibold text-crm-text-primary mb-4;
+  }
+
+  /* Responsive layout utilities */
+  .crm-page-wrapper {
+    @apply w-full max-w-full overflow-x-hidden;
+  }
+
+  .crm-grid-responsive {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+  }
+
+  .crm-stats-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4;
+  }
+
+  .crm-table-wrapper {
+    @apply w-full overflow-x-auto;
+  }
+
+  .crm-button-group {
+    @apply flex flex-wrap items-center gap-2;
+  }
+
+  /* Performance enhancements for smooth interactions */
+  .transform-gpu {
+    transform: translate3d(0, 0, 0);
+  }
+
+  .will-change-transform {
+    will-change: transform;
+  }
+
+  .will-change-contents {
+    will-change: contents;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  /* Optimize for animations */
+  .animate-fast {
+    animation-duration: 0.2s;
+  }
+
+  .animate-normal {
+    animation-duration: 0.3s;
+  }
+
+  .animate-slow {
+    animation-duration: 0.5s;
+  }
+
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@keyframes scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.5s ease-out forwards;
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s infinite ease-in-out;
+}
+
+@keyframes futuristic-pulse {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(0.7);
+    opacity: 0.5;
+  }
+}
+
+.futuristic-loader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.futuristic-loader::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #7b1c14; /* Accent Red */
+  animation: futuristic-pulse 2s infinite ease-in-out;
+  filter: blur(15px); /* Soft glow effect */
+  z-index: -1; /* Behind the logo */
+}
+
+.futuristic-loader::after {
+  content: '';
+  position: absolute;
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  border: 2px solid #a03a2e; /* Slightly lighter red */
+  animation: futuristic-pulse 2s infinite ease-in-out 0.5s; /* Delayed pulse */
+  z-index: -1;
+}
+
+/* React Grid Layout Customizations */
+.react-grid-layout {
+  position: relative;
+  transition: height 200ms ease;
+  min-width: fit-content;
+}
+
+.react-grid-item {
+  transition: all 200ms ease;
+  transition-property: left, top;
+}
+
+.react-grid-item.cssTransforms {
+  transition-property: transform;
+}
+
+.react-grid-item.resizing {
+  z-index: 100;
+  will-change: width, height;
+}
+
+.react-grid-item.react-draggable-dragging {
+  transition: none;
+  z-index: 100;
+  will-change: transform;
+}
+
+.react-grid-item.react-grid-placeholder {
+  background: rgba(123, 28, 20, 0.2);
+  opacity: 0.5;
+  transition-duration: 100ms;
+  z-index: 2;
+  border-radius: 8px;
+  border: 2px dashed #7b1c14;
+}
+
+.react-grid-item > .react-resizable-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+}
+
+.react-grid-item > .react-resizable-handle::after {
+  content: "";
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 5px;
+  height: 5px;
+  border-right: 2px solid rgba(123, 28, 20, 0.6);
+  border-bottom: 2px solid rgba(123, 28, 20, 0.6);
+}
+
+.dark .react-grid-item > .react-resizable-handle::after {
+  border-right: 2px solid rgba(212, 70, 60, 0.6);
+  border-bottom: 2px solid rgba(212, 70, 60, 0.6);
+}
+
+.react-resizable-hide > .react-resizable-handle {
+  display: none;
+}
+
+.dashboard-widget {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  border-radius: 8px;
+  overflow: visible !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-widget > * {
+  box-sizing: border-box;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Edit mode styling */
+.react-grid-item.react-draggable-dragging .dashboard-widget {
+  opacity: 0.8;
+}
+
+.react-grid-item:hover .drag-handle {
+  background: linear-gradient(to right, #a03a2e, #7b1c14);
+}
+
+.drag-handle {
+  transition: background 0.2s ease;
+}
+
+.react-grid-item {
+  overflow: visible !important;
+}
+
+.drag-handle {
+  cursor: move;
+}
+
+/* Ensure cards fit properly */
+.dashboard-widget .card {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.dashboard-widget .card > * {
+  box-sizing: border-box;
+}
+
+/* Responsive dashboard adjustments */
+@media (max-width: 768px) {
+  .react-grid-layout {
+    margin: 0;
+  }
+
+  .dashboard-widget {
+    font-size: 0.875rem;
+  }
+
+  .react-grid-item {
+    box-sizing: border-box;
+  }
+
+  /* Make tables scroll horizontally on tablets */
+  .table-crm {
+    min-width: 600px;
+  }
+
+  /* Hide less important table columns on mobile */
+  .table-mobile-hide {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-widget {
+    font-size: 0.75rem;
+  }
+
+  .react-grid-item {
+    touch-action: none;
+    box-sizing: border-box;
+  }
+
+  /* Tables need to scroll on mobile */
+  .table-crm {
+    min-width: 500px;
+    font-size: 0.75rem;
+  }
+
+  .table-crm th,
+  .table-crm td {
+    padding: 0.5rem 0.75rem;
+  }
+
+  /* Button groups stack better on very small screens */
+  .crm-button-group {
+    width: 100%;
+  }
+
+  .crm-button-group button {
+    flex: 1;
+    min-width: fit-content;
+  }
+}
+
+
+
+/* Ensure content doesn't overlap with Chat/Tasks panels - TARGETED APPROACH */
+/* Chat/Tasks buttons are fixed at top-right, only ~60px tall */
+/* Only add spacing to content that's actually in the top-right area */
+
+@layer components {
+  /* For workflow/form builders: only top-right elements need spacing */
+  .workflow-builder-content > *:first-child,
+  .form-builder-content > *:first-child {
+    padding-top: 4rem; /* 64px - enough to clear the buttons */
+  }
+
+  /* Alternative: Add margin to top-right positioned elements only */
+  .top-right-safe-area {
+    margin-top: 4rem;
+  }
+
+  /* Ensure modal/dialog content doesn't get covered */
+  .dialog-content-safe,
+  .modal-content-safe {
+    margin-top: 5rem;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .workflow-builder-content > *:first-child,
+  .form-builder-content > *:first-child {
+    padding-top: 1rem; /* Less padding on mobile */
+  }
+}
+
+/* Shimmer animation for Clear Placeholder Data button */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}

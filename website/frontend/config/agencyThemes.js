@@ -10,16 +10,16 @@ export const THEME_PRESETS = {
   default: {
     id: "default",
     name: "Default",
-    description: "Axolop signature burgundy theme",
+    description: "Axolop signature dark plum theme",
     isRemovable: false, // Cannot be deleted - this is the main branding
     colors: {
-      // HSL values matching current CSS variables
-      gradientStart: "4 85% 8%", // Deep burgundy-black
-      gradientMid: "0 0% 6%", // Main black #101010
-      gradientEnd: "4 60% 10%", // Warm dark accent
-      hover: "4 70% 15%", // Warm hover with red undertones
-      active: "4 85% 27%", // Accent red #761B14
-      accent: "#761B14", // Primary accent color (hex for indicators)
+      // HSL values matching new Dark Plum palette
+      gradientStart: "0 0% 4%", // Near black #0a0a0a
+      gradientMid: "330 65% 10%", // Dark pink #1a0812
+      gradientEnd: "330 65% 15%", // Dark plum #3F0D28
+      hover: "330 65% 12%", // Plum hover #2D0A1E
+      active: "330 65% 15%", // Dark plum #3F0D28
+      accent: "#3F0D28", // Primary accent color (hex for indicators)
     },
   },
   ocean: {

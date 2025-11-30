@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   Search,
   FileText,
@@ -28,8 +28,14 @@ import {
   FilePlus,
   Lock,
   CheckCircle,
-  Info
-} from 'lucide-react';
+  Info,
+  Shield,
+  CreditCard,
+  ChevronRight,
+  Pin,
+  X,
+  Building2,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,302 +43,330 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { useSupabase } from '../context/SupabaseContext';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import PersonalizeMenuDialog from './PersonalizeMenuDialog';
-import InviteMemberModal from '../InviteMemberModal';
-import QuickLeadModal from '../modals/QuickLeadModal';
+} from "@/components/ui/dropdown-menu";
+import { useSupabase } from "@/context/SupabaseContext";
+import { useNavigate } from "react-router-dom";
+import api from "@/lib/api";
+import axios from "axios";
+import PersonalizeMenuDialog from "./PersonalizeMenuDialog";
+import InviteMemberModal from "../InviteMemberModal";
+import QuickLeadModal from "../modals/QuickLeadModal";
 
 // Available menu items
 export const AVAILABLE_MENU_ITEMS = [
   // Core Quick Actions
   {
-    id: 'quick-search',
-    label: 'Quick search',
+    id: "quick-search",
+    label: "Quick search",
     icon: Search,
-    shortcut: '⌘+K',
-    action: 'quick-search',
-    category: 'core'
+    shortcut: "⌘+K",
+    action: "quick-search",
+    category: "core",
   },
   {
-    id: 'quick-lead',
-    label: 'Quick lead',
+    id: "quick-lead",
+    label: "Quick lead",
     icon: UserPlus,
-    shortcut: '⌘+L',
-    action: 'quick-lead',
-    category: 'core'
+    shortcut: "⌘+L",
+    action: "quick-lead",
+    category: "core",
   },
   {
-    id: 'call-dialer',
-    label: 'Call dialer',
+    id: "call-dialer",
+    label: "Call dialer",
     icon: Phone,
-    shortcut: '⌘+D',
-    action: 'navigate',
-    path: '/app/calls',
-    category: 'core'
+    shortcut: "⌘+D",
+    action: "navigate",
+    path: "/app/calls",
+    category: "core",
   },
-  
+
   // Communication
   {
-    id: 'email-templates',
-    label: 'Email templates',
+    id: "email-templates",
+    label: "Email templates",
     icon: Mail,
-    action: 'navigate',
-    path: '/app/email-templates',
-    category: 'communication'
+    action: "navigate",
+    path: "/app/email-templates",
+    category: "communication",
   },
   {
-    id: 'meeting-scheduler',
-    label: 'Meeting scheduler',
+    id: "meeting-scheduler",
+    label: "Meeting scheduler",
     icon: Calendar,
-    action: 'navigate',
-    path: '/app/meetings',
-    category: 'communication'
+    action: "navigate",
+    path: "/app/meetings",
+    category: "communication",
   },
   {
-    id: 'team-chat',
-    label: 'Team chat',
+    id: "team-chat",
+    label: "Team chat",
     icon: MessageSquare,
-    action: 'navigate',
-    path: '/app/team-chat',
+    action: "navigate",
+    path: "/app/team-chat",
     locked: true,
-    version: 'V1.1',
-    category: 'communication'
+    version: "V1.1",
+    category: "communication",
   },
-  
+
   // Analytics & Reports
   {
-    id: 'reports-dashboard',
-    label: 'Reports dashboard',
+    id: "reports-dashboard",
+    label: "Reports dashboard",
     icon: BarChart3,
-    action: 'navigate',
-    path: '/app/reports',
-    category: 'analytics'
+    action: "navigate",
+    path: "/app/reports",
+    category: "analytics",
   },
   {
-    id: 'activity-feed',
-    label: 'Activity feed',
+    id: "activity-feed",
+    label: "Activity feed",
     icon: Activity,
-    action: 'navigate',
-    path: '/app/activities',
-    category: 'analytics'
+    action: "navigate",
+    path: "/app/activities",
+    category: "analytics",
   },
   {
-    id: 'sales-analytics',
-    label: 'Sales analytics',
+    id: "sales-analytics",
+    label: "Sales analytics",
     icon: TrendingUp,
-    action: 'navigate',
-    path: '/app/analytics/sales',
-    category: 'analytics'
+    action: "navigate",
+    path: "/app/analytics/sales",
+    category: "analytics",
   },
-  
+
   // Data Management
   {
-    id: 'import-data',
-    label: 'Import data',
+    id: "import-data",
+    label: "Import data",
     icon: Upload,
-    action: 'navigate',
-    path: '/app/import',
-    category: 'data'
+    action: "navigate",
+    path: "/app/import",
+    category: "data",
   },
   {
-    id: 'export-data',
-    label: 'Export data',
+    id: "export-data",
+    label: "Export data",
     icon: Download,
-    action: 'navigate',
-    path: '/app/export',
-    category: 'data'
+    action: "navigate",
+    path: "/app/export",
+    category: "data",
   },
   {
-    id: 'backup-restore',
-    label: 'Backup & restore',
+    id: "backup-restore",
+    label: "Backup & restore",
     icon: Shield,
-    action: 'navigate',
-    path: '/app/backup',
-    category: 'data'
+    action: "navigate",
+    path: "/app/backup",
+    category: "data",
   },
-  
+
   // Development & Integration
   {
-    id: 'api-keys',
-    label: 'API keys',
+    id: "api-keys",
+    label: "API keys",
     icon: Key,
-    action: 'navigate',
-    path: '/app/api-keys',
-    category: 'development'
+    action: "navigate",
+    path: "/app/api-keys",
+    category: "development",
   },
   {
-    id: 'integrations',
-    label: 'Integrations',
+    id: "integrations",
+    label: "Integrations",
     icon: Puzzle,
-    action: 'navigate',
-    path: '/app/integrations',
-    category: 'development'
+    action: "navigate",
+    path: "/app/integrations",
+    category: "development",
   },
   {
-    id: 'webhooks',
-    label: 'Webhooks',
+    id: "webhooks",
+    label: "Webhooks",
     icon: Link,
-    action: 'navigate',
-    path: '/app/webhooks',
-    category: 'development'
+    action: "navigate",
+    path: "/app/webhooks",
+    category: "development",
   },
-  
+
   // Customization
   {
-    id: 'custom-fields',
-    label: 'Custom fields',
+    id: "custom-fields",
+    label: "Custom fields",
     icon: Database,
-    action: 'navigate',
-    path: '/app/custom-fields',
-    category: 'customization'
+    action: "navigate",
+    path: "/app/custom-fields",
+    category: "customization",
   },
   {
-    id: 'workflow-builder',
-    label: 'Workflow builder',
+    id: "workflow-builder",
+    label: "Workflow builder",
     icon: Workflow,
-    action: 'navigate',
-    path: '/app/workflows',
-    category: 'customization'
+    action: "navigate",
+    path: "/app/workflows",
+    category: "customization",
   },
   {
-    id: 'automation-rules',
-    label: 'Automation rules',
+    id: "automation-rules",
+    label: "Automation rules",
     icon: Zap,
-    action: 'navigate',
-    path: '/app/automation',
-    category: 'customization'
+    action: "navigate",
+    path: "/app/automation",
+    category: "customization",
   },
-  
+
   // AI Features
   {
-    id: 'second-brain',
-    label: 'Second brain',
+    id: "second-brain",
+    label: "Second brain",
     icon: Brain,
-    action: 'navigate',
-    path: '/app/second-brain',
-    category: 'ai'
+    action: "navigate",
+    path: "/app/second-brain",
+    category: "ai",
   },
   {
-    id: 'ai-assistant',
-    label: 'AI assistant',
+    id: "ai-assistant",
+    label: "AI assistant",
     icon: Bot,
-    action: 'navigate',
-    path: '/app/ai-assistant',
-    category: 'ai'
+    action: "navigate",
+    path: "/app/ai-assistant",
+    category: "ai",
   },
-  
+
   // Templates & Resources
   {
-    id: 'template-center',
-    label: 'Template center',
+    id: "template-center",
+    label: "Template center",
     icon: FileText,
-    action: 'navigate',
-    path: '/app/templates',
-    category: 'resources'
+    action: "navigate",
+    path: "/app/templates",
+    category: "resources",
   },
   {
-    id: 'form-templates',
-    label: 'Form templates',
+    id: "form-templates",
+    label: "Form templates",
     icon: FilePlus,
-    action: 'navigate',
-    path: '/app/form-templates',
-    category: 'resources'
+    action: "navigate",
+    path: "/app/form-templates",
+    category: "resources",
   },
   {
-    id: 'campaign-templates',
-    label: 'Campaign templates',
+    id: "campaign-templates",
+    label: "Campaign templates",
     icon: Target,
-    action: 'navigate',
-    path: '/app/campaign-templates',
-    category: 'resources'
+    action: "navigate",
+    path: "/app/campaign-templates",
+    category: "resources",
   },
-  
+
   // Team Management
   {
-    id: 'invite-member',
-    label: 'Invite team member',
+    id: "agency-management",
+    label: "Agency management",
+    icon: Building2,
+    action: "navigate",
+    path: "/app/agency-management",
+    requiresAdmin: true,
+    category: "team",
+  },
+  {
+    id: "invite-member",
+    label: "Invite team member",
     icon: UserPlus,
-    action: 'invite-member',
+    action: "invite-member",
     requiresAdmin: true,
-    category: 'team'
+    category: "team",
   },
   {
-    id: 'team-settings',
-    label: 'Team settings',
+    id: "team-settings",
+    label: "Team settings",
     icon: Users,
-    action: 'navigate',
-    path: '/app/team-settings',
+    action: "navigate",
+    path: "/app/settings/agency",
     requiresAdmin: true,
-    category: 'team'
+    category: "team",
   },
   {
-    id: 'permissions',
-    label: 'Permissions',
-    icon: Lock,
-    action: 'navigate',
-    path: '/app/permissions',
+    id: "roles-permissions",
+    label: "Roles & Permissions",
+    icon: Shield,
+    action: "navigate",
+    path: "/app/settings/roles",
     requiresAdmin: true,
-    category: 'team'
+    category: "team",
   },
-  
+  {
+    id: "agency-analytics",
+    label: "Agency analytics",
+    icon: BarChart3,
+    action: "navigate",
+    path: "/app/agency-analytics",
+    requiresAdmin: true,
+    category: "team",
+  },
+  {
+    id: "activity-log",
+    label: "Activity log",
+    icon: Activity,
+    action: "navigate",
+    path: "/app/activity-log",
+    requiresAdmin: true,
+    category: "team",
+  },
+
   // Billing & Account
   {
-    id: 'billing',
-    label: 'Billing',
+    id: "billing",
+    label: "Billing",
     icon: CreditCard,
-    action: 'navigate',
-    path: '/app/billing',
-    category: 'account'
+    action: "navigate",
+    path: "/app/billing",
+    category: "account",
   },
   {
-    id: 'usage-stats',
-    label: 'Usage stats',
+    id: "usage-stats",
+    label: "Usage stats",
     icon: BarChart3,
-    action: 'navigate',
-    path: '/app/usage',
-    category: 'account'
+    action: "navigate",
+    path: "/app/usage",
+    category: "account",
   },
-  
+
   // Help & Support
   {
-    id: 'help',
-    label: 'Help center',
+    id: "help",
+    label: "Help center",
     icon: HelpCircle,
-    action: 'help',
-    category: 'help'
+    action: "help",
+    category: "help",
   },
   {
-    id: 'notifications',
-    label: 'Notifications',
+    id: "notifications",
+    label: "Notifications",
     icon: Bell,
-    action: 'notifications',
-    category: 'help'
+    action: "notifications",
+    category: "help",
   },
   {
-    id: 'changelog',
-    label: 'What\'s new',
+    id: "changelog",
+    label: "What's new",
     icon: Info,
-    action: 'navigate',
-    path: '/app/changelog',
-    category: 'help'
+    action: "navigate",
+    path: "/app/changelog",
+    category: "help",
   },
   {
-    id: 'system-status',
-    label: 'System status',
+    id: "system-status",
+    label: "System status",
     icon: CheckCircle,
-    action: 'navigate',
-    path: '/app/status',
-    category: 'help'
-  }
+    action: "navigate",
+    path: "/app/status",
+    category: "help",
+  },
 ];
 
 export default function SidebarMoreMenu({ pinnedButtons, onPinnedChange }) {
   const { user, supabase } = useSupabase();
   const navigate = useNavigate();
-  const [activeButtons, setActiveButtons] = useState(['quick-search', 'help']);
+  const [activeButtons, setActiveButtons] = useState(["quick-search", "help"]);
   const [isPersonalizeOpen, setIsPersonalizeOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -350,28 +384,29 @@ export default function SidebarMoreMenu({ pinnedButtons, onPinnedChange }) {
       }
 
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         if (!session?.access_token) {
           setIsLoading(false);
           return;
         }
 
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/users/me/sidebar-menu`, {
-          headers: {
-            Authorization: `Bearer ${session.access_token}`
-          }
-        });
+        const response = await api.get("/users/me/sidebar-menu");
 
         if (response.data.success) {
-          setActiveButtons(response.data.data || ['quick-search', 'help']);
+          // Ensure the data is an array
+          const menuData = response.data.data;
+          const buttons = Array.isArray(menuData) ? menuData : ["quick-search", "help"];
+          setActiveButtons(buttons);
         } else {
-          console.error('API returned error:', response.data);
-          setActiveButtons(['quick-search', 'help']);
+          console.error("API returned error:", response.data);
+          setActiveButtons(["quick-search", "help"]);
         }
       } catch (error) {
-        console.error('Error loading sidebar menu preferences:', error);
+        console.error("Error loading sidebar menu preferences:", error);
         // Set default buttons on error
-        setActiveButtons(['quick-search', 'help']);
+        setActiveButtons(["quick-search", "help"]);
       } finally {
         setIsLoading(false);
       }
@@ -384,26 +419,26 @@ export default function SidebarMoreMenu({ pinnedButtons, onPinnedChange }) {
     setIsOpen(false);
 
     switch (item.action) {
-      case 'quick-search':
+      case "quick-search":
         // Trigger quick search with keyboard shortcut
-        const event = new KeyboardEvent('keydown', { 
-          key: 'k', 
-          metaKey: true, 
-          ctrlKey: true 
+        const event = new KeyboardEvent("keydown", {
+          key: "k",
+          metaKey: true,
+          ctrlKey: true,
         });
         document.dispatchEvent(event);
         break;
-        
-      case 'quick-lead':
+
+      case "quick-lead":
         // Open quick lead creation modal
         setShowQuickLeadModal(true);
         break;
-        
-      case 'invite-member':
+
+      case "invite-member":
         setShowInviteModal(true);
         break;
-        
-      case 'navigate':
+
+      case "navigate":
         // Check if item is locked and handle appropriately
         if (item.locked) {
           // Show coming soon tooltip or navigate to beta access
@@ -413,20 +448,20 @@ export default function SidebarMoreMenu({ pinnedButtons, onPinnedChange }) {
           navigate(item.path);
         }
         break;
-        
-      case 'help':
+
+      case "help":
         // Open help center in new tab or modal
-        window.open('/docs', '_blank');
+        window.open("/docs", "_blank");
         break;
-        
-      case 'notifications':
+
+      case "notifications":
         // Toggle notifications panel
         // TODO: Implement notifications panel
-        console.log('Notifications panel - coming soon');
+        console.log("Notifications panel - coming soon");
         break;
-        
+
       default:
-        console.log('Unknown action:', item.action);
+        console.log("Unknown action:", item.action);
     }
   };
 
@@ -436,7 +471,7 @@ export default function SidebarMoreMenu({ pinnedButtons, onPinnedChange }) {
 
     if (isPinned) {
       // Unpin
-      newPinned = pinnedButtons.filter(id => id !== itemId);
+      newPinned = pinnedButtons.filter((id) => id !== itemId);
     } else {
       // Pin (if not at max)
       if (pinnedButtons.length >= 4) {
@@ -457,50 +492,43 @@ export default function SidebarMoreMenu({ pinnedButtons, onPinnedChange }) {
   const handlePreferencesUpdate = async (newButtons) => {
     setIsSaving(true);
     setSaveError(null);
-    
+
     // Optimistic update
     setActiveButtons(newButtons);
-    
+
     // Save to backend
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (!session?.access_token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
-      
-      const response = await axios.put(
-        `${import.meta.env.VITE_API_URL}/users/me/sidebar-menu`,
-        { buttons: newButtons },
-        {
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json'
-          },
-          timeout: 10000
-        }
-      );
+
+      const response = await api.put("/users/me/sidebar-menu", {
+        buttons: newButtons,
+      });
 
       if (!response.data.success) {
-        throw new Error(response.data.message || 'Failed to save preferences');
+        throw new Error(response.data.message || "Failed to save preferences");
       }
-      
+
       // Success - could show toast notification here
-      console.log('Preferences saved successfully');
-      
+      console.log("Preferences saved successfully");
     } catch (error) {
-      console.error('Error saving sidebar menu preferences:', error);
-      setSaveError(error.message || 'Failed to save preferences');
-      
+      console.error("Error saving sidebar menu preferences:", error);
+      setSaveError(error.message || "Failed to save preferences");
+
       // Revert on error
-      setActiveButtons(prev => prev);
+      setActiveButtons((prev) => prev);
     } finally {
       setIsSaving(false);
     }
   };
 
   // Filter to show only active buttons
-  const visibleItems = AVAILABLE_MENU_ITEMS.filter(item =>
-    activeButtons.includes(item.id)
+  const visibleItems = AVAILABLE_MENU_ITEMS.filter((item) =>
+    activeButtons.includes(item.id),
   );
 
   // Show loading state
@@ -517,12 +545,12 @@ export default function SidebarMoreMenu({ pinnedButtons, onPinnedChange }) {
     <>
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
-          <button
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all w-full text-gray-400 hover:bg-white/5 hover:text-white"
-          >
+          <button className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all w-full text-gray-400 hover:bg-white/5 hover:text-white">
             <Settings2 className="h-5 w-5" />
             <span className="flex-1 text-left">More</span>
-            <ChevronRight className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+            <ChevronRight
+              className={`h-4 w-4 transition-transform ${isOpen ? "rotate-90" : ""}`}
+            />
           </button>
         </DropdownMenuTrigger>
 
@@ -554,7 +582,9 @@ export default function SidebarMoreMenu({ pinnedButtons, onPinnedChange }) {
                   <Icon className="h-4 w-4" />
                   <span className="flex-1">{item.label}</span>
                   {item.shortcut && (
-                    <span className="text-xs text-gray-500">{item.shortcut}</span>
+                    <span className="text-xs text-gray-500">
+                      {item.shortcut}
+                    </span>
                   )}
                 </div>
                 <button
@@ -565,12 +595,18 @@ export default function SidebarMoreMenu({ pinnedButtons, onPinnedChange }) {
                   disabled={!canPin}
                   className={`p-1 rounded hover:bg-white/20 transition-colors ${
                     isPinned
-                      ? 'text-primary-green'
+                      ? "text-primary-green"
                       : canPin
-                        ? 'text-gray-500 hover:text-gray-300'
-                        : 'text-gray-700 cursor-not-allowed'
+                        ? "text-gray-500 hover:text-gray-300"
+                        : "text-gray-700 cursor-not-allowed"
                   }`}
-                  title={isPinned ? 'Unpin from header' : canPin ? 'Pin to header' : 'Max 4 pins reached'}
+                  title={
+                    isPinned
+                      ? "Unpin from header"
+                      : canPin
+                        ? "Pin to header"
+                        : "Max 4 pins reached"
+                  }
                 >
                   {isPinned ? (
                     <X className="h-3.5 w-3.5" />
@@ -616,7 +652,7 @@ export default function SidebarMoreMenu({ pinnedButtons, onPinnedChange }) {
         isOpen={showInviteModal}
         onClose={() => setShowInviteModal(false)}
         onSuccess={() => {
-          console.log('Member invited successfully from More menu');
+          console.log("Member invited successfully from More menu");
         }}
       />
 
@@ -624,7 +660,7 @@ export default function SidebarMoreMenu({ pinnedButtons, onPinnedChange }) {
         isOpen={showQuickLeadModal}
         onClose={() => setShowQuickLeadModal(false)}
         onSuccess={() => {
-          console.log('Lead created successfully from More menu');
+          console.log("Lead created successfully from More menu");
         }}
       />
     </>

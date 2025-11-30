@@ -57,7 +57,7 @@ const AuthTest = () => {
 
   const getStatusIcon = (status) => {
     if (status === 'pass') return <CheckCircle2 className="w-5 h-5 text-green-500" />;
-    if (status === 'fail') return <XCircle className="w-5 h-5 text-red-500" />;
+    if (status === 'fail') return <XCircle className="w-5 h-5 text-[#CA4238]" />;
     if (status === 'warn') return <AlertCircle className="w-5 h-5 text-yellow-500" />;
     return <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />;
   };
@@ -224,7 +224,7 @@ const AuthTest = () => {
             <button
               onClick={runTests}
               disabled={testing}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 bg-[#3F0D28] hover:bg-[#5a1a3a] text-white font-semibold py-3 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {testing ? (
                 <>
@@ -245,7 +245,7 @@ const AuthTest = () => {
 
           {/* Help Text */}
           <div className="mt-8 p-4 bg-blue-500/10 border border-blue-500/50 rounded-lg">
-            <h3 className="text-blue-400 font-semibold mb-2">Troubleshooting</h3>
+            <h3 className="text-[#3F0D28] font-semibold mb-2">Troubleshooting</h3>
             <ul className="text-sm text-gray-300 space-y-1">
               <li>• If environment variables fail: Check your .env file and restart the dev server</li>
               <li>• If session/user shows warning: Sign in at /signin to test authentication</li>

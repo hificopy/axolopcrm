@@ -21,7 +21,7 @@ export default function Explorer() {
             <Button
               variant="outline"
               size="default"
-              className="bg-[#761B14] hover:bg-[#6b1a12] text-white border-none"
+              className="btn-premium-red text-white border-none"
             >
               <Download className="h-4 w-4 mr-2" />
               Export
@@ -46,7 +46,7 @@ export default function Explorer() {
         <Card className="bg-white">
           <CardHeader className="border-b border-gray-200">
             <CardTitle className="flex items-center gap-2">
-              <Search className="h-5 w-5 text-[#761B14]" />
+              <Search className="h-5 w-5 text-[#3F0D28]" />
               Data Explorer
             </CardTitle>
           </CardHeader>
@@ -56,7 +56,7 @@ export default function Explorer() {
                 <div className="h-24 w-24 rounded-full bg-gray-100 flex items-center justify-center">
                   <Search className="h-12 w-12 text-gray-300" />
                 </div>
-                <div className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-[#761B14] flex items-center justify-center">
+                <div className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-[#3F0D28] flex items-center justify-center">
                   <Plus className="h-5 w-5 text-white" />
                 </div>
               </div>
@@ -67,7 +67,7 @@ export default function Explorer() {
               <Button
                 variant="default"
                 size="default"
-                className="bg-[#761B14] hover:bg-[#6b1a12]"
+                className="btn-premium-red"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Create Custom View

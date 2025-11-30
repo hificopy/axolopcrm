@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAffiliatePopup } from "./contexts/AffiliatePopupContext";
-import { useDemoMode } from "./contexts/DemoModeContext";
-import { useSupabase } from "../../context/SupabaseContext";
+import { useAffiliatePopup } from "@/contexts/AffiliatePopupContext";
+import { useDemoMode } from "@/contexts/DemoModeContext";
+import { useSupabase } from "@/context/SupabaseContext";
 import axios from "axios";
 import {
-  LayoutDashboard,
+  Home,
   DollarSign,
   Users,
   Send,
@@ -52,9 +52,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "./components/ui/dialog";
-import { Button } from "./components/ui/button";
-import { Badge } from "./components/ui/badge";
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -62,15 +62,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import AgenciesSelector from "./AgenciesSelector";
 import AffiliateSidebarButton from "./AffiliateSidebarButton";
 import SidebarMoreMenu from "./SidebarMoreMenu";
 
 // Top-level navigation items
-const topLevelItems = [
-  { name: "Home", href: "/app/home", icon: LayoutDashboard },
-];
+const topLevelItems = [{ name: "Home", href: "/app/home", icon: Home }];
 
 const mainCategories = [
   {
@@ -95,7 +93,11 @@ const mainCategories = [
         locked: true,
         version: "V1.1",
       },
-      { name: "Conversations", href: "/app/history", icon: MessageSquare },
+      {
+        name: "Conversations",
+        href: "/app/conversations",
+        icon: MessageSquare,
+      },
       { name: "Activities", href: "/app/activities", icon: Activity },
     ],
   },
@@ -197,7 +199,13 @@ const mainCategories = [
         locked: true,
         version: "V1.1",
       },
-      { name: "Reports", href: "/app/reports", icon: BarChart3 },
+      {
+        name: "Reports",
+        href: "/app/reports",
+        icon: BarChart3,
+        locked: true,
+        version: "V1.1",
+      },
     ],
   },
   {
@@ -400,11 +408,11 @@ export default function Sidebar({
   };
 
   return (
-    <div className="h-screen w-52 bg-gradient-to-b from-neutral-900/95 via-neutral-800/90 to-neutral-900/95 backdrop-blur-xl flex flex-col shadow-2xl border-r border-neutral-700/20 relative">
+    <div className="h-screen w-52 flex flex-col shadow-2xl relative" style={{ backgroundColor: '#0A0A0A' }}>
       {/* Header section with logo and text */}
-      <div className="h-20 bg-transparent flex items-center px-6 rounded-br-2xl flex-shrink-0">
+      <div className="h-20 flex items-center px-6 rounded-br-2xl flex-shrink-0" style={{ backgroundColor: '#0A0A0A' }}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-[#761B14] to-[#8a2220] rounded-xl flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 bg-gradient-to-br from-[#3F0D28] to-[#5a1a3a] rounded-xl flex items-center justify-center shadow-lg">
             <img
               src="/axolop-logo.png"
               alt="Axolop"
@@ -420,18 +428,18 @@ export default function Sidebar({
       {/* Content - scrollable area with padding for fixed bottom */}
       <div className="w-full flex-1 flex flex-col pb-[180px] overflow-hidden">
         {/* Top Section - Main Categories with Home as a category */}
-        <div className="px-4 py-6 border-b border-neutral-700/20 bg-gradient-to-b from-neutral-900/20 to-transparent flex-shrink-0">
+        <div className="px-4 py-6 flex-shrink-0">
           {/* Home as a main category - No dropdown */}
           <Link
             key="Home"
             to="/app/home"
             className={`sidebar-item ${
               location.pathname === "/app/home"
-                ? "sidebar-item-active text-white bg-[#761B14]"
+                ? "sidebar-item-active text-white bg-[#3F0D28]"
                 : "text-neutral-400 hover:text-neutral-200"
             }`}
           >
-            <LayoutDashboard className="h-5 w-5" />
+            <Home className="h-5 w-5" />
             <span className="font-medium">Home</span>
           </Link>
 
@@ -441,7 +449,7 @@ export default function Sidebar({
             to="/app/todos"
             className={`sidebar-item ${
               location.pathname === "/app/todos"
-                ? "sidebar-item-active text-white bg-[#761B14]"
+                ? "sidebar-item-active text-white bg-[#3F0D28]"
                 : "text-neutral-400 hover:text-neutral-200"
             }`}
           >
@@ -539,6 +547,12 @@ export default function Sidebar({
                               <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-[99999]">
                                 <div className="bg-black text-white text-xs px-3 py-2 rounded-md shadow-2xl whitespace-nowrap border border-white/20">
                                   Coming in {item.version || "V1.1"}
+                                  <a
+                                    href="/roadmap"
+                                    className="ml-1 text-[#EBB207] hover:text-[#3F0D28] pointer-events-auto underline"
+                                  >
+                                    View roadmap
+                                  </a>
                                 </div>
                               </div>
                             </div>
@@ -570,7 +584,8 @@ export default function Sidebar({
                                       sub.name.toLowerCase().includes("list") ||
                                       sub.name.toLowerCase() === "pipeline" ||
                                       sub.name.toLowerCase() === "overview" ||
-                                      sub.name.toLowerCase() === "history",
+                                      sub.name.toLowerCase() ===
+                                        "conversations",
                                   );
                                   if (defaultSubItem && defaultSubItem.href) {
                                     navigate(defaultSubItem.href);
@@ -629,6 +644,12 @@ export default function Sidebar({
                                       <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-[99999]">
                                         <div className="bg-black text-white text-xs px-3 py-2 rounded-md shadow-2xl whitespace-nowrap border border-white/20">
                                           Coming in {subItem.version || "V1.1"}
+                                          <a
+                                            href="/roadmap"
+                                            className="ml-1 text-[#EBB207] hover:text-[#3F0D28] pointer-events-auto underline"
+                                          >
+                                            View roadmap
+                                          </a>
                                         </div>
                                       </div>
                                     </div>
@@ -771,14 +792,14 @@ export default function Sidebar({
       </div>
 
       {/* Bottom section - Absolutely positioned at bottom, never moves */}
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-b from-black/95 via-gray-900/90 to-black/95">
+      <div className="absolute bottom-0 left-0 right-0" style={{ backgroundColor: '#0A0A0A' }}>
         {/* Agencies selector */}
-        <div className="px-3 py-2 border-t border-gray-800/50">
+        <div className="px-3 py-2">
           <AgenciesSelector />
         </div>
 
         {/* Affiliate Program Button */}
-        <div className="border-t border-gray-800/50">
+        <div>
           <AffiliateSidebarButton />
         </div>
       </div>

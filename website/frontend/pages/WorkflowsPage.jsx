@@ -250,7 +250,7 @@ const WorkflowsPage = () => {
               <CardTitle className="text-sm font-medium text-crm-text-secondary">Active</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-emerald-700">
                 {workflows.filter(w => w.is_active).length}
               </div>
             </CardContent>
@@ -270,7 +270,7 @@ const WorkflowsPage = () => {
               <CardTitle className="text-sm font-medium text-crm-text-secondary">Success Rate</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">
+              <div className="text-2xl font-bold text-[#3F0D28]">
                 {workflows.length > 0
                   ? Math.round(
                       workflows.reduce((sum, w) => sum + (w.successful_executions || 0), 0) /
@@ -389,7 +389,7 @@ const WorkflowsPage = () => {
                             variant="ghost"
                             onClick={() => handleDeleteWorkflow(workflow.id)}
                             title="Delete"
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="text-gray-300 hover:text-white hover:bg-white/5"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>

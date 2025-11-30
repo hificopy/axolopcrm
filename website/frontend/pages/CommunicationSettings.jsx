@@ -91,7 +91,7 @@ export default function CommunicationSettings() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-crm-text-primary">Communication Settings</h1>
-            <p className="text-sm text-crm-text-secondary mt-1">
+            <p className="text-sm text-gray-900 mt-1">
               Manage your communication preferences and templates
             </p>
           </div>
@@ -103,103 +103,110 @@ export default function CommunicationSettings() {
         <div className="max-w-6xl mx-auto">
           <div className="flex gap-6">
             {/* Sidebar Navigation - ALL LOCKED FOR V1.0 */}
-            <div className="w-64 flex-shrink-0">
-              <nav className="bg-white dark:bg-[#1a1d24] rounded-lg border border-crm-border p-4">
+            <div className="w-64 flex-shrink-0 relative z-10">
+              <nav className="bg-white dark:bg-[#1a1d24] rounded-lg border border-crm-border p-4 overflow-visible">
                 <div className="space-y-1">
                   {/* Locked Phone & Voicemail */}
-                  <div className="relative group">
-                    <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-400 bg-gray-100/50 dark:bg-gray-800/30">
-                      <Phone className="h-4 w-4 text-gray-400" />
-                      <span className="text-gray-400">Phone & Voicemail</span>
-                      <Lock className="h-3 w-3 ml-auto text-gray-400" />
+                  <div className="relative group overflow-visible">
+                    <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-300 bg-gray-100/50 dark:bg-gray-800/50">
+                      <Phone className="h-4 w-4 text-gray-300" />
+                      <span className="text-gray-300">Phone & Voicemail</span>
+                      <Lock className="h-3 w-3 ml-auto text-gray-300" />
                     </div>
-                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                      <div className="bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                    <div className="absolute left-0 bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-[9999]">
+                      <div className="bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow-xl whitespace-nowrap border border-gray-700">
                         Coming in V1.1
+                        <div className="absolute left-4 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900" />
                       </div>
                     </div>
                   </div>
 
                   {/* Locked Dialer */}
-                  <div className="relative group">
-                    <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-400 bg-gray-100/50 dark:bg-gray-800/30">
-                      <Phone className="h-4 w-4 text-gray-400" />
-                      <span className="text-gray-400">Dialer</span>
-                      <Lock className="h-3 w-3 ml-auto text-gray-400" />
+                  <div className="relative group overflow-visible">
+                    <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-300 bg-gray-100/50 dark:bg-gray-800/50">
+                      <Phone className="h-4 w-4 text-gray-300" />
+                      <span className="text-gray-300">Dialer</span>
+                      <Lock className="h-3 w-3 ml-auto text-gray-300" />
                     </div>
-                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                      <div className="bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                    <div className="absolute left-0 bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-[9999]">
+                      <div className="bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow-xl whitespace-nowrap border border-gray-700">
                         Coming in V1.1
+                        <div className="absolute left-4 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900" />
                       </div>
                     </div>
                   </div>
 
                   {/* Locked Outcomes */}
-                  <div className="relative group">
-                    <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-400 bg-gray-100/50 dark:bg-gray-800/30">
-                      <Settings className="h-4 w-4 text-gray-400" />
-                      <span className="text-gray-400">Outcomes</span>
-                      <Lock className="h-3 w-3 ml-auto text-gray-400" />
+                  <div className="relative group overflow-visible">
+                    <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-300 bg-gray-100/50 dark:bg-gray-800/50">
+                      <Settings className="h-4 w-4 text-gray-300" />
+                      <span className="text-gray-300">Outcomes</span>
+                      <Lock className="h-3 w-3 ml-auto text-gray-300" />
                     </div>
-                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                      <div className="bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                    <div className="absolute left-0 bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-[9999]">
+                      <div className="bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow-xl whitespace-nowrap border border-gray-700">
                         Coming in V1.1
+                        <div className="absolute left-4 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900" />
                       </div>
                     </div>
                   </div>
 
                   {/* Locked Notetaker BETA */}
-                  <div className="relative group">
-                    <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-400 bg-gray-100/50 dark:bg-gray-800/30">
-                      <Bell className="h-4 w-4 text-gray-400" />
-                      <span className="text-gray-400">Notetaker BETA</span>
-                      <Lock className="h-3 w-3 ml-auto text-gray-400" />
+                  <div className="relative group overflow-visible">
+                    <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-300 bg-gray-100/50 dark:bg-gray-800/50">
+                      <Bell className="h-4 w-4 text-gray-300" />
+                      <span className="text-gray-300">Notetaker BETA</span>
+                      <Lock className="h-3 w-3 ml-auto text-gray-300" />
                     </div>
-                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                      <div className="bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                    <div className="absolute left-0 bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-[9999]">
+                      <div className="bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow-xl whitespace-nowrap border border-gray-700">
                         Coming in V1.1
+                        <div className="absolute left-4 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900" />
                       </div>
                     </div>
                   </div>
 
                   {/* Locked Email */}
-                  <div className="relative group">
-                    <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-400 bg-gray-100/50 dark:bg-gray-800/30">
-                      <Mail className="h-4 w-4 text-gray-400" />
-                      <span className="text-gray-400">Email</span>
-                      <Lock className="h-3 w-3 ml-auto text-gray-400" />
+                  <div className="relative group overflow-visible">
+                    <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-300 bg-gray-100/50 dark:bg-gray-800/50">
+                      <Mail className="h-4 w-4 text-gray-300" />
+                      <span className="text-gray-300">Email</span>
+                      <Lock className="h-3 w-3 ml-auto text-gray-300" />
                     </div>
-                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                      <div className="bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                    <div className="absolute left-0 bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-[9999]">
+                      <div className="bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow-xl whitespace-nowrap border border-gray-700">
                         Coming in V1.1
+                        <div className="absolute left-4 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900" />
                       </div>
                     </div>
                   </div>
 
                   {/* Locked Templates & Snippets */}
-                  <div className="relative group">
-                    <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-400 bg-gray-100/50 dark:bg-gray-800/30">
-                      <Edit3 className="h-4 w-4 text-gray-400" />
-                      <span className="text-gray-400">Templates & Snippets</span>
-                      <Lock className="h-3 w-3 ml-auto text-gray-400" />
+                  <div className="relative group overflow-visible">
+                    <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-300 bg-gray-100/50 dark:bg-gray-800/50">
+                      <Edit3 className="h-4 w-4 text-gray-300" />
+                      <span className="text-gray-300">Templates & Snippets</span>
+                      <Lock className="h-3 w-3 ml-auto text-gray-300" />
                     </div>
-                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                      <div className="bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                    <div className="absolute left-0 bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-[9999]">
+                      <div className="bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow-xl whitespace-nowrap border border-gray-700">
                         Coming in V1.1
+                        <div className="absolute left-4 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900" />
                       </div>
                     </div>
                   </div>
 
                   {/* Locked Send As */}
-                  <div className="relative group">
-                    <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-400 bg-gray-100/50 dark:bg-gray-800/30">
-                      <Mail className="h-4 w-4 text-gray-400" />
-                      <span className="text-gray-400">Send As</span>
-                      <Lock className="h-3 w-3 ml-auto text-gray-400" />
+                  <div className="relative group overflow-visible">
+                    <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg cursor-not-allowed text-gray-300 bg-gray-100/50 dark:bg-gray-800/50">
+                      <Mail className="h-4 w-4 text-gray-300" />
+                      <span className="text-gray-300">Send As</span>
+                      <Lock className="h-3 w-3 ml-auto text-gray-300" />
                     </div>
-                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                      <div className="bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                    <div className="absolute left-0 bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-[9999]">
+                      <div className="bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow-xl whitespace-nowrap border border-gray-700">
                         Coming in V1.1
+                        <div className="absolute left-4 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900" />
                       </div>
                     </div>
                   </div>
@@ -213,13 +220,13 @@ export default function CommunicationSettings() {
                 {/* Locked Communication Features */}
                 <div className="flex flex-col items-center justify-center py-16">
                   <div className="bg-gray-100 dark:bg-gray-800/30 rounded-full p-6 mb-4">
-                    <Lock className="h-12 w-12 text-gray-400" />
+                    <Lock className="h-12 w-12 text-gray-300" />
                   </div>
                   <h2 className="text-2xl font-semibold text-crm-text-primary mb-2">Communication Features</h2>
-                  <p className="text-crm-text-secondary text-center max-w-md mb-6">
+                  <p className="text-gray-900 text-center max-w-md mb-6">
                     All communication features including phone, email, dialer, and templates are currently locked and will be available in V1.1.
                   </p>
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 max-w-md">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-gray-200 dark:border-blue-800 rounded-lg p-4 max-w-md">
                     <p className="text-sm text-blue-800 dark:text-blue-200 text-center">
                       <span className="font-semibold">Coming in V1.1:</span> Full email integration, call recording, dialer, templates, and more!
                     </p>

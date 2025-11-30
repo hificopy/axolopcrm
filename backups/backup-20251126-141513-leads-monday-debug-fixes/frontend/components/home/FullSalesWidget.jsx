@@ -1,0 +1,149 @@
+import { motion } from "framer-motion";
+import {
+  DollarSign,
+  TrendingUp,
+  Users,
+  Target,
+  Award,
+  Calendar,
+} from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { formatDateRange, getPeriodLabel } from "@/lib/utils";
+
+export default function FullSalesWidget({ data = {}, timeRange = "month" }) {
+  const stats = [
+    {
+      label: "Total Revenue",
+      value: data.totalRevenue
+        ? `$${(data.totalRevenue / 1000).toFixed(0)}k`
+        : "$0",
+      icon: DollarSign,
+      color: "text-[#761B14] dark:text-[#d4463c]",
+      bg: "bg-red-50/50 dark:bg-red-950/20 border border-red-100/50 dark:border-red-900/30 backdrop-blur-sm",
+    },
+    {
+      label: "Active Deals",
+      value: data.activeDeals || 0,
+      icon: Target,
+      color: "text-blue-600 dark:text-blue-400",
+      bg: "bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100/50 dark:border-blue-900/30 backdrop-blur-sm",
+    },
+    {
+      label: "New Leads",
+      value: data.newLeads || 0,
+      icon: Users,
+      color: "text-emerald-600 dark:text-emerald-400",
+      bg: "bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100/50 dark:border-emerald-900/30 backdrop-blur-sm",
+    },
+    {
+      label: "Conversion Rate",
+      value: data.conversionRate ? `${data.conversionRate.toFixed(1)}%` : "0%",
+      icon: Award,
+      color: "text-amber-600 dark:text-amber-400",
+      bg: "bg-amber-50/50 dark:bg-amber-950/20 border border-amber-100/50 dark:border-amber-900/30 backdrop-blur-sm",
+    },
+  ];
+
+  const details = [
+    {
+      label: "Avg. Deal Size",
+      value: data.avgDealSize
+        ? `$${(data.avgDealSize / 1000).toFixed(1)}k`
+        : "$0",
+    },
+    {
+      label: "Win Rate",
+      value: data.winRate ? `${data.winRate.toFixed(1)}%` : "0%",
+    },
+    { label: "Sales Cycle", value: data.avgSalesCycle || "0 days" },
+    {
+      label: "Pipeline Value",
+      value: data.pipelineValue
+        ? `$${(data.pipelineValue / 1000).toFixed(0)}k`
+        : "$0",
+    },
+  ];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="h-full w-full"
+    >
+      <Card className="h-full w-full flex flex-col">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center flex-shrink-0 shadow-lg">
+                <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">Sales Overview</CardTitle>
+                <p className="text-xs text-crm-text-secondary">
+                  Complete sales metrics
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900/50">
+              <Calendar className="h-3 w-3 text-emerald-700 dark:text-emerald-600" />
+              <span className="text-xs font-semibold text-green-700 dark:text-green-300">
+                {getPeriodLabel(timeRange)}
+              </span>
+            </div>
+          </div>
+          <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                {formatDateRange(timeRange)}
+              </span>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="flex-1 space-y-4">
+          {/* Key Metrics Grid */}
+          <div className="grid grid-cols-2 gap-3">
+            {stats.map((stat, idx) => {
+              const Icon = stat.icon;
+              return (
+                <div key={idx} className={`${stat.bg} rounded-lg p-3`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Icon className={`h-4 w-4 ${stat.color}`} />
+                    <span className="text-xs text-crm-text-secondary">
+                      {stat.label}
+                    </span>
+                  </div>
+                  <p className={`text-xl font-bold ${stat.color}`}>
+                    {stat.value}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Detailed Stats */}
+          <div className="border-t border-crm-border pt-3 space-y-2">
+            <h4 className="text-xs font-semibold text-crm-text-secondary uppercase tracking-wider">
+              Additional Metrics
+            </h4>
+            {details.map((detail, idx) => (
+              <div
+                key={idx}
+                className="flex justify-between items-center py-1.5 hover:bg-gray-50 dark:hover:bg-gray-800 px-2 rounded"
+              >
+                <span className="text-sm text-crm-text-secondary">
+                  {detail.label}
+                </span>
+                <span className="text-sm font-semibold text-crm-text-primary">
+                  {detail.value}
+                </span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}

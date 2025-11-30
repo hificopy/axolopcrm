@@ -1,5 +1,5 @@
 // src/pages/AffiliatePortal.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   TrendingUp,
   Users,
@@ -17,25 +17,41 @@ import {
   Instagram,
 } from 'lucide-react';
 import axios from 'axios';
+import { useSupabase } from '../context/SupabaseContext';
 
 const AffiliatePortal = () => {
+  const { supabase, user } = useSupabase();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [materials, setMaterials] = useState([]);
 
+  // Helper to get auth headers from Supabase session
+  const getAuthHeaders = useCallback(async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        return { 'Authorization': `Bearer ${session.access_token}` };
+      }
+    } catch (error) {
+      console.error('Error getting auth session:', error);
+    }
+    return {};
+  }, [supabase]);
+
   useEffect(() => {
-    loadDashboardData();
-    loadMarketingMaterials();
-  }, []);
+    if (user) {
+      loadDashboardData();
+      loadMarketingMaterials();
+    }
+  }, [user]);
 
   const loadDashboardData = async () => {
     try {
+      const authHeaders = await getAuthHeaders();
       const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1'}/affiliate/dashboard`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+        headers: authHeaders,
       });
       setDashboardData(response.data);
     } catch (error) {
@@ -53,10 +69,9 @@ const AffiliatePortal = () => {
   const joinAffiliateProgram = async () => {
     try {
       setLoading(true);
+      const authHeaders = await getAuthHeaders();
       const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1'}/affiliate/join`, {}, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+        headers: authHeaders,
       });
       if (response.data.success) {
         // Reload dashboard data after joining
@@ -71,10 +86,9 @@ const AffiliatePortal = () => {
 
   const loadMarketingMaterials = async () => {
     try {
+      const authHeaders = await getAuthHeaders();
       const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1'}/affiliate/materials`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+        headers: authHeaders,
       });
       setMaterials(response.data);
     } catch (error) {
@@ -132,7 +146,7 @@ const AffiliatePortal = () => {
                 </p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
-                <Users className="text-3xl text-blue-500 mx-auto mb-4" />
+                <Users className="text-3xl text-[#3F0D28] mx-auto mb-4" />
                 <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Easy Referrals</h3>
                 <p className="text-gray-600 dark:text-gray-300">
                   Share your unique link with your network
@@ -149,7 +163,7 @@ const AffiliatePortal = () => {
 
             <button
               onClick={joinAffiliateProgram}
-              className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg shadow-lg transition-colors text-lg"
+              className="px-8 py-4 bg-[#3F0D28] hover:bg-[#2a0919] text-white font-bold rounded-lg shadow-lg transition-colors text-lg"
             >
               Join Affiliate Program
             </button>
@@ -250,7 +264,7 @@ const AffiliatePortal = () => {
                 />
                 <button
                   onClick={handleCopyLink}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#3F0D28] hover:bg-[#2a0919] text-white font-medium transition-colors"
                 >
                   {copied ? (
                     <>
@@ -288,11 +302,11 @@ const AffiliatePortal = () => {
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold text-green-600 dark:text-green-400">
+                          <p className="font-semibold text-emerald-700 dark:text-emerald-600">
                             +${commission.amount}
                           </p>
                           <p className={`text-xs ${
-                            commission.status === 'paid' ? 'text-green-600' :
+                            commission.status === 'paid' ? 'text-emerald-700' :
                             commission.status === 'pending' ? 'text-yellow-600' :
                             'text-gray-500'
                           }`}>
@@ -425,8 +439,17 @@ const AffiliatePortal = () => {
                   placeholder="your-email@example.com"
                 />
               </div>
-              <button className="px-6 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition-colors">
-                Update Payment Details
+              <button
+                className="relative overflow-hidden px-6 py-2 rounded-full font-black tracking-wide text-white"
+                style={{
+                  background: 'linear-gradient(180deg, #5a1a3a 0%, #3F0D28 50%, #2a0919 100%)',
+                  boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -2px 4px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.3)',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                }}
+              >
+                {/* Top metallic shine band */}
+                <span className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/40 via-white/10 to-transparent rounded-t-full pointer-events-none" />
+                <span className="relative z-10">Update Payment Details</span>
               </button>
             </form>
           </div>
@@ -556,8 +579,17 @@ const AffiliatePortal = () => {
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                       {material.description}
                     </p>
-                    <button className="w-full px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white text-sm font-medium transition-colors">
-                      Copy Template
+                    <button
+                      className="relative overflow-hidden w-full px-4 py-2 rounded-full font-black tracking-wide text-white text-sm"
+                      style={{
+                        background: 'linear-gradient(180deg, #5a1a3a 0%, #3F0D28 50%, #2a0919 100%)',
+                        boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.6), inset 0 -2px 4px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.3)',
+                        border: '1px solid rgba(255,255,255,0.3)',
+                      }}
+                    >
+                      {/* Top metallic shine band */}
+                      <span className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/40 via-white/10 to-transparent rounded-t-full pointer-events-none" />
+                      <span className="relative z-10">Copy Template</span>
                     </button>
                   </div>
                 ))}
@@ -573,8 +605,8 @@ const AffiliatePortal = () => {
 // Stat Card Component
 const StatCard = ({ icon, title, value, subtitle, color }) => {
   const colorClasses = {
-    green: 'bg-green-500/10 text-green-600 dark:text-green-400',
-    blue: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+    green: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-600',
+    blue: 'bg-blue-500/10 text-[#3F0D28] dark:text-[#3F0D28]',
     purple: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
     orange: 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
   };

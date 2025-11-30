@@ -1,0 +1,289 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Sign In Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 400px;
+        margin: 50px auto;
+        padding: 20px;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      button {
+        width: 100%;
+        padding: 12px;
+        background: #761b14;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #5a1510;
+      }
+      .status {
+        margin-top: 15px;
+        padding: 10px;
+        border-radius: 4px;
+      }
+      .success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .info {
+        background: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Test Sign In</h1>
+    <form id="signinForm">
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" value="test@test.com" required />
+      </div>
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input
+          type="password"
+          id="password"
+          value="TestPassword123!"
+          required
+        />
+      </div>
+      <button type="submit">Sign In</button>
+    </form>
+    <div id="status"></div>
+
+    <div style="margin-top: 30px">
+      <h3>Test API Calls</h3>
+      <button onclick="testAPI()">Test Forms API</button>
+      <button onclick="testLeadsAPI()">Test Leads API</button>
+      <button onclick="testContactsAPI()">Test Contacts API</button>
+    </div>
+
+    <script type="module">
+      // Import Supabase
+      import { createClient } from "@supabase/supabase-js";
+
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      const apiUrl = import.meta.env.VITE_API_URL;
+
+      console.log("Environment:", {
+        supabaseUrl: supabaseUrl ? "SET" : "NOT SET",
+        supabaseAnonKey: supabaseAnonKey ? "SET" : "NOT SET",
+        apiUrl,
+      });
+
+      const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+        auth: {
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: true,
+          storage: window.localStorage,
+          flowType: "pkce",
+        },
+      });
+
+      let currentUser = null;
+
+      // Sign in form handler
+      document
+        .getElementById("signinForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+
+          showStatus("🔄 Signing in...", "info");
+
+          try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+              email,
+              password,
+            });
+
+            if (error) {
+              showStatus(`❌ Sign in failed: ${error.message}`, "error");
+              return;
+            }
+
+            currentUser = data.user;
+            showStatus(
+              `✅ Signed in successfully! User: ${data.user.email}`,
+              "success",
+            );
+            console.log("Sign in success:", data);
+          } catch (error) {
+            showStatus(`❌ Sign in error: ${error.message}`, "error");
+            console.error("Sign in error:", error);
+          }
+        });
+
+      // Test API calls
+      window.testAPI = async function () {
+        if (!currentUser) {
+          showStatus("❌ Please sign in first", "error");
+          return;
+        }
+
+        try {
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+          if (!session) {
+            showStatus("❌ No active session", "error");
+            return;
+          }
+
+          showStatus("🔄 Testing Forms API...", "info");
+
+          const response = await fetch(`${apiUrl}/forms`, {
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            showStatus(
+              `✅ Forms API works! Found ${data.length} forms`,
+              "success",
+            );
+            console.log("Forms API response:", data);
+          } else {
+            const error = await response.json();
+            showStatus(`❌ Forms API failed: ${error.message}`, "error");
+            console.error("Forms API error:", error);
+          }
+        } catch (error) {
+          showStatus(`❌ API test error: ${error.message}`, "error");
+          console.error("API test error:", error);
+        }
+      };
+
+      window.testLeadsAPI = async function () {
+        if (!currentUser) {
+          showStatus("❌ Please sign in first", "error");
+          return;
+        }
+
+        try {
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+
+          const response = await fetch(`${apiUrl}/leads`, {
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            showStatus(
+              `✅ Leads API works! Found ${data.data?.length || 0} leads`,
+              "success",
+            );
+            console.log("Leads API response:", data);
+          } else {
+            const error = await response.json();
+            showStatus(`❌ Leads API failed: ${error.message}`, "error");
+            console.error("Leads API error:", error);
+          }
+        } catch (error) {
+          showStatus(`❌ Leads API error: ${error.message}`, "error");
+          console.error("Leads API error:", error);
+        }
+      };
+
+      window.testContactsAPI = async function () {
+        if (!currentUser) {
+          showStatus("❌ Please sign in first", "error");
+          return;
+        }
+
+        try {
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+
+          const response = await fetch(`${apiUrl}/contacts`, {
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            showStatus(
+              `✅ Contacts API works! Found ${data.data?.length || 0} contacts`,
+              "success",
+            );
+            console.log("Contacts API response:", data);
+          } else {
+            const error = await response.json();
+            showStatus(`❌ Contacts API failed: ${error.message}`, "error");
+            console.error("Contacts API error:", error);
+          }
+        } catch (error) {
+          showStatus(`❌ Contacts API error: ${error.message}`, "error");
+          console.error("Contacts API error:", error);
+        }
+      };
+
+      function showStatus(message, type) {
+        const statusDiv = document.getElementById("status");
+        statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+      }
+
+      // Check for existing session on load
+      async function checkExistingSession() {
+        try {
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+          if (session) {
+            currentUser = session.user;
+            showStatus(
+              `✅ Already signed in as: ${session.user.email}`,
+              "success",
+            );
+          } else {
+            showStatus("ℹ️ No active session. Please sign in.", "info");
+          }
+        } catch (error) {
+          showStatus(`❌ Session check error: ${error.message}`, "error");
+        }
+      }
+
+      checkExistingSession();
+    </script>
+  </body>
+</html>

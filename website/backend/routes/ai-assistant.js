@@ -4,6 +4,7 @@
  */
 
 import express from 'express';
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ const router = express.Router();
  *   - context: optional context category (leads, contacts, etc.)
  *   - id: optional entity ID for context
  */
-router.get('/query', async (req, res) => {
+router.get('/query', protect, async (req, res) => {
   try {
     const { q, context, id } = req.query;
 
@@ -41,8 +42,7 @@ router.get('/query', async (req, res) => {
     console.error('AI Assistant error:', error);
     res.status(500).json({
       success: false,
-      message: 'AI Assistant failed',
-      error: error.message,
+      message: 'AI Assistant failed. Please try again.',
     });
   }
 });
@@ -54,7 +54,7 @@ router.get('/query', async (req, res) => {
  *   - category: entity category (required)
  *   - id: entity ID (required)
  */
-router.get('/insights', async (req, res) => {
+router.get('/insights', protect, async (req, res) => {
   try {
     const { category, id } = req.query;
 
@@ -77,8 +77,7 @@ router.get('/insights', async (req, res) => {
     console.error('AI Insights error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to generate insights',
-      error: error.message,
+      message: 'Failed to generate insights. Please try again.',
     });
   }
 });
@@ -87,7 +86,7 @@ router.get('/insights', async (req, res) => {
  * POST /api/ai-assistant/chat
  * Have a conversation with the AI assistant
  */
-router.post('/chat', async (req, res) => {
+router.post('/chat', protect, async (req, res) => {
   try {
     const { message, conversationHistory, context } = req.body;
 
@@ -109,8 +108,7 @@ router.post('/chat', async (req, res) => {
     console.error('AI Chat error:', error);
     res.status(500).json({
       success: false,
-      message: 'Chat failed',
-      error: error.message,
+      message: 'Chat failed. Please try again.',
     });
   }
 });

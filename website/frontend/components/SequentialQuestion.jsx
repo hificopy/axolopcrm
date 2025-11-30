@@ -22,7 +22,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import AutoCapturePrivacyNotice from './components/AutoCapturePrivacyNotice';
+import AutoCapturePrivacyNotice from '@/components/AutoCapturePrivacyNotice';
 
 /**
  * Shared Sequential Question Component for both Forms and Meetings
@@ -38,7 +38,7 @@ const SequentialQuestion = ({
   setCurrentQuestionIndex = () => {},
   isMeetingMode = false, // Set to true for meetings, false for forms
   theme = 'light',
-  brandColorPrimary = '#761B14',
+  brandColorPrimary = '#3F0D28',
   brandColorSecondary = '#4a0f0a',
   useGradient = true,
   fontColor = '#1F2A37',
@@ -514,7 +514,7 @@ const SequentialQuestion = ({
                       style={{ color: fontColor || (theme === 'dark' ? '#F9FAFB' : '#111827') }}
                     >
                       {question.title}
-                      {question.required && <span className="text-red-500 ml-1">*</span>}
+                      {question.required && <span className="text-[#3F0D28] ml-1">*</span>}
                     </label>
                     {renderQuestionInput(question)}
                   </div>
@@ -610,7 +610,10 @@ const SequentialQuestion = ({
 
         {/* Privacy Notice - Show on first question */}
         {showPrivacyNotice && localCurrentIndex === 0 && (
-          <AutoCapturePrivacyNotice className="mb-4" />
+          <AutoCapturePrivacyNotice
+            className="mb-4"
+            variant={isMeetingMode ? 'meeting' : 'form'}
+          />
         )}
 
         {/* Sequential Question */}
@@ -636,7 +639,7 @@ const SequentialQuestion = ({
                 >
                   {currentQuestion.title}
                   {currentQuestion.required && (
-                    <span className="text-red-500 ml-1">*</span>
+                    <span className="text-[#3F0D28] ml-1">*</span>
                   )}
                 </h4>
                 {renderQuestionInput(currentQuestion)}

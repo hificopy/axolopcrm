@@ -17,6 +17,8 @@ import {
   StatsCardSkeleton,
 } from "../components/ui/skeletons";
 import ResponsiveLeadsLayout from "../components/mobile/ResponsiveLeadsLayout";
+import { demoDataService } from "../services/demoDataService";
+import { CRMMenuConfigs } from "../components/ui/ContextMenuProvider";
 
 export default function Leads() {
   const [leads, setLeads] = useState([]);
@@ -30,14 +32,22 @@ export default function Leads() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState({});
   const { toast } = useToast();
-  const { isReadOnly, canEdit, canCreate } = useAgency();
+  const { isReadOnly, canEdit, canCreate, isDemoAgencySelected } = useAgency();
 
   const fetchLeads = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await leadsApi.getAll();
-      setLeads(response.data);
-      setFilteredLeads(response.data);
+      // If demo agency is selected, use demo data
+      if (isDemoAgencySelected()) {
+        console.log("[Leads] Using demo data");
+        const response = await demoDataService.getLeads();
+        setLeads(response.data);
+        setFilteredLeads(response.data);
+      } else {
+        const response = await leadsApi.getAll();
+        setLeads(response.data);
+        setFilteredLeads(response.data);
+      }
     } catch (error) {
       console.error("Error fetching leads:", error);
       toast({
@@ -48,7 +58,7 @@ export default function Leads() {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, isDemoAgencySelected]);
 
   useEffect(() => {
     fetchLeads();
@@ -263,6 +273,117 @@ export default function Leads() {
     }
   };
 
+  // Context menu handlers
+  const handleLeadEdit = (lead) => {
+    setSelectedLead(lead);
+  };
+
+  const handleLeadDelete = async (lead) => {
+    try {
+      await leadsApi.delete(lead.id);
+      setLeads((prevLeads) => prevLeads.filter((l) => l.id !== lead.id));
+      setFilteredLeads((prevLeads) =>
+        prevLeads.filter((l) => l.id !== lead.id),
+      );
+
+      toast({
+        title: "Lead Deleted",
+        description: `${lead.name} has been deleted.`,
+      });
+    } catch (error) {
+      console.error("Error deleting lead:", error);
+      toast({
+        title: "Delete Failed",
+        description: "Failed to delete lead. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleLeadDuplicate = async (lead) => {
+    try {
+      const duplicatedLead = await leadsApi.create({
+        ...lead,
+        name: `${lead.name} (Copy)`,
+        id: undefined, // Remove ID to create new record
+        created_at: undefined,
+        updated_at: undefined,
+      });
+
+      setLeads((prevLeads) => [duplicatedLead.data, ...prevLeads]);
+      setFilteredLeads((prevLeads) => [duplicatedLead.data, ...prevLeads]);
+
+      toast({
+        title: "Lead Duplicated",
+        description: `${lead.name} has been duplicated.`,
+      });
+    } catch (error) {
+      console.error("Error duplicating lead:", error);
+      toast({
+        title: "Duplicate Failed",
+        description: "Failed to duplicate lead. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleLeadArchive = async (lead) => {
+    try {
+      await leadsApi.update(lead.id, { archived: true });
+      setLeads((prevLeads) =>
+        prevLeads.map((l) => (l.id === lead.id ? { ...l, archived: true } : l)),
+      );
+      setFilteredLeads((prevLeads) =>
+        prevLeads.map((l) => (l.id === lead.id ? { ...l, archived: true } : l)),
+      );
+
+      toast({
+        title: "Lead Archived",
+        description: `${lead.name} has been archived.`,
+      });
+    } catch (error) {
+      console.error("Error archiving lead:", error);
+      toast({
+        title: "Archive Failed",
+        description: "Failed to archive lead. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleLeadEmail = (lead) => {
+    window.open(`mailto:${lead.email}`, "_blank");
+  };
+
+  const handleLeadCall = (lead) => {
+    // Could integrate with dialer system here
+    toast({
+      title: "Call Logged",
+      description: `Call logged for ${lead.name}.`,
+    });
+  };
+
+  const handleLeadTask = (lead) => {
+    // Could integrate with task system here
+    toast({
+      title: "Task Created",
+      description: `Task created for ${lead.name}.`,
+    });
+  };
+
+  // Context menu configuration for leads
+  const leadContextMenuConfig = (lead) =>
+    CRMMenuConfigs.lead(lead, {
+      onEdit: handleLeadEdit,
+      onDelete: handleLeadDelete,
+      onDuplicate: handleLeadDuplicate,
+      onArchive: handleLeadArchive,
+      onConvert: handleConvertToOpportunity,
+      onEmail: handleLeadEmail,
+      onCall: handleLeadCall,
+      onAddTask: handleLeadTask,
+    });
+
   // Monday table columns configuration
   const columns = useMemo(
     () => [
@@ -388,7 +509,6 @@ export default function Leads() {
             <div className="flex items-center gap-3">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
                 Leads
-                <span className="ml-3 text-[#761B14]">●</span>
               </h1>
               {isReadOnly() && <ViewOnlyBadge />}
             </div>
@@ -397,49 +517,6 @@ export default function Leads() {
                 ? "View sales leads - Read-only access"
                 : "Manage and track your sales leads with powerful filtering"}
             </p>
-          </div>
-
-          <div className="crm-button-group">
-            <Button
-              variant="outline"
-              size="default"
-              className="gap-2"
-              onClick={handleFilter}
-            >
-              <Filter className="h-4 w-4" />
-              <span>Filter</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="default"
-              className="gap-2"
-              onClick={handleExport}
-            >
-              <Download className="h-4 w-4" />
-              <span>Export</span>
-            </Button>
-            {canCreate() && (
-              <>
-                <Button
-                  variant="outline"
-                  size="default"
-                  className="gap-2"
-                  onClick={handleImport}
-                >
-                  <Upload className="h-4 w-4" />
-                  <span>Import</span>
-                </Button>
-                <Button
-                  variant="default"
-                  size="default"
-                  className="gap-2"
-                  onClick={() => setIsCreateModalOpen(true)}
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>New Lead</span>
-                </Button>
-              </>
-            )}
           </div>
         </div>
 
@@ -472,12 +549,12 @@ export default function Leads() {
               {leads.filter((l) => l.status === "CONTACTED").length}
             </div>
           </div>
-          <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-5 border border-[#761B14]/30 shadow-md hover:shadow-lg transition-all duration-300">
-            <div className="text-xs font-semibold text-[#761B14] uppercase tracking-wide flex items-center">
+          <div className="bg-gradient-to-br from-[#3F0D28]/5 to-[#3F0D28]/10 rounded-xl p-5 border border-[#3F0D28]/30 shadow-md hover:shadow-lg transition-all duration-300">
+            <div className="text-xs font-semibold text-[#3F0D28] uppercase tracking-wide flex items-center">
               Total Value
               <InfoTooltipInline content="Combined potential value of all leads" />
             </div>
-            <div className="text-3xl font-bold text-[#761B14] mt-2">
+            <div className="text-3xl font-bold text-[#3F0D28] mt-2">
               {formatCurrency(
                 leads.reduce((sum, l) => sum + (l.value || 0), 0),
               )}
@@ -507,10 +584,30 @@ export default function Leads() {
         }}
         onSelectLead={(lead) => setSelectedLead(lead)}
         onEditLead={(lead) => {
-          // Handle edit logic
+          setSelectedLead(lead);
+          setIsCreateModalOpen(true);
         }}
-        onDeleteLead={(lead) => {
-          // Handle delete logic
+        onDeleteLead={async (lead) => {
+          if (window.confirm("Are you sure you want to delete this lead?")) {
+            try {
+              await leadsApi.delete(lead.id);
+              setLeads((prev) => prev.filter((l) => l.id !== lead.id));
+              setFilteredLeads((prev) => prev.filter((l) => l.id !== lead.id));
+              setSelectedLead(null);
+              toast({
+                title: "Success",
+                description: "Lead deleted successfully",
+                variant: "default",
+              });
+            } catch (error) {
+              console.error("Error deleting lead:", error);
+              toast({
+                title: "Error",
+                description: "Failed to delete lead",
+                variant: "destructive",
+              });
+            }
+          }
         }}
         onAddLead={() => setIsCreateModalOpen(true)}
         onImportLeads={() => setIsEnhancedImportModalOpen(true)}
@@ -527,6 +624,9 @@ export default function Leads() {
             }
             onRowClick={(row) => setSelectedLead(row._original)}
             onCellEdit={canEdit() ? handleCellEdit : undefined}
+            onExport={handleExport}
+            onImport={canCreate() ? handleImport : undefined}
+            contextMenuConfig={leadContextMenuConfig}
             searchPlaceholder="Search leads..."
             newItemLabel="New Lead"
             enableSearch={true}
@@ -608,7 +708,7 @@ export default function Leads() {
                       href={selectedLead.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-red-600 hover:underline"
+                      className="text-[#3F0D28] hover:underline"
                     >
                       {selectedLead.website}
                     </a>

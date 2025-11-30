@@ -184,10 +184,10 @@ export default function CalendarVisibilityControls({
           </div>
 
           {!isGoogleConnected ? (
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border border-blue-100">
               <div className="flex items-start gap-3">
                 <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                  <Calendar className="h-5 w-5 text-blue-600" />
+                  <Calendar className="h-5 w-5 text-[#3F0D28]" />
                 </div>
                 <div className="flex-1">
                   <h4 className="text-sm font-semibold text-gray-900 mb-1">Not Connected</h4>

@@ -84,7 +84,7 @@ export default function RowActionsMenu({ onDuplicate, onDelete, onArchive, onEdi
               <div className="my-1 border-t border-gray-100" />
               <button
                 onClick={(e) => handleAction(onDelete, e)}
-                className="w-full px-3 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
+                className="w-full px-3 py-2 text-left text-sm font-medium text-[#3F0D28] hover:bg-[#3F0D28]/5 flex items-center gap-2 transition-colors"
               >
                 <Trash2 className="h-4 w-4" />
                 Delete

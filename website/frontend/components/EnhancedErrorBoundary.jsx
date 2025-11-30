@@ -74,9 +74,39 @@ class EnhancedErrorBoundary extends React.Component {
 
   getErrorMessage = (error) => {
     const errorString = error?.toString() || '';
-    
+
+    // Context provider errors (useAgency, useSupabase must be used within Provider)
+    if (errorString.includes('must be used within') || errorString.includes('Provider')) {
+      return {
+        title: 'Application Loading Error',
+        message: 'The application is having trouble loading. This usually resolves by refreshing the page.',
+        type: 'context',
+        actionHint: 'reload'
+      };
+    }
+
+    // Supabase/Auth initialization errors
+    if (errorString.includes('Supabase') || errorString.includes('not initialized')) {
+      return {
+        title: 'Authentication Loading',
+        message: 'The authentication system is still initializing. Please wait a moment and try again.',
+        type: 'init',
+        actionHint: 'wait'
+      };
+    }
+
+    // Loading/timeout errors
+    if (errorString.includes('timeout') || errorString.includes('Loading timeout')) {
+      return {
+        title: 'Loading Timeout',
+        message: 'The page took too long to load. This might be due to slow network connection.',
+        type: 'timeout',
+        actionHint: 'reload'
+      };
+    }
+
     // Network errors
-    if (errorString.includes('NetworkError') || errorString.includes('fetch')) {
+    if (errorString.includes('NetworkError') || errorString.includes('fetch') || errorString.includes('Failed to fetch')) {
       return {
         title: 'Connection Error',
         message: 'Unable to connect to our servers. Please check your internet connection and try again.',
@@ -85,16 +115,17 @@ class EnhancedErrorBoundary extends React.Component {
     }
 
     // Authentication errors
-    if (errorString.includes('Authentication') || errorString.includes('Unauthorized')) {
+    if (errorString.includes('Authentication') || errorString.includes('Unauthorized') || errorString.includes('401')) {
       return {
         title: 'Authentication Error',
         message: 'Your session has expired. Please sign in again to continue.',
-        type: 'auth'
+        type: 'auth',
+        actionHint: 'signin'
       };
     }
 
     // Permission errors
-    if (errorString.includes('Permission') || errorString.includes('Forbidden')) {
+    if (errorString.includes('Permission') || errorString.includes('Forbidden') || errorString.includes('403')) {
       return {
         title: 'Access Denied',
         message: 'You don\'t have permission to access this feature. Contact your administrator.',
@@ -108,6 +139,26 @@ class EnhancedErrorBoundary extends React.Component {
         title: 'Page Not Found',
         message: 'The page you\'re looking for doesn\'t exist or has been moved.',
         type: 'notfound'
+      };
+    }
+
+    // Session/Token errors
+    if (errorString.includes('Session') || errorString.includes('Token') || errorString.includes('refresh')) {
+      return {
+        title: 'Session Error',
+        message: 'Your session needs to be refreshed. Please reload the page or sign in again.',
+        type: 'session',
+        actionHint: 'reload'
+      };
+    }
+
+    // Database/API errors
+    if (errorString.includes('RPC') || errorString.includes('database') || errorString.includes('query')) {
+      return {
+        title: 'Data Loading Error',
+        message: 'Unable to load your data. Please try again in a moment.',
+        type: 'data',
+        actionHint: 'retry'
       };
     }
 
@@ -130,14 +181,14 @@ class EnhancedErrorBoundary extends React.Component {
             {/* Error Card */}
             <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
               {/* Header */}
-              <div className="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4">
+              <div className="bg-gradient-to-r from-[#3F0D28] to-[#3F0D28] px-6 py-4">
                 <div className="flex items-center gap-3">
                   <div className="bg-white/20 rounded-full p-2">
                     <AlertTriangle className="h-6 w-6 text-white" />
                   </div>
                   <div>
                     <h1 className="text-xl font-bold text-white">{errorDetails.title}</h1>
-                    <p className="text-red-100 text-sm">Error ID: {this.state.errorId}</p>
+                    <p className="text-[#3F0D28]/80 text-sm">Error ID: {this.state.errorId}</p>
                   </div>
                 </div>
               </div>
@@ -162,7 +213,7 @@ class EnhancedErrorBoundary extends React.Component {
                   {canRetry && (
                     <Button
                       onClick={this.handleRetry}
-                      className="w-full gap-2 bg-blue-600 hover:bg-blue-700"
+                      className="w-full gap-2 bg-[#3F0D28] hover:bg-[#3F0D28]"
                       size="lg"
                     >
                       <RefreshCw className="h-4 w-4" />
@@ -213,7 +264,7 @@ class EnhancedErrorBoundary extends React.Component {
                     <div className="mt-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
                       <div className="mb-3">
                         <h4 className="font-semibold text-sm text-gray-700 mb-1">Error:</h4>
-                        <pre className="text-xs text-red-600 overflow-x-auto whitespace-pre-wrap">
+                        <pre className="text-xs text-[#3F0D28] overflow-x-auto whitespace-pre-wrap">
                           {this.state.error.toString()}
                         </pre>
                       </div>
@@ -238,7 +289,7 @@ class EnhancedErrorBoundary extends React.Component {
                 Need help? Visit our{' '}
                 <a 
                   href="https://help.axolopcrm.com" 
-                  className="text-blue-600 hover:text-blue-800 underline"
+                  className="text-[#3F0D28] hover:text-[#3F0D28] underline"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -247,7 +298,7 @@ class EnhancedErrorBoundary extends React.Component {
                 or{' '}
                 <a 
                   href="mailto:support@axolopcrm.com" 
-                  className="text-blue-600 hover:text-blue-800 underline"
+                  className="text-[#3F0D28] hover:text-[#3F0D28] underline"
                 >
                   contact support
                 </a>

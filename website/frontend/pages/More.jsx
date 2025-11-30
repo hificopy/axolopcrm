@@ -8,7 +8,7 @@ export default function More() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
             More
-            <span className="ml-3 text-[#761B14]">●</span>
+            <span className="ml-3 text-[#3F0D28]">●</span>
           </h1>
           <p className="text-sm text-gray-600 mt-2 font-medium">
             Additional features and options

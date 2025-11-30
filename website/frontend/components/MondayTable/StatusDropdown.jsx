@@ -84,7 +84,7 @@ export default function StatusDropdown({ value, onChange, disabled = false }) {
                 {option.label}
               </span>
               {option.value === normalizedValue && (
-                <Check className="h-4 w-4 text-[#761B14] ml-2 flex-shrink-0" />
+                <Check className="h-4 w-4 text-[#3F0D28] ml-2 flex-shrink-0" />
               )}
             </button>
           ))}

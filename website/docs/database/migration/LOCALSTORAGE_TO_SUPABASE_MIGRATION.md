@@ -3,6 +3,7 @@
 ## Overview
 
 This migration moves all user-specific data from browser localStorage to Supabase for:
+
 - ✅ Cross-device synchronization
 - ✅ Data persistence and backup
 - ✅ User-specific data isolation
@@ -11,22 +12,22 @@ This migration moves all user-specific data from browser localStorage to Supabas
 ## What's Being Migrated
 
 ### 1. **Theme Preferences**
+
 - From: `localStorage.getItem('theme')`
 - To: `user_settings.theme` table
 
 ### 2. **Todo Items**
+
 - From: `localStorage.getItem('axolop-todos')`
 - To: `user_todos` table
 
-### 3. **Kate Onboarding State**
-- From: `localStorage.getItem('kateOnboardingCompleted')` and `localStorage.getItem('kateOnboardingMessages')`
-- To: `user_preferences.kate_onboarding_completed` and `user_preferences.kate_onboarding_messages`
-
 ### 4. **Onboarding Responses**
+
 - From: `localStorage.getItem('onboarding_responses')` and `localStorage.getItem('recommended_plan')`
 - To: `user_preferences.preferences` JSONB field
 
 ### 5. **Affiliate Codes**
+
 - From: `localStorage.getItem('ref_code')` and `localStorage.getItem('affiliate_code_${user.id}')`
 - To: `user_preferences.preferences` JSONB field
 
@@ -38,6 +39,7 @@ This migration moves all user-specific data from browser localStorage to Supabas
 2. **user_preferences** - Stores user preferences beyond basic settings
 
 These tables complement the existing:
+
 - **user_settings** - Already exists for theme, notifications, etc.
 - **onboarding_data** - Already exists for onboarding responses
 
@@ -78,10 +80,12 @@ node index.js
 The migration will run automatically when users log in. To test manually:
 
 ```javascript
-import { migrateAllLocalStorageData } from './utils/localStorageMigration';
+import { migrateAllLocalStorageData } from "./utils/localStorageMigration";
 
 // After user logs in
-const token = await supabase.auth.getSession().then(s => s.data.session.access_token);
+const token = await supabase.auth
+  .getSession()
+  .then((s) => s.data.session.access_token);
 const userId = user.id;
 
 await migrateAllLocalStorageData(token, userId);
@@ -90,14 +94,17 @@ await migrateAllLocalStorageData(token, userId);
 ## API Endpoints
 
 ### User Preferences
+
 - `GET /api/user-preferences` - Get user preferences
 - `PUT /api/user-preferences` - Update a specific preference
 
 ### User Settings
+
 - `GET /api/user-preferences/settings` - Get user settings (theme, etc.)
 - `PUT /api/user-preferences/settings` - Update user settings
 
 ### Todos
+
 - `GET /api/user-preferences/todos` - Get all todos
 - `POST /api/user-preferences/todos` - Create a new todo
 - `PUT /api/user-preferences/todos/:id` - Update a todo
@@ -121,8 +128,7 @@ function MyComponent() {
     loading,
     getTheme,
     setTheme,
-    getKateOnboardingCompleted,
-    completeKateOnboarding,
+
     updatePreference
   } = useUserPreferences();
 
@@ -132,11 +138,7 @@ function MyComponent() {
   // Set theme
   await setTheme('dark');
 
-  // Check Kate onboarding
-  const completed = getKateOnboardingCompleted();
 
-  // Mark Kate onboarding complete
-  await completeKateOnboarding();
 
   // Update custom preference
   await updatePreference('my_custom_setting', true);
@@ -189,13 +191,10 @@ The following components need to be updated to use Supabase instead of localStor
 3. ✅ **TodoList** (`frontend/pages/TodoList.jsx`)
    - Replace localStorage todos with `useUserTodos`
 
-4. ✅ **KateOnboarding** (`frontend/components/KateOnboarding.jsx`)
-   - Replace localStorage completion with `useUserPreferences`
-
-5. ✅ **Onboarding** (`frontend/pages/Onboarding.jsx`)
+4. ✅ **Onboarding** (`frontend/pages/Onboarding.jsx`)
    - Replace localStorage responses with Supabase storage
 
-6. ✅ **ProtectedRoute** (`frontend/components/ProtectedRoute.jsx`)
+5. ✅ **ProtectedRoute** (`frontend/components/ProtectedRoute.jsx`)
    - Update Kate onboarding check
 
 ## Migration Behavior
@@ -237,6 +236,7 @@ The database tables won't interfere with existing functionality.
 ## Support
 
 For issues or questions:
+
 - Check browser console for error messages
 - Verify Supabase connection in Network tab
 - Check backend logs for API errors

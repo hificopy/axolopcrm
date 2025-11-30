@@ -46,10 +46,7 @@ CREATE TABLE IF NOT EXISTS public.user_preferences (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
 
-  -- Kate Onboarding
-  kate_onboarding_completed BOOLEAN DEFAULT FALSE,
-  kate_onboarding_messages JSONB DEFAULT '[]'::jsonb,
-  kate_onboarding_completed_at TIMESTAMPTZ,
+  
 
   -- Dashboard preferences
   dashboard_layout JSONB DEFAULT '{}'::jsonb,
@@ -203,26 +200,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Complete Kate onboarding
-CREATE OR REPLACE FUNCTION public.complete_kate_onboarding(p_user_id UUID)
-RETURNS BOOLEAN AS $$
-BEGIN
-  UPDATE public.user_preferences
-  SET
-    kate_onboarding_completed = TRUE,
-    kate_onboarding_completed_at = NOW(),
-    updated_at = NOW()
-  WHERE user_id = p_user_id;
 
-  RETURN FOUND;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Grant execute permissions
 GRANT EXECUTE ON FUNCTION public.get_user_todos(UUID) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.complete_todo(UUID, UUID) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.update_user_preference(UUID, TEXT, JSONB) TO authenticated;
-GRANT EXECUTE ON FUNCTION public.complete_kate_onboarding(UUID) TO authenticated;
+
 
 -- Comments
 COMMENT ON TABLE public.user_todos IS 'User personal todo items synced across devices';

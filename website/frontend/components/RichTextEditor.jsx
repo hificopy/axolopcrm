@@ -98,7 +98,7 @@ const RichTextEditor = ({
 
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
-    checkbox.className = 'mt-1 accent-[#761B14]';
+    checkbox.className = 'mt-1 accent-[#3F0D28]';
 
     const text = document.createElement('span');
     text.contentEditable = 'true';
@@ -124,7 +124,7 @@ const RichTextEditor = ({
     const link = document.createElement('a');
     link.href = `#/notes/${noteTitle.toLowerCase().replace(/\s+/g, '-')}`;
     link.textContent = noteTitle;
-    link.className = 'text-[#761B14] hover:underline';
+    link.className = 'text-[#3F0D28] hover:underline';
     link.setAttribute('data-wiki-link', noteTitle);
 
     const selection = window.getSelection();
@@ -379,7 +379,7 @@ const RichTextEditor = ({
         <div className="flex-1" />
 
         <div className="text-xs text-gray-500">
-          Type <span className="text-[#761B14]">/</span> for commands, <span className="text-[#761B14]">[[</span> for links
+          Type <span className="text-[#3F0D28]">/</span> for commands, <span className="text-[#3F0D28]">[[</span> for links
         </div>
       </div>
 
@@ -391,7 +391,7 @@ const RichTextEditor = ({
         onKeyDown={handleKeyDown}
         className="prose prose-invert max-w-none p-6 focus:outline-none min-h-[500px] bg-[#1a1a1a] text-white"
         style={{
-          caretColor: '#761B14',
+          caretColor: '#3F0D28',
         }}
         data-placeholder={placeholder}
       />
@@ -411,7 +411,7 @@ const RichTextEditor = ({
               onClick={cmd.action}
               className={`w-full flex items-center gap-3 px-4 py-2 text-left transition-colors ${
                 index === selectedSlashIndex
-                  ? 'bg-[#761B14] text-white'
+                  ? 'bg-[#3F0D28] text-white'
                   : 'text-gray-300 hover:bg-gray-700'
               }`}
             >
@@ -435,7 +435,7 @@ const RichTextEditor = ({
           }}
         >
           <div className="px-4 py-2 text-sm text-gray-400">
-            Creating link to: <span className="text-[#761B14] font-medium">{linkQuery}</span>
+            Creating link to: <span className="text-[#3F0D28] font-medium">{linkQuery}</span>
           </div>
           <div className="text-xs text-gray-500 px-4 py-1">
             Press <kbd className="bg-gray-700 px-1 rounded">]]</kbd> to complete
@@ -478,7 +478,7 @@ const RichTextEditor = ({
         }
 
         [contenteditable] blockquote {
-          border-left: 3px solid #761B14;
+          border-left: 3px solid #3F0D28;
           padding-left: 1em;
           margin: 0.5em 0;
           color: #9ca3af;
@@ -502,7 +502,7 @@ const RichTextEditor = ({
         }
 
         [contenteditable] a {
-          color: #761B14;
+          color: #3F0D28;
           text-decoration: underline;
         }
 

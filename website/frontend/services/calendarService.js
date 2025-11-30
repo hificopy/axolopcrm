@@ -3,11 +3,49 @@
  * Handles all calendar-related API calls
  */
 
+import { createClient } from "@supabase/supabase-js";
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+
+// Initialize Supabase client at module level for consistent session access
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+const supabase =
+  supabaseUrl && supabaseAnonKey
+    ? createClient(supabaseUrl, supabaseAnonKey, {
+        auth: {
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: true,
+          storage: window.localStorage,
+          flowType: "pkce",
+        },
+      })
+    : null;
 
 class CalendarService {
   constructor() {
-    this.baseUrl = `${API_BASE_URL}/api/calendar`;
+    // Construct the full API path
+    this.baseUrl = `${API_BASE_URL}/api/v1/calendar`;
+  }
+
+  /**
+   * Get authorization headers with current Supabase token
+   */
+  async getAuthHeaders() {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+
+    if (supabase) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+    }
+
+    return headers;
   }
 
   // ==================== Google Calendar OAuth ====================
@@ -17,12 +55,10 @@ class CalendarService {
    */
   async getGoogleAuthUrl() {
     try {
+      const headers = await this.getAuthHeaders();
       const response = await fetch(`${this.baseUrl}/google/auth-url`, {
         method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
       });
 
       if (!response.ok) {
@@ -42,12 +78,10 @@ class CalendarService {
    */
   async checkGoogleStatus() {
     try {
+      const headers = await this.getAuthHeaders();
       const response = await fetch(`${this.baseUrl}/google/status`, {
         method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
       });
 
       if (!response.ok) {
@@ -68,12 +102,10 @@ class CalendarService {
    */
   async getGoogleConnectionStatus() {
     try {
+      const headers = await this.getAuthHeaders();
       const response = await fetch(`${this.baseUrl}/google/connection-status`, {
         method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
       });
 
       if (!response.ok) {
@@ -101,12 +133,10 @@ class CalendarService {
    */
   async disconnectGoogle() {
     try {
+      const headers = await this.getAuthHeaders();
       const response = await fetch(`${this.baseUrl}/google/disconnect`, {
         method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
       });
 
       if (!response.ok) {
@@ -127,12 +157,10 @@ class CalendarService {
    */
   async listGoogleCalendars() {
     try {
+      const headers = await this.getAuthHeaders();
       const response = await fetch(`${this.baseUrl}/google/calendars`, {
         method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
       });
 
       if (!response.ok) {
@@ -159,12 +187,10 @@ class CalendarService {
       if (timeMin) params.append('timeMin', timeMin);
       if (timeMax) params.append('timeMax', timeMax);
 
+      const headers = await this.getAuthHeaders();
       const response = await fetch(`${this.baseUrl}/google/events?${params}`, {
         method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
       });
 
       if (!response.ok) {
@@ -183,12 +209,10 @@ class CalendarService {
    */
   async createGoogleEvent(eventData) {
     try {
+      const headers = await this.getAuthHeaders();
       const response = await fetch(`${this.baseUrl}/google/events`, {
         method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(eventData),
       });
 
@@ -208,12 +232,10 @@ class CalendarService {
    */
   async updateGoogleEvent(eventId, eventData) {
     try {
+      const headers = await this.getAuthHeaders();
       const response = await fetch(`${this.baseUrl}/google/events/${eventId}`, {
         method: 'PUT',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(eventData),
       });
 
@@ -233,12 +255,10 @@ class CalendarService {
    */
   async deleteGoogleEvent(eventId, calendarId = 'primary') {
     try {
+      const headers = await this.getAuthHeaders();
       const response = await fetch(`${this.baseUrl}/google/events/${eventId}?calendarId=${calendarId}`, {
         method: 'DELETE',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
       });
 
       if (!response.ok) {
@@ -263,12 +283,10 @@ class CalendarService {
       if (startDate) params.append('startDate', startDate);
       if (endDate) params.append('endDate', endDate);
 
+      const headers = await this.getAuthHeaders();
       const response = await fetch(`${this.baseUrl}/crm/events?${params}`, {
         method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
       });
 
       if (!response.ok) {
@@ -289,12 +307,10 @@ class CalendarService {
    */
   async getPreset() {
     try {
+      const headers = await this.getAuthHeaders();
       const response = await fetch(`${this.baseUrl}/presets`, {
         method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
       });
 
       if (!response.ok) {
@@ -313,12 +329,10 @@ class CalendarService {
    */
   async savePreset(presetData) {
     try {
+      const headers = await this.getAuthHeaders();
       const response = await fetch(`${this.baseUrl}/presets`, {
         method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(presetData),
       });
 
@@ -338,12 +352,10 @@ class CalendarService {
    */
   async updateCategoryVisibility(category, subcategory, visible) {
     try {
+      const headers = await this.getAuthHeaders();
       const response = await fetch(`${this.baseUrl}/presets/category`, {
         method: 'PUT',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({ category, subcategory, visible }),
       });
 
@@ -363,12 +375,10 @@ class CalendarService {
    */
   async updateGoogleCalendarVisibility(calendarId, visible) {
     try {
+      const headers = await this.getAuthHeaders();
       const response = await fetch(`${this.baseUrl}/presets/google-calendar`, {
         method: 'PUT',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({ calendarId, visible }),
       });
 
@@ -388,12 +398,10 @@ class CalendarService {
    */
   async resetPreset() {
     try {
+      const headers = await this.getAuthHeaders();
       const response = await fetch(`${this.baseUrl}/presets/reset`, {
         method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
       });
 
       if (!response.ok) {
@@ -418,12 +426,10 @@ class CalendarService {
       if (timeMin) params.append('timeMin', timeMin);
       if (timeMax) params.append('timeMax', timeMax);
 
+      const headers = await this.getAuthHeaders();
       const response = await fetch(`${this.baseUrl}/events/all?${params}`, {
         method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
       });
 
       if (!response.ok) {

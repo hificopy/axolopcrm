@@ -9,7 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
-import api from './lib/api';
+import api from '@/lib/api';
 
 const FIELD_TYPES = [
   { value: 'text', label: 'Text', icon: '📝' },
@@ -61,7 +61,7 @@ export default function CustomFieldsSettings() {
     setLoading(true);
     try {
       const params = selectedEntityFilter !== 'all' ? `?entityType=${selectedEntityFilter}` : '';
-      const response = await api.get(`/api/custom-fields/definitions${params}`);
+      const response = await api.get(`/custom-fields/definitions${params}`);
       setCustomFields(response.data);
     } catch (error) {
       console.error('Error fetching custom fields:', error);
@@ -156,13 +156,13 @@ export default function CustomFieldsSettings() {
       };
 
       if (editingField) {
-        await api.put(`/api/custom-fields/definitions/${editingField.id}`, payload);
+        await api.put(`/custom-fields/definitions/${editingField.id}`, payload);
         toast({
           title: 'Success',
           description: 'Custom field updated successfully!',
         });
       } else {
-        await api.post('/api/custom-fields/definitions', payload);
+        await api.post('/custom-fields/definitions', payload);
         toast({
           title: 'Success',
           description: 'Custom field created successfully!',
@@ -187,7 +187,7 @@ export default function CustomFieldsSettings() {
     }
 
     try {
-      await api.delete(`/api/custom-fields/definitions/${field.id}`);
+      await api.delete(`/custom-fields/definitions/${field.id}`);
       toast({
         title: 'Success',
         description: 'Custom field deleted successfully!',
@@ -234,7 +234,7 @@ export default function CustomFieldsSettings() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
-              <Settings className="h-8 w-8 text-[#761B14]" />
+              <Settings className="h-8 w-8 text-[#3F0D28]" />
               Custom Fields
             </h1>
             <p className="text-sm text-gray-600 mt-2 font-medium">
@@ -245,7 +245,7 @@ export default function CustomFieldsSettings() {
           <Button
             variant="default"
             size="default"
-            className="gap-2 bg-[#761B14] hover:bg-[#6b1a12]"
+            className="gap-2 btn-premium-red"
             onClick={() => openModal()}
           >
             <Plus className="h-4 w-4" />
@@ -274,7 +274,7 @@ export default function CustomFieldsSettings() {
       <div className="flex-1 overflow-auto p-4 sm:p-6 bg-gray-50">
         {loading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-[#761B14]"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-[#3F0D28]"></div>
           </div>
         ) : customFields.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 bg-white rounded-xl border border-gray-200">
@@ -283,7 +283,7 @@ export default function CustomFieldsSettings() {
             <p className="text-gray-600 mb-6">Create your first custom field to get started</p>
             <Button
               variant="default"
-              className="gap-2 bg-[#761B14] hover:bg-[#6b1a12]"
+              className="gap-2 btn-premium-red"
               onClick={() => openModal()}
             >
               <Plus className="h-4 w-4" />
@@ -322,7 +322,7 @@ export default function CustomFieldsSettings() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(field)}
-                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="h-8 w-8 p-0 text-[#3F0D28] hover:text-[#2a0919] hover:bg-[#3F0D28]/5"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -484,7 +484,7 @@ export default function CustomFieldsSettings() {
                             variant="ghost"
                             size="sm"
                             onClick={() => removeOption(idx)}
-                            className="h-6 w-6 p-0 text-red-600 hover:text-red-700"
+                            className="h-6 w-6 p-0 text-[#3F0D28] hover:text-[#2a0919]"
                           >
                             <X className="h-4 w-4" />
                           </Button>
@@ -543,7 +543,7 @@ export default function CustomFieldsSettings() {
             <Button
               variant="default"
               onClick={handleSave}
-              className="bg-[#761B14] hover:bg-[#6b1a12]"
+              className="btn-premium-red"
             >
               <Save className="h-4 w-4 mr-2" />
               {editingField ? 'Update' : 'Create'}

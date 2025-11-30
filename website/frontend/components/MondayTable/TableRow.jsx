@@ -1,7 +1,8 @@
-import { cn } from '@/lib/utils';
-import { renderCell } from './ColumnTypes';
-import RowActionsMenu from './RowActionsMenu';
-import { Check } from 'lucide-react';
+import { cn } from "@/lib/utils";
+import { renderCell } from "./ColumnTypes";
+import RowActionsMenu from "./RowActionsMenu";
+import { Check } from "lucide-react";
+import { useContextMenu } from "@/components/ui/ContextMenuProvider";
 
 /**
  * Production-ready table row with perfect visuals matching Monday.com
@@ -19,6 +20,8 @@ export default function TableRow({
   onSelect,
   showActions = true,
   showCheckbox = true,
+  onContextMenu,
+  contextMenuConfig,
 }) {
   const handleClick = () => {
     if (onRowClick) {
@@ -37,15 +40,38 @@ export default function TableRow({
     onSelect?.(row.id);
   };
 
+  const { showContextMenu } = useContextMenu();
+
+  const handleContextMenu = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (contextMenuConfig) {
+      const items =
+        typeof contextMenuConfig === "function"
+          ? contextMenuConfig(row)
+          : contextMenuConfig;
+
+      showContextMenu({
+        items,
+        position: { x: e.clientX, y: e.clientY },
+        data: row,
+      });
+    }
+
+    onContextMenu?.(e, row);
+  };
+
   return (
     <div
       className={cn(
-        'group flex items-stretch border-b border-gray-100 transition-all duration-150',
-        'hover:bg-gray-50/80',
-        selected && 'bg-blue-50/50 hover:bg-blue-50/70',
-        onRowClick && 'cursor-pointer'
+        "group flex items-stretch border-b border-gray-100 transition-all duration-150",
+        "hover:bg-gray-50/80",
+        selected && "bg-blue-50/50 hover:bg-blue-50/70",
+        onRowClick && "cursor-pointer",
       )}
       onClick={handleClick}
+      onContextMenu={handleContextMenu}
     >
       {/* Checkbox column */}
       {showCheckbox && (
@@ -53,14 +79,16 @@ export default function TableRow({
           <button
             onClick={handleCheckboxClick}
             className={cn(
-              'w-4 h-4 rounded border-2 flex items-center justify-center transition-all',
-              'hover:border-[#761B14]',
+              "w-4 h-4 rounded border-2 flex items-center justify-center transition-all",
+              "hover:border-[#3F0D28]",
               selected
-                ? 'bg-[#761B14] border-[#761B14]'
-                : 'border-gray-300 bg-white'
+                ? "bg-[#3F0D28] border-[#3F0D28]"
+                : "border-gray-300 bg-white",
             )}
           >
-            {selected && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
+            {selected && (
+              <Check className="h-3 w-3 text-white" strokeWidth={3} />
+            )}
           </button>
         </div>
       )}
@@ -70,13 +98,15 @@ export default function TableRow({
         <div
           key={column.key}
           className={cn(
-            'flex items-center px-4 py-2.5 border-r border-gray-100',
-            column.width ? `w-[${column.width}px] flex-shrink-0` : 'flex-1 min-w-[120px]'
+            "flex items-center px-4 py-2.5 border-r border-gray-100",
+            column.width
+              ? `w-[${column.width}px] flex-shrink-0`
+              : "flex-1 min-w-[120px]",
           )}
           style={column.width ? { width: column.width } : {}}
           onClick={(e) => {
             // Prevent row click when interacting with editable cells
-            if (column.editable || column.type === 'comments') {
+            if (column.editable || column.type === "comments") {
               e.stopPropagation();
             }
           }}

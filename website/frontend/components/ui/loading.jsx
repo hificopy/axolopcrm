@@ -22,7 +22,7 @@ export const LogoLoader = ({ size = "default", className }) => {
         <motion.div
           className={cn(
             "absolute inset-0 rounded-full",
-            "bg-gradient-to-r from-[#761B14] via-[#9A392D] to-[#761B14]",
+            "bg-gradient-to-r from-[#3F0D28] via-[#3F0D28] to-[#3F0D28]",
           )}
           animate={{
             rotate: 360,
@@ -88,7 +88,7 @@ export const Spinner = ({ size = "default", className }) => {
     <div className="flex items-center justify-center min-h-[200px] w-full">
       <motion.div
         className={cn(
-          "rounded-full border-gray-200 border-t-[#761B14]",
+          "rounded-full border-gray-200 border-t-[#3F0D28]",
           sizes[size],
           className,
         )}
@@ -121,7 +121,7 @@ export const DotsLoader = ({ className }) => {
       {[0, 1, 2].map((i) => (
         <motion.div
           key={i}
-          className="h-3 w-3 rounded-full bg-[#761B14]"
+          className="h-3 w-3 rounded-full bg-[#3F0D28]"
           variants={dotVariants}
           initial="initial"
           animate="animate"
@@ -173,7 +173,7 @@ export const FullPageLoader = ({ message }) => {
         <div className="w-64 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden relative">
           {/* Animated Loading Bar */}
           <motion.div
-            className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#761B14] via-[#9A392D] to-[#761B14] rounded-full"
+            className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#3F0D28] via-[#3F0D28] to-[#3F0D28] rounded-full"
             initial={{ x: "-100%", width: "50%" }}
             animate={{ x: "200%" }}
             transition={{

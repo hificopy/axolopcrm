@@ -101,6 +101,6 @@ export default function QuestionRenderer({ question, value, onChange }) {
         />
       );
     default:
-      return <p className="text-red-500">Unknown question type: {question.type}</p>;
+      return <p className="text-[#CA4238]">Unknown question type: {question.type}</p>;
   }
 }

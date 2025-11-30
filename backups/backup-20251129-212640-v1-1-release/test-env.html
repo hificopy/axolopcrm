@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Env Test</title>
+  </head>
+  <body>
+    <h1>Environment Variables Test</h1>
+    <div id="output"></div>
+
+    <script type="module">
+      console.log("Testing in browser context...");
+      console.log("import.meta.env:", import.meta.env);
+      console.log("VITE_SUPABASE_URL:", import.meta.env.VITE_SUPABASE_URL);
+      console.log(
+        "VITE_SUPABASE_ANON_KEY exists:",
+        !!import.meta.env.VITE_SUPABASE_ANON_KEY,
+      );
+
+      document.getElementById("output").innerHTML = `
+            <p>VITE_SUPABASE_URL: ${import.meta.env.VITE_SUPABASE_URL || "NOT FOUND"}</p>
+            <p>VITE_SUPABASE_ANON_KEY: ${import.meta.env.VITE_SUPABASE_ANON_KEY ? "EXISTS" : "NOT FOUND"}</p>
+        `;
+    </script>
+  </body>
+</html>

@@ -15,7 +15,7 @@ export default function StatusChanges() {
           <Button
             variant="outline"
             size="default"
-            className="bg-[#761B14] hover:bg-[#6b1a12] text-white border-none"
+            className="btn-premium-red text-white border-none"
           >
             Export Log
           </Button>
@@ -28,7 +28,7 @@ export default function StatusChanges() {
             <select
               value={timeRange}
               onChange={(e) => setTimeRange(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#761B14]"
+              className="px-3 py-1.5 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3F0D28]"
             >
               <option>Today</option>
               <option>This Week</option>
@@ -44,7 +44,7 @@ export default function StatusChanges() {
         <Card className="bg-white">
           <CardHeader className="border-b border-gray-200">
             <CardTitle className="flex items-center gap-2">
-              <History className="h-5 w-5 text-[#761B14]" />
+              <History className="h-5 w-5 text-[#3F0D28]" />
               Status Change History
             </CardTitle>
           </CardHeader>

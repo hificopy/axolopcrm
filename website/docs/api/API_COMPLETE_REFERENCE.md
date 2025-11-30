@@ -176,6 +176,7 @@ backend/
 All configuration is managed via `backend/config/app.config.js` which reads from `.env`:
 
 #### Server Configuration
+
 ```env
 PORT=3002
 NODE_ENV=development
@@ -183,6 +184,7 @@ API_VERSION=v1
 ```
 
 #### Supabase Configuration
+
 ```env
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your-anon-key
@@ -191,6 +193,7 @@ SUPABASE_JWT_SECRET=your-jwt-secret
 ```
 
 #### Redis Configuration
+
 ```env
 REDIS_HOST=localhost
 REDIS_PORT=6379
@@ -198,6 +201,7 @@ REDIS_PASSWORD=your-redis-password
 ```
 
 #### Email Configuration
+
 ```env
 SENDGRID_API_KEY=your-sendgrid-key
 AWS_SES_REGION=us-east-1
@@ -206,6 +210,7 @@ AWS_SES_SECRET_ACCESS_KEY=your-secret-key
 ```
 
 #### Google Services
+
 ```env
 GOOGLE_CLIENT_ID=your-client-id
 GOOGLE_CLIENT_SECRET=your-client-secret
@@ -213,24 +218,28 @@ GOOGLE_REDIRECT_URI=http://localhost:3002/auth/google/callback
 ```
 
 #### Cache Configuration
+
 ```env
 CACHE_ENABLED=true
 CACHE_DEFAULT_TTL=3600
 ```
 
 #### Logging Configuration
+
 ```env
 LOG_LEVEL=info
 LOG_DIR=logs
 ```
 
 #### Workflow Configuration
+
 ```env
 WORKFLOW_POLL_INTERVAL=5000
 MAX_CONCURRENT_EXECUTIONS=10
 ```
 
 #### Security Configuration
+
 ```env
 ENCRYPTION_KEY=your-32-character-encryption-key
 RATE_LIMIT_WINDOW_MS=900000
@@ -240,7 +249,7 @@ RATE_LIMIT_MAX_REQUESTS=100
 ### Configuration Access
 
 ```javascript
-import config from './config/app.config.js';
+import config from "./config/app.config.js";
 
 console.log(config.port); // 3002
 console.log(config.supabase.url);
@@ -282,6 +291,7 @@ GET    /api/v1/leads/export       # Export leads to CSV
 ```
 
 **Create Lead Example:**
+
 ```bash
 curl -X POST http://localhost:3002/api/v1/leads \
   -H "Content-Type: application/json" \
@@ -369,6 +379,68 @@ GET    /api/v1/analytics/revenue         # Revenue analytics
 GET    /api/v1/analytics/activity        # Activity timeline
 ```
 
+#### Billing & Payments (Stripe)
+
+```
+GET    /api/v1/stripe/pricing           # Get pricing tiers (public)
+POST   /api/v1/stripe/checkout         # Create checkout session
+POST   /api/v1/stripe/portal          # Create billing portal session
+GET    /api/v1/stripe/subscription     # Get current subscription
+POST   /api/v1/stripe/cancel          # Cancel subscription
+POST   /api/v1/stripe/webhook         # Handle Stripe webhooks
+```
+
+**Create Checkout Session Example:**
+
+```bash
+curl -X POST http://localhost:3002/api/v1/stripe/checkout \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TOKEN" \
+  -d '{
+    "priceId": "price_build_monthly",
+    "successUrl": "https://app.axolop.com/billing/success",
+    "cancelUrl": "https://app.axolop.com/billing/cancel"
+  }'
+```
+
+**Pricing Tiers Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "sales": {
+      "name": "Sales",
+      "monthly": 6700,
+      "yearly": 64800,
+      "monthlyEquivalent": 5400,
+      "discount": 19,
+      "maxUsers": 3,
+      "maxAgencies": 1
+    },
+    "build": {
+      "name": "Build",
+      "monthly": 18700,
+      "yearly": 178800,
+      "monthlyEquivalent": 14900,
+      "discount": 20,
+      "maxUsers": 5,
+      "maxAgencies": 1,
+      "popular": true
+    },
+    "scale": {
+      "name": "Scale",
+      "monthly": 34900,
+      "yearly": 334800,
+      "monthlyEquivalent": 27900,
+      "discount": 20,
+      "maxUsers": 20,
+      "maxAgencies": 3
+    }
+  }
+}
+```
+
 #### System
 
 ```
@@ -382,11 +454,11 @@ GET    /api/v1/info              # API information
 Different endpoints have different rate limits:
 
 | Endpoint Type | Window | Max Requests |
-|--------------|--------|--------------|
-| General API | 15 min | 100 |
-| Auth | 15 min | 5 |
-| Workflows | 1 min | 10 |
-| Email Send | 1 min | 20 |
+| ------------- | ------ | ------------ |
+| General API   | 15 min | 100          |
+| Auth          | 15 min | 5            |
+| Workflows     | 1 min  | 10           |
+| Email Send    | 1 min  | 20           |
 
 ### Pagination
 
@@ -397,6 +469,7 @@ GET /api/v1/leads?page=1&limit=20
 ```
 
 Response includes pagination metadata:
+
 ```json
 {
   "data": [...],
@@ -443,18 +516,19 @@ import {
   AppError,
   ValidationError,
   NotFoundError,
-  UnauthorizedError
-} from './utils/errors.js';
+  UnauthorizedError,
+} from "./utils/errors.js";
 
 // Throw errors in your code
-throw new NotFoundError('Lead not found');
-throw new ValidationError('Invalid email format');
-throw new UnauthorizedError('Invalid credentials');
+throw new NotFoundError("Lead not found");
+throw new ValidationError("Invalid email format");
+throw new UnauthorizedError("Invalid credentials");
 
 // These are automatically caught and formatted by error-handler middleware
 ```
 
 **Available Error Classes:**
+
 - `AppError` - Base error class
 - `ValidationError` - 400 Bad Request
 - `NotFoundError` - 404 Not Found
@@ -471,18 +545,19 @@ throw new UnauthorizedError('Invalid credentials');
 Structured logging with Winston:
 
 ```javascript
-import logger from './utils/logger.js';
+import logger from "./utils/logger.js";
 
 // Log levels: error, warn, info, http, debug
-logger.info('User created', { userId: 123, email: 'user@example.com' });
-logger.error('Database error', { error: err.message, query });
-logger.debug('Cache hit', { key: 'user:123' });
+logger.info("User created", { userId: 123, email: "user@example.com" });
+logger.error("Database error", { error: err.message, query });
+logger.debug("Cache hit", { key: "user:123" });
 
 // Request logging middleware (automatically applied)
 app.use(requestLogger);
 ```
 
 **Log Files:**
+
 - `logs/error.log` - Error level only
 - `logs/combined.log` - All levels
 - `logs/debug.log` - Debug level (dev only)
@@ -492,25 +567,25 @@ app.use(requestLogger);
 Redis-backed caching service:
 
 ```javascript
-import cacheService from './utils/cache.js';
+import cacheService from "./utils/cache.js";
 
 // Initialize (done in index.js)
 cacheService.initialize(redis);
 
 // Basic operations
-await cacheService.set('key', value, ttl);
-const value = await cacheService.get('key');
-await cacheService.delete('key');
+await cacheService.set("key", value, ttl);
+const value = await cacheService.get("key");
+await cacheService.delete("key");
 await cacheService.clear();
 
 // Get or set pattern
 const data = await cacheService.getOrSet(
-  'user:123',
+  "user:123",
   async () => {
     // This function only runs on cache miss
     return await fetchUserFromDB(123);
   },
-  3600 // TTL in seconds
+  3600, // TTL in seconds
 );
 
 // Domain-specific methods
@@ -528,33 +603,31 @@ import {
   paginatedQuery,
   bulkInsert,
   search,
-  Transaction
-} from './utils/database.js';
+  Transaction,
+} from "./utils/database.js";
 
 // Paginated queries
-const result = await paginatedQuery('leads', {
+const result = await paginatedQuery("leads", {
   page: 1,
   limit: 20,
-  filters: { status: 'NEW' },
-  sort: { field: 'created_at', order: 'desc' }
+  filters: { status: "NEW" },
+  sort: { field: "created_at", order: "desc" },
 });
 
 // Bulk insert
-await bulkInsert('leads', records, 100); // batch size 100
+await bulkInsert("leads", records, 100); // batch size 100
 
 // Full-text search
-const results = await search('leads',
-  ['name', 'email', 'company'],
-  'acme',
-  { limit: 10 }
-);
+const results = await search("leads", ["name", "email", "company"], "acme", {
+  limit: 10,
+});
 
 // Transactions
 const transaction = new Transaction();
 try {
   await transaction.execute(async () => {
-    await supabase.from('leads').insert(leadData);
-    await supabase.from('activities').insert(activityData);
+    await supabase.from("leads").insert(leadData);
+    await supabase.from("activities").insert(activityData);
   });
 } catch (error) {
   await transaction.rollback();
@@ -566,13 +639,13 @@ try {
 Performance and usage metrics:
 
 ```javascript
-import metrics from './utils/metrics.js';
+import metrics from "./utils/metrics.js";
 
 // Record metrics
-metrics.recordRequest('GET', '/api/v1/leads', 200, 45); // 45ms
+metrics.recordRequest("GET", "/api/v1/leads", 200, 45); // 45ms
 metrics.recordWorkflow(true, 1200); // success, 1200ms
-metrics.recordEmail('sent');
-metrics.recordError('database_connection_failed');
+metrics.recordEmail("sent");
+metrics.recordError("database_connection_failed");
 
 // Get metrics summary
 const summary = metrics.getSummary();
@@ -585,11 +658,11 @@ console.log(summary.requests.avgDuration);
 Internal event system for decoupled architecture:
 
 ```javascript
-import events, { EventTypes } from './utils/events.js';
+import events, { EventTypes } from "./utils/events.js";
 
 // Subscribe to events
 events.subscribe(EventTypes.LEAD_CREATED, async (lead) => {
-  logger.info('New lead created', { leadId: lead.id });
+  logger.info("New lead created", { leadId: lead.id });
   await sendWelcomeEmail(lead);
 });
 
@@ -599,6 +672,7 @@ events.emit(EventTypes.EMAIL_SENT, { to, subject });
 ```
 
 **Available Events:**
+
 - `LEAD_CREATED`, `LEAD_UPDATED`, `LEAD_DELETED`
 - `CONTACT_CREATED`, `CONTACT_UPDATED`, `CONTACT_DELETED`
 - `OPPORTUNITY_WON`, `OPPORTUNITY_LOST`
@@ -611,27 +685,23 @@ events.emit(EventTypes.EMAIL_SENT, { to, subject });
 Webhook delivery with retry logic:
 
 ```javascript
-import webhookService from './utils/webhook.js';
+import webhookService from "./utils/webhook.js";
 
 // Send webhook
 await webhookService.sendWebhook(
-  'https://example.com/webhook',
-  { event: 'lead.created', data: leadData },
-  { maxRetries: 3, secret: 'webhook-secret' }
+  "https://example.com/webhook",
+  { event: "lead.created", data: leadData },
+  { maxRetries: 3, secret: "webhook-secret" },
 );
 
 // Trigger event to multiple webhooks
-await webhookService.trigger('lead.created', leadData, [
-  'https://webhook1.com',
-  'https://webhook2.com'
+await webhookService.trigger("lead.created", leadData, [
+  "https://webhook1.com",
+  "https://webhook2.com",
 ]);
 
 // Verify webhook signature (in webhook receiver)
-const isValid = webhookService.verifySignature(
-  payload,
-  signature,
-  secret
-);
+const isValid = webhookService.verifySignature(payload, signature, secret);
 ```
 
 ### Job Queues (`utils/queue.js`)
@@ -639,31 +709,31 @@ const isValid = webhookService.verifySignature(
 Background job processing with Bull:
 
 ```javascript
-import {
-  queueEmail,
-  queueWorkflow,
-  getQueueStats
-} from './utils/queue.js';
+import { queueEmail, queueWorkflow, getQueueStats } from "./utils/queue.js";
 
 // Queue jobs
-await queueEmail({
-  to: 'user@example.com',
-  subject: 'Welcome',
-  template: 'welcome',
-  data: { name: 'John' }
-}, { priority: 5, delay: 0 });
+await queueEmail(
+  {
+    to: "user@example.com",
+    subject: "Welcome",
+    template: "welcome",
+    data: { name: "John" },
+  },
+  { priority: 5, delay: 0 },
+);
 
 await queueWorkflow({
   workflowId: 123,
-  leadId: 456
+  leadId: 456,
 });
 
 // Get queue statistics
-const stats = await getQueueStats('email');
+const stats = await getQueueStats("email");
 console.log(stats.waiting, stats.active, stats.completed);
 ```
 
 **Available Queues:**
+
 - `email` - Email sending
 - `workflow` - Workflow execution
 - `import` - Data imports
@@ -675,13 +745,13 @@ console.log(stats.waiting, stats.active, stats.completed);
 Handlebars email template rendering:
 
 ```javascript
-import { renderEmail, renderTemplate } from './utils/template.js';
+import { renderEmail, renderTemplate } from "./utils/template.js";
 
 // Render base template
-const html = renderEmail('welcome', {
-  firstName: 'John',
-  companyName: 'Axolop',
-  getStartedLink: 'https://app.axolop.com/start'
+const html = renderEmail("welcome", {
+  firstName: "John",
+  companyName: "Axolop",
+  getStartedLink: "https://app.axolop.com/start",
 });
 
 // Render custom template
@@ -689,6 +759,7 @@ const html = renderTemplate(customTemplate, templateData);
 ```
 
 **Available Base Templates:**
+
 - `basic` - Basic email layout
 - `welcome` - Welcome email
 - `leadNotification` - Lead notification
@@ -696,6 +767,7 @@ const html = renderTemplate(customTemplate, templateData);
 - `invoice` - Invoice template
 
 **Custom Helpers:**
+
 - `{{formatDate date}}` - Format dates
 - `{{formatCurrency amount}}` - Format currency
 - `{{uppercase str}}` - Uppercase text
@@ -710,11 +782,11 @@ Analytics and reporting functions:
 import {
   getDashboardStats,
   getConversionFunnel,
-  getRevenueAnalytics
-} from './utils/analytics.js';
+  getRevenueAnalytics,
+} from "./utils/analytics.js";
 
 // Dashboard statistics
-const stats = await getDashboardStats(userId, 'week');
+const stats = await getDashboardStats(userId, "week");
 console.log(stats.leads.total, stats.leads.new);
 
 // Conversion funnel
@@ -722,7 +794,7 @@ const funnel = await getConversionFunnel(userId);
 console.log(funnel.rates.overallConversion);
 
 // Revenue analytics
-const revenue = await getRevenueAnalytics(userId, 'month');
+const revenue = await getRevenueAnalytics(userId, "month");
 console.log(revenue.totalRevenue, revenue.winRate);
 ```
 
@@ -737,15 +809,15 @@ import {
   encrypt,
   decrypt,
   generateApiKey,
-  sanitizeInput
-} from './utils/security.js';
+  sanitizeInput,
+} from "./utils/security.js";
 
 // Password hashing
-const hash = await hashPassword('password123');
-const isValid = await verifyPassword('password123', hash);
+const hash = await hashPassword("password123");
+const isValid = await verifyPassword("password123", hash);
 
 // Encryption
-const encrypted = encrypt('sensitive data');
+const encrypted = encrypt("sensitive data");
 const decrypted = decrypt(encrypted);
 
 // API key generation
@@ -763,20 +835,20 @@ Data export to CSV/JSON:
 import {
   exportLeads,
   exportContacts,
-  createExportPackage
-} from './utils/export.js';
+  createExportPackage,
+} from "./utils/export.js";
 
 // Export leads
 const csv = await exportLeads(userId, {
-  status: 'QUALIFIED',
-  startDate: '2024-01-01'
+  status: "QUALIFIED",
+  startDate: "2024-01-01",
 });
 
 // Export contacts
 const csv = await exportContacts(userId);
 
 // Complete export package
-const exports = await createExportPackage(userId, 'all');
+const exports = await createExportPackage(userId, "all");
 console.log(exports.leads, exports.contacts, exports.opportunities);
 ```
 
@@ -804,15 +876,18 @@ All errors return consistent JSON:
 Wrap async route handlers to automatically catch errors:
 
 ```javascript
-import { asyncHandler } from './middleware/error-handler.js';
+import { asyncHandler } from "./middleware/error-handler.js";
 
-router.get('/leads/:id', asyncHandler(async (req, res) => {
-  const lead = await getLeadById(req.params.id);
-  if (!lead) {
-    throw new NotFoundError('Lead not found');
-  }
-  res.json({ data: lead });
-}));
+router.get(
+  "/leads/:id",
+  asyncHandler(async (req, res) => {
+    const lead = await getLeadById(req.params.id);
+    if (!lead) {
+      throw new NotFoundError("Lead not found");
+    }
+    res.json({ data: lead });
+  }),
+);
 ```
 
 ### Validation Errors
@@ -846,14 +921,15 @@ Validation errors include field-specific details:
 All inputs are validated using Zod schemas:
 
 ```javascript
-import { validate } from './middleware/validate.js';
-import { createLeadSchema } from './validators/lead.validator.js';
+import { validate } from "./middleware/validate.js";
+import { createLeadSchema } from "./validators/lead.validator.js";
 
-router.post('/leads',
+router.post(
+  "/leads",
   validate(createLeadSchema),
   asyncHandler(async (req, res) => {
     // req.body is validated and sanitized
-  })
+  }),
 );
 ```
 
@@ -862,13 +938,14 @@ router.post('/leads',
 Rate limiting prevents abuse:
 
 ```javascript
-import { apiLimiter, authLimiter } from './middleware/rate-limit.js';
+import { apiLimiter, authLimiter } from "./middleware/rate-limit.js";
 
-router.use('/api/v1/', apiLimiter);
-router.use('/auth/', authLimiter);
+router.use("/api/v1/", apiLimiter);
+router.use("/auth/", authLimiter);
 ```
 
 When rate limit is exceeded:
+
 ```json
 {
   "status": "error",
@@ -883,11 +960,15 @@ When rate limit is exceeded:
 Routes are protected with Supabase auth:
 
 ```javascript
-import { authenticate } from './middleware/auth.js';
+import { authenticate } from "./middleware/auth.js";
 
-router.get('/leads', authenticate, asyncHandler(async (req, res) => {
-  // req.user contains authenticated user
-}));
+router.get(
+  "/leads",
+  authenticate,
+  asyncHandler(async (req, res) => {
+    // req.user contains authenticated user
+  }),
+);
 ```
 
 ### Data Encryption
@@ -895,16 +976,16 @@ router.get('/leads', authenticate, asyncHandler(async (req, res) => {
 Sensitive data is encrypted at rest:
 
 ```javascript
-import { encrypt, decrypt } from './utils/security.js';
+import { encrypt, decrypt } from "./utils/security.js";
 
 // Store encrypted
 const encrypted = encrypt(apiKey);
-await supabase.from('integrations').insert({
-  api_key: encrypted
+await supabase.from("integrations").insert({
+  api_key: encrypted,
 });
 
 // Retrieve and decrypt
-const { data } = await supabase.from('integrations').select('api_key');
+const { data } = await supabase.from("integrations").select("api_key");
 const apiKey = decrypt(data.api_key);
 ```
 
@@ -924,13 +1005,13 @@ Multi-layer caching for optimal performance:
 
 Default TTLs by data type:
 
-| Data Type | TTL |
-|-----------|-----|
-| Workflows | 1 hour |
-| Leads | 5 minutes |
-| Dashboard Stats | 5 minutes |
-| Analytics | 15 minutes |
-| User Data | 10 minutes |
+| Data Type       | TTL        |
+| --------------- | ---------- |
+| Workflows       | 1 hour     |
+| Leads           | 5 minutes  |
+| Dashboard Stats | 5 minutes  |
+| Analytics       | 15 minutes |
+| User Data       | 10 minutes |
 
 ### Cache Invalidation
 
@@ -946,7 +1027,7 @@ Manual cache clearing:
 
 ```javascript
 await cacheService.clear(); // Clear all
-await cacheService.clearPattern('user:*'); // Pattern-based
+await cacheService.clearPattern("user:*"); // Pattern-based
 ```
 
 ### Performance Monitoring
@@ -960,7 +1041,7 @@ Metrics are collected for all operations:
 // - Cache hit/miss rates
 // - Error rates
 
-const metrics = await fetch('/metrics').then(r => r.json());
+const metrics = await fetch("/metrics").then((r) => r.json());
 console.log(metrics.requests.avgDuration);
 ```
 
@@ -981,7 +1062,7 @@ Five specialized queues for different operations:
 ### Adding Jobs
 
 ```javascript
-import { queueEmail, queueWorkflow } from './utils/queue.js';
+import { queueEmail, queueWorkflow } from "./utils/queue.js";
 
 // High priority email
 await queueEmail(emailData, { priority: 1 });
@@ -1005,10 +1086,10 @@ Lower numbers = higher priority (1-10):
 ### Monitoring Queues
 
 ```javascript
-import { getQueueStats, getAllQueueStats } from './utils/queue.js';
+import { getQueueStats, getAllQueueStats } from "./utils/queue.js";
 
 // Single queue
-const stats = await getQueueStats('email');
+const stats = await getQueueStats("email");
 console.log(`Waiting: ${stats.waiting}, Active: ${stats.active}`);
 
 // All queues
@@ -1018,16 +1099,16 @@ const allStats = await getAllQueueStats();
 ### Queue Management
 
 ```javascript
-import { pauseQueue, resumeQueue, cleanQueue } from './utils/queue.js';
+import { pauseQueue, resumeQueue, cleanQueue } from "./utils/queue.js";
 
 // Pause queue (stop processing)
-await pauseQueue('email');
+await pauseQueue("email");
 
 // Resume queue
-await resumeQueue('email');
+await resumeQueue("email");
 
 // Clean old completed jobs (older than 1 hour)
-await cleanQueue('email', 3600000);
+await cleanQueue("email", 3600000);
 ```
 
 ---
@@ -1039,29 +1120,34 @@ await cleanQueue('email', 3600000);
 30+ event types for different operations:
 
 **Lead Events:**
+
 - `lead.created`, `lead.updated`, `lead.deleted`
 - `lead.status_changed`, `lead.assigned`
 
 **Contact Events:**
+
 - `contact.created`, `contact.updated`, `contact.deleted`
 
 **Opportunity Events:**
+
 - `opportunity.created`, `opportunity.won`, `opportunity.lost`
 
 **Email Events:**
+
 - `email.sent`, `email.delivered`, `email.opened`, `email.clicked`
 
 **Workflow Events:**
+
 - `workflow.started`, `workflow.completed`, `workflow.failed`
 
 ### Subscribing to Events
 
 ```javascript
-import events, { EventTypes } from './utils/events.js';
+import events, { EventTypes } from "./utils/events.js";
 
 // Single event
 events.subscribe(EventTypes.LEAD_CREATED, async (lead) => {
-  await sendNotification('New lead created', lead);
+  await sendNotification("New lead created", lead);
 });
 
 // Multiple events
@@ -1075,8 +1161,8 @@ events.subscribe(EventTypes.EMAIL_CLICKED, handleEmailClicked);
 // Emit with data
 events.emit(EventTypes.LEAD_CREATED, {
   id: leadId,
-  name: 'Acme Corp',
-  userId: req.user.id
+  name: "Acme Corp",
+  userId: req.user.id,
 });
 
 // Event handlers run asynchronously
@@ -1104,10 +1190,10 @@ Always use custom error classes:
 
 ```javascript
 // ❌ Bad
-throw new Error('Not found');
+throw new Error("Not found");
 
 // ✅ Good
-throw new NotFoundError('Lead not found');
+throw new NotFoundError("Lead not found");
 ```
 
 ### Async Operations
@@ -1116,7 +1202,7 @@ Use asyncHandler for route handlers:
 
 ```javascript
 // ❌ Bad
-router.get('/leads', async (req, res) => {
+router.get("/leads", async (req, res) => {
   try {
     const leads = await getLeads();
     res.json(leads);
@@ -1126,10 +1212,13 @@ router.get('/leads', async (req, res) => {
 });
 
 // ✅ Good
-router.get('/leads', asyncHandler(async (req, res) => {
-  const leads = await getLeads();
-  res.json({ data: leads });
-}));
+router.get(
+  "/leads",
+  asyncHandler(async (req, res) => {
+    const leads = await getLeads();
+    res.json({ data: leads });
+  }),
+);
 ```
 
 ### Validation
@@ -1138,18 +1227,19 @@ Validate all inputs:
 
 ```javascript
 // ❌ Bad
-router.post('/leads', async (req, res) => {
+router.post("/leads", async (req, res) => {
   const lead = await createLead(req.body);
   res.json(lead);
 });
 
 // ✅ Good
-router.post('/leads',
+router.post(
+  "/leads",
   validate(createLeadSchema),
   asyncHandler(async (req, res) => {
     const lead = await createLead(req.body);
     res.json({ data: lead });
-  })
+  }),
 );
 ```
 
@@ -1159,13 +1249,13 @@ Use structured logging with context:
 
 ```javascript
 // ❌ Bad
-console.log('Lead created');
+console.log("Lead created");
 
 // ✅ Good
-logger.info('Lead created', {
+logger.info("Lead created", {
   leadId: lead.id,
   userId: req.user.id,
-  leadType: lead.type
+  leadType: lead.type,
 });
 ```
 
@@ -1175,20 +1265,23 @@ Cache expensive operations:
 
 ```javascript
 // ❌ Bad
-router.get('/analytics', async (req, res) => {
+router.get("/analytics", async (req, res) => {
   const stats = await calculateDashboardStats(req.user.id);
   res.json(stats);
 });
 
 // ✅ Good
-router.get('/analytics', asyncHandler(async (req, res) => {
-  const stats = await cacheService.getOrSet(
-    `stats:${req.user.id}`,
-    () => calculateDashboardStats(req.user.id),
-    300 // 5 minutes
-  );
-  res.json({ data: stats });
-}));
+router.get(
+  "/analytics",
+  asyncHandler(async (req, res) => {
+    const stats = await cacheService.getOrSet(
+      `stats:${req.user.id}`,
+      () => calculateDashboardStats(req.user.id),
+      300, // 5 minutes
+    );
+    res.json({ data: stats });
+  }),
+);
 ```
 
 ### Database Queries
@@ -1197,13 +1290,13 @@ Use pagination for large datasets:
 
 ```javascript
 // ❌ Bad
-const leads = await supabase.from('leads').select('*');
+const leads = await supabase.from("leads").select("*");
 
 // ✅ Good
-const leads = await paginatedQuery('leads', {
+const leads = await paginatedQuery("leads", {
   page: req.query.page || 1,
   limit: req.query.limit || 20,
-  filters: { user_id: req.user.id }
+  filters: { user_id: req.user.id },
 });
 ```
 
@@ -1212,7 +1305,7 @@ const leads = await paginatedQuery('leads', {
 Always sanitize user inputs:
 
 ```javascript
-import { sanitizeInput } from './utils/security.js';
+import { sanitizeInput } from "./utils/security.js";
 
 // ❌ Bad
 const name = req.body.name;
@@ -1259,6 +1352,7 @@ events.subscribe(EventTypes.LEAD_CREATED, updateAnalytics);
 **Symptom:** `Error: Redis connection failed`
 
 **Solution:**
+
 ```bash
 # Check Redis is running
 redis-cli ping
@@ -1277,6 +1371,7 @@ docker run -d -p 6379:6379 redis:latest
 **Symptom:** `relation "email_campaigns" does not exist`
 
 **Solution:**
+
 ```bash
 # Run migration
 node backend/db/run-migration.js
@@ -1290,6 +1385,7 @@ node backend/db/run-migration.js
 **Symptom:** `429 Too Many Requests`
 
 **Solution:**
+
 ```bash
 # Clear rate limits in Redis
 redis-cli KEYS "rl:*" | xargs redis-cli DEL
@@ -1303,6 +1399,7 @@ RATE_LIMIT_MAX_REQUESTS=200
 **Symptom:** Slow responses, no cache hits
 
 **Solution:**
+
 ```javascript
 // Check cache is enabled
 console.log(config.cache.enabled); // should be true
@@ -1316,13 +1413,14 @@ await cacheService.clear();
 **Symptom:** Jobs stuck in queue
 
 **Solution:**
+
 ```javascript
 // Check queue stats
 const stats = await getAllQueueStats();
 console.log(stats);
 
 // Resume paused queue
-await resumeQueue('email');
+await resumeQueue("email");
 ```
 
 #### 6. Validation Errors
@@ -1330,9 +1428,10 @@ await resumeQueue('email');
 **Symptom:** All requests returning 400
 
 **Solution:**
+
 ```javascript
 // Check schema matches your data
-import { createLeadSchema } from './validators/lead.validator.js';
+import { createLeadSchema } from "./validators/lead.validator.js";
 console.log(createLeadSchema);
 
 // Verify request body structure
@@ -1343,6 +1442,7 @@ console.log(createLeadSchema);
 **Symptom:** `logs/` directory using too much disk
 
 **Solution:**
+
 ```bash
 # Clean old logs
 find logs -name "*.log" -mtime +7 -delete
@@ -1407,10 +1507,10 @@ If you're upgrading from the previous API version:
 
 ```javascript
 // Old
-const config = require('./config');
+const config = require("./config");
 
 // New
-import config from './config/app.config.js';
+import config from "./config/app.config.js";
 ```
 
 #### 2. Update Error Handling
@@ -1424,34 +1524,38 @@ try {
 }
 
 // New
-import { asyncHandler } from './middleware/error-handler.js';
-import { NotFoundError } from './utils/errors.js';
+import { asyncHandler } from "./middleware/error-handler.js";
+import { NotFoundError } from "./utils/errors.js";
 
-router.get('/resource', asyncHandler(async (req, res) => {
-  if (!resource) throw new NotFoundError('Resource not found');
-  res.json({ data: resource });
-}));
+router.get(
+  "/resource",
+  asyncHandler(async (req, res) => {
+    if (!resource) throw new NotFoundError("Resource not found");
+    res.json({ data: resource });
+  }),
+);
 ```
 
 #### 3. Add Validation
 
 ```javascript
 // Old
-router.post('/leads', async (req, res) => {
+router.post("/leads", async (req, res) => {
   const lead = await createLead(req.body);
   res.json(lead);
 });
 
 // New
-import { validate } from './middleware/validate.js';
-import { createLeadSchema } from './validators/lead.validator.js';
+import { validate } from "./middleware/validate.js";
+import { createLeadSchema } from "./validators/lead.validator.js";
 
-router.post('/leads',
+router.post(
+  "/leads",
   validate(createLeadSchema),
   asyncHandler(async (req, res) => {
     const lead = await createLead(req.body);
     res.json({ data: lead });
-  })
+  }),
 );
 ```
 
@@ -1459,18 +1563,15 @@ router.post('/leads',
 
 ```javascript
 // Old
-const { data } = await supabase
-  .from('leads')
-  .select('*')
-  .eq('user_id', userId);
+const { data } = await supabase.from("leads").select("*").eq("user_id", userId);
 
 // New
-import { paginatedQuery } from './utils/database.js';
+import { paginatedQuery } from "./utils/database.js";
 
-const result = await paginatedQuery('leads', {
+const result = await paginatedQuery("leads", {
   filters: { user_id: userId },
   page: req.query.page || 1,
-  limit: req.query.limit || 20
+  limit: req.query.limit || 20,
 });
 ```
 

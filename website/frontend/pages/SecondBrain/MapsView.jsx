@@ -229,7 +229,7 @@ const MapsView = () => {
       <SecondBrainLayout>
         <div className="h-full min-h-screen flex items-center justify-center pt-[150px] bg-gray-50 dark:bg-gray-900">
           <div className="text-center">
-            <Network className="w-16 h-16 text-[#761B14] mx-auto mb-4 animate-spin" />
+            <Network className="w-16 h-16 text-[#3F0D28] mx-auto mb-4 animate-spin" />
             <p className="text-gray-600 dark:text-gray-400">Loading canvas...</p>
           </div>
         </div>
@@ -250,7 +250,7 @@ const MapsView = () => {
                 onClick={() => setSelectedTool(id)}
                 className={`p-2 rounded-lg transition-colors ${
                   selectedTool === id
-                    ? 'bg-[#761B14] text-white'
+                    ? 'bg-[#3F0D28] text-white'
                     : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                 }`}
                 title={label}
@@ -274,7 +274,7 @@ const MapsView = () => {
                 </button>
                 <button
                   onClick={() => handleDeleteObject(selectedObject.id)}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400"
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors text-gray-600 dark:text-gray-400 hover:text-[#3F0D28] dark:hover:text-[#2a0919]"
                   title="Delete (Del)"
                 >
                   <Trash2 className="w-5 h-5" />
@@ -307,7 +307,7 @@ const MapsView = () => {
                       setShowMapSelector(false);
                     }}
                     className={`w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                      currentMap?.id === map.id ? 'bg-gray-100 dark:bg-gray-700 text-[#761B14]' : 'text-gray-900 dark:text-white'
+                      currentMap?.id === map.id ? 'bg-gray-100 dark:bg-gray-700 text-[#3F0D28]' : 'text-gray-900 dark:text-white'
                     }`}
                   >
                     {map.name}
@@ -319,7 +319,7 @@ const MapsView = () => {
 
           <button
             onClick={handleCreateNewBoard}
-            className="flex items-center gap-2 px-4 py-2 bg-[#761B14] hover:bg-[#651610] text-white rounded-lg transition-colors shadow-lg"
+            className="btn-premium-red flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors shadow-lg"
           >
             <Plus className="w-4 h-4" />
             <span className="font-medium">New Board</span>
@@ -342,12 +342,12 @@ const MapsView = () => {
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center">
-                <Network className="w-24 h-24 text-[#761B14] mx-auto mb-6 opacity-50" />
+                <Network className="w-24 h-24 text-[#3F0D28] mx-auto mb-6 opacity-50" />
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">No Board Selected</h2>
                 <p className="text-gray-600 dark:text-gray-400 mb-6">Create your first board to get started</p>
                 <button
                   onClick={handleCreateNewBoard}
-                  className="px-6 py-3 bg-[#761B14] hover:bg-[#651610] text-white rounded-lg transition-colors shadow-lg"
+                  className="btn-premium-red px-6 py-3 text-white rounded-lg transition-colors shadow-lg"
                 >
                   Create Board
                 </button>

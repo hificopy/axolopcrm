@@ -9,7 +9,7 @@ export default function TeamChat() {
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#761B14] to-[#9A392D] flex items-center justify-center shadow-lg">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#3F0D28] to-[#2a0919] flex items-center justify-center shadow-lg">
                 <MessageSquare className="h-5 w-5 text-white" />
               </div>
               <h1 className="text-2xl font-bold text-gray-900">Team Chat</h1>
@@ -31,8 +31,8 @@ export default function TeamChat() {
       <div className="flex-1 overflow-auto p-6">
         <div className="max-w-4xl mx-auto">
           <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl border border-gray-200 p-8 text-center shadow-sm">
-            <div className="mx-auto h-16 w-16 rounded-full bg-gradient-to-br from-[#761B14]/10 to-[#9A392D]/10 flex items-center justify-center mb-6">
-              <MessageSquare className="h-8 w-8 text-[#761B14]" />
+            <div className="mx-auto h-16 w-16 rounded-full bg-gradient-to-br from-[#3F0D28]/10 to-[#2a0919]/10 flex items-center justify-center mb-6">
+              <MessageSquare className="h-8 w-8 text-[#3F0D28]" />
             </div>
             
             <h2 className="text-2xl font-bold text-gray-900 mb-3">Team Chat</h2>
@@ -40,7 +40,7 @@ export default function TeamChat() {
               Real-time messaging and collaboration for your team. Coming soon in an upcoming release.
             </p>
             
-            <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-800 px-4 py-2 rounded-lg text-sm font-medium border border-blue-200">
+            <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-800 px-4 py-2 rounded-lg text-sm font-medium border border-gray-200">
               <Hash className="h-4 w-4" />
               <span>Feature in Development</span>
             </div>

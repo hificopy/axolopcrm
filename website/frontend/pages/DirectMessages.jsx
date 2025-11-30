@@ -32,7 +32,7 @@ export default function DirectMessages() {
         <div className="max-w-4xl mx-auto">
           <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl border border-gray-200 p-8 text-center shadow-sm">
             <div className="mx-auto h-16 w-16 rounded-full bg-gradient-to-br from-blue-500/10 to-indigo-600/10 flex items-center justify-center mb-6">
-              <User className="h-8 w-8 text-blue-500" />
+              <User className="h-8 w-8 text-[#3F0D28]" />
             </div>
             
             <h2 className="text-2xl font-bold text-gray-900 mb-3">Direct Messages</h2>
@@ -40,7 +40,7 @@ export default function DirectMessages() {
               Private one-on-one conversations with your team members. Coming soon in an upcoming release.
             </p>
             
-            <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-800 px-4 py-2 rounded-lg text-sm font-medium border border-blue-200">
+            <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-800 px-4 py-2 rounded-lg text-sm font-medium border border-gray-200">
               <Mail className="h-4 w-4" />
               <span>Feature in Development</span>
             </div>

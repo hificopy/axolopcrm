@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useCallback } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar,
   Clock,
@@ -12,16 +12,18 @@ import {
   Phone,
   Building2,
   Globe,
-  DollarSign
-} from 'lucide-react';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Card } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
-import { useToast } from '../components/ui/use-toast';
-import { DateTime } from 'luxon';
-import SequentialQuestion from '../components/SequentialQuestion';
+  DollarSign,
+} from "lucide-react";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Card } from "../components/ui/card";
+import { evaluateQuestionLogic } from "../utils/formLogicEngine.js";
+import { Badge } from "../components/ui/badge";
+import { useToast } from "../components/ui/use-toast";
+import { DateTime } from "luxon";
+import SequentialQuestion from "../components/SequentialQuestion";
+import LegalFooter from "../components/LegalFooter";
 
 /**
  * BookingEmbed - Public booking page with modern scheduling functionality
@@ -62,7 +64,7 @@ export default function BookingEmbed() {
   const [bookingDetails, setBookingDetails] = useState(null);
 
   // Preview settings
-  const [previewMode, setPreviewMode] = useState('desktop'); // 'desktop' or 'mobile'
+  const [previewMode, setPreviewMode] = useState("desktop"); // 'desktop' or 'mobile'
 
   // Load booking link configuration
   useEffect(() => {
@@ -73,62 +75,98 @@ export default function BookingEmbed() {
     try {
       const response = await fetch(`/api/meetings/booking-links/${slug}`);
       if (!response.ok) {
-        throw new Error('Booking link not found');
+        throw new Error("Booking link not found");
       }
       const data = await response.json();
       setBookingLink(data);
     } catch (error) {
-      console.error('Error loading booking link:', error);
+      console.error("Error loading booking link:", error);
       toast({
-        title: 'Error',
-        description: 'Booking link not found',
-        variant: 'destructive',
+        title: "Error",
+        description: "Booking link not found",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
   };
 
-  // Auto-save form data on every change
-  const autoSaveFormData = useCallback(async (fieldName, value) => {
-    const updatedData = { ...formData, [fieldName]: value };
-    setFormData(updatedData);
+  // Auto-save form data on every change with retry logic
+  const autoSaveFormData = useCallback(
+    async (fieldName, value) => {
+      const updatedData = { ...formData, [fieldName]: value };
+      setFormData(updatedData);
 
-    try {
-      // Save to backend immediately
-      const response = await fetch(`/api/meetings/booking-links/${slug}/auto-save`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          leadId,
-          formData: updatedData,
-          currentStep,
-        }),
-      });
+      // Implement retry logic with exponential backoff
+      const maxRetries = 3;
+      const baseDelay = 1000; // 1 second
 
-      const result = await response.json();
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          // Save to backend immediately
+          const response = await fetch(
+            `/api/meetings/booking-links/${slug}/auto-save`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                leadId,
+                formData: updatedData,
+                currentStep,
+              }),
+              signal: AbortSignal.timeout(baseDelay * Math.pow(2, attempt - 1)),
+            },
+          );
 
-      // Store lead ID from first save
-      if (!leadId && result.leadId) {
-        setLeadId(result.leadId);
-      }
+          const result = await response.json();
 
-      // Check for automatic disqualification
-      if (result.disqualified) {
-        setQualified(false);
-        setDisqualificationReason(result.reason);
+          // Store lead ID from first save
+          if (!leadId && result.leadId) {
+            setLeadId(result.leadId);
+          }
 
-        // Redirect if configured
-        if (result.redirectUrl) {
-          setTimeout(() => {
-            window.location.href = result.redirectUrl;
-          }, 2000);
+          // Check for automatic disqualification
+          if (result.disqualified) {
+            setQualified(false);
+            setDisqualificationReason(result.reason);
+          }
+
+          // If successful, break retry loop
+          if (response.ok) {
+            return;
+          }
+
+          // If rate limited, wait longer before retry
+          if (response.status === 429) {
+            await new Promise((resolve) =>
+              setTimeout(resolve, baseDelay * attempt),
+            );
+            continue;
+          }
+        } catch (error) {
+          console.error(`Auto-save attempt ${attempt} failed:`, error);
+
+          // If last attempt, show error to user
+          if (attempt === maxRetries) {
+            toast({
+              title: "Auto-save Failed",
+              description:
+                "Your changes could not be saved. Please check your connection and try again.",
+              variant: "destructive",
+            });
+          }
+
+          // Continue trying unless it's the last attempt
+          if (attempt < maxRetries) {
+            await new Promise((resolve) =>
+              setTimeout(resolve, baseDelay * attempt),
+            );
+          }
         }
       }
-    } catch (error) {
-      console.error('Auto-save error:', error);
-    }
-  }, [formData, leadId, currentStep, slug]);
+    },
+    [formData, leadId, currentStep, slug],
+  );
 
   // Handle field change with auto-save
   const handleFieldChange = (fieldName, value) => {
@@ -148,7 +186,7 @@ export default function BookingEmbed() {
     }
 
     // Email validation
-    if (currentQuestion.type === 'email' && value) {
+    if (currentQuestion.type === "email" && value) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(value)) {
         return false;
@@ -156,45 +194,57 @@ export default function BookingEmbed() {
 
       // Business email requirement
       if (currentQuestion.requireBusinessEmail) {
-        const freeEmailDomains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com'];
-        const domain = value.split('@')[1]?.toLowerCase();
+        const freeEmailDomains = [
+          "gmail.com",
+          "yahoo.com",
+          "hotmail.com",
+          "outlook.com",
+          "aol.com",
+        ];
+        const domain = value.split("@")[1]?.toLowerCase();
         if (freeEmailDomains.includes(domain)) {
           setQualified(false);
-          setDisqualificationReason('We only work with business email addresses');
+          setDisqualificationReason(
+            "We only work with business email addresses",
+          );
           return false;
         }
       }
     }
 
     // Phone validation
-    if (currentQuestion.type === 'tel' && value) {
+    if (currentQuestion.type === "tel" && value) {
       const phoneRegex = /^\+?[\d\s\-()]+$/;
       if (!phoneRegex.test(value)) {
         return false;
       }
 
       // Country code filtering
-      if (currentQuestion.allowedCountryCodes && value.startsWith('+')) {
+      if (currentQuestion.allowedCountryCodes && value.startsWith("+")) {
         const countryCode = value.substring(0, 3);
         if (!currentQuestion.allowedCountryCodes.includes(countryCode)) {
           setQualified(false);
-          setDisqualificationReason('We currently only serve specific regions');
+          setDisqualificationReason("We currently only serve specific regions");
           return false;
         }
       }
     }
 
     // Number range validation
-    if (currentQuestion.type === 'number' && value) {
+    if (currentQuestion.type === "number" && value) {
       const numValue = parseInt(value);
       if (currentQuestion.min && numValue < currentQuestion.min) {
         setQualified(false);
-        setDisqualificationReason(currentQuestion.minMessage || 'Value too low');
+        setDisqualificationReason(
+          currentQuestion.minMessage || "Value too low",
+        );
         return false;
       }
       if (currentQuestion.max && numValue > currentQuestion.max) {
         setQualified(false);
-        setDisqualificationReason(currentQuestion.maxMessage || 'Value too high');
+        setDisqualificationReason(
+          currentQuestion.maxMessage || "Value too high",
+        );
         return false;
       }
     }
@@ -209,37 +259,43 @@ export default function BookingEmbed() {
     // Start with required fields
     const questions = [
       {
-        id: 'name',
-        field: 'name',
-        type: 'text',
-        label: 'What\'s your name?',
-        placeholder: 'Enter your full name',
+        id: "name",
+        field: "name",
+        type: "text",
+        label: "What's your name?",
+        placeholder: "Enter your full name",
         icon: User,
         required: true,
       },
     ];
 
     // Phone or Email (based on booking link settings)
-    if (bookingLink.contact_field === 'email' || bookingLink.contact_field === 'both') {
+    if (
+      bookingLink.contact_field === "email" ||
+      bookingLink.contact_field === "both"
+    ) {
       questions.push({
-        id: 'email',
-        field: 'email',
-        type: 'email',
-        label: 'What\'s your work email?',
-        placeholder: 'your.name@company.com',
+        id: "email",
+        field: "email",
+        type: "email",
+        label: "What's your work email?",
+        placeholder: "your.name@company.com",
         icon: Mail,
         required: true,
         requireBusinessEmail: bookingLink.require_business_email || false,
       });
     }
 
-    if (bookingLink.contact_field === 'phone' || bookingLink.contact_field === 'both') {
+    if (
+      bookingLink.contact_field === "phone" ||
+      bookingLink.contact_field === "both"
+    ) {
       questions.push({
-        id: 'phone',
-        field: 'phone',
-        type: 'tel',
-        label: 'What\'s your phone number?',
-        placeholder: '+1 (555) 000-0000',
+        id: "phone",
+        field: "phone",
+        type: "tel",
+        label: "What's your phone number?",
+        placeholder: "+1 (555) 000-0000",
         icon: Phone,
         required: true,
         allowedCountryCodes: bookingLink.allowed_country_codes || null,
@@ -247,22 +303,21 @@ export default function BookingEmbed() {
     }
 
     // Add custom qualification questions
-    if (bookingLink.custom_questions && bookingLink.custom_questions.length > 0) {
+    if (
+      bookingLink.custom_questions &&
+      bookingLink.custom_questions.length > 0
+    ) {
       bookingLink.custom_questions.forEach((q) => {
-        // Apply conditional logic
-        if (q.conditional_logic) {
-          const condition = q.conditional_logic;
-          const previousValue = formData[condition.field];
+        // Apply conditional logic using the form logic engine
+        if (q.conditional_logic && q.conditional_logic.length > 0) {
+          const logicResult = evaluateQuestionLogic(
+            q,
+            formData,
+            bookingLink.custom_questions,
+          );
 
-          // Check if condition is met
-          if (condition.operator === 'equals' && previousValue !== condition.value) {
+          if (logicResult.shouldSkip || logicResult.action === "jump") {
             return; // Skip this question
-          }
-          if (condition.operator === 'not_equals' && previousValue === condition.value) {
-            return;
-          }
-          if (condition.operator === 'contains' && !previousValue?.includes(condition.value)) {
-            return;
           }
         }
 
@@ -302,9 +357,9 @@ export default function BookingEmbed() {
   const handleNext = async () => {
     if (!validateCurrentStep()) {
       toast({
-        title: 'Required',
-        description: 'Please fill in this field to continue',
-        variant: 'destructive',
+        title: "Required",
+        description: "Please fill in this field to continue",
+        variant: "destructive",
       });
       return;
     }
@@ -328,33 +383,39 @@ export default function BookingEmbed() {
   // Submit qualification for evaluation (2-step booking)
   const submitQualification = async () => {
     try {
-      const response = await fetch(`/api/meetings/booking-links/${slug}/qualify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          leadId,
-          formData,
-        }),
-      });
+      const response = await fetch(
+        `/api/meetings/booking-links/${slug}/qualify`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            leadId,
+            formData,
+          }),
+        },
+      );
 
       const result = await response.json();
 
       if (result.qualified) {
         setQualified(true);
         toast({
-          title: 'Great news!',
-          description: 'You qualify for a meeting. Please select a time below.',
+          title: "Great news!",
+          description: "You qualify for a meeting. Please select a time below.",
         });
       } else {
         setQualified(false);
-        setDisqualificationReason(result.reason || 'Based on your responses, we may not be the best fit at this time.');
+        setDisqualificationReason(
+          result.reason ||
+            "Based on your responses, we may not be the best fit at this time.",
+        );
       }
     } catch (error) {
-      console.error('Qualification error:', error);
+      console.error("Qualification error:", error);
       toast({
-        title: 'Error',
-        description: 'Something went wrong. Please try again.',
-        variant: 'destructive',
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
       });
     }
   };
@@ -364,16 +425,16 @@ export default function BookingEmbed() {
     setLoadingSlots(true);
     try {
       const response = await fetch(
-        `/api/meetings/booking-links/${slug}/availability?date=${date.toISODate()}&timezone=${DateTime.local().zoneName}`
+        `/api/meetings/booking-links/${slug}/availability?date=${date.toISODate()}&timezone=${DateTime.local().zoneName}`,
       );
       const slots = await response.json();
       setAvailableSlots(slots);
     } catch (error) {
-      console.error('Error loading slots:', error);
+      console.error("Error loading slots:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to load available times',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to load available times",
+        variant: "destructive",
       });
     } finally {
       setLoadingSlots(false);
@@ -394,8 +455,8 @@ export default function BookingEmbed() {
 
     try {
       const response = await fetch(`/api/meetings/booking-links/${slug}/book`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           leadId,
           name: formData.name,
@@ -412,16 +473,16 @@ export default function BookingEmbed() {
         setBookingComplete(true);
         setBookingDetails(result);
         toast({
-          title: 'Booking confirmed!',
-          description: 'You\'ll receive a confirmation email shortly.',
+          title: "Booking confirmed!",
+          description: "You'll receive a confirmation email shortly.",
         });
       }
     } catch (error) {
-      console.error('Booking error:', error);
+      console.error("Booking error:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to complete booking. Please try again.',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to complete booking. Please try again.",
+        variant: "destructive",
       });
     }
   };
@@ -433,12 +494,13 @@ export default function BookingEmbed() {
     if (questions.length === 0) return null;
 
     // Convert all questions to sequential format
-    const sequentialQuestions = questions.map(q => ({
+    const sequentialQuestions = questions.map((q) => ({
       ...q,
       title: q.label,
-      type: q.type === 'select' ? 'multiple-choice' : q.type,
-      options: q.type === 'select' ? q.options?.map(opt => opt.label) : q.options,
-      settings: { placeholder: q.placeholder }
+      type: q.type === "select" ? "multiple-choice" : q.type,
+      options:
+        q.type === "select" ? q.options?.map((opt) => opt.label) : q.options,
+      settings: { placeholder: q.placeholder },
     }));
 
     return (
@@ -485,7 +547,7 @@ export default function BookingEmbed() {
     const today = DateTime.local();
     const daysToShow = 14;
     const dates = Array.from({ length: daysToShow }, (_, i) =>
-      today.plus({ days: i })
+      today.plus({ days: i }),
     );
 
     return (
@@ -495,9 +557,13 @@ export default function BookingEmbed() {
         className="w-full max-w-6xl mx-auto"
       >
         <div className="text-center mb-8">
-          <CheckCircle2 className="h-16 w-16 text-green-600 mx-auto mb-4" />
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">You're qualified! 🎉</h2>
-          <p className="text-gray-600">Select a date and time that works for you</p>
+          <CheckCircle2 className="h-16 w-16 text-emerald-700 mx-auto mb-4" />
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            You're qualified! 🎉
+          </h2>
+          <p className="text-gray-600">
+            Select a date and time that works for you
+          </p>
         </div>
 
         {/* Date selection */}
@@ -505,20 +571,26 @@ export default function BookingEmbed() {
           <h3 className="text-lg font-semibold mb-4">Select a date</h3>
           <div className="grid grid-cols-7 gap-3">
             {dates.map((date) => {
-              const isSelected = selectedDate?.hasSame(date, 'day');
+              const isSelected = selectedDate?.hasSame(date, "day");
               return (
                 <button
                   key={date.toISODate()}
                   onClick={() => handleDateSelect(date)}
                   className={`p-5 rounded-xl border-2 transition-all ${
                     isSelected
-                      ? 'border-teal-600 bg-teal-50'
-                      : 'border-gray-200 hover:border-teal-300'
+                      ? "border-teal-600 bg-teal-50"
+                      : "border-gray-200 hover:border-teal-300"
                   }`}
                 >
-                  <div className="text-xs text-gray-500 uppercase">{date.toFormat('EEE')}</div>
-                  <div className="text-xl font-bold text-gray-900">{date.toFormat('d')}</div>
-                  <div className="text-xs text-gray-500">{date.toFormat('MMM')}</div>
+                  <div className="text-xs text-gray-500 uppercase">
+                    {date.toFormat("EEE")}
+                  </div>
+                  <div className="text-xl font-bold text-gray-900">
+                    {date.toFormat("d")}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {date.toFormat("MMM")}
+                  </div>
                 </button>
               );
             })}
@@ -529,7 +601,7 @@ export default function BookingEmbed() {
         {selectedDate && (
           <div>
             <h3 className="text-lg font-semibold mb-4">
-              Select a time on {selectedDate.toFormat('EEEE, MMMM d')}
+              Select a time on {selectedDate.toFormat("EEEE, MMMM d")}
             </h3>
             {loadingSlots ? (
               <div className="text-center py-8">
@@ -551,13 +623,13 @@ export default function BookingEmbed() {
                       onClick={() => handleTimeSelect(slotTime)}
                       className={`p-4 rounded-xl border-2 transition-all ${
                         isSelected
-                          ? 'border-teal-600 bg-teal-50'
-                          : 'border-gray-200 hover:border-teal-300'
+                          ? "border-teal-600 bg-teal-50"
+                          : "border-gray-200 hover:border-teal-300"
                       }`}
                     >
                       <Clock className="h-4 w-4 mx-auto mb-1 text-gray-600" />
                       <div className="font-medium text-gray-900">
-                        {slotTime.toFormat('h:mm a')}
+                        {slotTime.toFormat("h:mm a")}
                       </div>
                     </button>
                   );
@@ -583,7 +655,9 @@ export default function BookingEmbed() {
             <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-3xl">😔</span>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Thank you for your interest</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Thank you for your interest
+            </h2>
             <p className="text-gray-600">{disqualificationReason}</p>
           </div>
           <p className="text-sm text-gray-500">
@@ -607,32 +681,40 @@ export default function BookingEmbed() {
         className="w-full max-w-2xl mx-auto text-center"
       >
         <Card className="p-8">
-          <CheckCircle2 className="h-20 w-20 text-green-600 mx-auto mb-6" />
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">You're all set! 🎉</h2>
+          <CheckCircle2 className="h-20 w-20 text-emerald-700 mx-auto mb-6" />
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            You're all set! 🎉
+          </h2>
           <p className="text-gray-600 mb-8">Your meeting has been confirmed</p>
 
           <div className="bg-gray-50 rounded-xl p-6 mb-6">
             <div className="flex items-center justify-center gap-4 mb-4">
               <Calendar className="h-5 w-5 text-teal-600" />
               <span className="font-semibold text-gray-900">
-                {scheduledTime.toFormat('EEEE, MMMM d, yyyy')}
+                {scheduledTime.toFormat("EEEE, MMMM d, yyyy")}
               </span>
             </div>
             <div className="flex items-center justify-center gap-4">
               <Clock className="h-5 w-5 text-teal-600" />
               <span className="font-semibold text-gray-900">
-                {scheduledTime.toFormat('h:mm a ZZZZ')}
+                {scheduledTime.toFormat("h:mm a ZZZZ")}
               </span>
             </div>
           </div>
 
           <div className="space-y-2 text-sm text-gray-600">
-            <p>✉️ A confirmation email has been sent to <strong>{formData.email}</strong></p>
+            <p>
+              ✉️ A confirmation email has been sent to{" "}
+              <strong>{formData.email}</strong>
+            </p>
             <p>📱 You'll receive a reminder before the meeting</p>
             {bookingDetails.meeting_link && (
               <p>
-                🔗 Meeting link:{' '}
-                <a href={bookingDetails.meeting_link} className="text-teal-600 hover:underline">
+                🔗 Meeting link:{" "}
+                <a
+                  href={bookingDetails.meeting_link}
+                  className="text-teal-600 hover:underline"
+                >
                   {bookingDetails.meeting_link}
                 </a>
               </p>
@@ -673,9 +755,13 @@ export default function BookingEmbed() {
             <Badge className="bg-teal-600 text-white mb-4">
               {bookingLink.duration} minute meeting
             </Badge>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">{bookingLink.name}</h1>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              {bookingLink.name}
+            </h1>
             {bookingLink.description && (
-              <p className="text-gray-600 max-w-2xl mx-auto">{bookingLink.description}</p>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                {bookingLink.description}
+              </p>
             )}
           </div>
         )}
@@ -685,12 +771,18 @@ export default function BookingEmbed() {
           // Check if we still have secondary questions to ask
           (() => {
             const questions = getQuestions();
-            const secondaryQuestions = questions.filter(q => !['name', 'email', 'phone'].includes(q.id));
+            const secondaryQuestions = questions.filter(
+              (q) => !["name", "email", "phone"].includes(q.id),
+            );
 
             // Check if all secondary questions are answered (if any exist)
             const hasSecondary = secondaryQuestions.length > 0;
             const allSecondaryAnswered = hasSecondary
-              ? !secondaryQuestions.some(q => q.required && (!formData[q.field] || formData[q.field] === ''))
+              ? !secondaryQuestions.some(
+                  (q) =>
+                    q.required &&
+                    (!formData[q.field] || formData[q.field] === ""),
+                )
               : true;
 
             // If we have secondary questions and not all answered, show them
@@ -700,38 +792,50 @@ export default function BookingEmbed() {
                   <div className="lg:col-span-1 lg:order-1">
                     {/* Summary of completed primary questions */}
                     <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">Your Information</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                        Your Information
+                      </h3>
                       <div className="space-y-3">
                         {formData.name && (
                           <div className="flex justify-between">
                             <span className="text-gray-600">Name:</span>
-                            <span className="font-medium text-gray-900">{formData.name}</span>
+                            <span className="font-medium text-gray-900">
+                              {formData.name}
+                            </span>
                           </div>
                         )}
                         {formData.email && (
                           <div className="flex justify-between">
                             <span className="text-gray-600">Email:</span>
-                            <span className="font-medium text-gray-900">{formData.email}</span>
+                            <span className="font-medium text-gray-900">
+                              {formData.email}
+                            </span>
                           </div>
                         )}
                         {formData.phone && (
                           <div className="flex justify-between">
                             <span className="text-gray-600">Phone:</span>
-                            <span className="font-medium text-gray-900">{formData.phone}</span>
+                            <span className="font-medium text-gray-900">
+                              {formData.phone}
+                            </span>
                           </div>
                         )}
                       </div>
 
                       {/* Show secondary questions */}
                       <div className="mt-6 pt-6 border-t border-gray-200">
-                        <h4 className="font-medium text-gray-900 mb-3">Additional Information</h4>
+                        <h4 className="font-medium text-gray-900 mb-3">
+                          Additional Information
+                        </h4>
                         {renderCurrentQuestion()}
                       </div>
                     </div>
                   </div>
                   <div className="lg:col-span-2 lg:order-2">
                     <div className="bg-white rounded-xl shadow-sm p-6 opacity-50">
-                      <p className="text-gray-500 text-center py-12">Please complete the form to see available times</p>
+                      <p className="text-gray-500 text-center py-12">
+                        Please complete the form to see available times
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -739,7 +843,9 @@ export default function BookingEmbed() {
             } else {
               // All questions (primary and secondary) are answered, show calendar view
               return (
-                <div className={`grid grid-cols-1 gap-12 transition-all duration-300 ${showLeftPanel ? 'lg:grid-cols-3' : ''}`}>
+                <div
+                  className={`grid grid-cols-1 gap-12 transition-all duration-300 ${showLeftPanel ? "lg:grid-cols-3" : ""}`}
+                >
                   {showLeftPanel && (
                     <motion.div
                       initial={{ opacity: 0, x: -20 }}
@@ -751,13 +857,25 @@ export default function BookingEmbed() {
                       {/* Summary of completed questions */}
                       <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
                         <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-lg font-semibold text-gray-900">Booking Details</h3>
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            Booking Details
+                          </h3>
                           <button
                             onClick={() => setShowLeftPanel(false)}
                             className="text-gray-400 hover:text-gray-600 transition-colors"
                           >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                              />
                             </svg>
                           </button>
                         </div>
@@ -765,31 +883,46 @@ export default function BookingEmbed() {
                           {formData.name && (
                             <div className="flex justify-between">
                               <span className="text-gray-600">Name:</span>
-                              <span className="font-medium text-gray-900">{formData.name}</span>
+                              <span className="font-medium text-gray-900">
+                                {formData.name}
+                              </span>
                             </div>
                           )}
                           {formData.email && (
                             <div className="flex justify-between">
                               <span className="text-gray-600">Email:</span>
-                              <span className="font-medium text-gray-900">{formData.email}</span>
+                              <span className="font-medium text-gray-900">
+                                {formData.email}
+                              </span>
                             </div>
                           )}
                           {formData.phone && (
                             <div className="flex justify-between">
                               <span className="text-gray-600">Phone:</span>
-                              <span className="font-medium text-gray-900">{formData.phone}</span>
+                              <span className="font-medium text-gray-900">
+                                {formData.phone}
+                              </span>
                             </div>
                           )}
                           {/* Add secondary question responses if any */}
                           {(() => {
                             const questions = getQuestions();
-                            const secondaryQuestions = questions.filter(q => !['name', 'email', 'phone'].includes(q.id));
-                            return secondaryQuestions.map(q => {
+                            const secondaryQuestions = questions.filter(
+                              (q) => !["name", "email", "phone"].includes(q.id),
+                            );
+                            return secondaryQuestions.map((q) => {
                               if (formData[q.field]) {
                                 return (
-                                  <div className="flex justify-between" key={q.id}>
-                                    <span className="text-gray-600">{q.label}:</span>
-                                    <span className="font-medium text-gray-900">{formData[q.field]}</span>
+                                  <div
+                                    className="flex justify-between"
+                                    key={q.id}
+                                  >
+                                    <span className="text-gray-600">
+                                      {q.label}:
+                                    </span>
+                                    <span className="font-medium text-gray-900">
+                                      {formData[q.field]}
+                                    </span>
                                   </div>
                                 );
                               }
@@ -800,16 +933,22 @@ export default function BookingEmbed() {
                         {/* Selected date info */}
                         {selectedDate && (
                           <div className="mt-6 pt-6 border-t border-gray-200">
-                            <h4 className="text-sm font-semibold text-gray-900 mb-3">Selected Date</h4>
+                            <h4 className="text-sm font-semibold text-gray-900 mb-3">
+                              Selected Date
+                            </h4>
                             <div className="bg-teal-50 rounded-lg p-4">
                               <div className="flex items-center gap-2 text-teal-900">
                                 <Calendar className="h-4 w-4" />
-                                <span className="font-medium">{selectedDate.toFormat('EEEE, MMMM d, yyyy')}</span>
+                                <span className="font-medium">
+                                  {selectedDate.toFormat("EEEE, MMMM d, yyyy")}
+                                </span>
                               </div>
                               {selectedTime && (
                                 <div className="flex items-center gap-2 text-teal-900 mt-2">
                                   <Clock className="h-4 w-4" />
-                                  <span className="font-medium">{selectedTime.toFormat('h:mm a')}</span>
+                                  <span className="font-medium">
+                                    {selectedTime.toFormat("h:mm a")}
+                                  </span>
                                 </div>
                               )}
                             </div>
@@ -818,7 +957,11 @@ export default function BookingEmbed() {
                       </div>
                     </motion.div>
                   )}
-                  <div className={showLeftPanel ? 'lg:col-span-2 lg:order-2' : 'col-span-1'}>
+                  <div
+                    className={
+                      showLeftPanel ? "lg:col-span-2 lg:order-2" : "col-span-1"
+                    }
+                  >
                     {renderCalendar()}
                   </div>
                 </div>
@@ -828,25 +971,22 @@ export default function BookingEmbed() {
         ) : (
           // Before qualification: just show questions or other states
           <AnimatePresence mode="wait">
-            {bookingComplete ? (
-              renderConfirmation()
-            ) : qualified === false ? (
-              renderDisqualified()
-            ) : (
-              renderCurrentQuestion()
-            )}
+            {bookingComplete
+              ? renderConfirmation()
+              : qualified === false
+                ? renderDisqualified()
+                : renderCurrentQuestion()}
           </AnimatePresence>
         )}
 
-        {/* Footer branding */}
+        {/* Footer branding and legal links */}
         {!bookingComplete && (
-          <div className="text-center mt-12">
-            <p className="text-sm text-gray-500">
-              Powered by{' '}
-              <a href="/" className="text-teal-600 hover:underline font-medium">
-                Axolop
-              </a>
-            </p>
+          <div className="mt-12">
+            <LegalFooter
+              variant="booking"
+              showBranding={true}
+              showConsentText={true}
+            />
           </div>
         )}
       </div>

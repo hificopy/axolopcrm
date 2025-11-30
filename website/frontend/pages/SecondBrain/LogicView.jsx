@@ -255,7 +255,7 @@ const LogicView = () => {
       <SecondBrainLayout>
         <div className="h-full min-h-screen flex items-center justify-center pt-[150px] bg-gray-50 dark:bg-gray-900">
           <div className="text-center">
-            <RefreshCw className="w-12 h-12 text-[#761B14] mx-auto mb-4 animate-spin" />
+            <RefreshCw className="w-12 h-12 text-[#3F0D28] mx-auto mb-4 animate-spin" />
             <p className="text-gray-900 dark:text-white text-lg font-semibold">Loading Logic Map...</p>
             <p className="text-gray-600 dark:text-gray-400 text-sm mt-2">Fetching nodes and connections</p>
           </div>
@@ -270,12 +270,12 @@ const LogicView = () => {
       <SecondBrainLayout>
         <div className="h-full min-h-screen flex items-center justify-center pt-[150px] bg-gray-50 dark:bg-gray-900">
           <div className="text-center max-w-md">
-            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+            <AlertCircle className="w-12 h-12 text-[#3F0D28] mx-auto mb-4" />
             <h2 className="text-gray-900 dark:text-white text-xl font-bold mb-2">Failed to Load Data</h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">{error}</p>
             <button
               onClick={loadData}
-              className="px-6 py-3 bg-[#761B14] hover:bg-[#651610] text-white rounded-lg transition-colors"
+              className="btn-premium-red px-6 py-3 text-white rounded-lg transition-colors"
             >
               Try Again
             </button>
@@ -310,7 +310,7 @@ const LogicView = () => {
           <button
             onClick={() => setShowNewNodeModal(true)}
             disabled={isCreating}
-            className="flex items-center gap-2 px-3 py-2 bg-[#761B14] hover:bg-[#651610] text-white rounded-lg transition-colors disabled:opacity-50 shadow-lg"
+            className="btn-premium-red flex items-center gap-2 px-3 py-2 text-white rounded-lg transition-colors disabled:opacity-50 shadow-lg"
           >
             <Plus className="w-4 h-4" />
             <span className="text-sm">New Node</span>
@@ -397,12 +397,12 @@ const LogicView = () => {
                               {getNodeIcon(connectedNode.type)}
                             </div>
                             <div className="flex-1 text-left">
-                              <div className="text-gray-900 dark:text-white text-sm font-medium group-hover:text-[#761B14] transition-colors">
+                              <div className="text-gray-900 dark:text-white text-sm font-medium group-hover:text-[#3F0D28] transition-colors">
                                 {connectedNode.label}
                               </div>
                               <div className="text-gray-600 dark:text-gray-400 text-xs capitalize">{connectedNode.type}</div>
                             </div>
-                            <Link2 className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-[#761B14] transition-colors" />
+                            <Link2 className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-[#3F0D28] transition-colors" />
                           </button>
                         ) : null;
                       })}
@@ -411,7 +411,7 @@ const LogicView = () => {
 
                 {/* Actions */}
                 <div className="space-y-2">
-                  <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#761B14] hover:bg-[#651610] text-white rounded-lg transition-colors shadow-sm">
+                  <button className="btn-premium-red w-full flex items-center justify-center gap-2 px-4 py-3 text-white rounded-lg transition-colors shadow-sm">
                     <FileText className="w-4 h-4" />
                     <span className="font-medium">Open {selectedNode.type}</span>
                   </button>
@@ -467,7 +467,7 @@ const NewNodeModal = ({ onClose, onCreate, isCreating }) => {
   };
 
   const typeColors = {
-    database: '#761B14',
+    database: '#3F0D28',
     document: '#4C7FFF',
     mindmap: '#00D084',
     folder: '#FFA500',
@@ -483,7 +483,7 @@ const NewNodeModal = ({ onClose, onCreate, isCreating }) => {
             <select
               value={formData.type}
               onChange={(e) => setFormData({ ...formData, type: e.target.value, color: typeColors[e.target.value] })}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#761B14]"
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#3F0D28]"
             >
               <option value="database">Database</option>
               <option value="document">Document</option>
@@ -497,7 +497,7 @@ const NewNodeModal = ({ onClose, onCreate, isCreating }) => {
               type="text"
               value={formData.label}
               onChange={(e) => setFormData({ ...formData, label: e.target.value })}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#761B14]"
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#3F0D28]"
               placeholder="Enter node label..."
               required
             />
@@ -507,7 +507,7 @@ const NewNodeModal = ({ onClose, onCreate, isCreating }) => {
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#761B14]"
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#3F0D28]"
               placeholder="Enter description..."
               rows={3}
             />
@@ -517,7 +517,7 @@ const NewNodeModal = ({ onClose, onCreate, isCreating }) => {
             <select
               value={formData.orbit_level}
               onChange={(e) => setFormData({ ...formData, orbit_level: parseInt(e.target.value) })}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#761B14]"
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#3F0D28]"
             >
               <option value={0}>0 - Center (Fixed)</option>
               <option value={1}>1 - Inner Ring</option>
@@ -536,7 +536,7 @@ const NewNodeModal = ({ onClose, onCreate, isCreating }) => {
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-[#761B14] hover:bg-[#651610] text-white rounded-lg transition-colors disabled:opacity-50"
+              className="btn-premium-red flex-1 px-4 py-2 text-white rounded-lg transition-colors disabled:opacity-50"
               disabled={isCreating}
             >
               {isCreating ? 'Creating...' : 'Create Node'}
@@ -587,7 +587,7 @@ const ConnectionModal = ({ fromNode, nodes, onClose, onCreate, isCreating }) => 
             <select
               value={selectedNodeId}
               onChange={(e) => setSelectedNodeId(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#761B14]"
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#3F0D28]"
               required
             >
               <option value="">Select a node...</option>
@@ -609,7 +609,7 @@ const ConnectionModal = ({ fromNode, nodes, onClose, onCreate, isCreating }) => 
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-[#761B14] hover:bg-[#651610] text-white rounded-lg transition-colors disabled:opacity-50"
+              className="btn-premium-red flex-1 px-4 py-2 text-white rounded-lg transition-colors disabled:opacity-50"
               disabled={isCreating}
             >
               {isCreating ? 'Creating...' : 'Create Connection'}

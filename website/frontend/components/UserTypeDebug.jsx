@@ -9,7 +9,7 @@ export default function UserTypeDebug() {
 
   if (loading) {
     return (
-      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+      <div className="p-4 bg-blue-50 border border-gray-200 rounded-lg">
         <p className="text-blue-700">Loading user type...</p>
       </div>
     );

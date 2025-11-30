@@ -42,7 +42,7 @@ export default function Boards() {
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
               <div className="bg-white p-4 rounded-lg border border-gray-200 flex flex-col items-center">
-                <Kanban className="h-6 w-6 text-blue-500 mb-2" />
+                <Kanban className="h-6 w-6 text-[#3F0D28] mb-2" />
                 <span className="text-sm font-medium text-gray-700">Kanban</span>
               </div>
               <div className="bg-white p-4 rounded-lg border border-gray-200 flex flex-col items-center">

@@ -3,10 +3,12 @@ services:
     build:
       context: .
       dockerfile: docker/backend/Dockerfile
+    volumes:
+      - ./backend:/app/backend
     ports:
       - "3002:3002"
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
       - PORT=3002
       - API_PORT=3002
       - FRONTEND_URL=https://axolop.com

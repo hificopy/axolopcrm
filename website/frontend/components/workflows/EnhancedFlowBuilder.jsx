@@ -145,13 +145,13 @@ const ConditionNode = ({ data, selected }) => {
           <Badge variant="outline" className="text-xs bg-green-100 text-green-700">
             True
           </Badge>
-          <Badge variant="outline" className="text-xs bg-red-100 text-red-700">
+          <Badge variant="outline" className="text-xs bg-[#3F0D28]/10 text-[#3F0D28]">
             False
           </Badge>
         </div>
       </div>
       <Handle type="source" position={Position.Bottom} id="true" style={{ left: '30%' }} className="w-3 h-3 bg-green-500" />
-      <Handle type="source" position={Position.Bottom} id="false" style={{ left: '70%' }} className="w-3 h-3 bg-red-500" />
+      <Handle type="source" position={Position.Bottom} id="false" style={{ left: '70%' }} className="w-3 h-3 bg-[#3F0D28]" />
     </div>
   );
 };
@@ -755,7 +755,7 @@ const EnhancedFlowBuilder = ({ workflowId = null, initialData = null, onSave, on
                 {nodes.filter(n => n.type === 'delay').length} delays
               </div>
               <div className="flex items-center gap-2">
-                <Split className="w-4 h-4 text-blue-600" />
+                <Split className="w-4 h-4 text-[#3F0D28]" />
                 {nodes.filter(n => n.type === 'split').length} split tests
               </div>
               <div className="flex items-center gap-2">

@@ -1,5 +1,5 @@
-import config from '../config/app.config.js';
-import logger, { logCacheOperation } from './logger.js';
+import config from "../config/app.config.js";
+import logger, { logCacheOperation } from "./logger.js";
 
 /**
  * Cache Service using Redis
@@ -16,7 +16,7 @@ class CacheService {
    */
   initialize(redisClient) {
     this.redis = redisClient;
-    logger.info('Cache service initialized');
+    logger.info("Cache service initialized");
   }
 
   /**
@@ -30,7 +30,7 @@ class CacheService {
    * Generate cache key
    */
   key(...parts) {
-    return parts.join(':');
+    return parts.join(":");
   }
 
   /**
@@ -42,13 +42,13 @@ class CacheService {
     try {
       const value = await this.redis.get(key);
       if (value) {
-        logCacheOperation('get', key, true);
+        logCacheOperation("get", key, true);
         return JSON.parse(value);
       }
-      logCacheOperation('get', key, false);
+      logCacheOperation("get", key, false);
       return null;
     } catch (error) {
-      logger.error('Cache get error', { key, error: error.message });
+      logger.error("Cache get error", { key, error: error.message });
       return null;
     }
   }
@@ -60,11 +60,11 @@ class CacheService {
     if (!this.isAvailable()) return false;
 
     try {
-      await this.redis.set(key, JSON.stringify(value), 'EX', ttl);
-      logCacheOperation('set', key);
+      await this.redis.set(key, JSON.stringify(value), "EX", ttl);
+      logCacheOperation("set", key);
       return true;
     } catch (error) {
-      logger.error('Cache set error', { key, error: error.message });
+      logger.error("Cache set error", { key, error: error.message });
       return false;
     }
   }
@@ -77,10 +77,10 @@ class CacheService {
 
     try {
       await this.redis.del(key);
-      logCacheOperation('del', key);
+      logCacheOperation("del", key);
       return true;
     } catch (error) {
-      logger.error('Cache delete error', { key, error: error.message });
+      logger.error("Cache delete error", { key, error: error.message });
       return false;
     }
   }
@@ -95,11 +95,14 @@ class CacheService {
       const keys = await this.redis.keys(pattern);
       if (keys.length > 0) {
         await this.redis.del(...keys);
-        logCacheOperation('delPattern', pattern, { count: keys.length });
+        logCacheOperation("delPattern", pattern, { count: keys.length });
       }
       return true;
     } catch (error) {
-      logger.error('Cache delete pattern error', { pattern, error: error.message });
+      logger.error("Cache delete pattern error", {
+        pattern,
+        error: error.message,
+      });
       return false;
     }
   }
@@ -127,11 +130,11 @@ class CacheService {
     if (!this.isAvailable()) return false;
 
     try {
-      const promises = keys.map(k => this.del(k));
+      const promises = keys.map((k) => this.del(k));
       await Promise.all(promises);
       return true;
     } catch (error) {
-      logger.error('Cache invalidate error', { keys, error: error.message });
+      logger.error("Cache invalidate error", { keys, error: error.message });
       return false;
     }
   }
@@ -144,57 +147,53 @@ class CacheService {
    * Workflow caching
    */
   async getWorkflow(workflowId) {
-    return this.get(this.key('workflow', workflowId));
+    return this.get(this.key("workflow", workflowId));
   }
 
   async setWorkflow(workflowId, workflow) {
     return this.set(
-      this.key('workflow', workflowId),
+      this.key("workflow", workflowId),
       workflow,
-      config.cache.workflowTtl
+      config.cache.workflowTtl,
     );
   }
 
   async invalidateWorkflow(workflowId) {
-    return this.del(this.key('workflow', workflowId));
+    return this.del(this.key("workflow", workflowId));
   }
 
   /**
    * Template caching
    */
   async getTemplate(templateId) {
-    return this.get(this.key('template', templateId));
+    return this.get(this.key("template", templateId));
   }
 
   async setTemplate(templateId, template) {
     return this.set(
-      this.key('template', templateId),
+      this.key("template", templateId),
       template,
-      config.cache.templateTtl
+      config.cache.templateTtl,
     );
   }
 
   async invalidateTemplate(templateId) {
-    return this.del(this.key('template', templateId));
+    return this.del(this.key("template", templateId));
   }
 
   /**
    * Lead caching
    */
   async getLead(leadId) {
-    return this.get(this.key('lead', leadId));
+    return this.get(this.key("lead", leadId));
   }
 
   async setLead(leadId, lead) {
-    return this.set(
-      this.key('lead', leadId),
-      lead,
-      config.cache.leadTtl
-    );
+    return this.set(this.key("lead", leadId), lead, config.cache.leadTtl);
   }
 
   async invalidateLead(leadId) {
-    return this.del(this.key('lead', leadId));
+    return this.del(this.key("lead", leadId));
   }
 
   /**
@@ -202,84 +201,135 @@ class CacheService {
    */
   async getLeadList(userId, filters = {}) {
     const filterKey = JSON.stringify(filters);
-    return this.get(this.key('leads', userId, filterKey));
+    return this.get(this.key("leads", userId, filterKey));
   }
 
   async setLeadList(userId, filters, leads) {
     const filterKey = JSON.stringify(filters);
     return this.set(
-      this.key('leads', userId, filterKey),
+      this.key("leads", userId, filterKey),
       leads,
-      config.cache.leadTtl
+      config.cache.leadTtl,
     );
   }
 
   async invalidateUserLeads(userId) {
-    return this.delPattern(this.key('leads', userId, '*'));
+    return this.delPattern(this.key("leads", userId, "*"));
   }
 
   /**
    * Contact caching
    */
   async getContact(contactId) {
-    return this.get(this.key('contact', contactId));
+    return this.get(this.key("contact", contactId));
   }
 
   async setContact(contactId, contact) {
     return this.set(
-      this.key('contact', contactId),
+      this.key("contact", contactId),
       contact,
-      config.cache.leadTtl
+      config.cache.leadTtl,
     );
   }
 
   async invalidateContact(contactId) {
-    return this.del(this.key('contact', contactId));
+    return this.del(this.key("contact", contactId));
   }
 
   /**
    * User session caching
    */
   async getUserSession(userId) {
-    return this.get(this.key('session', userId));
+    return this.get(this.key("session", userId));
   }
 
   async setUserSession(userId, session, ttl = 3600) {
-    return this.set(this.key('session', userId), session, ttl);
+    return this.set(this.key("session", userId), session, ttl);
   }
 
   async invalidateUserSession(userId) {
-    return this.del(this.key('session', userId));
+    return this.del(this.key("session", userId));
   }
 
   /**
    * Campaign caching
    */
   async getCampaign(campaignId) {
-    return this.get(this.key('campaign', campaignId));
+    return this.get(this.key("campaign", campaignId));
   }
 
   async setCampaign(campaignId, campaign) {
     return this.set(
-      this.key('campaign', campaignId),
+      this.key("campaign", campaignId),
       campaign,
-      config.cache.templateTtl
+      config.cache.templateTtl,
     );
   }
 
   async invalidateCampaign(campaignId) {
-    return this.del(this.key('campaign', campaignId));
+    return this.del(this.key("campaign", campaignId));
   }
 
   /**
    * Statistics caching
    */
   async getStats(key, ttl = 300) {
-    return this.get(this.key('stats', key));
+    return this.get(this.key("stats", key));
   }
 
   async setStats(key, stats, ttl = 300) {
-    return this.set(this.key('stats', key), stats, ttl);
+    return this.set(this.key("stats", key), stats, ttl);
+  }
+
+  /**
+   * Tiered dashboard caching for optimal performance
+   */
+  async getDashboardData(userId, tier, timeRange) {
+    return this.get(this.key("dashboard", "v2", tier, userId, timeRange));
+  }
+
+  async setDashboardData(userId, tier, timeRange, data) {
+    const ttl = this.getDashboardTtl(tier);
+    return this.set(
+      this.key("dashboard", "v2", tier, userId, timeRange),
+      data,
+      ttl,
+    );
+  }
+
+  /**
+   * Get TTL based on cache tier
+   */
+  getDashboardTtl(tier) {
+    const tiers = {
+      realtime: 30, // 30 seconds - leads, activities, recent data
+      hourly: 3600, // 1 hour - deals, opportunities, campaigns
+      daily: 86400, // 24 hours - forms, contacts, historical data
+    };
+    return tiers[tier] || 3600; // Default to 1 hour
+  }
+
+  /**
+   * Invalidate all dashboard cache for a user
+   */
+  async invalidateUserDashboard(userId) {
+    const patterns = [
+      this.key("dashboard", "v2", "realtime", userId, "*"),
+      this.key("dashboard", "v2", "hourly", userId, "*"),
+      this.key("dashboard", "v2", "daily", userId, "*"),
+    ];
+
+    const promises = patterns.map((pattern) => this.delPattern(pattern));
+    await Promise.all(promises);
+    return true;
+  }
+
+  /**
+   * Invalidate specific tier for user
+   */
+  async invalidateUserDashboardTier(userId, tier) {
+    const pattern = this.key("dashboard", "v2", tier, userId, "*");
+    return this.delPattern(pattern);
   }
 
   /**
@@ -290,10 +340,10 @@ class CacheService {
 
     try {
       await this.redis.flushdb();
-      logger.info('Cache cleared');
+      logger.info("Cache cleared");
       return true;
     } catch (error) {
-      logger.error('Cache clear error', { error: error.message });
+      logger.error("Cache clear error", { error: error.message });
       return false;
     }
   }
@@ -314,11 +364,11 @@ export function cacheMiddleware(keyFn, ttl) {
     }
 
     try {
-      const key = typeof keyFn === 'function' ? keyFn(req) : keyFn;
+      const key = typeof keyFn === "function" ? keyFn(req) : keyFn;
       const cached = await cacheService.get(key);
 
       if (cached) {
-        logger.debug('Cache hit for middleware', { key });
+        logger.debug("Cache hit for middleware", { key });
         return res.json(cached);
       }
 
@@ -333,7 +383,7 @@ export function cacheMiddleware(keyFn, ttl) {
 
       next();
     } catch (error) {
-      logger.error('Cache middleware error', { error: error.message });
+      logger.error("Cache middleware error", { error: error.message });
       next();
     }
   };

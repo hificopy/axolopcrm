@@ -146,20 +146,6 @@ export const useUserPreferences = () => {
   }, [updateSettings]);
 
   /**
-   * Get Kate onboarding completion status
-   */
-  const getKateOnboardingCompleted = useCallback(() => {
-    return preferences?.kate_onboarding_completed || false;
-  }, [preferences]);
-
-  /**
-   * Mark Kate onboarding as complete
-   */
-  const completeKateOnboarding = useCallback(async () => {
-    return updatePreference('kate_onboarding_completed', true);
-  }, [updatePreference]);
-
-  /**
    * Get dashboard layout
    */
   const getDashboardLayout = useCallback(() => {
@@ -190,8 +176,6 @@ export const useUserPreferences = () => {
     updateSettings,
     getTheme,
     setTheme,
-    getKateOnboardingCompleted,
-    completeKateOnboarding,
     getDashboardLayout,
     updateDashboardLayout,
     refetch: () => {

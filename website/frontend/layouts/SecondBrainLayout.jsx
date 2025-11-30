@@ -127,7 +127,7 @@ const SecondBrainLayout = ({ children }) => {
         {/* Logo */}
         <div className="h-24 flex items-center justify-center px-6 border-b border-gray-800/30 bg-gradient-to-b from-black/40 to-transparent backdrop-blur-md">
           <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-r from-[#761B14]/0 via-[#761B14]/10 to-[#761B14]/0 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#3F0D28]/0 via-[#3F0D28]/10 to-[#3F0D28]/0 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <img
               src="/axolop-logo.png"
               alt="Axolop"
@@ -206,8 +206,8 @@ const SecondBrainLayout = ({ children }) => {
 
           {/* Second Brain Button - Full Width - ACTIVE */}
           <button
-            onClick={() => navigate('/app/second-brain/logic')}
-            className="w-full mt-3 flex items-center justify-center py-2.5 px-3 rounded-lg transition-all duration-300 backdrop-blur-xl bg-gradient-to-r from-[#761B14]/40 via-[#761B14]/30 to-[#761B14]/20 border-2 border-[#761B14]/60 shadow-lg overflow-hidden group"
+            onClick={() => navigate('/app/second-brain')}
+            className="w-full mt-3 flex items-center justify-center py-2.5 px-3 rounded-lg transition-all duration-300 backdrop-blur-xl bg-gradient-to-r from-[#3F0D28]/40 via-[#3F0D28]/30 to-[#3F0D28]/20 border-2 border-[#3F0D28]/60 shadow-lg overflow-hidden group"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/20 pointer-events-none" />
             <Brain className="h-5 w-5 text-white relative z-10 mr-2 drop-shadow-lg" />
@@ -220,7 +220,7 @@ const SecondBrainLayout = ({ children }) => {
               to="/app/home"
               className={`flex items-center justify-center py-2 px-2 rounded-lg transition-all duration-200 ${
                 location.pathname === '/dashboard'
-                  ? 'bg-gradient-to-r from-[#761B14]/30 via-[#761B14]/20 to-transparent text-white border border-[#761B14] shadow-md'
+                  ? 'bg-gradient-to-r from-[#3F0D28]/30 via-[#3F0D28]/20 to-transparent text-white border border-[#3F0D28] shadow-md'
                   : 'text-gray-300 hover:bg-[hsl(var(--crm-sidebar-hover))]/50 hover:text-white border border-gray-800/30'
               }`}
             >
@@ -231,7 +231,7 @@ const SecondBrainLayout = ({ children }) => {
               to="/app/calendar"
               className={`flex items-center justify-center py-2 px-2 rounded-lg transition-all duration-200 ${
                 location.pathname === '/calendar'
-                  ? 'bg-gradient-to-r from-[#761B14]/30 via-[#761B14]/20 to-transparent text-white border border-[#761B14] shadow-md'
+                  ? 'bg-gradient-to-r from-[#3F0D28]/30 via-[#3F0D28]/20 to-transparent text-white border border-[#3F0D28] shadow-md'
                   : 'text-gray-300 hover:bg-[hsl(var(--crm-sidebar-hover))]/50 hover:text-white border border-gray-800/30'
               }`}
             >
@@ -347,14 +347,14 @@ const SecondBrainLayout = ({ children }) => {
 
         {/* Affiliate Referral Card - Above Settings - Glassmorphic */}
         <div className="px-3 py-3 border-t border-gray-800/50">
-          <div onClick={openPopup} className="group relative rounded-xl overflow-hidden backdrop-blur-xl bg-gradient-to-br from-[#761B14]/20 via-[#5a1610]/30 to-[#3a0e0a]/40 p-4 border border-[#761B14]/40 shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+          <div onClick={openPopup} className="group relative rounded-xl overflow-hidden backdrop-blur-xl bg-gradient-to-br from-[#3F0D28]/20 via-[#5a1610]/30 to-[#3a0e0a]/40 p-4 border border-[#3F0D28]/40 shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 cursor-pointer">
             <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-black/20 pointer-events-none" />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#761B14]/0 via-[#761B14]/20 to-[#761B14]/0 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#3F0D28]/0 via-[#3F0D28]/20 to-[#3F0D28]/0 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
             <div className="relative">
               <h3 className="text-white font-bold text-sm mb-1 drop-shadow-lg">Earn 40% Recurring Commission</h3>
               <p className="text-gray-300 text-xs mb-3 drop-shadow">Refer clients and earn lifetime commissions</p>
-              <div className="w-full relative overflow-hidden bg-gradient-to-r from-[#6b1a12]/90 to-[#761B14]/90 hover:from-[#761B14] hover:to-[#8b1f16] backdrop-blur-sm text-white py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105 border border-white/10">
+              <div className="w-full relative overflow-hidden bg-gradient-to-r from-[#6b1a12]/90 to-[#3F0D28]/90 hover:from-[#3F0D28] hover:to-[#8b1f16] backdrop-blur-sm text-white py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105 border border-white/10">
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                 <svg className="h-3.5 w-3.5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
@@ -371,7 +371,7 @@ const SecondBrainLayout = ({ children }) => {
             to="/app/settings"
             className={`flex items-center py-2.5 px-3 rounded-lg transition-all duration-200 ${
               location.pathname.includes('/settings')
-                ? 'bg-gradient-to-r from-[#761B14]/30 via-[#761B14]/20 to-transparent text-white border-r-4 border-[#761B14] shadow-lg backdrop-blur-sm font-semibold'
+                ? 'bg-gradient-to-r from-[#3F0D28]/30 via-[#3F0D28]/20 to-transparent text-white border-r-4 border-[#3F0D28] shadow-lg backdrop-blur-sm font-semibold'
                 : 'text-gray-300 hover:bg-[hsl(var(--crm-sidebar-hover))]/50 hover:text-white hover:translate-x-1 hover:backdrop-blur-sm'
             }`}
           >

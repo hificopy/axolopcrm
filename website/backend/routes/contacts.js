@@ -1,7 +1,10 @@
-import express from 'express';
-import contactService from '../services/contactService.js';
-import { protect } from '../middleware/authMiddleware.js';
-import { extractAgencyContext, requireEditPermissions } from '../middleware/agency-access.js';
+import express from "express";
+import contactService from "../services/contactService.js";
+import { authenticateUser } from "../middleware/auth.js";
+import {
+  extractAgencyContext,
+  requireEditPermissions,
+} from "../middleware/agency-access.js";
 
 const router = express.Router();
 
@@ -9,96 +12,163 @@ const router = express.Router();
 router.use(extractAgencyContext);
 
 // Get all contacts for the authenticated user
-router.get('/', protect, async (req, res) => {
+router.get("/", authenticateUser, async (req, res) => {
   try {
     const userId = req.user.id;
-    const contacts = await contactService.getContacts(userId);
+    const agencyId = req.agencyId; // From extractAgencyContext middleware
+    const contacts = await contactService.getContacts(userId, agencyId);
     res.status(200).json(contacts);
   } catch (error) {
-    console.error('Error fetching contacts:', error);
-    res.status(500).json({ message: 'Failed to fetch contacts', error: error.message });
+    console.error("Error fetching contacts:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to fetch contacts", error: error.message });
   }
 });
 
 // Get a single contact by ID for the authenticated user
-router.get('/:id', protect, async (req, res) => {
+router.get("/:id", authenticateUser, async (req, res) => {
   try {
     const userId = req.user.id;
     const contactId = req.params.id;
-    const contact = await contactService.getContactById(userId, contactId);
+    const agencyId = req.agencyId; // From extractAgencyContext middleware
+    const contact = await contactService.getContactById(
+      userId,
+      contactId,
+      agencyId,
+    );
     if (!contact) {
-      return res.status(404).json({ message: 'Contact not found or not authorized' });
+      return res
+        .status(404)
+        .json({ message: "Contact not found or not authorized" });
     }
     res.status(200).json(contact);
   } catch (error) {
-    console.error('Error fetching contact by ID:', error);
-    res.status(500).json({ message: 'Failed to fetch contact', error: error.message });
+    console.error("Error fetching contact by ID:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to fetch contact", error: error.message });
   }
 });
 
 // Create a new contact for the authenticated user
-router.post('/', protect, requireEditPermissions, async (req, res) => {
+router.post("/", authenticateUser, requireEditPermissions, async (req, res) => {
   try {
     const userId = req.user.id;
-    const newContact = await contactService.createContact(userId, req.body);
+    const agencyId = req.agencyId; // From extractAgencyContext middleware
+    const newContact = await contactService.createContact(
+      userId,
+      req.body,
+      agencyId,
+    );
     res.status(201).json(newContact);
   } catch (error) {
-    console.error('Error creating contact:', error);
-    res.status(500).json({ message: 'Failed to create contact', error: error.message });
+    console.error("Error creating contact:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to create contact", error: error.message });
   }
 });
 
 // Update an existing contact for the authenticated user
-router.put('/:id', protect, requireEditPermissions, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const contactId = req.params.id;
-    const updatedContact = await contactService.updateContact(userId, contactId, req.body);
-    if (!updatedContact) {
-      return res.status(404).json({ message: 'Contact not found or not authorized' });
+router.put(
+  "/:id",
+  authenticateUser,
+  requireEditPermissions,
+  async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const contactId = req.params.id;
+      const updatedContact = await contactService.updateContact(
+        userId,
+        contactId,
+        req.body,
+      );
+      if (!updatedContact) {
+        return res
+          .status(404)
+          .json({ message: "Contact not found or not authorized" });
+      }
+      res.status(200).json(updatedContact);
+    } catch (error) {
+      console.error("Error updating contact:", error);
+      res
+        .status(500)
+        .json({ message: "Failed to update contact", error: error.message });
     }
-    res.status(200).json(updatedContact);
-  } catch (error) {
-    console.error('Error updating contact:', error);
-    res.status(500).json({ message: 'Failed to update contact', error: error.message });
-  }
-});
+  },
+);
 
 // Delete a contact for the authenticated user
-router.delete('/:id', protect, requireEditPermissions, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const contactId = req.params.id;
-    const deleted = await contactService.deleteContact(userId, contactId);
-    if (!deleted) {
-      return res.status(404).json({ message: 'Contact not found or not authorized' });
+router.delete(
+  "/:id",
+  authenticateUser,
+  requireEditPermissions,
+  async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const contactId = req.params.id;
+
+      await contactService.deleteContact(userId, contactId);
+      res.status(204).send(); // No content for successful deletion
+    } catch (error) {
+      console.error("Error deleting contact:", error);
+
+      // Handle cascade delete validation errors specifically
+      if (
+        error.message.includes("Cannot delete") ||
+        error.message.includes("dependent records exist")
+      ) {
+        return res.status(409).json({
+          message: "Cannot delete contact",
+          error: error.message,
+          type: "CASCADE_DELETE_VIOLATION",
+        });
+      }
+
+      // Handle not found errors
+      if (
+        error.message.includes("not found") ||
+        error.message.includes("not authorized")
+      ) {
+        return res.status(404).json({
+          message: "Contact not found or not authorized",
+          error: error.message,
+        });
+      }
+
+      res.status(500).json({
+        message: "Failed to delete contact",
+        error: error.message,
+      });
     }
-    res.status(204).send(); // No content for successful deletion
-  } catch (error) {
-    console.error('Error deleting contact:', error);
-    res.status(500).json({ message: 'Failed to delete contact', error: error.message });
-  }
-});
+  },
+);
 
 // Route to export contacts to CSV
-router.get('/export', protect, async (req, res) => {
+router.get("/export", authenticateUser, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { exportContacts } = await import('../utils/export.js');
+    const { exportContacts } = await import("../utils/export.js");
 
     // Get filter parameters from query string
     const filters = {
-      leadId: req.query.leadId
+      leadId: req.query.leadId,
     };
 
     const csv = await exportContacts(userId, filters);
 
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', 'attachment; filename="contacts_export.csv"');
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="contacts_export.csv"',
+    );
     res.send(csv);
   } catch (error) {
-    console.error('Error exporting contacts:', error);
-    res.status(500).json({ message: 'Failed to export contacts', error: error.message });
+    console.error("Error exporting contacts:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to export contacts", error: error.message });
   }
 });
 

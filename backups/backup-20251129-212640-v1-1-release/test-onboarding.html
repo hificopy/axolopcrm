@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Onboarding Test</title>
+    <script>
+      // Test the question flows
+      async function testQuestions() {
+        try {
+          // Import the question flows
+          const response = await fetch(
+            "/frontend/lib/onboarding/questionFlows.js",
+          );
+          const text = await response.text();
+
+          // Check if the file contains expected content
+          if (
+            text.includes("getQuestionsForIndustry") &&
+            text.includes("Marketing Agency")
+          ) {
+            console.log("✅ Question flows file loaded successfully");
+            document.getElementById("status").innerHTML =
+              "✅ Question flows loaded successfully";
+          } else {
+            console.log("❌ Question flows file missing content");
+            document.getElementById("status").innerHTML =
+              "❌ Question flows missing content";
+          }
+
+          // Test if we can access the onboarding page
+          const onboardingResponse = await fetch("/onboarding");
+          if (onboardingResponse.ok) {
+            console.log("✅ Onboarding page accessible");
+            document.getElementById("status").innerHTML +=
+              "<br>✅ Onboarding page accessible";
+          } else {
+            console.log("❌ Onboarding page not accessible");
+            document.getElementById("status").innerHTML +=
+              "<br>❌ Onboarding page not accessible";
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          document.getElementById("status").innerHTML =
+            `❌ Error: ${error.message}`;
+        }
+      }
+
+      // Test on page load
+      window.onload = testQuestions;
+    </script>
+  </head>
+  <body>
+    <h1>Onboarding Test</h1>
+    <div id="status">Testing...</div>
+  </body>
+</html>

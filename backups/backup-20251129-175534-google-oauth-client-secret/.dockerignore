@@ -1,0 +1,86 @@
+# Dependencies - DO NOT copy these to container
+node_modules
+**/node_modules
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Build outputs
+dist
+build
+.next
+.nuxt
+out
+
+# Development files
+.git
+.gitignore
+.env.local
+.env.development
+.env.test
+*.log
+logs
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+*.swn
+.DS_Store
+*.sublime-*
+
+# Testing
+coverage
+.nyc_output
+test-results
+
+# Temporary files
+tmp
+temp
+*.tmp
+*.cache
+
+# Frontend specific (backend container doesn't need frontend files)
+frontend/node_modules
+frontend/dist
+frontend/build
+frontend/.vite
+frontend/.next
+
+# Backend specific
+backend/node_modules
+
+# Large media files
+*.mp4
+*.mov
+*.avi
+*.zip
+*.tar
+*.gz
+*.rar
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Documentation
+README.md
+CHANGELOG.md
+docs/
+
+# Exclude large directories for backend build
+frontend/
+backups/
+archon-migration/
+scripts/
+public/
+*.md
+*.html
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.svg
+*.ico

@@ -9,13 +9,16 @@ import {
   Loader2,
   RefreshCw,
 } from "lucide-react";
-import { Button } from "./components/ui/button";
-import { Input } from "./components/ui/input";
-import { useToast } from "./components/ui/use-toast";
-import api from "./lib/api";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { useToast } from "./ui/use-toast";
+import api from "@/lib/api";
+import { useAgency } from "@/hooks/useAgency";
+import { demoDataService } from "@/services/demoDataService";
 
 export default function TodoSlideOver() {
   const { toast } = useToast();
+  const { isDemoAgencySelected } = useAgency();
   const [isOpen, setIsOpen] = useState(false);
   const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState("");
@@ -26,9 +29,21 @@ export default function TodoSlideOver() {
 
   // Fetch todos from API
   const fetchTodos = useCallback(async () => {
+    console.log('[TodoSlideOver] fetchTodos called');
     setLoading(true);
     try {
-      const response = await api.get("/api/user-preferences/todos");
+      // Check if we should use demo data
+      if (isDemoAgencySelected && isDemoAgencySelected()) {
+        console.log('[TodoSlideOver] Using demo data');
+        const demoTodos = demoDataService.getTodos();
+        setTodos(demoTodos);
+        setLoading(false);
+        return;
+      }
+
+      // Otherwise use real API
+      const response = await api.get("/user-preferences/todos");
+      console.log('[TodoSlideOver] Response received:', response.data);
       const data = response.data?.data || response.data || [];
       setTodos(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -44,7 +59,8 @@ export default function TodoSlideOver() {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDemoAgencySelected]);
 
   // Load todos on mount and when panel opens
   useEffect(() => {
@@ -58,7 +74,7 @@ export default function TodoSlideOver() {
 
     setSaving(true);
     try {
-      const response = await api.post("/api/user-preferences/todos", {
+      const response = await api.post("/user-preferences/todos", {
         title: newTodo.trim(),
         completed: false,
         priority: "medium",
@@ -93,7 +109,7 @@ export default function TodoSlideOver() {
     );
 
     try {
-      await api.post(`/api/user-preferences/todos/${id}/toggle`);
+      await api.post(`/user-preferences/todos/${id}/toggle`);
     } catch (error) {
       console.error("Error toggling todo:", error);
       setTodos(previousTodos); // Rollback on error
@@ -111,7 +127,7 @@ export default function TodoSlideOver() {
     setTodos(todos.filter((todo) => todo.id !== id));
 
     try {
-      await api.delete(`/api/user-preferences/todos/${id}`);
+      await api.delete(`/user-preferences/todos/${id}`);
       toast({
         title: "Deleted",
         description: "Task has been removed.",
@@ -145,7 +161,7 @@ export default function TodoSlideOver() {
     setEditingId(null);
 
     try {
-      await api.put(`/api/user-preferences/todos/${id}`, {
+      await api.put(`/user-preferences/todos/${id}`, {
         title: editText.trim(),
       });
     } catch (error) {
@@ -177,7 +193,7 @@ export default function TodoSlideOver() {
       <div className="fixed top-3 right-[40px] z-50">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="relative h-10 w-10 flex items-center justify-center rounded-lg bg-[#761B14] text-white hover:bg-[#6b1a12] active:bg-[#5a1810] shadow-lg hover:shadow-xl hover:shadow-red-900/40 transition-all duration-200 group overflow-hidden"
+          className="btn-premium-red relative h-10 w-10 flex items-center justify-center rounded-xl text-white transition-all duration-200 group"
           style={{ position: "fixed", top: "12px", right: "40px" }}
         >
           <CheckSquare className="h-5 w-5 text-white group-hover:text-white transition-colors relative z-10" />
@@ -202,7 +218,7 @@ export default function TodoSlideOver() {
         style={{ maxHeight: "calc(100vh - 6rem)" }}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-[#761B14] to-[#6b1a12] text-white px-4 py-3 rounded-t-lg">
+        <div className="bg-gradient-to-r from-[#3F0D28] to-[#5a1610] text-white px-4 py-3 rounded-t-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <CheckSquare className="h-5 w-5" />
@@ -235,12 +251,12 @@ export default function TodoSlideOver() {
               value={newTodo}
               onChange={(e) => setNewTodo(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && addTodo()}
-              className="flex-1 h-9 text-sm border-gray-300 focus:ring-[#761B14] focus:border-[#761B14]"
+              className="flex-1 h-9 text-sm border-gray-300 focus:ring-[#3F0D28] focus:border-[#3F0D28]"
             />
             <Button
               onClick={addTodo}
               size="sm"
-              className="bg-[#761B14] hover:bg-[#6b1a12] h-9"
+              className="btn-premium-red h-9"
             >
               <Plus className="h-4 w-4" />
             </Button>
@@ -254,7 +270,7 @@ export default function TodoSlideOver() {
         >
           {loading ? (
             <div className="p-8 text-center text-gray-500">
-              <Loader2 className="h-8 w-8 mx-auto mb-3 text-[#761B14] animate-spin" />
+              <Loader2 className="h-8 w-8 mx-auto mb-3 text-white animate-spin" />
               <p className="text-sm font-medium">Loading tasks...</p>
             </div>
           ) : todos.length === 0 ? (
@@ -279,7 +295,7 @@ export default function TodoSlideOver() {
                       className={`flex-shrink-0 mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
                         todo.completed
                           ? "bg-emerald-500 border-emerald-500"
-                          : "border-gray-300 hover:border-[#761B14]"
+                          : "border-gray-300 hover:border-[#3F0D28]"
                       }`}
                     >
                       {todo.completed && (
@@ -353,9 +369,9 @@ export default function TodoSlideOver() {
                         </button>
                         <button
                           onClick={() => deleteTodo(todo.id)}
-                          className="p-1 hover:bg-red-50 rounded transition-colors"
+                          className="p-1 hover:bg-[#3F0D28]/5 rounded transition-colors"
                         >
-                          <Trash2 className="h-3 w-3 text-red-500" />
+                          <Trash2 className="h-3 w-3 text-red-400" />
                         </button>
                       </div>
                     )}

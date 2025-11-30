@@ -3,7 +3,7 @@ import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const PRIORITY_OPTIONS = [
-  { value: 'critical', label: 'Critical', color: '#761B14', icon: '⚠️' },
+  { value: 'critical', label: 'Critical', color: '#3F0D28', icon: '⚠️' },
   { value: 'high', label: 'High', color: '#e44258', icon: null },
   { value: 'medium', label: 'Medium', color: '#fdab3d', icon: null },
   { value: 'low', label: 'Low', color: '#2563eb', icon: null },
@@ -85,7 +85,7 @@ export default function PriorityDropdown({ value, onChange, disabled = false }) 
                 {option.label}
               </span>
               {option.value === normalizedValue && (
-                <Check className="h-4 w-4 text-[#761B14] ml-2 flex-shrink-0" />
+                <Check className="h-4 w-4 text-[#3F0D28] ml-2 flex-shrink-0" />
               )}
             </button>
           ))}

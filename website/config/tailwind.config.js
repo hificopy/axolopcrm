@@ -12,7 +12,50 @@ export default {
     },
     extend: {
       colors: {
-        // Apple-inspired neutral palette
+        // New Axolop Magenta/Plum Color Palette
+        // Primary - Hot Pink/Magenta for CTAs and primary actions
+        primary: {
+          DEFAULT: "hsl(var(--primary))", // #E92C92 - Hot Pink/Magenta
+          foreground: "hsl(var(--primary-foreground))",
+          hover: "#C81E78", // Darker magenta for hover states
+          light: "#F472B6", // Lighter pink for glows/borders
+          // Category colors (updated for new palette)
+          blue: "hsl(var(--primary-blue))", // #5BB9F5 - Bright Sky Blue
+          green: "hsl(var(--primary-green))", // #2DCE89 - Emerald Green
+          yellow: "hsl(var(--primary-yellow))", // #F5A623 - Bright Saffron
+          black: "hsl(var(--primary-black))", // #1E1B24 - Dark Surface
+          accent: "hsl(var(--primary-accent))", // #E92C92 - Hot Pink
+        },
+
+        // Brand colors - Plum/Purple theme
+        brand: {
+          pink: "#E92C92", // Hot pink primary
+          purple: "#5B1046", // Brand purple for gradients
+          dark: "#0A030B", // Deepest void color
+          plum: "#140516", // Deep plum background
+        },
+
+        // Accent colors
+        accent1: {
+          DEFAULT: "#140516", // Deep plum background
+          light: "#2E0F2F", // Lighter purple gradient
+        },
+        accent2: {
+          DEFAULT: "#E2E8F0", // Metallic silver text
+          dim: "#94A3B8", // Muted silver subtext
+        },
+        accent3: {
+          DEFAULT: "#F59E0B", // Gold/amber for notifications
+          soft: "#FCD34D", // Soft gold accents
+        },
+
+        // Surface colors
+        surface: {
+          light: "#FFFFFF", // Dashboard/card backgrounds
+          dark: "#1E1B24", // Sidebar/dark UI
+        },
+
+        // Neutral palette
         neutral: {
           50: "#fafafa",
           100: "#f5f5f7",
@@ -25,27 +68,19 @@ export default {
           800: "#3a3a3c",
           900: "#1d1d1f",
         },
-        // Semantic colors with Apple subtlety
+
+        // Semantic colors
         success: "#30d158",
         warning: "#ff9f0a",
         error: "#ff453a",
         info: "#007aff",
-        // Close CRM Color Palette
+
+        // CSS Variable-based colors
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
-        primary: {
-          DEFAULT: "hsl(var(--primary))", // #761B14 - Brand Accent Red (NOW DEFAULT!)
-          foreground: "hsl(var(--primary-foreground))",
-          // Triadic Color Theory Colors (Light & Vibrant)
-          blue: "hsl(var(--primary-blue))", // #5BB9F5 - Bright Sky Blue (Sales Category)
-          green: "hsl(var(--primary-green))", // #2DCE89 - Emerald Green (Marketing Category)
-          yellow: "hsl(var(--primary-yellow))", // #F5A623 - Bright Saffron (Service Category)
-          black: "hsl(var(--primary-black))", // #101010 - Main Black
-          accent: "hsl(var(--primary-accent))", // #761B14 - Brand Red (same as DEFAULT)
-        },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
@@ -70,26 +105,33 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Close CRM specific
-        "crm-sidebar": "#101010",
-        "crm-sidebar-hover": "#2A2A2A",
-        "crm-sidebar-active": "#3A3A3A",
+
+        // CRM specific colors (updated for plum theme)
+        "crm-sidebar": "#1E1B24", // Dark surface
+        "crm-sidebar-hover": "#2E0F2F", // Plum hover
+        "crm-sidebar-active": "#E92C92", // Magenta active
         "crm-bg-light": "#F8F9FA",
-        "crm-bg-dark": "#0F0F0F",
-        "crm-text-primary": "#101010",
-        "crm-text-secondary": "#6B7280",
-        "crm-border": "#E5E7EB",
-        "crm-accent": "#761B14",
+        "crm-bg-dark": "#140516", // Deep plum
+        "crm-text-primary": "#1F2937", // Dark gray for light backgrounds
+        "crm-text-secondary": "#94A3B8", // Muted silver
+        "crm-border": "#2E0F2F", // Plum border
+        "crm-accent": "#E92C92", // Hot pink
+
+        // Text colors for accessibility
+        "text-primary": "hsl(var(--text-on-light-primary))",
+        "text-secondary": "hsl(var(--text-on-light-secondary))",
+        "text-interactive": {
+          DEFAULT: "hsl(var(--text-on-dark-interactive))",
+          hover: "hsl(var(--text-on-dark-interactive-hover))",
+        },
       },
       borderRadius: {
-        // Apple-inspired border radius system
         xs: "4px",
         sm: "8px",
         md: "12px",
         lg: "16px",
         xl: "24px",
         "2xl": "32px",
-        // Legacy for compatibility
         "var-radius": "var(--radius)",
         "var-radius-md": "calc(var(--radius) - 2px)",
         "var-radius-sm": "calc(var(--radius) - 4px)",
@@ -103,10 +145,10 @@ export default {
           "Roboto",
           "sans-serif",
         ],
+        display: ["Plus Jakarta Sans", "Inter", "-apple-system", "sans-serif"],
         mono: ["SF Mono", "Monaco", "Inconsolata", "Fira Code", "monospace"],
       },
       fontSize: {
-        // Apple-inspired typography system
         hero: [
           "48px",
           { lineHeight: "1", letterSpacing: "-0.02em", fontWeight: "700" },
@@ -136,7 +178,6 @@ export default {
             textTransform: "uppercase",
           },
         ],
-        // Legacy sizes for compatibility
         xs: ["11px", { lineHeight: "16px" }],
         sm: ["13px", { lineHeight: "18px" }],
         base: ["14px", { lineHeight: "20px" }],
@@ -165,6 +206,23 @@ export default {
           "0%, 100%": { opacity: 1 },
           "50%": { opacity: 0.5 },
         },
+        "glow-pulse": {
+          "0%, 100%": { boxShadow: "0 0 20px rgba(233, 44, 146, 0.4)" },
+          "50%": { boxShadow: "0 0 30px rgba(233, 44, 146, 0.6)" },
+        },
+        "spring-bounce": {
+          "0%": { transform: "scale(0.95)", opacity: 0 },
+          "50%": { transform: "scale(1.02)", opacity: 1 },
+          "100%": { transform: "scale(1)", opacity: 1 },
+        },
+        "spring-slide": {
+          "0%": { transform: "translateX(-10px)", opacity: 0 },
+          "100%": { transform: "translateX(0)", opacity: 1 },
+        },
+        "spring-rotate": {
+          "0%": { transform: "rotate(-5deg)", opacity: 0 },
+          "100%": { transform: "rotate(0deg)", opacity: 1 },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -172,18 +230,39 @@ export default {
         "slide-in": "slide-in-from-right 0.2s ease-out",
         "slide-out": "slide-out-to-right 0.2s ease-out",
         "pulse-slow": "pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "glow-pulse": "glow-pulse 2s ease-in-out infinite",
+        "spring-bounce": "spring-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "spring-slide": "spring-slide 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "spring-rotate": "spring-rotate 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
       },
       boxShadow: {
-        // Apple-inspired elevation system
         xs: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
         sm: "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
         md: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
         lg: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
         xl: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
-        // Legacy CRM shadows
+        // Neon glow shadows for buttons
+        neon: "0 0 25px -5px rgba(233, 44, 146, 0.6)",
+        "neon-hover": "0 0 35px -5px rgba(233, 44, 146, 0.8)",
+        "neon-active": "0 0 15px -5px rgba(233, 44, 146, 0.9)",
+        // Card and modal shadows
         "crm-card": "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
         "crm-hover": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-        "crm-modal": "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+        "crm-modal": "0 20px 25px -5px rgba(0, 0, 0, 0.2)",
+        // Glass morphism
+        glass: "0 8px 32px rgba(0, 0, 0, 0.1)",
+      },
+      backgroundImage: {
+        // Metallic silver text gradient
+        "silver-text": "linear-gradient(to bottom, #FFFFFF 30%, #94A3B8 100%)",
+        // Purple radial glow
+        "glow-radial":
+          "radial-gradient(circle at 50% 0%, #5B1046 0%, #140516 60%)",
+        // Primary button gradient
+        "primary-gradient": "linear-gradient(to right, #D92683, #F43F5E)",
+        // Plum sidebar gradient
+        "sidebar-gradient":
+          "linear-gradient(180deg, #1E1B24 0%, #140516 50%, #0A030B 100%)",
       },
     },
   },

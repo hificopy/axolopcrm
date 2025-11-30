@@ -9,14 +9,16 @@ import {
   Calendar,
   Star,
   CheckCircle,
-  Loader2
+  Loader2,
+  Eye
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { calculateLeadScore } from '@/utils/formLogicEngine';
 import formsApi from '@/services/formsApi';
-import SequentialQuestion from './components/SequentialQuestion';
+import SequentialQuestion from '@/components/SequentialQuestion';
+import LegalFooter from '@/components/LegalFooter';
 
 export default function FormPreview() {
   const { formId } = useParams();
@@ -288,12 +290,12 @@ export default function FormPreview() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
         <div className="bg-white p-12 rounded-2xl shadow-xl text-center max-w-2xl">
-          <div className="bg-red-100 rounded-full p-4 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-            <svg className="h-10 w-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="bg-[#3F0D28]/10 rounded-full p-4 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+            <svg className="h-10 w-10 text-[#3F0D28]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Form</h2>
+          <h2 className="text-2xl font-bold text-[#3F0D28] mb-4">Error Loading Form</h2>
           <p className="text-gray-600 text-lg mb-2">{error}</p>
           <p className="text-gray-500">Please check the link and try again.</p>
         </div>
@@ -323,9 +325,9 @@ export default function FormPreview() {
       <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 p-4">
         <div className="bg-white p-12 rounded-2xl shadow-xl text-center max-w-2xl w-full">
           <div className="bg-green-100 rounded-full p-4 w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-            <CheckCircle className="h-12 w-12 text-green-600" />
+            <CheckCircle className="h-12 w-12 text-emerald-700" />
           </div>
-          <h2 className="text-3xl font-bold text-green-600 mb-4">Thank You!</h2>
+          <h2 className="text-3xl font-bold text-emerald-700 mb-4">Thank You!</h2>
           <p className="text-gray-600 text-lg mb-6">Your responses have been submitted successfully.</p>
           {leadScore && (
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
@@ -355,36 +357,55 @@ export default function FormPreview() {
   // If sequential mode, use SequentialQuestion component
   if (isSequentialMode) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4">
-        <div className="w-full max-w-4xl">
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            {/* Form Header */}
-            <div className="bg-white border-b border-gray-200 p-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                {form.title || 'Untitled Form'}
-              </h1>
-              {form.description && (
-                <p className="text-gray-600">
-                  {form.description}
-                </p>
-              )}
-            </div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col">
+        {/* Preview Mode Banner */}
+        <div className="bg-amber-50 border-b border-amber-200 px-4 py-2">
+          <div className="max-w-4xl mx-auto flex items-center gap-2 text-amber-800 text-sm">
+            <Eye className="h-4 w-4" />
+            <span><strong>Preview Mode</strong> - This is how your form will appear to visitors</span>
+          </div>
+        </div>
 
-            {/* Sequential Questions */}
-            <div className="p-8">
-              <SequentialQuestion
-                questions={form.questions || []}
-                responses={responses}
-                setResponses={setResponses}
-                onSubmit={handleSubmit}
-                currentQuestionIndex={currentQuestionIndex}
-                setCurrentQuestionIndex={setCurrentQuestionIndex}
-                isMeetingMode={false}
-                showGrouped={false}
-                showPrivacyNotice={false}
-              />
+        <div className="flex-grow flex items-center justify-center px-4 py-8">
+          <div className="w-full max-w-4xl">
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+              {/* Form Header */}
+              <div className="bg-white border-b border-gray-200 p-8">
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                  {form.title || 'Untitled Form'}
+                </h1>
+                {form.description && (
+                  <p className="text-gray-600">
+                    {form.description}
+                  </p>
+                )}
+              </div>
+
+              {/* Sequential Questions */}
+              <div className="p-8">
+                <SequentialQuestion
+                  questions={form.questions || []}
+                  responses={responses}
+                  setResponses={setResponses}
+                  onSubmit={handleSubmit}
+                  currentQuestionIndex={currentQuestionIndex}
+                  setCurrentQuestionIndex={setCurrentQuestionIndex}
+                  isMeetingMode={false}
+                  showGrouped={false}
+                  showPrivacyNotice={true}
+                />
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* Legal Footer */}
+        <div className="bg-gray-50 px-8 py-4 border-t border-gray-100">
+          <LegalFooter
+            variant="preview"
+            showBranding={true}
+            showConsentText={true}
+          />
         </div>
       </div>
     );
@@ -392,21 +413,30 @@ export default function FormPreview() {
 
   // Regular mode - show all questions vertically stacked
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Form Header */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              {form.title || 'Untitled Form'}
-            </h1>
-            {form.description && (
-              <p className="text-lg text-gray-600">
-                {form.description}
-              </p>
-            )}
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col">
+      {/* Preview Mode Banner */}
+      <div className="bg-amber-50 border-b border-amber-200 px-4 py-2">
+        <div className="max-w-7xl mx-auto flex items-center gap-2 text-amber-800 text-sm">
+          <Eye className="h-4 w-4" />
+          <span><strong>Preview Mode</strong> - This is how your form will appear to visitors</span>
         </div>
+      </div>
+
+      <div className="flex-grow py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Form Header */}
+          <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+            <div className="max-w-4xl mx-auto">
+              <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                {form.title || 'Untitled Form'}
+              </h1>
+              {form.description && (
+                <p className="text-lg text-gray-600">
+                  {form.description}
+                </p>
+              )}
+            </div>
+          </div>
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -426,7 +456,7 @@ export default function FormPreview() {
                         <Label className="text-lg font-semibold text-gray-900 mb-3 block">
                           {question.title || question.label || question.text}
                           {question.required && (
-                            <span className="text-red-500 ml-1">*</span>
+                            <span className="text-[#3F0D28] ml-1">*</span>
                           )}
                         </Label>
                         {question.description && (
@@ -472,6 +502,16 @@ export default function FormPreview() {
             </div>
           )}
         </form>
+        </div>
+      </div>
+
+      {/* Legal Footer */}
+      <div className="bg-gray-50 px-8 py-4 border-t border-gray-100">
+        <LegalFooter
+          variant="preview"
+          showBranding={true}
+          showConsentText={true}
+        />
       </div>
     </div>
   );

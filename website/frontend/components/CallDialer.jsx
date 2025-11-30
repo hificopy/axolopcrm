@@ -58,7 +58,7 @@ const CallDialer = ({
   const dispositions = [
     { value: 'interested', label: 'Interested', color: 'text-green-600', icon: CheckCircle },
     { value: 'not_interested', label: 'Not Interested', color: 'text-red-600', icon: XCircle },
-    { value: 'callback', label: 'Callback', color: 'text-blue-600', icon: Clock },
+    { value: 'callback', label: 'Callback', color: 'text-[#3F0D28]', icon: Clock },
     { value: 'voicemail', label: 'Voicemail', color: 'text-yellow-600', icon: Voicemail },
     { value: 'no_answer', label: 'No Answer', color: 'text-gray-600', icon: AlertCircle },
     { value: 'busy', label: 'Busy', color: 'text-orange-600', icon: AlertCircle },
@@ -262,7 +262,7 @@ const CallDialer = ({
       <div className="bg-gradient-to-r from-[#101010] to-[#2d2d2d] text-white p-4 rounded-t-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-[#761B14] rounded-full flex items-center justify-center">
+            <div className="w-12 h-12 bg-[#3F0D28] rounded-full flex items-center justify-center">
               <User size={24} />
             </div>
             <div>
@@ -316,7 +316,7 @@ const CallDialer = ({
               {/* End call button */}
               <button
                 onClick={handleEndCall}
-                className="w-16 h-16 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-all transform hover:scale-110 shadow-lg"
+                className="btn-premium-red w-16 h-16 text-white rounded-full flex items-center justify-center transition-all transform hover:scale-110"
               >
                 <PhoneOff size={28} />
               </button>
@@ -326,7 +326,7 @@ const CallDialer = ({
                 <button
                   onClick={handleVoicemailDrop}
                   disabled={isHoldingForVoicemail}
-                  className="w-12 h-12 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center transition-all disabled:opacity-50"
+                  className="w-12 h-12 bg-[#3F0D28] hover:bg-[#5a1a3a] text-white rounded-full flex items-center justify-center transition-all disabled:opacity-50"
                 >
                   <Voicemail size={20} />
                 </button>
@@ -349,7 +349,7 @@ const CallDialer = ({
 
             <button
               onClick={() => setShowAIAssistant(!showAIAssistant)}
-              className="px-4 py-2 border border-[#761B14] text-[#761B14] rounded-lg hover:bg-red-50 flex items-center justify-center space-x-2"
+              className="px-4 py-2 border border-[#3F0D28] text-[#3F0D28] rounded-lg hover:bg-red-50 flex items-center justify-center space-x-2"
             >
               <span className="text-sm">AI Help</span>
               {showAIAssistant ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -371,7 +371,7 @@ const CallDialer = ({
 
         {/* AI Assistant Panel */}
         {showAIAssistant && aiSuggestions && callStatus === 'active' && (
-          <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-gray-200">
             <h4 className="font-semibold text-sm text-blue-900 mb-3 flex items-center">
               <span className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse" />
               AI Sales Assistant
@@ -424,7 +424,7 @@ const CallDialer = ({
                     onClick={() => setSelectedDisposition(disp.value)}
                     className={`px-3 py-2 border rounded-lg flex items-center space-x-2 transition-all ${
                       selectedDisposition === disp.value
-                        ? 'border-[#761B14] bg-red-50'
+                        ? 'border-[#3F0D28] bg-red-50'
                         : 'border-gray-300 hover:bg-gray-50'
                     }`}
                   >
@@ -444,7 +444,7 @@ const CallDialer = ({
                 value={callNotes}
                 onChange={(e) => setCallNotes(e.target.value)}
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#761B14] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3F0D28] focus:border-transparent"
                 placeholder="Add notes about this call..."
               />
             </div>
@@ -454,7 +454,7 @@ const CallDialer = ({
               <button
                 onClick={handleSubmitDisposition}
                 disabled={!selectedDisposition}
-                className="flex-1 px-4 py-2 bg-[#761B14] text-white rounded-lg hover:bg-[#5a1410] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-premium-red flex-1 px-4 py-2 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Save & Next
               </button>

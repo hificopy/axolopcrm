@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/use-toast';
-import api from './lib/api';
+import api from '@/lib/api';
 
 const CreateCampaign = () => {
   const navigate = useNavigate();
@@ -73,7 +73,7 @@ const CreateCampaign = () => {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await api.post('/api/campaigns', {
+      await api.post('/email-marketing/campaigns', {
         ...campaignData,
         status: 'DRAFT'
       });
@@ -108,7 +108,7 @@ const CreateCampaign = () => {
 
     setIsSendingTest(true);
     try {
-      await api.post('/api/campaigns/test', {
+      await api.post('/email-marketing/campaigns/test', {
         ...campaignData,
         recipients: campaignData.testRecipients
       });
@@ -141,7 +141,7 @@ const CreateCampaign = () => {
 
     setIsSending(true);
     try {
-      await api.post('/api/campaigns/send', {
+      await api.post('/email-marketing/campaigns/send', {
         ...campaignData,
         status: 'SENT',
         sentAt: new Date().toISOString()
@@ -190,9 +190,9 @@ const CreateCampaign = () => {
 
       {/* Progress Steps */}
       <div className="flex items-center gap-4">
-        <div 
+        <div
           className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-            step === 1 ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-500'
+            step === 1 ? 'bg-[#3F0D28]/10 text-[#3F0D28]' : 'bg-gray-100 text-gray-500'
           }`}
           onClick={() => setStep(1)}
         >
@@ -200,9 +200,9 @@ const CreateCampaign = () => {
           <span>Basic Info</span>
         </div>
         <ArrowRight className="w-4 h-4 text-gray-400" />
-        <div 
+        <div
           className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-            step === 2 ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-500'
+            step === 2 ? 'bg-[#3F0D28]/10 text-[#3F0D28]' : 'bg-gray-100 text-gray-500'
           }`}
           onClick={() => setStep(2)}
         >
@@ -210,9 +210,9 @@ const CreateCampaign = () => {
           <span>Audience</span>
         </div>
         <ArrowRight className="w-4 h-4 text-gray-400" />
-        <div 
+        <div
           className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-            step === 3 ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-500'
+            step === 3 ? 'bg-[#3F0D28]/10 text-[#3F0D28]' : 'bg-gray-100 text-gray-500'
           }`}
           onClick={() => setStep(3)}
         >
@@ -220,9 +220,9 @@ const CreateCampaign = () => {
           <span>Content</span>
         </div>
         <ArrowRight className="w-4 h-4 text-gray-400" />
-        <div 
+        <div
           className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-            step === 4 ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-500'
+            step === 4 ? 'bg-[#3F0D28]/10 text-[#3F0D28]' : 'bg-gray-100 text-gray-500'
           }`}
           onClick={() => setStep(4)}
         >

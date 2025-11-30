@@ -1,58 +1,25 @@
 <!doctype html>
 <html>
   <head>
-    <title>Environment Test</title>
+    <title>Env Test</title>
   </head>
   <body>
-    <h1>Environment Variable Test</h1>
-    <div id="env-test"></div>
+    <h1>Environment Variables Test</h1>
+    <div id="output"></div>
 
     <script type="module">
-      // Test if we can access import.meta.env
+      console.log("Testing in browser context...");
       console.log("import.meta.env:", import.meta.env);
+      console.log("VITE_SUPABASE_URL:", import.meta.env.VITE_SUPABASE_URL);
+      console.log(
+        "VITE_SUPABASE_ANON_KEY exists:",
+        !!import.meta.env.VITE_SUPABASE_ANON_KEY,
+      );
 
-      const envTest = document.getElementById("env-test");
-      const envVars = {
-        VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL || "NOT SET",
-        VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY
-          ? "SET"
-          : "NOT SET",
-        MODE: import.meta.env.MODE,
-        DEV: import.meta.env.DEV,
-        PROD: import.meta.env.PROD,
-      };
-
-      envTest.innerHTML = "<pre>" + JSON.stringify(envVars, null, 2) + "</pre>";
-
-      // Try to import React
-      import("react")
-        .then((React) => {
-          console.log("React imported successfully:", React);
-          envTest.innerHTML +=
-            '<p style="color: green;">✅ React import successful</p>';
-        })
-        .catch((error) => {
-          console.error("React import failed:", error);
-          envTest.innerHTML +=
-            '<p style="color: red;">❌ React import failed: ' +
-            error.message +
-            "</p>";
-        });
-
-      // Try to import ReactDOM
-      import("react-dom/client")
-        .then((ReactDOM) => {
-          console.log("ReactDOM imported successfully:", ReactDOM);
-          envTest.innerHTML +=
-            '<p style="color: green;">✅ ReactDOM import successful</p>';
-        })
-        .catch((error) => {
-          console.error("ReactDOM import failed:", error);
-          envTest.innerHTML +=
-            '<p style="color: red;">❌ ReactDOM import failed: ' +
-            error.message +
-            "</p>";
-        });
+      document.getElementById("output").innerHTML = `
+            <p>VITE_SUPABASE_URL: ${import.meta.env.VITE_SUPABASE_URL || "NOT FOUND"}</p>
+            <p>VITE_SUPABASE_ANON_KEY: ${import.meta.env.VITE_SUPABASE_ANON_KEY ? "EXISTS" : "NOT FOUND"}</p>
+        `;
     </script>
   </body>
 </html>

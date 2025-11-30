@@ -16,7 +16,7 @@
 
 - **[FEATURES_OVERVIEW.md](./FEATURES_OVERVIEW.md)** - All features explained
 - **[troubleshooting/](./troubleshooting/)** - Common issues and solutions
-- **[TECHNICAL_UPDATES.md](./TECHNICAL_UPDATES.md)** - Latest changes
+- **[changelog/TECHNICAL_UPDATES.md](./changelog/TECHNICAL_UPDATES.md)** - Latest changes
 
 ---
 
@@ -26,12 +26,30 @@
 
 Complete auth system documentation including sign in/up, password reset, and onboarding flow.
 
-**Quick Links:**
+**⭐ Essential Reading (NEW):**
+
+- [**Authentication Routing Flow**](./authentication/AUTHENTICATION_ROUTING_FLOW.md) - **Comprehensive guide** (~600 lines)
+  - Complete auth & routing architecture
+  - User types (God, Paid, Free) deep dive
+  - Flow diagrams & decision trees
+  - Component responsibilities
+  - Common scenarios & troubleshooting
+  - Best practices & security
+
+- [**Authentication Quick Reference**](./authentication/AUTHENTICATION_QUICK_REFERENCE.md) - **Fast lookup**
+  - User type comparison table
+  - Routing rules cheat sheet
+  - Common mistakes & fixes
+  - Debug logging templates
+  - Decision matrix
+
+**Other Documentation:**
 
 - [User Hierarchy](./authentication/USER_HIERARCHY.md) - User roles and permissions
 - [Auth System Status](./authentication/AUTH_SYSTEM_STATUS.md) - Current status & next steps
 - [Complete Audit](./authentication/COMPLETE_AUTH_AUDIT.md) - Full system analysis
 - [Onboarding System](./authentication/ONBOARDING_SYSTEM.md) - User onboarding docs
+- [Google OAuth Setup](./authentication/GOOGLE_OAUTH_SETUP.md) - Google OAuth configuration
 - [Quick Reference](./authentication/QUICK_REFERENCE.md) - Common commands
 - [Debugging Guide](./authentication/AUTH_DEBUGGING_GUIDE.md) - Troubleshooting
 
@@ -41,7 +59,7 @@ Complete auth system documentation including sign in/up, password reset, and onb
 - ✅ Email/password + Google OAuth
 - ✅ Multi-tenant architecture with data isolation
 - ✅ Row Level Security (RLS) for data protection
-- 🔑 Admin: axolopcrm@gmail.com (unlimited access)
+- 🔑 Admin: axolopcrm@gmail.com & kate@kateviolet.com (unlimited access)
 
 ---
 
@@ -75,6 +93,7 @@ System design, tech stack, and integration patterns.
 
 - [Tech Stack](./architecture/TECH_STACK.md) - Technologies used
 - [CRM Integration System](./architecture/CRM_INTEGRATION_SYSTEM.md) - Integration architecture
+- [Color System Documentation](./architecture/COLOR_SYSTEM_DOCUMENTATION.md) - Design system
 - [Branding](./architecture/BRANDING.md) - Brand guidelines
 - [Category Structure](./architecture/CATEGORY_STRUCTURE.md) - Data organization
 
@@ -123,6 +142,7 @@ Production deployment guides for frontend and backend.
 - [Deploy Now](./deployment/DEPLOY_NOW.md) ⭐ Quick deployment
 - [Docker Deployment](./deployment/DOCKER_DEPLOYMENT.md) - Containerized deployment
 - [Backend Hosting Options](./deployment/BACKEND_HOSTING_OPTIONS.md) - Hosting comparison
+- [Agency Deletion Deployment](./deployment/AGENCY_DELETION_DEPLOYMENT_GUIDE.md) - Agency deletion feature
 - [Troubleshooting](./deployment/DEPLOYMENT_TROUBLESHOOTING.md) - Common issues
 - [README](./deployment/README.md) - Deployment overview
 
@@ -191,6 +211,8 @@ Step-by-step setup guides for integrations and features.
 
 - [Calendar Setup](./setup/CALENDAR_SETUP_GUIDE.md) - Google Calendar integration
 - [Integration Guide](./setup/INTEGRATION_GUIDE.md) - Third-party integrations
+- [Stripe Setup Guide](./setup/STRIPE_SETUP_GUIDE.md) - Payment processing setup
+- [Stripe API Keys](./setup/STRIPE_API_KEYS.md) - API credentials configuration
 - [Supabase Auth Setup](./setup/SUPABASE_AUTH_SETUP.md) - Auth configuration
 - [Supabase Setup Instructions](./setup/SUPABASE_SETUP_INSTRUCTIONS.md) - Database setup
 - [Users Schema Deployment](./setup/USERS_SCHEMA_DEPLOYMENT.md) - Deploy user tables
@@ -264,6 +286,7 @@ Common issues and debugging guides.
 
 **Files:**
 
+- [Issues To Fix](./troubleshooting/ISSUES_TO_FIX.md) - Known issues and fixes
 - [Issues Directory](./troubleshooting/issues/) - Specific issue fixes
 - [Frontend Debug Report](./troubleshooting/FRONTEND_DEBUG_REPORT.md) - UI issues
 
@@ -271,6 +294,26 @@ Common issues and debugging guides.
 
 - [Auth Debugging Guide](./authentication/AUTH_DEBUGGING_GUIDE.md) - Auth issues
 - [Deployment Troubleshooting](./deployment/DEPLOYMENT_TROUBLESHOOTING.md) - Deploy issues
+
+---
+
+### 📝 [Changelog](./changelog/)
+
+Release notes and technical updates.
+
+**Files:**
+
+- [Technical Updates](./changelog/TECHNICAL_UPDATES.md) - Latest changes and updates
+
+---
+
+### 📢 [Marketing](./marketing/)
+
+Marketing materials and pricing information.
+
+**Files:**
+
+- [Pricing Guide](./marketing/PRICING_GUIDE.md) - Pricing tiers and strategy
 
 ---
 
@@ -320,21 +363,22 @@ Historical documentation and old implementation notes.
 
 | Section         | Status      | Last Updated |
 | --------------- | ----------- | ------------ |
-| Authentication  | ✅ Complete | 2025-01-24   |
+| Authentication  | ✅ Complete | 2025-01-29   |
 | API             | ✅ Complete | 2025-01-16   |
-| Architecture    | ✅ Current  | 2025-01-15   |
+| Architecture    | ✅ Updated  | 2025-01-29   |
 | Database        | ✅ Updated  | 2025-01-24   |
-| Deployment      | ✅ Current  | 2025-01-18   |
+| Deployment      | ✅ Updated  | 2025-01-29   |
 | Development     | ✅ Current  | 2025-01-24   |
 | Features        | ✅ Updated  | 2025-01-24   |
 | Implementation  | ✅ New      | 2025-01-24   |
-| Setup           | ✅ Current  | 2025-01-18   |
+| Setup           | ✅ Updated  | 2025-01-29   |
 | SendGrid        | ✅ Complete | 2025-01-16   |
 | Testing         | ✅ New      | 2025-01-24   |
-| Troubleshooting | ✅ Updated  | 2025-01-24   |
+| Troubleshooting | ✅ Updated  | 2025-01-29   |
 | User Guide      | ✅ New      | 2025-01-24   |
-| SendGrid        | ✅ Complete | 2025-01-16   |
-| Troubleshooting | ⏳ Minimal  | 2025-01-15   |
+| Changelog       | ✅ New      | 2025-01-29   |
+| Marketing       | ✅ New      | 2025-01-29   |
+| Archive         | ✅ Updated  | 2025-01-29   |
 
 ---
 
@@ -362,4 +406,13 @@ When updating documentation:
 
 **Need help? Check [GETTING_STARTED.md](./GETTING_STARTED.md) or ask the team!**
 
-**Last Updated:** 2025-01-24
+---
+
+**Last Updated:** 2025-01-29
+**Major Updates:**
+- ✅ Reorganized documentation structure
+- ✅ Added comprehensive authentication routing flow documentation
+- ✅ Added authentication quick reference guide
+- ✅ Moved files to proper subfolders (changelog, marketing, setup, etc.)
+- ✅ Removed duplicate auth/ folder
+- ✅ Updated all cross-references

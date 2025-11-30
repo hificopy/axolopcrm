@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { FullPageLoader } from "../components/ui/loading-states";
 import {
   Plus,
   Search,
@@ -41,37 +42,67 @@ import { useToast } from "../components/ui/use-toast";
 import { InfoTooltipInline } from "../components/ui/info-tooltip";
 import { useAgency } from "../hooks/useAgency";
 import ViewOnlyBadge from "../components/ui/view-only-badge";
+import { MondayTable } from "../components/MondayTable";
+import {
+  LeadTableSkeleton,
+  StatsCardSkeleton,
+} from "../components/ui/skeletons";
+import { demoDataService } from "../services/demoDataService";
+import { CRMMenuConfigs } from "../components/ui/ContextMenuProvider";
 
 const Contacts = () => {
+  const [loading, setLoading] = useState(true);
   const [contacts, setContacts] = useState([]);
   const [filteredContacts, setFilteredContacts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedContact, setSelectedContact] = useState(null);
   const [viewMode, setViewMode] = useState("table"); // 'table' or 'cards'
-  const [loading, setLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState({});
   const { toast } = useToast();
-  const { isReadOnly, canEdit, canCreate } = useAgency();
+  const { isReadOnly, canEdit, canCreate, isDemoAgencySelected } = useAgency();
 
   const fetchContacts = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await contactsApi.getAll();
-      setContacts(response.data);
-      setFilteredContacts(response.data);
+      // If demo agency is selected, use demo data
+      if (isDemoAgencySelected()) {
+        console.log("[Contacts] Using demo data");
+        const response = await demoDataService.getContacts();
+        setContacts(response.data);
+        setFilteredContacts(response.data);
+      } else {
+        const response = await contactsApi.getAll();
+        setContacts(response.data);
+        setFilteredContacts(response.data);
+      }
     } catch (error) {
       console.error("Error fetching contacts:", error);
+
+      // Handle specific error types
+      let errorMessage = "Failed to load contacts.";
+      if (
+        error?.error === "Unauthorized" ||
+        error?.message?.includes("Authentication")
+      ) {
+        errorMessage = "Please sign in to access your contacts.";
+      } else if (error?.error === "Network Error") {
+        errorMessage =
+          "Network connection failed. Please check your internet connection.";
+      } else if (error?.status === 401) {
+        errorMessage = "Your session has expired. Please sign in again.";
+      }
+
       toast({
         title: "Error",
-        description: "Failed to load contacts.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
-  }, [toast]); // State setters are stable
+  }, [toast, isDemoAgencySelected]); // State setters are stable
 
   useEffect(() => {
     fetchContacts();
@@ -82,13 +113,13 @@ const Contacts = () => {
     if (!searchTerm) {
       setFilteredContacts(contacts);
     } else {
+      const searchLower = searchTerm.toLowerCase();
       const filtered = contacts.filter(
         (contact) =>
-          contact.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          contact.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (contact.title &&
-            contact.title.toLowerCase().includes(searchTerm.toLowerCase())),
+          (contact.first_name?.toLowerCase() || "").includes(searchLower) ||
+          (contact.last_name?.toLowerCase() || "").includes(searchLower) ||
+          (contact.email?.toLowerCase() || "").includes(searchLower) ||
+          (contact.title?.toLowerCase() || "").includes(searchLower),
       );
       setFilteredContacts(filtered);
     }
@@ -246,6 +277,107 @@ const Contacts = () => {
     }).format(amount);
   };
 
+  // Context menu handlers for contacts
+  const handleContactEdit = (contact) => {
+    setSelectedContact(contact);
+  };
+
+  const handleContactDelete = async (contact) => {
+    try {
+      await contactsApi.delete(contact.id);
+      setContacts((prevContacts) =>
+        prevContacts.filter((c) => c.id !== contact.id),
+      );
+      setFilteredContacts((prevContacts) =>
+        prevContacts.filter((c) => c.id !== contact.id),
+      );
+
+      toast({
+        title: "Contact Deleted",
+        description: `${contact.first_name} ${contact.last_name} has been deleted.`,
+      });
+    } catch (error) {
+      console.error("Error deleting contact:", error);
+      toast({
+        title: "Delete Failed",
+        description: "Failed to delete contact. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleContactDuplicate = async (contact) => {
+    try {
+      const duplicatedContact = await contactsApi.create({
+        ...contact,
+        first_name: `${contact.first_name} (Copy)`,
+        id: undefined, // Remove ID to create new record
+        created_at: undefined,
+        updated_at: undefined,
+      });
+
+      setContacts((prevContacts) => [duplicatedContact.data, ...prevContacts]);
+      setFilteredContacts((prevContacts) => [
+        duplicatedContact.data,
+        ...prevContacts,
+      ]);
+
+      toast({
+        title: "Contact Duplicated",
+        description: `${contact.first_name} ${contact.last_name} has been duplicated.`,
+      });
+    } catch (error) {
+      console.error("Error duplicating contact:", error);
+      toast({
+        title: "Duplicate Failed",
+        description: "Failed to duplicate contact. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleContactEmail = (contact) => {
+    window.open(`mailto:${contact.email}`, "_blank");
+  };
+
+  const handleContactCall = (contact) => {
+    if (contact.phone) {
+      window.open(`tel:${contact.phone}`, "_blank");
+    } else {
+      toast({
+        title: "No Phone Number",
+        description: "This contact doesn't have a phone number.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleContactTask = (contact) => {
+    toast({
+      title: "Task Created",
+      description: `Task created for ${contact.first_name} ${contact.last_name}.`,
+    });
+  };
+
+  const handleContactViewDeals = (contact) => {
+    toast({
+      title: "View Deals",
+      description: `Viewing deals for ${contact.first_name} ${contact.last_name}.`,
+    });
+  };
+
+  // Context menu configuration for contacts
+  const contactContextMenuConfig = (contact) =>
+    CRMMenuConfigs.contact(contact, {
+      onEdit: handleContactEdit,
+      onDelete: handleContactDelete,
+      onDuplicate: handleContactDuplicate,
+      onEmail: handleContactEmail,
+      onCall: handleContactCall,
+      onAddTask: handleContactTask,
+      onViewDeals: handleContactViewDeals,
+    });
+
   // Handle cell edit
   const handleCellEdit = async (contactId, columnKey, value) => {
     try {
@@ -350,7 +482,7 @@ const Contacts = () => {
       {
         key: "with-company",
         label: "With Company",
-        color: "#0073ea",
+        color: "#3F0D28",
         filter: (contact) =>
           contact.company && contact.company !== "No Company",
       },
@@ -374,7 +506,6 @@ const Contacts = () => {
             <div className="flex items-center gap-3">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
                 Contacts
-                <span className="ml-3 text-[#761B14]">●</span>
               </h1>
               {isReadOnly() && <ViewOnlyBadge />}
             </div>
@@ -383,47 +514,6 @@ const Contacts = () => {
                 ? "View business contacts - Read-only access"
                 : "Manage and track your business contacts with powerful search"}
             </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-crm-text-secondary" />
-              <Input
-                placeholder="Search contacts..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-64"
-              />
-            </div>
-            <Button
-              variant="outline"
-              size="default"
-              className="gap-2"
-              onClick={handleFilter}
-            >
-              <Filter className="h-4 w-4" />
-              <span>Filter</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="default"
-              className="gap-2"
-              onClick={handleExport}
-            >
-              <Download className="h-4 w-4" />
-              <span>Export</span>
-            </Button>
-            {canCreate() && (
-              <Button
-                variant="default"
-                size="default"
-                className="gap-2"
-                onClick={handleCreateContact}
-              >
-                <Plus className="h-4 w-4" />
-                <span>New Contact</span>
-              </Button>
-            )}
           </div>
         </div>
 
@@ -438,33 +528,33 @@ const Contacts = () => {
               {contacts.length}
             </div>
           </div>
-          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-5 border border-emerald-200 shadow-md hover:shadow-lg transition-all duration-300">
-            <div className="text-xs font-semibold text-emerald-700 uppercase tracking-wide flex items-center">
+          <div className="bg-gradient-to-br from-[#1A777B]/5 to-[#1A777B]/10 rounded-xl p-5 border border-[#1A777B]/20 shadow-md hover:shadow-lg transition-all duration-300">
+            <div className="text-xs font-semibold text-[#1A777B] uppercase tracking-wide flex items-center">
               Active This Month
               <InfoTooltipInline content="Contacts you've interacted with this month" />
             </div>
-            <div className="text-3xl font-bold text-emerald-600 mt-2">
+            <div className="text-3xl font-bold text-neutral-900 dark:text-white mt-2">
               {contacts.length}
             </div>
           </div>
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-5 border border-blue-200 shadow-md hover:shadow-lg transition-all duration-300">
-            <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide flex items-center">
+          <div className="bg-gradient-to-br from-[#3F0D28]/5 to-[#3F0D28]/10 rounded-xl p-5 border border-[#3F0D28]/20 shadow-md hover:shadow-lg transition-all duration-300">
+            <div className="text-xs font-semibold text-[#3F0D28] uppercase tracking-wide flex items-center">
               Companies
               <InfoTooltipInline content="Number of unique companies represented" />
             </div>
-            <div className="text-3xl font-bold text-blue-600 mt-2">
+            <div className="text-3xl font-bold text-[#3F0D28] mt-2">
               {
                 [...new Set(contacts.map((c) => c.lead_id))].filter(Boolean)
                   .length
               }
             </div>
           </div>
-          <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-5 border border-[#761B14]/30 shadow-md hover:shadow-lg transition-all duration-300">
-            <div className="text-xs font-semibold text-[#761B14] uppercase tracking-wide flex items-center">
+          <div className="bg-gradient-to-br from-[#3F0D28]/5 to-[#3F0D28]/10 rounded-xl p-5 border border-[#3F0D28]/30 shadow-md hover:shadow-lg transition-all duration-300">
+            <div className="text-xs font-semibold text-[#3F0D28] uppercase tracking-wide flex items-center">
               With Titles
               <InfoTooltipInline content="Contacts with job titles specified" />
             </div>
-            <div className="text-3xl font-bold text-[#761B14] mt-2">
+            <div className="text-3xl font-bold text-[#3F0D28] mt-2">
               {contacts.filter((c) => c.title).length}
             </div>
           </div>
@@ -474,27 +564,28 @@ const Contacts = () => {
       {/* Monday Table */}
       <div className="flex-1 overflow-auto p-4 sm:p-6 bg-gray-50">
         {loading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="flex flex-col items-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-[#761B14] mb-4"></div>
-              <p className="text-gray-600 font-medium">Loading contacts...</p>
-            </div>
+          <div className="animate-fadeIn">
+            <LeadTableSkeleton rows={8} />
           </div>
         ) : (
-          <MondayTable
-            data={tableData}
-            columns={columns}
-            groups={contactGroups}
-            onAddItem={canCreate() ? handleCreateContact : undefined}
-            onRowClick={(row) => handleContactSelect(row._original.id)}
-            onCellEdit={canEdit() ? handleCellEdit : undefined}
-            searchPlaceholder="Search contacts..."
-            newItemLabel="New Contact"
-            enableSearch={true}
-            enableGroups={true}
-            enablePlaceholderRows={!isReadOnly()}
-            placeholderRowCount={3}
-          />
+          <div className="animate-fadeIn">
+            <MondayTable
+              data={tableData}
+              columns={columns}
+              groups={contactGroups}
+              onAddItem={canCreate() ? handleCreateContact : undefined}
+              onRowClick={(row) => handleContactSelect(row._original.id)}
+              onCellEdit={canEdit() ? handleCellEdit : undefined}
+              onExport={handleExport}
+              contextMenuConfig={contactContextMenuConfig}
+              searchPlaceholder="Search contacts..."
+              newItemLabel="New Contact"
+              enableSearch={true}
+              enableGroups={true}
+              enablePlaceholderRows={!isReadOnly()}
+              placeholderRowCount={3}
+            />
+          </div>
         )}
       </div>
 

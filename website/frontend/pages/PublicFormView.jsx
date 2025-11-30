@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import SequentialQuestion from '../components/SequentialQuestion';
+import LegalFooter from '../components/LegalFooter';
 import formsApi from '../services/formsApi';
 import { AlertCircle, Loader2 } from 'lucide-react';
 
@@ -44,7 +45,7 @@ export default function PublicFormView() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <Loader2 className="h-12 w-12 animate-spin text-[#3F0D28] mx-auto mb-4" />
           <p className="text-gray-600 text-lg">Loading form...</p>
         </div>
       </div>
@@ -57,8 +58,8 @@ export default function PublicFormView() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
         <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-red-100 rounded-full">
-              <AlertCircle className="h-6 w-6 text-red-600" />
+            <div className="p-3 bg-[#3F0D28]/10 rounded-full">
+              <AlertCircle className="h-6 w-6 text-[#3F0D28]" />
             </div>
             <h2 className="text-xl font-semibold text-gray-900">Form Not Found</h2>
           </div>
@@ -89,8 +90,18 @@ export default function PublicFormView() {
   // If sequential, use SequentialQuestion component
   if (isSequential) {
     return (
-      <div className="min-h-screen">
-        <SequentialQuestion form={form} isPublicView={true} />
+      <div className="min-h-screen flex flex-col">
+        <div className="flex-grow">
+          <SequentialQuestion form={form} isPublicView={true} />
+        </div>
+        {/* Legal Footer for Sequential Forms */}
+        <div className="bg-gray-50 px-8 py-4 border-t border-gray-100">
+          <LegalFooter
+            variant="form"
+            showBranding={form.settings?.share?.hideBranding !== true}
+            showConsentText={true}
+          />
+        </div>
       </div>
     );
   }
@@ -101,7 +112,7 @@ export default function PublicFormView() {
       <div className="max-w-3xl mx-auto">
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           {/* Form Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 text-white">
+          <div className="bg-gradient-to-r bg-[#3F0D28] px-8 py-6 text-white">
             {form.settings?.share?.showTitle !== false && (
               <h1 className="text-3xl font-bold mb-2">{form.title}</h1>
             )}
@@ -146,7 +157,7 @@ export default function PublicFormView() {
                   <div key={question.id} className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">
                       {question.title}
-                      {question.required && <span className="text-red-500 ml-1">*</span>}
+                      {question.required && <span className="text-[#3F0D28] ml-1">*</span>}
                     </label>
 
                     {question.description && (
@@ -213,7 +224,7 @@ export default function PublicFormView() {
                               name={question.id}
                               value={option}
                               required={question.required}
-                              className="text-blue-600 focus:ring-blue-500"
+                              className="text-[#3F0D28] focus:ring-blue-500"
                             />
                             <span className="text-sm text-gray-700">{option}</span>
                           </label>
@@ -229,7 +240,7 @@ export default function PublicFormView() {
                               type="checkbox"
                               name={`${question.id}[]`}
                               value={option}
-                              className="rounded text-blue-600 focus:ring-blue-500"
+                              className="rounded text-[#3F0D28] focus:ring-blue-500"
                             />
                             <span className="text-sm text-gray-700">{option}</span>
                           </label>
@@ -287,7 +298,7 @@ export default function PublicFormView() {
               <div className="mt-8 pt-6 border-t border-gray-200">
                 <button
                   type="submit"
-                  className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg"
+                  className="w-full px-6 py-3 bg-[#3F0D28] hover:bg-[#5a1a3a] text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg"
                 >
                   Submit
                 </button>
@@ -295,14 +306,14 @@ export default function PublicFormView() {
             </form>
           </div>
 
-          {/* Form Footer */}
-          {form.settings?.share?.hideBranding !== true && (
-            <div className="bg-gray-50 px-8 py-4 border-t border-gray-200">
-              <p className="text-xs text-gray-500 text-center">
-                Powered by <span className="font-semibold text-gray-700">Axolop CRM</span>
-              </p>
-            </div>
-          )}
+          {/* Form Footer with Legal Links */}
+          <div className="bg-gray-50 px-8 py-4 border-t border-gray-200">
+            <LegalFooter
+              variant="form"
+              showBranding={form.settings?.share?.hideBranding !== true}
+              showConsentText={true}
+            />
+          </div>
         </div>
       </div>
     </div>

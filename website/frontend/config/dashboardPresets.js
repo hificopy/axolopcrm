@@ -15,20 +15,17 @@ const presetConfigs = {
     name: 'Default Dashboard',
     description: 'Overview of key metrics',
     widgets: [
-      // Top row - Revenue chart and metrics (y: 0-4)
-      { i: 'revenue-chart', x: 0, y: 0, w: 7, h: 5, minW: 4, minH: 3, component: 'RevenueChart', props: { title: 'Revenue Overview' } },
-      { i: 'metric-1', x: 7, y: 0, w: 5, h: 2, minW: 2, minH: 2, component: 'MetricCard', props: { title: 'Total Revenue', color: 'accent' } },
-      { i: 'metric-2', x: 7, y: 2, w: 2, h: 2, minW: 2, minH: 2, component: 'MetricCard', props: { title: 'Active Deals', color: 'blue' } },
-      { i: 'metric-3', x: 9, y: 2, w: 3, h: 2, minW: 2, minH: 2, component: 'MetricCard', props: { title: 'New Leads', color: 'green' } },
-      { i: 'metric-4', x: 7, y: 4, w: 5, h: 2, minW: 2, minH: 2, component: 'MetricCard', props: { title: 'Conversion Rate', color: 'yellow' } },
+      // Top row - Revenue chart and Profit Margin side-by-side
+      { i: 'revenue-chart', x: 0, y: 0, w: 7, h: 5, minW: 4, minH: 4, component: 'RevenueChart', props: { title: 'Revenue Overview' } },
+      { i: 'profit-margin', x: 7, y: 0, w: 5, h: 5, minW: 3, minH: 4, component: 'ProfitMarginWidget' },
 
-      // Middle row - Complex widgets (y: 6-10)
-      { i: 'profit-margin', x: 0, y: 6, w: 6, h: 5, minW: 3, minH: 3, component: 'ProfitMarginWidget' },
-      { i: 'conversion-funnel', x: 6, y: 6, w: 6, h: 5, minW: 3, minH: 3, component: 'ConversionFunnelWidget' },
+      // Middle row - Conversion Funnel and Full Sales Widget
+      { i: 'conversion-funnel', x: 0, y: 5, w: 5, h: 5, minW: 4, minH: 5, component: 'ConversionFunnelWidget' },
+      { i: 'full-sales', x: 5, y: 5, w: 7, h: 5, minW: 5, minH: 5, component: 'FullSalesWidget' },
 
-      // Bottom row - Marketing widgets (y: 11-14)
-      { i: 'form-submissions', x: 0, y: 11, w: 6, h: 4, minW: 3, minH: 3, component: 'FormSubmissionsWidget' },
-      { i: 'email-marketing', x: 6, y: 11, w: 6, h: 4, minW: 3, minH: 3, component: 'EmailMarketingWidget' },
+      // Bottom row - Marketing widgets for lead generation insights
+      { i: 'full-marketing', x: 0, y: 10, w: 6, h: 5, minW: 4, minH: 5, component: 'FullMarketingWidget' },
+      { i: 'form-submissions', x: 6, y: 10, w: 6, h: 5, minW: 4, minH: 4, component: 'FormSubmissionsWidget' },
     ]
   },
   sales: {

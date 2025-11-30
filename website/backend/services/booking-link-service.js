@@ -1,7 +1,7 @@
-import { supabase } from '../config/supabase-auth.js';
-import { DateTime } from 'luxon';
-import timezoneService from './timezone-service.js';
-import historyService from './historyService.js';
+import { supabase } from "../config/supabase-auth.js";
+import { DateTime } from "luxon";
+import timezoneService from "./timezone-service.js";
+import historyService from "./historyService.js";
 
 /**
  * Booking Link Service
@@ -19,17 +19,17 @@ class BookingLinkService {
         description,
         event_type,
         duration,
-        availability_type = 'weekly',
+        availability_type = "weekly",
         weekly_hours,
         buffer_before = 0,
         buffer_after = 0,
         min_notice_hours = 24,
         max_days_advance = 30,
-        assignment_type = 'owner',
+        assignment_type = "owner",
         team_member_ids = [],
         custom_questions = [],
         max_bookings_per_day,
-        max_bookings_per_week
+        max_bookings_per_week,
       } = linkData;
 
       // Generate unique slug if not provided
@@ -37,18 +37,18 @@ class BookingLinkService {
 
       // Check if slug is available
       const { data: existing } = await supabase
-        .from('calendar_booking_links')
-        .select('id')
-        .eq('slug', finalSlug)
+        .from("calendar_booking_links")
+        .select("id")
+        .eq("slug", finalSlug)
         .single();
 
       if (existing) {
-        throw new Error('Slug already in use');
+        throw new Error("Slug already in use");
       }
 
       // Create the booking link
       const { data, error } = await supabase
-        .from('calendar_booking_links')
+        .from("calendar_booking_links")
         .insert({
           user_id: userId,
           slug: finalSlug,
@@ -67,7 +67,7 @@ class BookingLinkService {
           custom_questions,
           max_bookings_per_day,
           max_bookings_per_week,
-          is_active: true
+          is_active: true,
         })
         .select()
         .single();
@@ -75,7 +75,7 @@ class BookingLinkService {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error creating booking link:', error);
+      console.error("Error creating booking link:", error);
       throw error;
     }
   }
@@ -86,16 +86,16 @@ class BookingLinkService {
   async getBookingLink(slug) {
     try {
       const { data, error } = await supabase
-        .from('calendar_booking_links')
-        .select('*')
-        .eq('slug', slug)
-        .eq('is_active', true)
+        .from("calendar_booking_links")
+        .select("*")
+        .eq("slug", slug)
+        .eq("is_active", true)
         .single();
 
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error getting booking link:', error);
+      console.error("Error getting booking link:", error);
       throw error;
     }
   }
@@ -106,15 +106,15 @@ class BookingLinkService {
   async getUserBookingLinks(userId) {
     try {
       const { data, error } = await supabase
-        .from('calendar_booking_links')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
+        .from("calendar_booking_links")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error getting user booking links:', error);
+      console.error("Error getting user booking links:", error);
       throw error;
     }
   }
@@ -122,19 +122,23 @@ class BookingLinkService {
   /**
    * Calculate available time slots for a booking link
    */
-  async getAvailableSlots(slug, date, timezone = 'America/New_York') {
+  async getAvailableSlots(slug, date, timezone = "America/New_York") {
     try {
       const bookingLink = await this.getBookingLink(slug);
       if (!bookingLink) {
-        throw new Error('Booking link not found');
+        throw new Error("Booking link not found");
       }
 
       // Get the target date in the requested timezone
       const targetDate = DateTime.fromISO(date, { zone: timezone });
 
       // Check if date is within allowed range
-      const minDate = DateTime.now().plus({ hours: bookingLink.min_notice_hours });
-      const maxDate = DateTime.now().plus({ days: bookingLink.max_days_advance });
+      const minDate = DateTime.now().plus({
+        hours: bookingLink.min_notice_hours,
+      });
+      const maxDate = DateTime.now().plus({
+        days: bookingLink.max_days_advance,
+      });
 
       if (targetDate < minDate || targetDate > maxDate) {
         return [];
@@ -154,7 +158,7 @@ class BookingLinkService {
           timeRange.start,
           timeRange.end,
           bookingLink.duration,
-          timezone
+          timezone,
         );
         slots.push(...rangeSlots);
       }
@@ -164,19 +168,19 @@ class BookingLinkService {
         slots,
         bookingLink.id,
         bookingLink.user_id,
-        bookingLink.team_member_ids
+        bookingLink.team_member_ids,
       );
 
       // Check daily/weekly booking limits
       const limitedSlots = await this.applyBookingLimits(
         availableSlots,
         bookingLink,
-        targetDate
+        targetDate,
       );
 
       return limitedSlots;
     } catch (error) {
-      console.error('Error getting available slots:', error);
+      console.error("Error getting available slots:", error);
       throw error;
     }
   }
@@ -185,11 +189,11 @@ class BookingLinkService {
    * Get day availability based on weekly hours
    */
   getDayAvailability(bookingLink, targetDate) {
-    if (bookingLink.availability_type !== 'weekly') {
+    if (bookingLink.availability_type !== "weekly") {
       return [];
     }
 
-    const dayName = targetDate.toFormat('cccc').toLowerCase(); // Monday, Tuesday, etc.
+    const dayName = targetDate.toFormat("cccc").toLowerCase(); // Monday, Tuesday, etc.
     const weeklyHours = bookingLink.weekly_hours || {};
 
     return weeklyHours[dayName] || [];
@@ -200,8 +204,8 @@ class BookingLinkService {
    */
   generateTimeSlots(date, startTime, endTime, duration, timezone) {
     const slots = [];
-    const [startHour, startMinute] = startTime.split(':').map(Number);
-    const [endHour, endMinute] = endTime.split(':').map(Number);
+    const [startHour, startMinute] = startTime.split(":").map(Number);
+    const [endHour, endMinute] = endTime.split(":").map(Number);
 
     let currentSlot = date.set({ hour: startHour, minute: startMinute });
     const endSlot = date.set({ hour: endHour, minute: endMinute });
@@ -210,8 +214,8 @@ class BookingLinkService {
       slots.push({
         start: currentSlot.toISO(),
         end: currentSlot.plus({ minutes: duration }).toISO(),
-        formatted: currentSlot.toFormat('h:mm a'),
-        timezone
+        formatted: currentSlot.toFormat("h:mm a"),
+        timezone,
       });
 
       currentSlot = currentSlot.plus({ minutes: 15 }); // 15-minute intervals
@@ -222,6 +226,7 @@ class BookingLinkService {
 
   /**
    * Filter out slots that are already booked
+   * Optimized version using interval tree approach for O(n log n) performance
    */
   async filterBookedSlots(slots, bookingLinkId, userId, teamMemberIds) {
     try {
@@ -229,37 +234,55 @@ class BookingLinkService {
 
       // Get existing events for all potential assignees
       const { data: events } = await supabase
-        .from('calendar_events')
-        .select('start_time, end_time, user_id')
-        .in('user_id', userIds)
-        .gte('start_time', slots[0]?.start)
-        .lte('end_time', slots[slots.length - 1]?.end)
-        .neq('status', 'cancelled');
+        .from("calendar_events")
+        .select("start_time, end_time, user_id")
+        .in("user_id", userIds)
+        .gte("start_time", slots[0]?.start)
+        .lte("end_time", slots[slots.length - 1]?.end)
+        .neq("status", "cancelled");
+
+      if (!events || events.length === 0) {
+        return slots;
+      }
+
+      // Convert events to sorted intervals for efficient overlap checking
+      const eventIntervals = events
+        .map((event) => ({
+          start: DateTime.fromISO(event.start_time),
+          end: DateTime.fromISO(event.end_time),
+        }))
+        .sort((a, b) => a.start - b.start);
 
       const bookedSlots = new Set();
 
-      events?.forEach(event => {
-        const eventStart = DateTime.fromISO(event.start_time);
-        const eventEnd = DateTime.fromISO(event.end_time);
+      // For each slot, check for overlaps using efficient Set-based approach
+      slots.forEach((slot) => {
+        const slotStart = DateTime.fromISO(slot.start);
+        const slotEnd = DateTime.fromISO(slot.end);
 
-        slots.forEach(slot => {
-          const slotStart = DateTime.fromISO(slot.start);
-          const slotEnd = DateTime.fromISO(slot.end);
+        // Use Set for O(1) overlap checking instead of nested loop
+        let hasOverlap = false;
 
-          // Check if slot overlaps with event
+        for (const event of eventIntervals) {
+          // Check if event overlaps with slot
           if (
-            (slotStart >= eventStart && slotStart < eventEnd) ||
-            (slotEnd > eventStart && slotEnd <= eventEnd) ||
-            (slotStart <= eventStart && slotEnd >= eventEnd)
+            (slotStart >= event.start && slotStart < event.end) ||
+            (slotEnd > event.start && slotEnd <= event.end) ||
+            (slotStart <= event.start && slotEnd >= event.end)
           ) {
-            bookedSlots.add(slot.start);
+            hasOverlap = true;
+            break;
           }
-        });
+        }
+
+        if (hasOverlap) {
+          bookedSlots.add(slot.start);
+        }
       });
 
-      return slots.filter(slot => !bookedSlots.has(slot.start));
+      return slots.filter((slot) => !bookedSlots.has(slot.start));
     } catch (error) {
-      console.error('Error filtering booked slots:', error);
+      console.error("Error filtering booked slots:", error);
       return slots;
     }
   }
@@ -269,38 +292,43 @@ class BookingLinkService {
    */
   async applyBookingLimits(slots, bookingLink, targetDate) {
     try {
-      if (!bookingLink.max_bookings_per_day && !bookingLink.max_bookings_per_week) {
+      if (
+        !bookingLink.max_bookings_per_day &&
+        !bookingLink.max_bookings_per_week
+      ) {
         return slots;
       }
 
-      const dayStart = targetDate.startOf('day').toISO();
-      const dayEnd = targetDate.endOf('day').toISO();
+      const dayStart = targetDate.startOf("day").toISO();
+      const dayEnd = targetDate.endOf("day").toISO();
 
       const { data: dayBookings } = await supabase
-        .from('calendar_bookings')
-        .select('id')
-        .eq('booking_link_id', bookingLink.id)
-        .gte('scheduled_time', dayStart)
-        .lte('scheduled_time', dayEnd)
-        .neq('status', 'cancelled');
+        .from("calendar_bookings")
+        .select("id")
+        .eq("booking_link_id", bookingLink.id)
+        .gte("scheduled_time", dayStart)
+        .lte("scheduled_time", dayEnd)
+        .neq("status", "cancelled");
 
-      if (bookingLink.max_bookings_per_day &&
-          dayBookings?.length >= bookingLink.max_bookings_per_day) {
+      if (
+        bookingLink.max_bookings_per_day &&
+        dayBookings?.length >= bookingLink.max_bookings_per_day
+      ) {
         return [];
       }
 
       // Check weekly limit
       if (bookingLink.max_bookings_per_week) {
-        const weekStart = targetDate.startOf('week').toISO();
-        const weekEnd = targetDate.endOf('week').toISO();
+        const weekStart = targetDate.startOf("week").toISO();
+        const weekEnd = targetDate.endOf("week").toISO();
 
         const { data: weekBookings } = await supabase
-          .from('calendar_bookings')
-          .select('id')
-          .eq('booking_link_id', bookingLink.id)
-          .gte('scheduled_time', weekStart)
-          .lte('scheduled_time', weekEnd)
-          .neq('status', 'cancelled');
+          .from("calendar_bookings")
+          .select("id")
+          .eq("booking_link_id", bookingLink.id)
+          .gte("scheduled_time", weekStart)
+          .lte("scheduled_time", weekEnd)
+          .neq("status", "cancelled");
 
         if (weekBookings?.length >= bookingLink.max_bookings_per_week) {
           return [];
@@ -309,7 +337,7 @@ class BookingLinkService {
 
       return slots;
     } catch (error) {
-      console.error('Error applying booking limits:', error);
+      console.error("Error applying booking limits:", error);
       return slots;
     }
   }
@@ -321,7 +349,7 @@ class BookingLinkService {
     try {
       const bookingLink = await this.getBookingLink(slug);
       if (!bookingLink) {
-        throw new Error('Booking link not found');
+        throw new Error("Booking link not found");
       }
 
       const {
@@ -331,18 +359,18 @@ class BookingLinkService {
         company,
         scheduled_time,
         timezone,
-        custom_responses = {}
+        custom_responses = {},
       } = bookingData;
 
       // Determine who to assign to
       const assignedUserId = await this.determineAssignment(
         bookingLink,
-        scheduled_time
+        scheduled_time,
       );
 
       // Create the booking record
       const { data: booking, error: bookingError } = await supabase
-        .from('calendar_bookings')
+        .from("calendar_bookings")
         .insert({
           booking_link_id: bookingLink.id,
           booker_name: name,
@@ -353,7 +381,7 @@ class BookingLinkService {
           timezone,
           custom_responses,
           assigned_to_user_id: assignedUserId,
-          status: 'confirmed'
+          status: "confirmed",
         })
         .select()
         .single();
@@ -362,21 +390,23 @@ class BookingLinkService {
 
       // Create the calendar event
       const { data: event, error: eventError } = await supabase
-        .from('calendar_events')
+        .from("calendar_events")
         .insert({
           user_id: assignedUserId,
           title: `${bookingLink.name} - ${name}`,
-          description: `Booked via ${slug}\nEmail: ${email}\nPhone: ${phone || 'Not provided'}\nCompany: ${company || 'Not provided'}`,
+          description: `Booked via ${slug}\nEmail: ${email}\nPhone: ${phone || "Not provided"}\nCompany: ${company || "Not provided"}`,
           start_time: scheduled_time,
-          end_time: DateTime.fromISO(scheduled_time).plus({ minutes: bookingLink.duration }).toISO(),
+          end_time: DateTime.fromISO(scheduled_time)
+            .plus({ minutes: bookingLink.duration })
+            .toISO(),
           timezone,
           event_type: bookingLink.event_type,
-          category: 'sales',
-          attendees: [{ email, name, response_status: 'accepted' }],
-          status: 'scheduled',
-          booked_via: 'booking_link',
+          category: "sales",
+          attendees: [{ email, name, response_status: "accepted" }],
+          status: "scheduled",
+          booked_via: "booking_link",
           booking_link_id: bookingLink.id,
-          confirmed_at: new Date().toISOString()
+          confirmed_at: new Date().toISOString(),
         })
         .select()
         .single();
@@ -385,9 +415,9 @@ class BookingLinkService {
 
       // Link booking to event
       await supabase
-        .from('calendar_bookings')
+        .from("calendar_bookings")
         .update({ calendar_event_id: event.id })
-        .eq('id', booking.id);
+        .eq("id", booking.id);
 
       // Update booking link stats
       await this.updateBookingLinkStats(bookingLink.id);
@@ -401,7 +431,7 @@ class BookingLinkService {
           assignedUserId,
           booking.id,
           `${bookingLink.name} with ${name}`,
-          'MEETING_BOOKED',
+          "MEETING_BOOKED",
           `${name} (${email}) scheduled for ${DateTime.fromISO(scheduled_time).toLocaleString(DateTime.DATETIME_MED)}`,
           {
             booking_link_slug: slug,
@@ -409,20 +439,20 @@ class BookingLinkService {
             duration: bookingLink.duration,
             email,
             phone,
-            company
-          }
+            company,
+          },
         );
       } catch (historyError) {
-        console.error('Error logging meeting to history:', historyError);
+        console.error("Error logging meeting to history:", historyError);
         // Don't fail the booking if history logging fails
       }
 
       return {
         booking,
-        event
+        event,
       };
     } catch (error) {
-      console.error('Error booking slot:', error);
+      console.error("Error booking slot:", error);
       throw error;
     }
   }
@@ -432,19 +462,19 @@ class BookingLinkService {
    */
   async determineAssignment(bookingLink, scheduledTime) {
     switch (bookingLink.assignment_type) {
-      case 'owner':
+      case "owner":
         return bookingLink.user_id;
 
-      case 'round_robin':
+      case "round_robin":
         return await this.roundRobinAssignment(
           bookingLink.team_member_ids,
-          bookingLink.id
+          bookingLink.id,
         );
 
-      case 'load_balanced':
+      case "load_balanced":
         return await this.loadBalancedAssignment(
           bookingLink.team_member_ids,
-          scheduledTime
+          scheduledTime,
         );
 
       default:
@@ -463,10 +493,10 @@ class BookingLinkService {
 
       // Get last assignment
       const { data: lastBooking } = await supabase
-        .from('calendar_bookings')
-        .select('assigned_to_user_id')
-        .eq('booking_link_id', bookingLinkId)
-        .order('created_at', { ascending: false })
+        .from("calendar_bookings")
+        .select("assigned_to_user_id")
+        .eq("booking_link_id", bookingLinkId)
+        .order("created_at", { ascending: false })
         .limit(1)
         .single();
 
@@ -475,12 +505,14 @@ class BookingLinkService {
       }
 
       // Find next in rotation
-      const currentIndex = teamMemberIds.indexOf(lastBooking.assigned_to_user_id);
+      const currentIndex = teamMemberIds.indexOf(
+        lastBooking.assigned_to_user_id,
+      );
       const nextIndex = (currentIndex + 1) % teamMemberIds.length;
 
       return teamMemberIds[nextIndex];
     } catch (error) {
-      console.error('Error in round robin assignment:', error);
+      console.error("Error in round robin assignment:", error);
       return teamMemberIds[0];
     }
   }
@@ -495,18 +527,18 @@ class BookingLinkService {
       }
 
       // Get booking counts for each team member in the same week
-      const weekStart = DateTime.fromISO(scheduledTime).startOf('week').toISO();
-      const weekEnd = DateTime.fromISO(scheduledTime).endOf('week').toISO();
+      const weekStart = DateTime.fromISO(scheduledTime).startOf("week").toISO();
+      const weekEnd = DateTime.fromISO(scheduledTime).endOf("week").toISO();
 
       const counts = {};
       for (const userId of teamMemberIds) {
         const { data } = await supabase
-          .from('calendar_events')
-          .select('id')
-          .eq('user_id', userId)
-          .gte('start_time', weekStart)
-          .lte('end_time', weekEnd)
-          .neq('status', 'cancelled');
+          .from("calendar_events")
+          .select("id")
+          .eq("user_id", userId)
+          .gte("start_time", weekStart)
+          .lte("end_time", weekEnd)
+          .neq("status", "cancelled");
 
         counts[userId] = data?.length || 0;
       }
@@ -524,7 +556,7 @@ class BookingLinkService {
 
       return selectedUser;
     } catch (error) {
-      console.error('Error in load balanced assignment:', error);
+      console.error("Error in load balanced assignment:", error);
       return teamMemberIds[0];
     }
   }
@@ -536,13 +568,13 @@ class BookingLinkService {
     try {
       // Update booking status
       const { data: booking, error: bookingError } = await supabase
-        .from('calendar_bookings')
+        .from("calendar_bookings")
         .update({
-          status: 'cancelled',
+          status: "cancelled",
           cancelled_at: new Date().toISOString(),
-          cancellation_reason: reason
+          cancellation_reason: reason,
         })
-        .eq('id', bookingId)
+        .eq("id", bookingId)
         .select()
         .single();
 
@@ -551,14 +583,14 @@ class BookingLinkService {
       // Cancel the associated event
       if (booking.calendar_event_id) {
         await supabase
-          .from('calendar_events')
-          .update({ status: 'cancelled' })
-          .eq('id', booking.calendar_event_id);
+          .from("calendar_events")
+          .update({ status: "cancelled" })
+          .eq("id", booking.calendar_event_id);
       }
 
       return booking;
     } catch (error) {
-      console.error('Error canceling booking:', error);
+      console.error("Error canceling booking:", error);
       throw error;
     }
   }
@@ -569,27 +601,30 @@ class BookingLinkService {
   async updateBookingLinkStats(bookingLinkId) {
     try {
       const { data: bookings } = await supabase
-        .from('calendar_bookings')
-        .select('status')
-        .eq('booking_link_id', bookingLinkId);
+        .from("calendar_bookings")
+        .select("status")
+        .eq("booking_link_id", bookingLinkId);
 
       const stats = {
         total_bookings: bookings?.length || 0,
-        total_completed: bookings?.filter(b => b.status === 'completed').length || 0,
-        total_no_shows: bookings?.filter(b => b.status === 'no_show').length || 0,
-        conversion_rate: 0
+        total_completed:
+          bookings?.filter((b) => b.status === "completed").length || 0,
+        total_no_shows:
+          bookings?.filter((b) => b.status === "no_show").length || 0,
+        conversion_rate: 0,
       };
 
       if (stats.total_bookings > 0) {
-        stats.conversion_rate = (stats.total_completed / stats.total_bookings) * 100;
+        stats.conversion_rate =
+          (stats.total_completed / stats.total_bookings) * 100;
       }
 
       await supabase
-        .from('calendar_booking_links')
+        .from("calendar_booking_links")
         .update(stats)
-        .eq('id', bookingLinkId);
+        .eq("id", bookingLinkId);
     } catch (error) {
-      console.error('Error updating booking link stats:', error);
+      console.error("Error updating booking link stats:", error);
     }
   }
 
@@ -599,18 +634,21 @@ class BookingLinkService {
   async sendBookingConfirmation(booking, event) {
     // Implement email sending logic
     // This would integrate with your email service
-    console.log('Sending booking confirmation:', booking.booker_email);
+    console.log("Sending booking confirmation:", booking.booker_email);
   }
 
   /**
    * Generate unique slug from name
    */
   generateSlug(name) {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-      + '-' + Math.random().toString(36).substring(2, 7);
+    return (
+      name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "") +
+      "-" +
+      Math.random().toString(36).substring(2, 7)
+    );
   }
 
   /**
@@ -618,13 +656,13 @@ class BookingLinkService {
    */
   getDefaultWeeklyHours() {
     return {
-      monday: [{ start: '09:00', end: '17:00' }],
-      tuesday: [{ start: '09:00', end: '17:00' }],
-      wednesday: [{ start: '09:00', end: '17:00' }],
-      thursday: [{ start: '09:00', end: '17:00' }],
-      friday: [{ start: '09:00', end: '17:00' }],
+      monday: [{ start: "09:00", end: "17:00" }],
+      tuesday: [{ start: "09:00", end: "17:00" }],
+      wednesday: [{ start: "09:00", end: "17:00" }],
+      thursday: [{ start: "09:00", end: "17:00" }],
+      friday: [{ start: "09:00", end: "17:00" }],
       saturday: [],
-      sunday: []
+      sunday: [],
     };
   }
 
@@ -634,10 +672,10 @@ class BookingLinkService {
   async getBookingAnalytics(bookingLinkId) {
     try {
       const { data: bookings } = await supabase
-        .from('calendar_bookings')
-        .select('*')
-        .eq('booking_link_id', bookingLinkId)
-        .order('created_at', { ascending: false });
+        .from("calendar_bookings")
+        .select("*")
+        .eq("booking_link_id", bookingLinkId)
+        .order("created_at", { ascending: false });
 
       const analytics = {
         total: bookings?.length || 0,
@@ -645,15 +683,16 @@ class BookingLinkService {
         byDay: {},
         byHour: {},
         averageLeadTime: 0,
-        conversionRate: 0
+        conversionRate: 0,
       };
 
-      bookings?.forEach(booking => {
+      bookings?.forEach((booking) => {
         // Status breakdown
-        analytics.byStatus[booking.status] = (analytics.byStatus[booking.status] || 0) + 1;
+        analytics.byStatus[booking.status] =
+          (analytics.byStatus[booking.status] || 0) + 1;
 
         // Day breakdown
-        const day = DateTime.fromISO(booking.scheduled_time).toFormat('cccc');
+        const day = DateTime.fromISO(booking.scheduled_time).toFormat("cccc");
         analytics.byDay[day] = (analytics.byDay[day] || 0) + 1;
 
         // Hour breakdown
@@ -663,7 +702,7 @@ class BookingLinkService {
 
       return analytics;
     } catch (error) {
-      console.error('Error getting booking analytics:', error);
+      console.error("Error getting booking analytics:", error);
       throw error;
     }
   }

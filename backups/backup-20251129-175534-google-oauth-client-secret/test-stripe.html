@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Test Stripe Integration</title>
+  </head>
+  <body>
+    <h1>Stripe Integration Test</h1>
+    <p>Testing the Stripe checkout endpoint...</p>
+
+    <button onclick="testStripeCheckout()">Test Create Checkout Session</button>
+    <div id="result"></div>
+
+    <script>
+      async function testStripeCheckout() {
+        const resultDiv = document.getElementById("result");
+
+        try {
+          // First, we need to get a session token
+          // For testing, let's try without auth first
+
+          const response = await fetch("/api/v1/stripe/create-trial-checkout", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              plan: "sales",
+              billingCycle: "yearly",
+            }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.success) {
+            resultDiv.innerHTML = `
+                        <h3>✅ Success!</h3>
+                        <p>Session ID: ${data.sessionId}</p>
+                        <p>Checkout URL: <a href="${data.url}" target="_blank">${data.url}</a></p>
+                    `;
+          } else {
+            resultDiv.innerHTML = `
+                        <h3>❌ Error</h3>
+                        <p>Status: ${response.status}</p>
+                        <p>Error: ${data.error || "Unknown error"}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+          }
+        } catch (error) {
+          resultDiv.innerHTML = `
+                    <h3>❌ Network Error</h3>
+                    <p>${error.message}</p>
+                `;
+        }
+      }
+    </script>
+  </body>
+</html>

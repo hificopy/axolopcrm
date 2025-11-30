@@ -1,6 +1,12 @@
-import { motion } from 'framer-motion';
-import { Mail, Send, Eye, MousePointer } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { motion } from "framer-motion";
+import { Mail, Send, Eye, MousePointer } from "lucide-react";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 
 export default function EmailMarketingWidget({ data }) {
   const {
@@ -9,31 +15,34 @@ export default function EmailMarketingWidget({ data }) {
     opened = 0,
     clicked = 0,
     openRate = 0,
-    clickRate = 0
+    clickRate = 0,
   } = data || {};
 
   const metrics = [
     {
-      label: 'Sent',
+      label: "Sent",
       value: sent,
       icon: Send,
-      color: 'text-[#761B14] dark:text-[#d4463c]',
-      bgColor: 'bg-red-50/50 dark:bg-red-950/20 border border-red-100/50 dark:border-red-900/30'
+      color: "text-[#3F0D28] dark:text-[#3F0D28]",
+      bgColor:
+        "bg-red-50/50 dark:bg-red-950/20 border border-red-100/50 dark:border-red-900/30",
     },
     {
-      label: 'Opened',
+      label: "Opened",
       value: opened,
       icon: Eye,
-      color: 'text-emerald-600 dark:text-emerald-400',
-      bgColor: 'bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100/50 dark:border-emerald-900/30'
+      color: "text-emerald-600 dark:text-emerald-400",
+      bgColor:
+        "bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100/50 dark:border-emerald-900/30",
     },
     {
-      label: 'Clicked',
+      label: "Clicked",
       value: clicked,
       icon: MousePointer,
-      color: 'text-amber-600 dark:text-amber-400',
-      bgColor: 'bg-amber-50/50 dark:bg-amber-950/20 border border-amber-100/50 dark:border-amber-900/30'
-    }
+      color: "text-amber-600 dark:text-amber-400",
+      bgColor:
+        "bg-amber-50/50 dark:bg-amber-950/20 border border-amber-100/50 dark:border-amber-900/30",
+    },
   ];
 
   return (
@@ -49,23 +58,25 @@ export default function EmailMarketingWidget({ data }) {
         <div className="absolute inset-0 bg-gradient-to-br from-green-50/50 to-emerald-50/50 dark:from-green-950/10 dark:to-emerald-950/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
         <CardHeader className="relative z-10">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <motion.div
-              className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-green to-green-600 flex items-center justify-center shadow-lg"
+              className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-green to-green-600 flex items-center justify-center flex-shrink-0 shadow-lg"
               whileHover={{ rotate: 12, scale: 1.1 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <Mail className="h-5 w-5 text-white" />
+              <Mail className="h-4 w-4 text-white" />
             </motion.div>
             <div>
-              <CardTitle className="text-lg">Email Marketing</CardTitle>
-              <CardDescription className="text-xs">Campaign Performance</CardDescription>
+              <CardTitle className="text-base font-semibold">Email Marketing</CardTitle>
+              <CardDescription className="text-xs">
+                Campaign Performance
+              </CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="flex-1 space-y-4 relative z-10">
           {/* Metrics Grid */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2">
             {metrics.map((metric, index) => (
               <motion.div
                 key={metric.label}
@@ -75,9 +86,15 @@ export default function EmailMarketingWidget({ data }) {
                 whileHover={{ scale: 1.05, y: -2 }}
                 className={`${metric.bgColor} rounded-lg p-3 text-center backdrop-blur-sm hover:shadow-md transition-shadow`}
               >
-                <metric.icon className={`h-5 w-5 ${metric.color} mx-auto mb-1`} />
-                <div className="text-xs text-crm-text-secondary mb-1">{metric.label}</div>
-                <div className="text-lg font-bold text-crm-text-primary">{metric.value.toLocaleString()}</div>
+                <metric.icon
+                  className={`h-5 w-5 ${metric.color} mx-auto mb-1`}
+                />
+                <div className="text-xs text-crm-text-secondary mb-1">
+                  {metric.label}
+                </div>
+                <div className="text-lg font-bold text-crm-text-primary">
+                  {metric.value.toLocaleString()}
+                </div>
               </motion.div>
             ))}
           </div>
@@ -86,8 +103,12 @@ export default function EmailMarketingWidget({ data }) {
           <div className="space-y-3">
             <div>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-sm text-crm-text-secondary">Open Rate</span>
-                <span className="text-sm font-semibold text-crm-text-primary">{openRate.toFixed(1)}%</span>
+                <span className="text-sm text-crm-text-secondary">
+                  Open Rate
+                </span>
+                <span className="text-sm font-semibold text-crm-text-primary">
+                  {openRate.toFixed(1)}%
+                </span>
               </div>
               <div className="h-2 bg-gray-100 dark:bg-gray-800/50 rounded-full overflow-hidden">
                 <motion.div
@@ -101,8 +122,12 @@ export default function EmailMarketingWidget({ data }) {
 
             <div>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-sm text-crm-text-secondary">Click Rate</span>
-                <span className="text-sm font-semibold text-crm-text-primary">{clickRate.toFixed(1)}%</span>
+                <span className="text-sm text-crm-text-secondary">
+                  Click Rate
+                </span>
+                <span className="text-sm font-semibold text-crm-text-primary">
+                  {clickRate.toFixed(1)}%
+                </span>
               </div>
               <div className="h-2 bg-gray-100 dark:bg-gray-800/50 rounded-full overflow-hidden">
                 <motion.div
@@ -116,7 +141,9 @@ export default function EmailMarketingWidget({ data }) {
 
             <div>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-sm text-crm-text-secondary">Delivery Rate</span>
+                <span className="text-sm text-crm-text-secondary">
+                  Delivery Rate
+                </span>
                 <span className="text-sm font-semibold text-crm-text-primary">
                   {sent > 0 ? ((delivered / sent) * 100).toFixed(1) : 0}%
                 </span>
@@ -124,7 +151,9 @@ export default function EmailMarketingWidget({ data }) {
               <div className="h-2 bg-gray-100 dark:bg-gray-800/50 rounded-full overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
-                  animate={{ width: `${sent > 0 ? (delivered / sent) * 100 : 0}%` }}
+                  animate={{
+                    width: `${sent > 0 ? (delivered / sent) * 100 : 0}%`,
+                  }}
                   transition={{ duration: 1, delay: 0.7 }}
                   className="h-full bg-gradient-to-r from-primary to-red-600"
                 />

@@ -82,7 +82,7 @@ const DASHBOARD_TEMPLATES = {
 const TemplateCard = ({ template, onSelect, isSelected }) => {
   const Icon = template.icon;
   const colorClasses = {
-    blue: 'bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100',
+    blue: 'bg-blue-50 text-[#3F0D28] border-gray-200 hover:bg-blue-100',
     purple: 'bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-100',
     emerald: 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100',
     orange: 'bg-orange-50 text-orange-600 border-orange-200 hover:bg-orange-100',
@@ -196,7 +196,7 @@ export const DashboardSetupWizard = ({ isOpen, onClose, onSelectTemplate, onQuic
             <Button
               onClick={handleStartSetup}
               disabled={!selectedTemplate || isSettingUp}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-[#3F0D28] hover:bg-[#5a1a3a] text-white"
             >
               {isSettingUp ? (
                 <div className="flex items-center gap-2">
@@ -235,7 +235,7 @@ export const QuickStartButton = ({ onClick, showWizard = true }) => {
     <div className="fixed bottom-6 right-6 z-40">
       <Button
         onClick={onClick}
-        className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg px-6 py-3 rounded-full flex items-center gap-2 transition-all duration-200 hover:scale-105"
+        className="bg-[#3F0D28] hover:bg-[#5a1a3a] text-white shadow-lg px-6 py-3 rounded-full flex items-center gap-2 transition-all duration-200 hover:scale-105"
       >
         <Sparkles className="h-4 w-4" />
         {showWizard ? 'Setup Dashboard' : 'Get Started'}

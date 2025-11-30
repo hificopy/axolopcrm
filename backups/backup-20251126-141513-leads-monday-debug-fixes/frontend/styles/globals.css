@@ -1,0 +1,1050 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Prevent animation flicker for whileInView elements on landing page */
+/* Elements start hidden and Framer Motion animates them in */
+.landing-animate-in {
+  opacity: 0;
+}
+
+/* Smooth scroll behavior for landing page */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .landing-animate-in {
+    opacity: 1;
+  }
+}
+
+/* Dashboard widget - No scrollbar (hidden globally) */
+.dashboard-widget {
+  /* Scrollbars are hidden globally for clean, minimal look */
+}
+
+/* React Grid Layout improvements for smoother dragging */
+.react-grid-layout {
+  position: relative;
+  transition: height 200ms ease;
+}
+
+.react-grid-item {
+  transition: all 200ms ease;
+  transition-property: left, top, width, height;
+  will-change: left, top, width, height;
+}
+
+.react-grid-item img {
+  pointer-events: none;
+  user-select: none;
+}
+
+.react-grid-item > .react-resizable-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  z-index: 10;
+}
+
+.react-grid-item > .react-resizable-handle::after {
+  content: "";
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid rgba(74, 21, 21, 0.4);
+  border-bottom: 2px solid rgba(74, 21, 21, 0.4);
+  border-radius: 0 0 4px 0;
+}
+
+.react-grid-item.react-draggable-dragging {
+  transition: none;
+  z-index: 100;
+  will-change: transform;
+  opacity: 0.9;
+}
+
+.react-grid-item.react-grid-placeholder {
+  background: rgba(74, 21, 21, 0.1);
+  opacity: 0.5;
+  transition-duration: 100ms;
+  z-index: 2;
+  border-radius: 12px;
+  border: 2px dashed rgba(74, 21, 21, 0.3);
+}
+
+.react-grid-item > .react-resizable-handle:hover::after {
+  border-right-color: rgba(74, 21, 21, 0.8);
+  border-bottom-color: rgba(74, 21, 21, 0.8);
+}
+
+.react-grid-item.resizing {
+  transition: none;
+  z-index: 100;
+  will-change: width, height;
+}
+
+/* Improve drag handle cursor */
+.drag-handle {
+  cursor: move;
+  cursor: grab;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+@layer base {
+  :root {
+    /* Close CRM Color Variables */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    --primary: 0 56% 18%; /* #4A1515 - Dark Burgundy */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 10%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 10%;
+
+    --destructive: 0 56% 18%; /* Dark Burgundy #4A1515 - branded error color */
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 56% 18%; /* Dark Burgundy for focus rings */
+
+    /* Additional Close CRM Colors - Triadic Color Theory (Light & Vibrant) */
+    /* Base: Dark Burgundy #4A1515 (0° 56% 18%) */
+    /* Triadic harmony with high lightness for readability */
+    --primary-blue: 204 90% 58%; /* #5BB9F5 - Bright Sky Blue (triadic, light & readable) */
+    --primary-green: 142 65% 50%; /* #2DCE89 - Emerald Green (triadic, vibrant & distinct) */
+    --primary-yellow: 38 92% 58%; /* #F5A623 - Bright Saffron (analogous, warm & visible) */
+    --primary-black: 0 0% 6%; /* #101010 - Main black for Axolop */
+    --primary-accent: 0 56% 18%; /* #4A1515 - Dark Burgundy accent */
+    --crm-text-primary: 0 0% 6%; /* #101010 */
+    --crm-text-secondary: 0 0% 6%; /* #101010 */
+    --crm-bg-light: 0 0% 98%; /* #F7F7F7 */
+    --crm-border: 0 0% 90%; /* #E5E5E5 */
+    --crm-sidebar: 0 0% 6%; /* #101010 - Dark sidebar for Axolop */
+    --crm-sidebar-gradient-start: 4 85% 8%; /* Deep burgundy-black */
+    --crm-sidebar-gradient-mid: 0 0% 6%; /* Main black #101010 */
+    --crm-sidebar-gradient-end: 4 60% 10%; /* Warm dark accent */
+    --crm-sidebar-hover: 4 70% 15%; /* Warm hover with red undertones */
+    --crm-sidebar-active: 0 56% 18%; /* Dark Burgundy #4A1515 */
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 216 20% 5%;
+    --foreground: 0 0% 100%;
+
+    --card: 216 20% 5%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 216 20% 5%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 0 56% 28%; /* #4A1515 lighter for dark mode */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 56% 28%; /* Dark Burgundy #4A1515 lighter for dark mode - branded error color */
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 0 56% 28%; /* Dark Burgundy for dark mode focus rings */
+
+    /* Dark mode specific colors - Triadic Color Theory (Light & Vibrant) */
+    --primary-blue: 204 90% 65%; /* Brighter sky blue for dark mode */
+    --primary-green: 142 65% 58%; /* Brighter emerald green for dark mode */
+    --primary-yellow: 38 92% 65%; /* Brighter saffron for dark mode */
+    --primary-black: 0 0% 98%; /* #101010 equivalent in dark mode */
+    --primary-accent: 0 56% 28%; /* #4A1515 lighter in dark mode */
+    --crm-text-primary: 0 0% 100%;
+    --crm-text-secondary: 0 0% 100%;
+    --crm-bg-light: 216 20% 5%; /* Darker neutral background #0d0f12 */
+    --crm-border: 0 0% 20%;
+    /* Sidebar remains identical in both light and dark mode */
+    --crm-sidebar: 0 0% 6%; /* #101010 - Dark sidebar for Axolop */
+    --crm-sidebar-gradient-start: 4 85% 8%; /* Deep burgundy-black */
+    --crm-sidebar-gradient-mid: 0 0% 6%; /* Main black #101010 */
+    --crm-sidebar-gradient-end: 4 60% 10%; /* Warm dark accent */
+    --crm-sidebar-hover: 4 70% 15%; /* Warm hover with red undertones */
+    --crm-sidebar-active: 0 56% 18%; /* Dark Burgundy #4A1515 */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    /* Smooth transitions for all elements */
+    transition:
+      background-color,
+      color,
+      border-color,
+      box-shadow 150ms ease-in-out;
+  }
+
+  /* Prevent flash on landing page */
+  .landing-page {
+    background-color: #000000;
+  }
+
+  /* Ensure app header has no flash - only for main app, not landing */
+  .app-navbar {
+    background: linear-gradient(
+      to bottom,
+      rgba(17, 24, 39, 0.95),
+      rgba(17, 24, 39, 0.8),
+      #000000
+    );
+    backdrop-filter: blur(16px);
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    /* Enable smooth scrolling globally */
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family:
+      "Inter",
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      "Roboto",
+      sans-serif;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    /* Better font rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Close CRM Typography - Premium Hierarchy */
+  h1 {
+    @apply font-bold tracking-tight;
+  }
+
+  h2 {
+    @apply font-bold;
+  }
+
+  h3,
+  h4 {
+    @apply font-semibold;
+  }
+
+  h5,
+  h6 {
+    @apply font-medium;
+  }
+
+  /* ============================================ */
+  /* Apple Liquid Glass Scrollbar - Premium Design */
+  /* ============================================ */
+
+  /* Firefox scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(74, 21, 21, 0.35) rgba(255, 255, 255, 0.08);
+  }
+
+  /* Webkit (Chrome, Safari, Edge) scrollbars */
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow:
+      inset 0 0 10px rgba(255, 255, 255, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+      180deg,
+      rgba(74, 21, 21, 0.5) 0%,
+      rgba(74, 21, 21, 0.7) 50%,
+      rgba(74, 21, 21, 0.5) 100%
+    );
+    border-radius: 10px;
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    box-shadow:
+      0 2px 8px rgba(74, 21, 21, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(
+      180deg,
+      rgba(74, 21, 21, 0.65) 0%,
+      rgba(90, 26, 26, 0.85) 50%,
+      rgba(74, 21, 21, 0.65) 100%
+    );
+    box-shadow:
+      0 4px 16px rgba(74, 21, 21, 0.5),
+      0 0 20px rgba(74, 21, 21, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.25),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: scale(1.05);
+  }
+
+  *::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(
+      180deg,
+      rgba(90, 26, 26, 0.75) 0%,
+      rgba(110, 32, 32, 0.9) 50%,
+      rgba(90, 26, 26, 0.75) 100%
+    );
+    box-shadow:
+      0 2px 12px rgba(74, 21, 21, 0.6),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+
+  *::-webkit-scrollbar-corner {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+  }
+
+  /* Horizontal scrollbar specific styling */
+  *::-webkit-scrollbar:horizontal {
+    height: 10px;
+  }
+
+  *::-webkit-scrollbar-track:horizontal {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
+  }
+
+  *::-webkit-scrollbar-thumb:horizontal {
+    background: linear-gradient(
+      90deg,
+      rgba(74, 21, 21, 0.5) 0%,
+      rgba(74, 21, 21, 0.7) 50%,
+      rgba(74, 21, 21, 0.5) 100%
+    );
+  }
+
+  *::-webkit-scrollbar-thumb:horizontal:hover {
+    background: linear-gradient(
+      90deg,
+      rgba(74, 21, 21, 0.65) 0%,
+      rgba(90, 26, 26, 0.85) 50%,
+      rgba(74, 21, 21, 0.65) 100%
+    );
+  }
+
+  /* Dark mode scrollbar */
+  .dark *::-webkit-scrollbar-track {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.02) 0%,
+      rgba(255, 255, 255, 0.05) 50%,
+      rgba(255, 255, 255, 0.02) 100%
+    );
+    border-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .dark *::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+      180deg,
+      rgba(212, 70, 60, 0.4) 0%,
+      rgba(212, 70, 60, 0.6) 50%,
+      rgba(212, 70, 60, 0.4) 100%
+    );
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .dark *::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(
+      180deg,
+      rgba(212, 70, 60, 0.55) 0%,
+      rgba(230, 80, 70, 0.75) 50%,
+      rgba(212, 70, 60, 0.55) 100%
+    );
+  }
+
+  .dark * {
+    scrollbar-color: rgba(212, 70, 60, 0.4) rgba(255, 255, 255, 0.03);
+  }
+}
+
+@layer components {
+  /* Apple-inspired Button Styles */
+  .btn-primary {
+    @apply bg-gradient-to-br from-[#4A1515] to-[#3D1212] text-white px-6 py-3 rounded-full font-semibold tracking-tight hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-[#4A1515]/20 focus:ring-offset-2;
+    box-shadow: 0 0 25px rgba(74, 21, 21, 0.5);
+  }
+  .btn-primary:hover {
+    box-shadow: 0 0 35px rgba(74, 21, 21, 0.6);
+  }
+
+  .btn-secondary {
+    @apply bg-white border border-neutral-200 text-neutral-700 px-6 py-3 rounded-xl font-medium hover:bg-neutral-50 hover:border-neutral-300 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-neutral-200 focus:ring-offset-2;
+  }
+
+  .btn-success {
+    @apply bg-gradient-to-r from-[#30d158] to-[#2bbf4d] text-white px-6 py-3 rounded-xl font-semibold tracking-tight shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-[#30d158]/20 focus:ring-offset-2;
+  }
+
+  /* Premium red button - glass morphism style (opaque, no glow) */
+  .btn-premium-red {
+    position: relative;
+    background: #4a1515 !important;
+    border: 1px solid rgba(74, 21, 21, 0.8) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+  }
+
+  .btn-premium-red::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      transparent 50%,
+      rgba(0, 0, 0, 0.08) 100%
+    );
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  .btn-premium-red:hover {
+    background: #5a1a1a !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+  }
+
+  /* Apple-inspired Input Styles */
+  .input-primary {
+    @apply w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-neutral-900 placeholder-neutral-500 focus:bg-white focus:border-[#4A1515] focus:ring-2 focus:ring-[#4A1515]/20 transition-all duration-200 ease-out outline-none text-base;
+  }
+
+  /* Apple-inspired Card Styles with Glass Morphism */
+  .card-crm {
+    @apply bg-white/80 backdrop-blur-xl border border-neutral-200/50 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 ease-out;
+  }
+
+  .card-crm-premium {
+    @apply bg-white rounded-2xl border border-black/[0.05] transition-all duration-300 ease-out;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  .card-crm-premium:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Apple-inspired Sidebar Styles */
+  .sidebar-item {
+    @apply flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 hover:bg-neutral-100 hover:scale-[1.02] cursor-pointer;
+  }
+
+  .sidebar-item-active {
+    @apply bg-[#4A1515] text-white shadow-sm;
+  }
+
+  /* Apple-inspired Table Styles */
+  .table-crm {
+    @apply w-full text-sm text-left bg-white/80 backdrop-blur-xl border border-neutral-200/50 rounded-2xl overflow-hidden shadow-sm;
+  }
+
+  .table-crm thead {
+    @apply bg-neutral-50/50 border-b border-neutral-200/50;
+  }
+
+  .table-crm th {
+    @apply px-6 py-4 text-caption font-semibold text-neutral-600 tracking-wider text-left;
+  }
+
+  .table-crm td {
+    @apply px-6 py-4 text-body text-neutral-900 border-b border-neutral-100/50;
+  }
+
+  .table-crm tbody tr {
+    @apply hover:bg-neutral-50/50 transition-colors duration-150 cursor-pointer;
+  }
+
+  .table-crm tbody tr:last-child td {
+    @apply border-b-0;
+  }
+
+  /* Close CRM Badge Styles */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-blue {
+    @apply bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300;
+  }
+
+  .badge-green {
+    @apply bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300;
+  }
+
+  .badge-yellow {
+    @apply bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300;
+  }
+
+  .badge-red {
+    @apply bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300;
+  }
+
+  .badge-gray {
+    @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300;
+  }
+}
+
+@layer utilities {
+  /* Scrollbars are hidden globally - no utilities needed */
+
+  /* Close CRM specific utilities */
+  .crm-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .crm-section {
+    @apply py-6;
+  }
+
+  .crm-section-title {
+    @apply text-lg font-semibold text-crm-text-primary mb-4;
+  }
+
+  /* Responsive layout utilities */
+  .crm-page-wrapper {
+    @apply w-full max-w-full overflow-x-hidden;
+  }
+
+  .crm-grid-responsive {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+  }
+
+  .crm-stats-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4;
+  }
+
+  .crm-table-wrapper {
+    @apply w-full overflow-x-auto;
+  }
+
+  .crm-button-group {
+    @apply flex flex-wrap items-center gap-2;
+  }
+
+  /* Performance enhancements for smooth interactions */
+  .transform-gpu {
+    transform: translate3d(0, 0, 0);
+  }
+
+  .will-change-transform {
+    will-change: transform;
+  }
+
+  .will-change-contents {
+    will-change: contents;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  /* Optimize for animations */
+  .animate-fast {
+    animation-duration: 0.2s;
+  }
+
+  .animate-normal {
+    animation-duration: 0.3s;
+  }
+
+  .animate-slow {
+    animation-duration: 0.5s;
+  }
+
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@keyframes scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.5s ease-out forwards;
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+@keyframes pulse-slow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s infinite ease-in-out;
+}
+
+@keyframes futuristic-pulse {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(0.7);
+    opacity: 0.5;
+  }
+}
+
+.futuristic-loader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.futuristic-loader::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #4a1515; /* Dark Burgundy */
+  animation: futuristic-pulse 2s infinite ease-in-out;
+  filter: blur(15px); /* Soft glow effect */
+  z-index: -1; /* Behind the logo */
+}
+
+.futuristic-loader::after {
+  content: "";
+  position: absolute;
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  border: 2px solid #5c1e1e; /* Slightly lighter burgundy */
+  animation: futuristic-pulse 2s infinite ease-in-out 0.5s; /* Delayed pulse */
+  z-index: -1;
+}
+
+/* React Grid Layout Customizations - Enhanced for smoother dragging */
+.react-grid-layout {
+  position: relative;
+  transition: height 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: fit-content;
+}
+
+.react-grid-item {
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: left, top, width, height;
+  will-change: left, top, width, height;
+}
+
+.react-grid-item.cssTransforms {
+  transition-property: transform;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.react-grid-item.resizing {
+  z-index: 100;
+  will-change: width, height;
+  transition: none !important;
+}
+
+.react-grid-item.react-draggable-dragging {
+  transition: none !important;
+  z-index: 100;
+  will-change: transform;
+  opacity: 0.85;
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px rgba(74, 21, 21, 0.15);
+}
+
+.react-grid-item.react-grid-placeholder {
+  background: linear-gradient(
+    135deg,
+    rgba(74, 21, 21, 0.1),
+    rgba(74, 21, 21, 0.2)
+  );
+  opacity: 0.7;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2;
+  border-radius: 12px;
+  border: 2px dashed rgba(74, 21, 21, 0.4);
+  animation: pulse-placeholder 2s infinite ease-in-out;
+}
+
+@keyframes pulse-placeholder {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.react-grid-item > .react-resizable-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+}
+
+.react-grid-item > .react-resizable-handle::after {
+  content: "";
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 5px;
+  height: 5px;
+  border-right: 2px solid rgba(74, 21, 21, 0.6);
+  border-bottom: 2px solid rgba(74, 21, 21, 0.6);
+}
+
+.dark .react-grid-item > .react-resizable-handle::after {
+  border-right: 2px solid rgba(212, 70, 60, 0.6);
+  border-bottom: 2px solid rgba(212, 70, 60, 0.6);
+}
+
+.react-resizable-hide > .react-resizable-handle {
+  display: none;
+}
+
+.dashboard-widget {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  border-radius: 16px;
+  overflow: visible !important;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.3s ease;
+}
+
+.dashboard-widget:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-widget > * {
+  box-sizing: border-box;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Edit mode styling */
+.react-grid-item.react-draggable-dragging .dashboard-widget {
+  opacity: 0.8;
+}
+
+.react-grid-item:hover .drag-handle {
+  background: linear-gradient(to right, #5c1e1e, #4a1515);
+}
+
+.drag-handle {
+  transition: background 0.2s ease;
+}
+
+.react-grid-item {
+  overflow: visible !important;
+}
+
+.drag-handle {
+  cursor: move;
+}
+
+/* Ensure cards fit properly */
+.dashboard-widget .card {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.dashboard-widget .card > * {
+  box-sizing: border-box;
+}
+
+/* Responsive dashboard adjustments */
+@media (max-width: 768px) {
+  .react-grid-layout {
+    margin: 0;
+  }
+
+  .dashboard-widget {
+    font-size: 0.875rem;
+  }
+
+  .react-grid-item {
+    box-sizing: border-box;
+  }
+
+  /* Make tables scroll horizontally on tablets */
+  .table-crm {
+    min-width: 600px;
+  }
+
+  /* Hide less important table columns on mobile */
+  .table-mobile-hide {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-widget {
+    font-size: 0.75rem;
+  }
+
+  .react-grid-item {
+    touch-action: none;
+    box-sizing: border-box;
+  }
+
+  /* Tables need to scroll on mobile */
+  .table-crm {
+    min-width: 500px;
+    font-size: 0.75rem;
+  }
+
+  .table-crm th,
+  .table-crm td {
+    padding: 0.5rem 0.75rem;
+  }
+
+  /* Button groups stack better on very small screens */
+  .crm-button-group {
+    width: 100%;
+  }
+
+  .crm-button-group button {
+    flex: 1;
+    min-width: fit-content;
+  }
+}
+
+/* Ensure content doesn't overlap with Chat/Tasks panels - TARGETED APPROACH */
+/* Chat/Tasks buttons are fixed at top-right, only ~60px tall */
+/* Only add spacing to content that's actually in the top-right area */
+
+@layer components {
+  /* For workflow/form builders: only top-right elements need spacing */
+  .workflow-builder-content > *:first-child,
+  .form-builder-content > *:first-child {
+    padding-top: 4rem; /* 64px - enough to clear the buttons */
+  }
+
+  /* Alternative: Add margin to top-right positioned elements only */
+  .top-right-safe-area {
+    margin-top: 4rem;
+  }
+
+  /* Ensure modal/dialog content doesn't get covered */
+  .dialog-content-safe,
+  .modal-content-safe {
+    margin-top: 5rem;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .workflow-builder-content > *:first-child,
+  .form-builder-content > *:first-child {
+    padding-top: 1rem; /* Less padding on mobile */
+  }
+}
+
+/* Shimmer animation for Clear Placeholder Data button */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+/* ============================================ */
+/* Global Tooltip Z-Index Fix                   */
+/* Ensures all tooltips appear above everything */
+/* ============================================ */
+
+/* All tooltip-related elements should have maximum z-index */
+[class*="tooltip"],
+.tooltip,
+[data-radix-popper-content-wrapper],
+[data-state="open"][role="tooltip"],
+.group:hover > .opacity-0.group-hover\:opacity-100,
+div[class*="absolute"][class*="opacity-0"][class*="group-hover"],
+.pointer-events-none.z-50,
+[class*="z-50"][class*="opacity-0"],
+[class*="z-\[9999\]"] {
+  z-index: 9999 !important;
+}
+
+/* Locked feature tooltips specifically */
+.relative.group .absolute.left-full,
+.relative.group .absolute.bottom-full,
+.relative.group .absolute.top-full,
+.relative.group .absolute.right-full,
+.group .absolute[class*="opacity-0"][class*="group-hover"] {
+  z-index: 9999 !important;
+}
+
+/* Ensure tooltips appear above modals, dropdowns, sidebars */
+.tooltip-container,
+[data-tooltip],
+[aria-describedby*="tooltip"] {
+  z-index: 9999 !important;
+}
+
+/* Popper/Floating UI tooltips */
+[data-floating-ui-portal] [role="tooltip"],
+.floating-tooltip {
+  z-index: 9999 !important;
+}
+
+/* Radix UI tooltip */
+[data-radix-tooltip-content] {
+  z-index: 9999 !important;
+}
+
+/* CRITICAL: Ensure nav/sidebar containers allow overflow for tooltips */
+nav,
+.sidebar-nav,
+[class*="sidebar"],
+[class*="overflow-auto"] .relative.group,
+[class*="overflow-hidden"] .relative.group {
+  overflow: visible !important;
+}
+
+/* Allow specific locked feature items to overflow their containers */
+.relative.group.overflow-visible {
+  overflow: visible !important;
+}
+
+/* Ensure the group container and its parent can show tooltips */
+.group:has(> .absolute[class*="opacity-0"]) {
+  overflow: visible !important;
+}
+
+/* Parent containers of tooltips need overflow visible */
+.relative:has(.group-hover\:opacity-100) {
+  overflow: visible !important;
+}
+
+/* Settings page specific - ensure sidebar nav doesn't clip tooltips */
+nav.overflow-visible,
+div.overflow-visible {
+  overflow: visible !important;
+}

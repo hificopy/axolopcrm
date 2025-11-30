@@ -41,10 +41,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/components/ui/use-toast';
-import api from './lib/api';
-import { leadsApi, contactsApi } from './lib/api';
-import ComposeEmailModal from './components/ComposeEmailModal'; // Import ComposeEmailModal
-import MeetingsPanel from './components/MeetingsPanel'; // Import MeetingsPanel
+import api from '@/lib/api';
+import { leadsApi, contactsApi } from '@/lib/api';
+import ComposeEmailModal from '@/components/ComposeEmailModal'; // Import ComposeEmailModal
+import MeetingsPanel from '@/components/MeetingsPanel'; // Import MeetingsPanel
 import { useAgency } from '@/hooks/useAgency';
 
 const Inbox = () => {
@@ -72,7 +72,7 @@ const Inbox = () => {
 
   const checkGmailConnection = useCallback(async () => {
     try {
-      const response = await api.get('/api/gmail/profile');
+      const response = await api.get('/gmail/profile');
       if (response.data && response.data.emailAddress) {
         setIsGmailConnected(true);
       }
@@ -85,7 +85,7 @@ const Inbox = () => {
   const fetchEmails = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await api.get('/api/inbox');
+      const response = await api.get('/inbox');
       setEmails(response.data);
     } catch (error) {
       console.error('Error fetching emails:', error);
@@ -119,7 +119,7 @@ const Inbox = () => {
     // Mark as read if not already
     if (!email.read) {
       try {
-        const response = await api.put(`/api/inbox/${email.id}`, { read: true });
+        const response = await api.put(`/inbox/${email.id}`, { read: true });
         setEmails((prevEmails) =>
           prevEmails.map((e) => (e.id === email.id ? { ...e, read: true } : e))
         );
@@ -174,7 +174,7 @@ const Inbox = () => {
     }
 
     try {
-      const response = await api.put(`/api/inbox/${emailId}`, updateData);
+      const response = await api.put(`/inbox/${emailId}`, updateData);
       setEmails((prevEmails) =>
         prevEmails.map((e) => (e.id === emailId ? response.data : e))
       );
@@ -227,10 +227,11 @@ const Inbox = () => {
 
   const handleAddContact = async (email) => {
     try {
+      const senderName = email?.sender || '';
       const contactData = {
-        first_name: email.sender.split(' ')[0],
-        last_name: email.sender.split(' ').slice(1).join(' ') || '',
-        email: email.sender_email, // Use sender_email from backend
+        first_name: senderName.split(' ')[0] || 'Unknown',
+        last_name: senderName.split(' ').slice(1).join(' ') || '',
+        email: email?.sender_email || '', // Use sender_email from backend
         title: email.potential?.type === 'Contact' ? 'Potential Contact' : '',
         custom_fields: {
           source_email_id: email.id,
@@ -260,7 +261,7 @@ const Inbox = () => {
   const handleSyncGmail = async () => {
     setLoading(true);
     try {
-      const response = await api.post('/api/inbox/sync-gmail');
+      const response = await api.post('/inbox/sync-gmail');
       toast({
         title: 'Sync Complete',
         description: `${response.data.count} emails synced from Gmail.`,
@@ -312,7 +313,7 @@ const Inbox = () => {
         {canCreate() && (
           <div className="p-3">
             <Button
-              className="w-full flex items-center justify-center gap-2 bg-[#761B14] hover:bg-[#6b1a12] text-white"
+              className="btn-premium-red w-full flex items-center justify-center gap-2 text-white"
               onClick={() => setIsComposeModalOpen(true)}
             >
               <Plus className="h-4 w-4" /> Compose
@@ -426,7 +427,7 @@ const Inbox = () => {
                   <TabIcon className="h-4 w-4" />
                   <span className="text-sm font-medium">{tab.label}</span>
                   {tab.count > 0 && (
-                    <Badge className="ml-1 bg-[#761B14] text-white text-xs px-1.5 py-0">
+                    <Badge className="ml-1 bg-[#3F0D28] text-white text-xs px-1.5 py-0">
                       {tab.count}
                     </Badge>
                   )}

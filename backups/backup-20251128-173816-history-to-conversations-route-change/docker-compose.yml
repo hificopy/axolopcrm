@@ -1,0 +1,63 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile
+    volumes:
+      - ./backend:/app/backend
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - API_PORT=3002
+      - FRONTEND_URL=https://axolop.com
+      - DATABASE_URL=${DATABASE_URL}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET}
+      - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CHROMADB_URL=http://chromadb:8000
+      - CHROMADB_ENABLED=true
+      - JWT_SECRET=${JWT_SECRET}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_PUBLIC_KEY=${STRIPE_PUBLIC_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - POSTHOG_API_KEY=${POSTHOG_API_KEY}
+      - POSTHOG_HOST=${POSTHOG_HOST}
+      - SENTRY_DSN=${SENTRY_DSN}
+      - ENABLE_EMAIL_MARKETING=${ENABLE_EMAIL_MARKETING:-true}
+      - ENABLE_WORKFLOWS=${ENABLE_WORKFLOWS:-true}
+      - ENABLE_AI_SCORING=${ENABLE_AI_SCORING:-true}
+      - ENABLE_FORMS=${ENABLE_FORMS:-true}
+      - ENABLE_CALENDAR=${ENABLE_CALENDAR:-true}
+      - ENABLE_CALLS=${ENABLE_CALLS:-true}
+      - ENABLE_SECOND_BRAIN=${ENABLE_SECOND_BRAIN:-true}
+      - RATE_LIMIT_ENABLED=${RATE_LIMIT_ENABLED:-true}
+      - CACHE_ENABLED=${CACHE_ENABLED:-true}
+    depends_on:
+      - redis
+      - chromadb
+    restart: unless-stopped
+  redis:
+    image: "redis:alpine"
+    restart: unless-stopped
+  chromadb:
+    image: "chromadb/chroma:latest"
+    ports:
+      - "8001:8000"
+    volumes:
+      - chromadb_data:/chroma/chroma
+    restart: unless-stopped
+volumes:
+  chromadb_data:

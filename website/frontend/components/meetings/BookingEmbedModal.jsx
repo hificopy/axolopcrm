@@ -154,7 +154,7 @@ export default function BookingEmbedModal({ open, onOpenChange, bookingLink }) {
 
 <!-- Add this button where you want it to appear -->
 <button id="axolop-booking-btn" style="
-  background: linear-gradient(135deg, #761B14 0%, #9A392D 100%);
+  background: linear-gradient(135deg, #3F0D28 0%, #3F0D28 100%);
   color: white;
   border: none;
   padding: 12px 24px;
@@ -193,7 +193,7 @@ onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Code className="h-5 w-5 text-[#761B14]" />
+            <Code className="h-5 w-5 text-[#3F0D28]" />
             Share & Embed: {bookingLink.name}
           </DialogTitle>
           <DialogDescription>
@@ -246,7 +246,7 @@ onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
               </div>
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="bg-blue-50 border border-gray-200 rounded-lg p-4">
               <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
                 <ExternalLink className="h-4 w-4" />
                 Best for:

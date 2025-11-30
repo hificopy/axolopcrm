@@ -34,7 +34,7 @@ export default function IntegrationsSettings() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-crm-text-primary">Integrations</h1>
-            <p className="text-sm text-crm-text-secondary mt-1">
+            <p className="text-sm text-gray-900 mt-1">
               Connect your tools and services with Axolop
             </p>
           </div>
@@ -53,7 +53,7 @@ export default function IntegrationsSettings() {
                     onClick={() => setActiveTab('integrations')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       activeTab === 'integrations'
-                        ? 'bg-primary text-white'
+                        ? 'bg-[#3F0D28] text-white'
                         : 'hover:bg-gray-100 text-crm-text-primary'
                     }`}
                   >
@@ -64,7 +64,7 @@ export default function IntegrationsSettings() {
                     onClick={() => setActiveTab('accounts')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       activeTab === 'accounts'
-                        ? 'bg-primary text-white'
+                        ? 'bg-[#3F0D28] text-white'
                         : 'hover:bg-gray-100 text-crm-text-primary'
                     }`}
                   >
@@ -75,7 +75,7 @@ export default function IntegrationsSettings() {
                     onClick={() => setActiveTab('developer')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       activeTab === 'developer'
-                        ? 'bg-primary text-white'
+                        ? 'bg-[#3F0D28] text-white'
                         : 'hover:bg-gray-100 text-crm-text-primary'
                     }`}
                   >
@@ -118,7 +118,7 @@ export default function IntegrationsSettings() {
                                   </div>
                                   <div>
                                     <h3 className="font-medium text-crm-text-primary">{integration.name}</h3>
-                                    <p className="text-sm text-crm-text-secondary mt-1">{integration.description}</p>
+                                    <p className="text-sm text-gray-600 mt-1">{integration.description}</p>
                                   </div>
                                 </div>
                                 <Button
@@ -156,22 +156,22 @@ export default function IntegrationsSettings() {
                         <table className="w-full">
                           <thead>
                             <tr className="border-b border-crm-border">
-                              <th className="text-left py-3 px-4 text-sm font-medium text-crm-text-secondary">Account</th>
-                              <th className="text-left py-3 px-4 text-sm font-medium text-crm-text-secondary">Status</th>
-                              <th className="text-left py-3 px-4 text-sm font-medium text-crm-text-secondary">Last Synced</th>
-                              <th className="text-right py-3 px-4 text-sm font-medium text-crm-text-secondary">Actions</th>
+                              <th className="text-left py-3 px-4 text-sm font-medium text-gray-900">Account</th>
+                              <th className="text-left py-3 px-4 text-sm font-medium text-gray-900">Status</th>
+                              <th className="text-left py-3 px-4 text-sm font-medium text-gray-900">Last Synced</th>
+                              <th className="text-right py-3 px-4 text-sm font-medium text-gray-900">Actions</th>
                             </tr>
                           </thead>
                           <tbody>
                             <tr className="border-b border-gray-100">
                               <td className="py-3 px-4">
                                 <div className="flex items-center gap-3">
-                                  <div className="h-8 w-8 rounded-lg bg-red-100 flex items-center justify-center">
-                                    <span className="text-red-800 font-semibold text-sm">G</span>
+                                  <div className="h-8 w-8 rounded-lg bg-[#3F0D28]/10 flex items-center justify-center">
+                                    <span className="text-[#3F0D28] font-semibold text-sm">G</span>
                                   </div>
                                   <div>
                                     <p className="font-medium text-crm-text-primary">Google Workspace</p>
-                                    <p className="text-sm text-crm-text-secondary">juan@axolop.com</p>
+                                    <p className="text-sm text-gray-600">juan@axolop.com</p>
                                   </div>
                                 </div>
                               </td>
@@ -180,7 +180,7 @@ export default function IntegrationsSettings() {
                                   Connected
                                 </span>
                               </td>
-                              <td className="py-3 px-4 text-crm-text-secondary">Today, 02:30 PM</td>
+                              <td className="py-3 px-4 text-gray-600">Today, 02:30 PM</td>
                               <td className="py-3 px-4 text-right">
                                 <Button variant="outline" size="sm">Disconnect</Button>
                               </td>
@@ -193,7 +193,7 @@ export default function IntegrationsSettings() {
                                   </div>
                                   <div>
                                     <p className="font-medium text-crm-text-primary">Slack</p>
-                                    <p className="text-sm text-crm-text-secondary">axolop-crm.slack.com</p>
+                                    <p className="text-sm text-gray-600">axolop-crm.slack.com</p>
                                   </div>
                                 </div>
                               </td>
@@ -202,7 +202,7 @@ export default function IntegrationsSettings() {
                                   Connected
                                 </span>
                               </td>
-                              <td className="py-3 px-4 text-crm-text-secondary">Yesterday, 04:15 PM</td>
+                              <td className="py-3 px-4 text-gray-600">Yesterday, 04:15 PM</td>
                               <td className="py-3 px-4 text-right">
                                 <Button variant="outline" size="sm">Disconnect</Button>
                               </td>
@@ -215,7 +215,7 @@ export default function IntegrationsSettings() {
                                   </div>
                                   <div>
                                     <p className="font-medium text-crm-text-primary">Stripe</p>
-                                    <p className="text-sm text-crm-text-secondary">axolop-payments.com</p>
+                                    <p className="text-sm text-gray-600">axolop-payments.com</p>
                                   </div>
                                 </div>
                               </td>
@@ -224,7 +224,7 @@ export default function IntegrationsSettings() {
                                   Connected
                                 </span>
                               </td>
-                              <td className="py-3 px-4 text-crm-text-secondary">Nov 8, 2025</td>
+                              <td className="py-3 px-4 text-gray-600">Nov 8, 2025</td>
                               <td className="py-3 px-4 text-right">
                                 <Button variant="outline" size="sm">Disconnect</Button>
                               </td>
@@ -248,13 +248,13 @@ export default function IntegrationsSettings() {
                     <div className="mb-6">
                       <Card className="border border-crm-border p-6">
                         <h3 className="font-medium text-crm-text-primary mb-4">API Access</h3>
-                        <p className="text-crm-text-secondary mb-4">
+                        <p className="text-gray-900 mb-4">
                           Use the API to integrate Axolop with your custom applications.
                         </p>
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-crm-text-primary">API Access Enabled</p>
-                            <p className="text-sm text-crm-text-secondary">Enable API access for your account</p>
+                            <p className="text-sm text-gray-600">Enable API access for your account</p>
                           </div>
                           <Button variant="outline">Manage API Keys</Button>
                         </div>
@@ -264,7 +264,7 @@ export default function IntegrationsSettings() {
                     <div className="mb-6">
                       <Card className="border border-crm-border p-6">
                         <h3 className="font-medium text-crm-text-primary mb-4">Webhooks</h3>
-                        <p className="text-crm-text-secondary mb-4">
+                        <p className="text-gray-900 mb-4">
                           Configure webhooks to receive real-time notifications about events in your account.
                         </p>
                         <Button variant="outline">Manage Webhooks</Button>
@@ -274,7 +274,7 @@ export default function IntegrationsSettings() {
                     <div className="mb-6">
                       <Card className="border border-crm-border p-6">
                         <h3 className="font-medium text-crm-text-primary mb-4">Custom Fields</h3>
-                        <p className="text-crm-text-secondary mb-4">
+                        <p className="text-gray-900 mb-4">
                           Manage custom fields for leads, contacts, and opportunities.
                         </p>
                         <Button variant="outline">Manage Custom Fields</Button>

@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Forms Debug Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-3xl font-bold mb-6">Axolop Forms Debug Test</h1>
+
+      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">API Tests</h2>
+
+        <div class="space-y-4">
+          <div>
+            <h3 class="font-medium">1. Backend Health Check</h3>
+            <button
+              onclick="testHealth()"
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Test Health
+            </button>
+            <div id="health-result" class="mt-2 text-sm"></div>
+          </div>
+
+          <div>
+            <h3 class="font-medium">2. Forms API Test</h3>
+            <button
+              onclick="testFormsAPI()"
+              class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            >
+              Test Forms API
+            </button>
+            <div id="forms-result" class="mt-2 text-sm"></div>
+          </div>
+
+          <div>
+            <h3 class="font-medium">3. Create Test Form</h3>
+            <button
+              onclick="createTestForm()"
+              class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+            >
+              Create Test Form
+            </button>
+            <div id="create-result" class="mt-2 text-sm"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold mb-4">Frontend Tests</h2>
+
+        <div class="space-y-4">
+          <div>
+            <h3 class="font-medium">Forms Page</h3>
+            <a
+              href="http://localhost:3000/app/forms"
+              target="_blank"
+              class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 inline-block"
+            >
+              Open Forms Page
+            </a>
+            <p class="text-sm text-gray-600 mt-2">
+              Test the forms management interface
+            </p>
+          </div>
+
+          <div>
+            <h3 class="font-medium">Form Builder</h3>
+            <a
+              href="http://localhost:3000/app/forms/builder/new"
+              target="_blank"
+              class="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 inline-block"
+            >
+              Open Form Builder
+            </a>
+            <p class="text-sm text-gray-600 mt-2">
+              Test the form creation interface
+            </p>
+          </div>
+
+          <div>
+            <h3 class="font-medium">Form Preview</h3>
+            <a
+              href="http://localhost:3000/forms/preview/demo-form-id"
+              target="_blank"
+              class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600 inline-block"
+            >
+              Open Form Preview
+            </a>
+            <p class="text-sm text-gray-600 mt-2">
+              Test the form preview interface
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+        <h2 class="text-xl font-semibold mb-4">Debug Summary</h2>
+        <div id="debug-summary" class="text-sm space-y-2">
+          <div>🔍 <strong>Forms Module Analysis:</strong></div>
+          <div>✅ Backend API is running and responding correctly</div>
+          <div>✅ Forms routes are properly configured</div>
+          <div>✅ Authentication is working (rejects invalid tokens)</div>
+          <div>✅ Public endpoints work as expected</div>
+          <div>✅ Database schema includes user_id column</div>
+          <div>✅ Migration files address user isolation</div>
+          <div>ℹ️ <strong>Next Steps:</strong></div>
+          <div>1. Test frontend forms interface in browser</div>
+          <div>2. Check authentication flow in frontend</div>
+          <div>3. Verify form creation and submission flow</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      async function testHealth() {
+        const result = document.getElementById("health-result");
+        try {
+          const response = await fetch("http://localhost:3002/health");
+          const data = await response.json();
+          result.innerHTML = `✅ Health: ${data.status} - Forms: ${data.features.forms ? "Enabled" : "Disabled"}`;
+          result.className = "mt-2 text-sm text-green-600";
+        } catch (error) {
+          result.innerHTML = `❌ Error: ${error.message}`;
+          result.className = "mt-2 text-sm text-red-600";
+        }
+      }
+
+      async function testFormsAPI() {
+        const result = document.getElementById("forms-result");
+        try {
+          const response = await fetch("http://localhost:3002/api/forms");
+          const data = await response.json();
+          if (data.error && data.error.includes("Unauthorized")) {
+            result.innerHTML = `✅ API working correctly (authentication required)`;
+            result.className = "mt-2 text-sm text-green-600";
+          } else {
+            result.innerHTML = `⚠️ Unexpected response: ${JSON.stringify(data)}`;
+            result.className = "mt-2 text-sm text-yellow-600";
+          }
+        } catch (error) {
+          result.innerHTML = `❌ Error: ${error.message}`;
+          result.className = "mt-2 text-sm text-red-600";
+        }
+      }
+
+      async function createTestForm() {
+        const result = document.getElementById("create-result");
+        result.innerHTML = "🔄 Testing form creation...";
+        result.className = "mt-2 text-sm text-blue-600";
+
+        try {
+          // This would require authentication, so we expect it to fail
+          const response = await fetch("http://localhost:3002/api/forms", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer fake_test_token",
+            },
+            body: JSON.stringify({
+              title: "Test Form",
+              description: "Debug test form",
+              questions: [
+                {
+                  id: "1",
+                  type: "short-text",
+                  title: "Test Question",
+                  required: true,
+                },
+              ],
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.error && data.error.includes("Authentication failed")) {
+            result.innerHTML = `✅ API correctly requires authentication for form creation`;
+            result.className = "mt-2 text-sm text-green-600";
+          } else {
+            result.innerHTML = `⚠️ Unexpected response: ${JSON.stringify(data)}`;
+            result.className = "mt-2 text-sm text-yellow-600";
+          }
+        } catch (error) {
+          result.innerHTML = `❌ Error: ${error.message}`;
+          result.className = "mt-2 text-sm text-red-600";
+        }
+      }
+
+      // Auto-run health check on load
+      window.onload = function () {
+        testHealth();
+        testFormsAPI();
+      };
+    </script>
+  </body>
+</html>

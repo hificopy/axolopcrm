@@ -180,7 +180,7 @@ const GoalNode = ({ data, selected }) => {
     }`}>
       <div className="flex items-center gap-2">
         <div className="p-2 rounded bg-blue-100">
-          <Target className="w-4 h-4 text-blue-600" />
+          <Target className="w-4 h-4 text-[#3F0D28]" />
         </div>
         <div className="flex-1">
           <div className="font-semibold text-sm text-gray-900">{data.label}</div>
@@ -581,7 +581,7 @@ const EnhancedFlowBuilder = ({ workflowId = null, onSave }) => {
             size="sm"
             onClick={saveWorkflow}
             disabled={isSaving}
-            className="bg-[#761B14] hover:bg-[#6a1811] text-white"
+            className="btn-premium-red text-white"
           >
             <Save className="w-4 h-4 mr-2" />
             {isSaving ? 'Saving...' : 'Save'}
@@ -683,7 +683,7 @@ const EnhancedFlowBuilder = ({ workflowId = null, onSave }) => {
                 className="w-full justify-start mb-1 hover:bg-blue-50 text-xs"
                 onClick={() => addNode('goal')}
               >
-                <Target className="w-3 h-3 mr-2 text-blue-600" />
+                <Target className="w-3 h-3 mr-2 text-[#3F0D28]" />
                 Goal (Skip Ahead)
               </Button>
               <Button

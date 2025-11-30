@@ -37,10 +37,11 @@ import { dealsApi } from "../lib/api";
 import { InfoTooltipInline } from "../components/ui/info-tooltip";
 import { useAgency } from "../hooks/useAgency";
 import ViewOnlyBadge from "../components/ui/view-only-badge";
+import { demoDataService } from "../services/demoDataService";
 
 export default function Opportunities() {
   const { toast } = useToast();
-  const { isReadOnly, canEdit, canCreate } = useAgency();
+  const { isReadOnly, canEdit, canCreate, isDemoAgencySelected } = useAgency();
   const [opportunities, setOpportunities] = useState([]);
   const [filteredOpportunities, setFilteredOpportunities] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -52,9 +53,17 @@ export default function Opportunities() {
   const fetchOpportunities = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await dealsApi.getAll();
-      setOpportunities(response.data);
-      setFilteredOpportunities(response.data);
+      // If demo agency is selected, use demo data
+      if (isDemoAgencySelected()) {
+        console.log("[Opportunities] Using demo data");
+        const response = await demoDataService.getOpportunities();
+        setOpportunities(response.data);
+        setFilteredOpportunities(response.data);
+      } else {
+        const response = await dealsApi.getAll();
+        setOpportunities(response.data);
+        setFilteredOpportunities(response.data);
+      }
     } catch (error) {
       console.error("Error fetching opportunities:", error);
       toast({
@@ -65,7 +74,7 @@ export default function Opportunities() {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, isDemoAgencySelected]);
 
   useEffect(() => {
     fetchOpportunities();
@@ -203,7 +212,6 @@ export default function Opportunities() {
             <div className="flex items-center gap-3">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
                 Opportunities
-                <span className="ml-3 text-[#761B14]">●</span>
               </h1>
               {isReadOnly() && <ViewOnlyBadge />}
             </div>
@@ -228,7 +236,7 @@ export default function Opportunities() {
               <Button
                 variant="default"
                 size="default"
-                className="gap-2 bg-[#761B14] hover:bg-[#6b1a12]"
+                className="gap-2 btn-premium-red"
               >
                 <Plus className="h-4 w-4" />
                 <span>New Opportunity</span>
@@ -290,17 +298,17 @@ export default function Opportunities() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-5 border border-[#761B14]/30 shadow-md hover:shadow-lg transition-all duration-300">
+          <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-5 border border-[#3F0D28]/30 shadow-md hover:shadow-lg transition-all duration-300">
             <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-[#761B14]/10">
-                <TrendingUp className="h-5 w-5 text-[#761B14]" />
+              <div className="p-2 rounded-lg bg-[#3F0D28]/10">
+                <TrendingUp className="h-5 w-5 text-[#3F0D28]" />
               </div>
               <div>
-                <div className="text-xs font-semibold text-[#761B14] uppercase tracking-wide flex items-center">
+                <div className="text-xs font-semibold text-[#3F0D28] uppercase tracking-wide flex items-center">
                   Win Rate
                   <InfoTooltipInline content="Percentage of opportunities that result in won deals" />
                 </div>
-                <div className="text-3xl font-bold text-[#761B14] mt-1">
+                <div className="text-3xl font-bold text-[#3F0D28] mt-1">
                   {stats.winRate}%
                 </div>
               </div>
@@ -321,7 +329,7 @@ export default function Opportunities() {
           <select
             value={filterStage}
             onChange={(e) => setFilterStage(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#761B14]"
+            className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3F0D28]"
           >
             <option value="ALL">All Stages</option>
             <option value="NEW">New</option>
@@ -365,7 +373,7 @@ export default function Opportunities() {
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-12">
                     <div className="flex flex-col items-center">
-                      <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-[#761B14] mb-4"></div>
+                      <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-[#3F0D28] mb-4"></div>
                       <p className="text-gray-600 font-medium">
                         Loading opportunities...
                       </p>
@@ -376,7 +384,7 @@ export default function Opportunities() {
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-16">
                     <div className="flex flex-col items-center">
-                      <Target className="h-16 w-16 text-[#761B14]/30 mb-4" />
+                      <Target className="h-16 w-16 text-[#3F0D28]/30 mb-4" />
                       <h3 className="text-xl font-bold text-gray-900 mb-2">
                         No opportunities found
                       </h3>
@@ -389,7 +397,7 @@ export default function Opportunities() {
                         <Button
                           variant="default"
                           size="default"
-                          className="gap-2 bg-[#761B14] hover:bg-[#6b1a12]"
+                          className="gap-2 btn-premium-red"
                         >
                           <Plus className="h-4 w-4" />
                           <span>Add Your First Opportunity</span>
@@ -422,7 +430,7 @@ export default function Opportunities() {
                         {opp.stage || "NEW"}
                       </Badge>
                     </TableCell>
-                    <TableCell className="font-bold text-[#761B14]">
+                    <TableCell className="font-bold text-[#3F0D28]">
                       {formatCurrency(opp.amount || 0)}
                     </TableCell>
                     <TableCell className="text-gray-600">

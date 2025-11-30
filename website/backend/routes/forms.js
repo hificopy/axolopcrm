@@ -1583,8 +1583,8 @@ router.post('/:id/publish', authenticateUser, async (req, res) => {
       throw updateError;
     }
 
-    // Generate public URL
-    const publicUrl = `${req.protocol}://${req.get('host')}/${user.agency_alias}/${slug}`;
+    // Generate public URL with /f/ prefix to avoid routing conflicts
+    const publicUrl = `${req.protocol}://${req.get('host')}/f/${user.agency_alias}/${slug}`;
 
     res.json({
       success: true,
@@ -1829,7 +1829,7 @@ router.put('/:id/slug', authenticateUser, async (req, res) => {
       .eq('id', userId)
       .single();
 
-    const publicUrl = user ? `${req.protocol}://${req.get('host')}/${user.agency_alias}/${slug}` : null;
+    const publicUrl = user ? `${req.protocol}://${req.get('host')}/f/${user.agency_alias}/${slug}` : null;
 
     res.json({
       success: true,

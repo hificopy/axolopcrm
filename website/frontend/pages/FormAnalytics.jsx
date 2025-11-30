@@ -108,7 +108,7 @@ export default function FormAnalytics() {
   if (error) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-red-500">Error loading analytics: {error.message}</div>
+        <div className="text-[#3F0D28]">Error loading analytics: {error.message}</div>
       </div>
     );
   }
@@ -223,7 +223,7 @@ export default function FormAnalytics() {
                 {displayAnalytics.responsesByDay?.map((day, index) => (
                   <div key={index} className="flex flex-col items-center flex-1">
                     <div
-                      className="w-full bg-primary rounded-t hover:bg-red-600 transition-colors"
+                      className="w-full bg-primary rounded-t hover:bg-[#2a0919] transition-colors"
                       style={{ height: `${(day.count / Math.max(...displayAnalytics.responsesByDay.map(d => d.count))) * 80}%` }}
                     ></div>
                     <div className="text-xs text-crm-text-secondary mt-2">

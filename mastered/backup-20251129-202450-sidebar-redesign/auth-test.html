@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Test Supabase Auth</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <h1>Supabase Authentication Test</h1>
+    <div id="status"></div>
+
+    <script>
+      const { createClient } = supabase;
+
+      // Initialize Supabase client
+      const supabase = createClient(
+        "https://fuclpfhitgwugxogxkmw.supabase.co",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1Y2xwZmhpdGd3dWd4b2d4a213Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4OTI4MDEsImV4cCI6MjA3ODQ2ODgwMX0.XkKf0_PYuD-fWNMw-AMyDaO9bfugUBiRXG8dV53WiIA",
+      );
+
+      const statusDiv = document.getElementById("status");
+
+      // Test connection
+      async function testConnection() {
+        try {
+          statusDiv.innerHTML = "<p>🔄 Testing Supabase connection...</p>";
+
+          // Test basic connection by trying to get session
+          const { data, error } = await supabase.auth.getSession();
+
+          if (error) {
+            statusDiv.innerHTML = `<p>❌ Error: ${error.message}</p>`;
+          } else {
+            statusDiv.innerHTML = `<p>✅ Supabase connection successful!</p>
+                        <p>Current session: ${data ? "Active" : "None"}</p>
+                        <p>User: ${data.user ? data.user.email : "Not signed in"}</p>`;
+          }
+        } catch (err) {
+          statusDiv.innerHTML = `<p>❌ Connection failed: ${err.message}</p>`;
+        }
+      }
+
+      // Test sign in
+      async function testSignIn() {
+        const email = "test@example.com";
+        const password = "testpassword123";
+
+        try {
+          statusDiv.innerHTML = "<p>🔄 Testing sign in...</p>";
+
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password,
+          });
+
+          if (error) {
+            statusDiv.innerHTML = `<p>⚠️ Sign in test failed (expected): ${error.message}</p>
+                        <p>✅ But Supabase connection is working!</p>`;
+          } else {
+            statusDiv.innerHTML = `<p>✅ Sign in successful!</p>
+                        <p>User: ${data.user?.email}</p>`;
+          }
+        } catch (err) {
+          statusDiv.innerHTML = `<p>❌ Sign in test failed: ${err.message}</p>`;
+        }
+      }
+
+      // Run tests
+      testConnection();
+      setTimeout(testSignIn, 2000);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1524 @@
+
+> axolop-crm@1.2.0 dev:backend
+> nodemon backend/index.js
+
+[33m[nodemon] 3.1.11[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: js,mjs,cjs,json[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+node:internal/modules/package_json_reader:266
+  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+        ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'twilio' imported from /Users/jdromeroherrera/Desktop/CODE/axolopcrm/website/backend/services/call-service.js
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:266:9)
+    at packageResolve (node:internal/modules/esm/resolve:767:81)
+    at moduleResolve (node:internal/modules/esm/resolve:853:18)
+    at defaultResolve (node:internal/modules/esm/resolve:983:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:731:20)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:708:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:310:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:183:49)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v22.20.0
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 05:25:58 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 05:25:58 [[32minfo[39m]: [32mCache service initialized[39m
+[WARN] This Redis server's `default` user does not require a password, but a password was supplied
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763547958691341000
+2025-11-19 05:25:58 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 05:25:58 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 05:25:58 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 05:25:58 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 05:26:21 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 05:26:21 [[32minfo[39m]: [32mCache service initialized[39m
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763547981693369900
+2025-11-19 05:26:21 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 05:26:21 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 05:26:21 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 05:26:21 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: ⚙️  override existing env vars with { override: true }
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 05:35:44 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 05:35:44 [[32minfo[39m]: [32mCache service initialized[39m
+[WARN] This Redis server's `default` user does not require a password, but a password was supplied
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763548544519670000
+2025-11-19 05:35:44 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 05:35:44 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 05:35:44 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 05:35:44 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:01:38 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:01:38 [[32minfo[39m]: [32mCache service initialized[39m
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550098936215800
+2025-11-19 06:01:38 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:01:38 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:01:38 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:01:39 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:04:29 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:04:29 [[32minfo[39m]: [32mCache service initialized[39m
+[WARN] This Redis server's `default` user does not require a password, but a password was supplied
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550269529286100
+2025-11-19 06:04:29 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:04:29 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:04:29 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:04:29 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:05:34 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:05:34 [[32minfo[39m]: [32mCache service initialized[39m
+[WARN] This Redis server's `default` user does not require a password, but a password was supplied
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550334102594800
+2025-11-19 06:05:34 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:05:34 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:05:34 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:05:34 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:05:50 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:05:50 [[32minfo[39m]: [32mCache service initialized[39m
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550350108909600
+2025-11-19 06:05:50 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:05:50 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:05:50 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:05:50 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:09:10 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:09:10 [[32minfo[39m]: [32mCache service initialized[39m
+[WARN] This Redis server's `default` user does not require a password, but a password was supplied
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550550019747800
+2025-11-19 06:09:10 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:09:10 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:09:10 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:09:10 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:09:18 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:09:18 [[32minfo[39m]: [32mCache service initialized[39m
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550558283414000
+2025-11-19 06:09:18 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:09:18 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:09:18 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:09:18 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:09:24 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:09:24 [[32minfo[39m]: [32mCache service initialized[39m
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550564938794800
+2025-11-19 06:09:24 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:09:24 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:09:24 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:09:25 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+(node:78807) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 exit listeners added to [Bus]. MaxListeners is 10. Use emitter.setMaxListeners() to increase limit
+(Use `node --trace-warnings ...` to show where the warning was created)
+[dotenv@17.2.3] injecting env (52) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:09:35 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:09:35 [[32minfo[39m]: [32mCache service initialized[39m
+[WARN] This Redis server's `default` user does not require a password, but a password was supplied
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550575138444000
+2025-11-19 06:09:35 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:09:35 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:09:35 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:09:35 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:09:53 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:09:53 [[32minfo[39m]: [32mCache service initialized[39m
+[WARN] This Redis server's `default` user does not require a password, but a password was supplied
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550593385710300
+2025-11-19 06:09:53 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:09:53 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:09:53 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:09:53 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550599448206000
+2025-11-19 06:09:59 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:09:59 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:09:59 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:09:59 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:10:26 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:10:26 [[32minfo[39m]: [32mCache service initialized[39m
+[WARN] This Redis server's `default` user does not require a password, but a password was supplied
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550626414791400
+2025-11-19 06:10:26 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:10:26 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:10:26 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:10:26 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:10:42 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:10:42 [[32minfo[39m]: [32mCache service initialized[39m
+[WARN] This Redis server's `default` user does not require a password, but a password was supplied
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550642623955700
+2025-11-19 06:10:42 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:10:42 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:10:42 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:10:42 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:10:49 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:10:49 [[32minfo[39m]: [32mCache service initialized[39m
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550649977960400
+2025-11-19 06:10:49 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:10:49 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:10:49 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:10:50 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:10:56 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:10:56 [[32minfo[39m]: [32mCache service initialized[39m
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550656694004200
+2025-11-19 06:10:56 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:10:56 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:10:56 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:10:56 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:11:17 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:11:17 [[32minfo[39m]: [32mCache service initialized[39m
+[WARN] This Redis server's `default` user does not require a password, but a password was supplied
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550677832003600
+2025-11-19 06:11:17 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:11:17 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:11:17 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:11:17 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:11:20 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:11:20 [[32minfo[39m]: [32mCache service initialized[39m
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550680655262500
+2025-11-19 06:11:20 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:11:20 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:11:20 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:11:20 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:11:36 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:11:36 [[32minfo[39m]: [32mCache service initialized[39m
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550696026188800
+2025-11-19 06:11:36 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:11:36 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:11:36 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:11:36 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:11:49 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:11:49 [[32minfo[39m]: [32mCache service initialized[39m
+[WARN] This Redis server's `default` user does not require a password, but a password was supplied
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550709570284000
+2025-11-19 06:11:49 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:11:49 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:11:49 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:11:49 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:11:54 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:11:54 [[32minfo[39m]: [32mCache service initialized[39m
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550714773738500
+2025-11-19 06:11:54 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:11:54 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:11:54 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:11:54 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:11:58 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:11:58 [[32minfo[39m]: [32mCache service initialized[39m
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550718606332700
+2025-11-19 06:11:58 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:11:58 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:11:58 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:11:58 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:12:38 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:12:38 [[32minfo[39m]: [32mCache service initialized[39m
+[WARN] This Redis server's `default` user does not require a password, but a password was supplied
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550758448929000
+2025-11-19 06:12:38 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:12:38 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:12:38 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:12:38 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:12:56 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:12:56 [[32minfo[39m]: [32mCache service initialized[39m
+[WARN] This Redis server's `default` user does not require a password, but a password was supplied
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550776622069500
+2025-11-19 06:12:56 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:12:56 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:12:56 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:12:56 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:14:39 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:14:39 [[32minfo[39m]: [32mCache service initialized[39m
+[WARN] This Redis server's `default` user does not require a password, but a password was supplied
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550879305972500
+2025-11-19 06:14:39 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:14:39 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:14:39 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:14:39 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[32m[nodemon] restarting due to changes...[39m
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:14:54 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:14:54 [[32minfo[39m]: [32mCache service initialized[39m
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550894390989300
+2025-11-19 06:14:54 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:14:54 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:14:54 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:14:54 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:15:19 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:15:19 [[32minfo[39m]: [32mCache service initialized[39m
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550919152065300
+2025-11-19 06:15:19 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:15:19 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:15:19 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:15:19 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:15:38 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:15:38 [[32minfo[39m]: [32mCache service initialized[39m
+[WARN] This Redis server's `default` user does not require a password, but a password was supplied
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550938985297400
+2025-11-19 06:15:38 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:15:39 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:15:39 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:15:39 [[32minfo[39m]: 
+2025-11-19 06:15:39 [[32minfo[39m]: [32m╔════════════════════════════════════════════════╗[39m
+2025-11-19 06:15:39 [[32minfo[39m]: [32m║       Axolop CRM API Server Running            ║[39m
+2025-11-19 06:15:39 [[32minfo[39m]: [32m╚════════════════════════════════════════════════╝[39m
+2025-11-19 06:15:39 [[32minfo[39m]: 
+2025-11-19 06:15:39 [[32minfo[39m]: [32m🚀 Server:    http://localhost:3002[39m
+2025-11-19 06:15:39 [[32minfo[39m]: [32m🏥 Health:    http://localhost:3002/health[39m
+2025-11-19 06:15:39 [[32minfo[39m]: [32m📚 API vv1:  http://localhost:3002/api/v1[39m
+2025-11-19 06:15:39 [[32minfo[39m]: [32m🌍 Env:       development[39m
+2025-11-19 06:15:39 [[32minfo[39m]: [32m💾 Database:  PostgreSQL (Supabase)[39m
+2025-11-19 06:15:39 [[32minfo[39m]: [32m🔴 Redis:     localhost:6379[39m
+2025-11-19 06:15:39 [[32minfo[39m]: [32m🔷 ChromaDB:  http://localhost:8001[39m
+2025-11-19 06:15:39 [[32minfo[39m]: 
+2025-11-19 06:15:39 [[32minfo[39m]: [32m✨ Features:  emailMarketing, workflows, aiScoring, forms, calendar, calls, secondBrain[39m
+2025-11-19 06:15:39 [[32minfo[39m]: 
+Error fetching pending executions: {
+  code: 'PGRST200',
+  details: "Searched for a foreign key relationship between 'automation_executions' and 'automation_workflows' in the schema 'public', but no matches were found.",
+  hint: "Perhaps you meant 'form_integrations' instead of 'automation_executions'.",
+  message: "Could not find a relationship between 'automation_executions' and 'automation_workflows' in the schema cache"
+}
+Error fetching pending emails: {
+  code: 'PGRST200',
+  details: "Searched for a foreign key relationship between 'campaign_emails' and 'email_campaigns' in the schema 'public', but no matches were found.",
+  hint: null,
+  message: "Could not find a relationship between 'campaign_emails' and 'email_campaigns' in the schema cache"
+}
+Error processing queued emails: {
+  code: 'PGRST200',
+  details: "Searched for a foreign key relationship between 'campaign_emails' and 'email_campaigns' in the schema 'public', but no matches were found.",
+  hint: null,
+  message: "Could not find a relationship between 'campaign_emails' and 'email_campaigns' in the schema cache"
+}
+Error processing queued emails: {
+  code: 'PGRST200',
+  details: "Searched for a foreign key relationship between 'campaign_emails' and 'email_campaigns' in the schema 'public', but no matches were found.",
+  hint: null,
+  message: "Could not find a relationship between 'campaign_emails' and 'email_campaigns' in the schema cache"
+}
+Error fetching pending executions: {
+  code: '42703',
+  details: null,
+  hint: null,
+  message: 'column we.trigger_data does not exist'
+}
+Error fetching pending executions: {
+  code: '42703',
+  details: null,
+  hint: null,
+  message: 'column we.trigger_data does not exist'
+}
+Error fetching pending emails: {
+  code: 'PGRST200',
+  details: "Searched for a foreign key relationship between 'campaign_emails' and 'email_campaigns' in the schema 'public', but no matches were found.",
+  hint: null,
+  message: "Could not find a relationship between 'campaign_emails' and 'email_campaigns' in the schema cache"
+}
+Error processing queued emails: {
+  code: 'PGRST200',
+  details: "Searched for a foreign key relationship between 'campaign_emails' and 'email_campaigns' in the schema 'public', but no matches were found.",
+  hint: null,
+  message: "Could not find a relationship between 'campaign_emails' and 'email_campaigns' in the schema cache"
+}
+Error processing queued emails: {
+  code: 'PGRST200',
+  details: "Searched for a foreign key relationship between 'campaign_emails' and 'email_campaigns' in the schema 'public', but no matches were found.",
+  hint: null,
+  message: "Could not find a relationship between 'campaign_emails' and 'email_campaigns' in the schema cache"
+}
+Error fetching pending executions: {
+  code: '42703',
+  details: null,
+  hint: null,
+  message: 'column we.trigger_data does not exist'
+}
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:15:58 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:15:58 [[32minfo[39m]: [32mCache service initialized[39m
+[WARN] This Redis server's `default` user does not require a password, but a password was supplied
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550959670570200
+2025-11-19 06:15:59 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:15:59 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:15:59 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:15:59 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:16:11 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:16:11 [[32minfo[39m]: [32mCache service initialized[39m
+[WARN] This Redis server's `default` user does not require a password, but a password was supplied
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763550971477290000
+2025-11-19 06:16:11 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:16:11 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:16:11 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:16:11 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:20:57 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:20:57 [[32minfo[39m]: [32mCache service initialized[39m
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763551257075447300
+2025-11-19 06:20:57 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:20:57 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:20:57 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:20:57 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: ⚙️  override existing env vars with { override: true }
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:21:09 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:21:09 [[32minfo[39m]: [32mCache service initialized[39m
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763551269045525800
+2025-11-19 06:21:09 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:21:09 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:21:09 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:21:09 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node backend/index.js`[39m
+[dotenv@17.2.3] injecting env (52) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+⚠️  Configuration warnings:
+   - SendGrid not configured - email sending will fail
+
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+API key does not start with "SG.".
+API key does not start with "SG.".
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+Email provider: SendGrid
+🔌 Attempting to connect to ChromaDB at: http://localhost:8001
+The 'path' argument is deprecated. Please use 'ssl', 'host', and 'port' instead
+2025-11-19 06:21:39 [[32minfo[39m]: [32m✅ Redis connected[39m
+2025-11-19 06:21:39 [[32minfo[39m]: [32mCache service initialized[39m
+✅ ChromaDB service initialized successfully
+📊 ChromaDB heartbeat: 1763551299597558000
+2025-11-19 06:21:39 [[32minfo[39m]: [32m✅ ChromaDB initialized[39m
+Automation Engine started
+Email open trigger watcher set up
+Email click trigger watcher set up
+Lead creation trigger watcher set up
+Lead status change trigger watcher set up
+Form submission trigger watcher set up
+2025-11-19 06:21:39 [[32minfo[39m]: [32m🔄 Automation Engine started[39m
+🚀 Workflow Execution Engine started
+2025-11-19 06:21:39 [[32minfo[39m]: [32m🚀 Workflow Execution Engine started[39m
+2025-11-19 06:21:39 [[31merror[39m]: [31mUncaught Exception listen EADDRINUSE: address already in use 0.0.0.0:3002[39m
+{
+  "stack": "Error: listen EADDRINUSE: address already in use 0.0.0.0:3002\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at node:net:2206:7\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)"
+}
+FATAL: Uncaught Exception. Exiting...
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m

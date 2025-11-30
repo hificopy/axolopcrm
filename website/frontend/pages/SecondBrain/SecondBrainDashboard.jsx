@@ -33,7 +33,7 @@ const SecondBrainDashboard = () => {
     {
       name: 'Logic',
       icon: Database,
-      color: '#761B14',
+      color: '#3F0D28',
       description: 'Structured thinking & automation',
       subsections: [
         { name: 'Workflows', icon: Workflow, href: '/second-brain/logic/workflows' },
@@ -214,7 +214,7 @@ const SecondBrainDashboard = () => {
               </div>
 
               {/* Getting Started */}
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl border-2 border-blue-200 p-6">
+              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl border-2 border-gray-200 p-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                   <span>🚀</span>
                   <span>Getting Started</span>

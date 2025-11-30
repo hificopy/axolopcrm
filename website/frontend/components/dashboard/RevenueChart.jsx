@@ -8,7 +8,7 @@ import { formatCurrency } from '@/lib/utils';
 export default function RevenueChart({ data, title = 'Revenue Overview', timeRange = 'month' }) {
   // Generate flatline data if revenue is $0 or data is empty
   const chartData = useMemo(() => {
-    console.log('📈 [REVENUE CHART] Input data:', { data, timeRange });
+    console.log('[REVENUE CHART] Input data:', { data, timeRange });
 
     if (!data || data.length === 0) {
       // Generate default time periods with zero values
@@ -26,7 +26,7 @@ export default function RevenueChart({ data, title = 'Revenue Overview', timeRan
         value: 0
       }));
 
-      console.log('📈 [REVENUE CHART] Generated flatline data:', flatlineData);
+      console.log('[REVENUE CHART] Generated flatline data:', flatlineData);
       return flatlineData;
     }
 
@@ -38,11 +38,11 @@ export default function RevenueChart({ data, title = 'Revenue Overview', timeRan
         name: item.name || item.month || 'Period',
         value: 0
       }));
-      console.log('📈 [REVENUE CHART] All values are zero, returning:', zeroData);
+      console.log('[REVENUE CHART] All values are zero, returning:', zeroData);
       return zeroData;
     }
 
-    console.log('📈 [REVENUE CHART] Returning actual data:', data);
+    console.log('[REVENUE CHART] Returning actual data:', data);
     return data;
   }, [data, timeRange]);
 
@@ -110,27 +110,21 @@ export default function RevenueChart({ data, title = 'Revenue Overview', timeRan
       whileHover={{ y: -4, scale: 1.01, transition: { duration: 0.2 } }}
       className="h-full w-full"
     >
-      <Card className="h-full w-full flex flex-col border-2 hover:border-opacity-60 hover:shadow-xl hover:shadow-red-500/20 transition-all duration-300 relative group overflow-hidden">
-        {/* Animated background gradient on hover */}
-        <div className="absolute inset-0 bg-gradient-to-br from-red-50/50 to-orange-50/50 dark:from-red-950/10 dark:to-orange-950/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <Card className="h-full w-full flex flex-col bg-white border border-black/[0.05] shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-all duration-300 relative overflow-hidden">
         <CardHeader className="pb-3 relative z-10">
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-              <motion.div
-                className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-[#761B14] to-[#9A392D] flex items-center justify-center flex-shrink-0 shadow-lg"
-                whileHover={{ rotate: 12, scale: 1.1 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
-              </motion.div>
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#3F0D28] to-[#3F0D28] flex items-center justify-center flex-shrink-0 shadow-sm">
+                <DollarSign className="h-4 w-4 text-white" />
+              </div>
               <div className="min-w-0 flex-1">
-                <CardTitle className="text-sm sm:text-lg truncate">{title}</CardTitle>
+                <CardTitle className="text-base font-semibold truncate">{title}</CardTitle>
                 <CardDescription className="text-xs truncate">Total: {formatCurrency(totalRevenue)}</CardDescription>
               </div>
             </div>
             {trend.value > 0 && (
               <div className={`flex items-center gap-1 text-xs sm:text-sm font-medium flex-shrink-0 ${
-                trend.direction === 'up' ? 'text-primary-green' : 'text-red-500'
+                trend.direction === 'up' ? 'text-[#1A777B]' : 'text-[#CA4238]'
               }`}>
                 <TrendingUp className={`h-3 w-3 sm:h-4 sm:w-4 ${trend.direction === 'down' ? 'rotate-180' : ''}`} />
                 <span>{trend.value}%</span>
@@ -143,8 +137,8 @@ export default function RevenueChart({ data, title = 'Revenue Overview', timeRan
             <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#761B14" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#761B14" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#3F0D28" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#3F0D28" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
@@ -166,7 +160,7 @@ export default function RevenueChart({ data, title = 'Revenue Overview', timeRan
               <Area
                 type="monotone"
                 dataKey="value"
-                stroke="#761B14"
+                stroke="#3F0D28"
                 strokeWidth={2}
                 fill="url(#revenueGradient)"
                 animationDuration={1500}
@@ -180,32 +174,29 @@ export default function RevenueChart({ data, title = 'Revenue Overview', timeRan
 
         {/* Time Period Metrics */}
         {periodMetrics && (
-          <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-3 bg-gray-50 dark:bg-gray-800/50 relative z-10">
+          <div className="border-t border-black/[0.05] px-4 py-3 bg-[#FAFAFA] relative z-10">
             <div className="grid grid-cols-3 gap-2 sm:gap-4">
               <div className="text-center">
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">{periodMetrics.labels.average}</div>
-                <div className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
+                <div className="text-xs text-neutral-500 mb-1">{periodMetrics.labels.average}</div>
+                <div className="text-sm sm:text-base font-semibold text-neutral-900">
                   {formatCurrency(periodMetrics.average)}
                 </div>
               </div>
-              <div className="text-center border-x border-gray-200 dark:border-gray-700">
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Highest</div>
-                <div className="text-sm sm:text-base font-semibold text-green-600 dark:text-green-400">
+              <div className="text-center border-x border-black/[0.05]">
+                <div className="text-xs text-neutral-500 mb-1">Highest</div>
+                <div className="text-sm sm:text-base font-semibold text-[#1A777B]">
                   {formatCurrency(periodMetrics.highest)}
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Lowest</div>
-                <div className="text-sm sm:text-base font-semibold text-orange-600 dark:text-orange-400">
+                <div className="text-xs text-neutral-500 mb-1">Lowest</div>
+                <div className="text-sm sm:text-base font-semibold text-[#CA4238]">
                   {formatCurrency(periodMetrics.lowest)}
                 </div>
               </div>
             </div>
           </div>
         )}
-
-        {/* Decorative corner accent */}
-        <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-br from-[#761B14] to-[#9A392D] opacity-5 blur-3xl rounded-full -mb-16 -mr-16" />
       </Card>
     </motion.div>
   );

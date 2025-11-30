@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./frontend/*"],
+      "@components": ["./frontend/components"],
+      "@pages": ["./frontend/pages"],
+      "@hooks": ["./frontend/hooks"],
+      "@lib": ["./frontend/lib"],
+      "@store": ["./frontend/store"],
+      "@styles": ["./frontend/styles"]
+    }
+  },
+  "include": ["frontend"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}

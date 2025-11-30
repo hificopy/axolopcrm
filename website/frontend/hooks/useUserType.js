@@ -27,7 +27,7 @@ export function useUserType() {
         throw new Error('Not authenticated');
       }
 
-      console.log('🔍 Fetching user type with session:', session.user.id);
+      // console.log$1
 
       // Call API to get user type (use relative path for Vite proxy)
       const response = await fetch('/api/v1/agencies/me/user-type', {
@@ -37,7 +37,7 @@ export function useUserType() {
         }
       });
 
-      console.log('📡 User type response status:', response.status);
+      // console.log$1
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -46,7 +46,7 @@ export function useUserType() {
       }
 
       const result = await response.json();
-      console.log('✅ User type result:', result);
+      // console.log$1
       setUserType(result.data);
     } catch (err) {
       console.error('💥 Error fetching user type:', err);

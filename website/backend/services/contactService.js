@@ -1,49 +1,68 @@
-import { createClient } from '@supabase/supabase-js';
+import { supabaseServer } from "../config/supabase-auth.js";
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Use the shared supabaseServer client (service role key) from config
+const supabase = supabaseServer;
 
-// Get all contacts for a user
-const getContacts = async (userId) => {
-  const { data, error } = await supabase
-    .from('contacts')
-    .select('*, leads(name)') // Select all contact fields and the name from the associated lead
-    .eq('user_id', userId);
+// Get all contacts for a user (with agency context)
+const getContacts = async (userId, agencyId = null) => {
+  let query = supabase.from("contacts").select("*").eq("user_id", userId);
+
+  // If agency context exists, filter by agency
+  if (agencyId) {
+    query = query.eq("agency_id", agencyId);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
-    console.error('Supabase fetch contacts error:', error);
+    console.error("Supabase fetch contacts error:", error);
     throw new Error(`Failed to fetch contacts: ${error.message}`);
   }
   return data;
 };
 
-// Get a single contact by ID
-const getContactById = async (userId, contactId) => {
-  const { data, error } = await supabase
-    .from('contacts')
-    .select('*, leads(name)') // Select all contact fields and the name from the associated lead
-    .eq('id', contactId)
-    .eq('user_id', userId)
-    .single();
+// Get a single contact by ID (with agency context)
+const getContactById = async (userId, contactId, agencyId = null) => {
+  let query = supabase
+    .from("contacts")
+    .select("*")
+    .eq("id", contactId)
+    .eq("user_id", userId);
+
+  // If agency context exists, filter by agency
+  if (agencyId) {
+    query = query.eq("agency_id", agencyId);
+  }
+
+  const { data, error } = await query.single();
 
   if (error) {
-    console.error('Supabase fetch contact by ID error:', error);
+    console.error("Supabase fetch contact by ID error:", error);
     throw new Error(`Failed to fetch contact: ${error.message}`);
   }
   return data;
 };
 
-// Create a new contact
-const createContact = async (userId, contactData) => {
+// Create a new contact (with agency context)
+const createContact = async (userId, contactData, agencyId = null) => {
+  const insertData = {
+    user_id: userId,
+    ...contactData,
+  };
+
+  // If agency context exists, include agency_id
+  if (agencyId) {
+    insertData.agency_id = agencyId;
+  }
+
   const { data, error } = await supabase
-    .from('contacts')
-    .insert({ user_id: userId, ...contactData })
+    .from("contacts")
+    .insert(insertData)
     .select()
     .single();
 
   if (error) {
-    console.error('Supabase create contact error:', error);
+    console.error("Supabase create contact error:", error);
     throw new Error(`Failed to create contact: ${error.message}`);
   }
   return data;
@@ -52,15 +71,15 @@ const createContact = async (userId, contactData) => {
 // Update an existing contact
 const updateContact = async (userId, contactId, contactData) => {
   const { data, error } = await supabase
-    .from('contacts')
+    .from("contacts")
     .update({ ...contactData, updated_at: new Date() })
-    .eq('id', contactId)
-    .eq('user_id', userId)
+    .eq("id", contactId)
+    .eq("user_id", userId)
     .select()
     .single();
 
   if (error) {
-    console.error('Supabase update contact error:', error);
+    console.error("Supabase update contact error:", error);
     throw new Error(`Failed to update contact: ${error.message}`);
   }
   return data;
@@ -69,13 +88,13 @@ const updateContact = async (userId, contactId, contactData) => {
 // Delete a contact
 const deleteContact = async (userId, contactId) => {
   const { error } = await supabase
-    .from('contacts')
+    .from("contacts")
     .delete()
-    .eq('id', contactId)
-    .eq('user_id', userId);
+    .eq("id", contactId)
+    .eq("user_id", userId);
 
   if (error) {
-    console.error('Supabase delete contact error:', error);
+    console.error("Supabase delete contact error:", error);
     throw new Error(`Failed to delete contact: ${error.message}`);
   }
   return true;

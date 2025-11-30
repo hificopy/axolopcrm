@@ -1,21 +1,63 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAffiliatePopup } from './contexts/AffiliatePopupContext';
-import { useDemoMode } from './contexts/DemoModeContext';
-import { useSupabase } from '../../context/SupabaseContext';
-import axios from 'axios';
+import { useState, useEffect, useMemo } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAffiliatePopup } from "@/contexts/AffiliatePopupContext";
+import { useDemoMode } from "@/contexts/DemoModeContext";
+import { useSupabase } from "@/context/SupabaseContext";
+import { useAgency } from "@/hooks/useAgency";
+import axios from "axios";
 import {
-  LayoutDashboard, DollarSign, Users, Send, Headset, Inbox, UserPlus, Target,
-  TrendingUp, Workflow, Activity, Mail, Layers, Lock, ChevronDown, ChevronRight, ChevronUp,
-  Calendar, FileText, BarChart3, MessageSquare, CheckSquare, Shield, CreditCard,
-  Eye, Phone, History, Settings, User, Sparkles, Link as LinkIcon, Filter, Hash,
-  Square, Folder, MoreHorizontal, ChevronLeft, Search, Building2, Menu, X
-} from 'lucide-react';
+  Home,
+  DollarSign,
+  Users,
+  Send,
+  Headset,
+  Inbox,
+  UserPlus,
+  Target,
+  TrendingUp,
+  Workflow,
+  Activity,
+  Mail,
+  Layers,
+  Lock,
+  ChevronDown,
+  ChevronRight,
+  ChevronUp,
+  Calendar,
+  FileText,
+  BarChart3,
+  MessageSquare,
+  CheckSquare,
+  Shield,
+  CreditCard,
+  Eye,
+  Phone,
+  History,
+  Settings,
+  User,
+  Sparkles,
+  Link as LinkIcon,
+  Filter,
+  Hash,
+  Square,
+  Folder,
+  MoreHorizontal,
+  ChevronLeft,
+  Search,
+  Building2,
+  Menu,
+  X,
+} from "lucide-react";
 import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,96 +65,182 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import AgenciesSelector from './AgenciesSelector';
-import AffiliateSidebarButton from './AffiliateSidebarButton';
-import SidebarMoreMenu from './SidebarMoreMenu';
+} from "@/components/ui/dropdown-menu";
+import AgenciesSelector from "./AgenciesSelector";
+import AffiliateSidebarButton from "./AffiliateSidebarButton";
+import SidebarMoreMenu from "./SidebarMoreMenu";
 
 // Core navigation items - always visible
 const coreNavigation = [
-  { name: 'Dashboard', href: '/app/home', icon: LayoutDashboard, primary: true },
-  { name: 'Leads', href: '/app/leads', icon: UserPlus, primary: true },
-  { name: 'Contacts', href: '/app/contacts', icon: Users, primary: true },
-  { name: 'Forms', href: '/app/forms', icon: FileText, primary: true },
-  { name: 'Calendar', href: '/app/calendar', icon: Calendar, primary: true },
-  { name: 'Tasks', href: '/app/todos', icon: CheckSquare, primary: true },
+  { name: "Home", href: "/app/home", icon: Home, primary: true },
+  { name: "Leads", href: "/app/leads", icon: UserPlus, primary: true },
+  { name: "Contacts", href: "/app/contacts", icon: Users, primary: true },
+  { name: "Forms", href: "/app/forms", icon: FileText, primary: true },
+  { name: "Calendar", href: "/app/calendar", icon: Calendar, primary: true },
+  { name: "Tasks", href: "/app/todos", icon: CheckSquare, primary: true },
 ];
 
 // Advanced features - in collapsible section
 const advancedCategories = [
   {
-    name: 'Sales',
+    name: "Sales",
     icon: DollarSign,
     items: [
-      { name: 'Pipeline', href: '/app/pipeline', icon: TrendingUp },
-      { name: 'Opportunities', href: '/app/opportunities', icon: Target },
-      { name: 'Activities', href: '/app/activities', icon: Activity },
-      { name: 'Conversations', href: '/app/history', icon: MessageSquare },
-    ]
+      { name: "Pipeline", href: "/app/pipeline", icon: TrendingUp },
+      { name: "Opportunities", href: "/app/opportunities", icon: Target },
+      { name: "Activities", href: "/app/activities", icon: Activity },
+      { name: "Conversations", href: "/app/history", icon: MessageSquare },
+    ],
   },
   {
-    name: 'Marketing',
+    name: "Marketing",
     icon: Send,
     items: [
-      { name: 'Email Marketing', href: '/app/email-marketing', icon: Mail, locked: true, version: 'V1.3' },
-      { name: 'Meetings', href: '/app/meetings', icon: Calendar },
-      { name: 'Workflows', href: '/app/workflows', icon: Workflow, locked: true, version: 'V1.1' },
-      { name: 'Funnels', href: '/app/funnels', icon: Filter, betaOnly: true, badge: 'BETA' },
-      { name: 'Reports', href: '/app/reports', icon: BarChart3 },
-    ]
+      {
+        name: "Email Marketing",
+        href: "/app/email-marketing",
+        icon: Mail,
+        locked: true,
+        version: "V1.3",
+      },
+      { name: "Meetings", href: "/app/meetings", icon: Calendar },
+      {
+        name: "Workflows",
+        href: "/app/workflows",
+        icon: Workflow,
+        locked: true,
+        version: "V1.1",
+      },
+      {
+        name: "Funnels",
+        href: "/app/funnels",
+        icon: Filter,
+        betaOnly: true,
+        badge: "BETA",
+      },
+      {
+        name: "Reports",
+        href: "/app/reports",
+        icon: BarChart3,
+        locked: true,
+        version: "V1.1",
+      },
+    ],
   },
   {
-    name: 'Teams',
+    name: "Teams",
     icon: Users,
     items: [
       {
-        name: 'Chat',
+        name: "Chat",
         icon: MessageSquare,
         locked: true,
-        version: 'V1.1',
+        version: "V1.1",
         subItems: [
-          { name: 'Team Chat', href: '/app/team-chat', icon: MessageSquare, locked: true, version: 'V1.1' },
-          { name: 'Direct Messages', href: '/app/direct-messages', icon: MessageSquare, locked: true, version: 'V1.1' },
-        ]
+          {
+            name: "Team Chat",
+            href: "/app/team-chat",
+            icon: MessageSquare,
+            locked: true,
+            version: "V1.1",
+          },
+          {
+            name: "Direct Messages",
+            href: "/app/direct-messages",
+            icon: MessageSquare,
+            locked: true,
+            version: "V1.1",
+          },
+        ],
       },
       {
-        name: 'Projects',
+        name: "Projects",
         icon: Folder,
         locked: true,
-        version: 'V1.2',
+        version: "V1.2",
         subItems: [
-          { name: 'Project Management', href: '/app/projects', icon: Folder, locked: true, version: 'V1.2' },
-          { name: 'Task Lists', href: '/app/task-lists', icon: CheckSquare, locked: true, version: 'V1.2' },
-          { name: 'Boards', href: '/app/boards', icon: Square, locked: true, version: 'V1.1' },
-        ]
+          {
+            name: "Project Management",
+            href: "/app/projects",
+            icon: Folder,
+            locked: true,
+            version: "V1.2",
+          },
+          {
+            name: "Task Lists",
+            href: "/app/task-lists",
+            icon: CheckSquare,
+            locked: true,
+            version: "V1.2",
+          },
+          {
+            name: "Boards",
+            href: "/app/boards",
+            icon: Square,
+            locked: true,
+            version: "V1.1",
+          },
+        ],
       },
-    ]
+    ],
   },
   {
-    name: 'Service',
+    name: "Service",
     icon: Headset,
     items: [
-      { name: 'Tickets', href: '/app/tickets', icon: Activity, locked: true, version: 'V1.1' },
-      { name: 'Knowledge Base', href: '/app/knowledge-base', icon: FileText, locked: true, version: 'V1.1' },
-      { name: 'Customer Portal', href: '/app/customer-portal', icon: Users, locked: true, version: 'V1.1' },
-      { name: 'Support Analytics', href: '/app/support-analytics', icon: BarChart3, locked: true, version: 'V1.1' },
-    ]
-  }
+      {
+        name: "Tickets",
+        href: "/app/tickets",
+        icon: Activity,
+        locked: true,
+        version: "V1.1",
+      },
+      {
+        name: "Knowledge Base",
+        href: "/app/knowledge-base",
+        icon: FileText,
+        locked: true,
+        version: "V1.1",
+      },
+      {
+        name: "Customer Portal",
+        href: "/app/customer-portal",
+        icon: Users,
+        locked: true,
+        version: "V1.1",
+      },
+      {
+        name: "Support Analytics",
+        href: "/app/support-analytics",
+        icon: BarChart3,
+        locked: true,
+        version: "V1.1",
+      },
+    ],
+  },
 ];
 
-export default function SimplifiedSidebar({ isSidebarCollapsed, setIsSidebarCollapsed, pinnedButtons, onPinnedChange, currentTheme }) {
+export default function SimplifiedSidebar({
+  isSidebarCollapsed,
+  pinnedButtons,
+  onPinnedChange,
+  currentTheme,
+  onMouseEnter,
+  onMouseLeave,
+}) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut, supabase } = useSupabase();
   const { openPopup } = useAffiliatePopup();
   const { isDemoMode, disableDemoMode } = useDemoMode();
+  const { currentAgency, getCurrentTier, isGodMode, isFeatureEnabled } =
+    useAgency();
+
+  // ALL HOOKS MUST BE CALLED AT THE TOP BEFORE ANY OTHER CODE
   const [isHovered, setIsHovered] = useState(false);
   const [hasBetaAccess, setHasBetaAccess] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // Check if current user is the parent account
-  const isParentAccount = user?.email === 'axolopcrm@gmail.com';
   const [expandedCategories, setExpandedCategories] = useState({
     Sales: false,
     Teams: false,
@@ -121,24 +249,167 @@ export default function SimplifiedSidebar({ isSidebarCollapsed, setIsSidebarColl
   });
   const [expandedSubItems, setExpandedSubItems] = useState({});
 
+  // Check if current user is the parent account
+  const isParentAccount = user?.email === "axolopcrm@gmail.com";
+
+  // Get current subscription tier for feature gating
+  const currentTier = getCurrentTier?.() || "sales";
+
+  // Check if a section/feature is accessible based on tier and agency settings
+  const isSectionAccessible = (sectionKey) => {
+    // God mode users have access to everything
+    if (isGodMode?.()) return true;
+
+    // Check agency settings for section toggles
+    const sectionsEnabled = currentAgency?.settings?.sections_enabled || {};
+    if (sectionsEnabled[sectionKey] === false) return false;
+
+    // Check tier-based access
+    const tierFeatures = {
+      sales: [
+        "home",
+        "leads",
+        "contacts",
+        "calendar",
+        "tasks",
+        "pipeline",
+        "opportunities",
+        "activities",
+        "conversations",
+        "calls",
+        "inbox",
+      ],
+      build: [
+        "home",
+        "leads",
+        "contacts",
+        "calendar",
+        "tasks",
+        "pipeline",
+        "opportunities",
+        "activities",
+        "conversations",
+        "calls",
+        "inbox",
+        "forms",
+        "email_marketing",
+        "automation",
+        "reports",
+        "second_brain",
+      ],
+      scale: [
+        "home",
+        "leads",
+        "contacts",
+        "calendar",
+        "tasks",
+        "pipeline",
+        "opportunities",
+        "activities",
+        "conversations",
+        "calls",
+        "inbox",
+        "forms",
+        "email_marketing",
+        "automation",
+        "reports",
+        "second_brain",
+        "white_label",
+        "api",
+        "mind_maps",
+      ],
+    };
+
+    const allowedFeatures = tierFeatures[currentTier] || tierFeatures.sales;
+    return allowedFeatures.includes(sectionKey);
+  };
+
+  // Check if a feature is tier-locked (for showing lock icon)
+  const isTierLocked = (featureKey) => {
+    if (isGodMode?.()) return false;
+
+    const tierFeatures = {
+      sales: [
+        "home",
+        "leads",
+        "contacts",
+        "calendar",
+        "tasks",
+        "pipeline",
+        "opportunities",
+        "activities",
+        "conversations",
+        "calls",
+        "inbox",
+      ],
+      build: [
+        "home",
+        "leads",
+        "contacts",
+        "calendar",
+        "tasks",
+        "pipeline",
+        "opportunities",
+        "activities",
+        "conversations",
+        "calls",
+        "inbox",
+        "forms",
+        "email_marketing",
+        "automation",
+        "reports",
+        "second_brain",
+      ],
+      scale: [
+        "home",
+        "leads",
+        "contacts",
+        "calendar",
+        "tasks",
+        "pipeline",
+        "opportunities",
+        "activities",
+        "conversations",
+        "calls",
+        "inbox",
+        "forms",
+        "email_marketing",
+        "automation",
+        "reports",
+        "second_brain",
+        "white_label",
+        "api",
+        "mind_maps",
+      ],
+    };
+
+    const allowedFeatures = tierFeatures[currentTier] || tierFeatures.sales;
+    return !allowedFeatures.includes(featureKey);
+  };
+
   // Check for beta access
   useEffect(() => {
     const checkBetaAccess = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         if (!session?.access_token) return;
 
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/users/beta-access`, {
-          headers: {
-            Authorization: `Bearer ${session.access_token}`
-          }
-        });
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/users/beta-access`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+            },
+          },
+        );
 
         if (response.data.success) {
           setHasBetaAccess(response.data.data.hasBetaAccess);
         }
       } catch (error) {
-        console.error('Error checking beta access:', error);
+        console.error("Error checking beta access:", error);
       }
     };
 
@@ -148,16 +419,16 @@ export default function SimplifiedSidebar({ isSidebarCollapsed, setIsSidebarColl
   }, [user, supabase]);
 
   const toggleCategory = (categoryName) => {
-    setExpandedCategories(prev => ({
+    setExpandedCategories((prev) => ({
       ...prev,
-      [categoryName]: !prev[categoryName]
+      [categoryName]: !prev[categoryName],
     }));
   };
 
   const toggleSubItem = (itemName) => {
-    setExpandedSubItems(prev => ({
+    setExpandedSubItems((prev) => ({
       ...prev,
-      [itemName]: !prev[itemName]
+      [itemName]: !prev[itemName],
     }));
   };
 
@@ -178,12 +449,16 @@ export default function SimplifiedSidebar({ isSidebarCollapsed, setIsSidebarColl
         onClick={handleMobileMenuToggle}
         className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg border border-gray-200 hover:bg-gray-50"
       >
-        {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        {isMobileMenuOpen ? (
+          <X className="h-5 w-5" />
+        ) : (
+          <Menu className="h-5 w-5" />
+        )}
       </button>
 
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (
-        <div 
+        <div
           className="lg:hidden fixed inset-0 bg-black/50 z-40"
           onClick={handleMobileMenuToggle}
         />
@@ -192,64 +467,86 @@ export default function SimplifiedSidebar({ isSidebarCollapsed, setIsSidebarColl
       {/* Sidebar */}
       <div
         className={`
-          fixed lg:relative h-screen bg-gradient-to-b from-black/95 via-gray-900/90 to-black/95 backdrop-blur-xl 
-          flex flex-col shadow-2xl border-r border-white/5 z-50 transition-all duration-300 ease-out
-          ${isSidebarCollapsed ? 'w-16' : 'w-64'}
-          ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          fixed lg:relative h-screen backdrop-blur-xl
+          flex flex-col shadow-2xl z-50
+          ${isSidebarCollapsed ? "w-10" : "w-64"}
+          ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
+        style={{
+          background:
+            "linear-gradient(180deg, #0a0a0a 0%, #1a0812 30%, #3F0D28 50%, #1a0812 70%, #0a0a0a 100%)",
+          transition: 'width 400ms cubic-bezier(0.4, 0, 0.2, 1)',
+          willChange: 'width',
+        }}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
       >
-        {/* Header */}
-        <div className="h-16 bg-transparent flex items-center px-4 rounded-br-2xl -mt-[7px] flex-shrink-0">
-          {!isSidebarCollapsed && (
-            <div className="flex items-center gap-2">
-              <img
-                src="/axolop-logo.png"
-                alt="Axolop"
-                className="h-8 w-8 object-contain"
-              />
-              <span className="text-white font-bold text-lg">Axolop</span>
-            </div>
-          )}
-          {isSidebarCollapsed && (
+        {/* Header - Logo and text - always visible */}
+        <div className="h-16 bg-transparent flex items-center px-4 rounded-br-2xl -mt-[14px] flex-shrink-0 overflow-visible">
+          <div className="flex items-center gap-2 whitespace-nowrap">
             <img
               src="/axolop-logo.png"
               alt="Axolop"
-              className="h-8 w-8 object-contain mx-auto"
+              className="h-8 w-8 object-contain flex-shrink-0"
             />
-          )}
+            <span className="text-white font-bold text-lg">Axolop</span>
+          </div>
         </div>
 
-        {/* Navigation */}
-        <div className="flex-1 overflow-y-auto py-4 px-3">
+        {/* Content wrapper - fades out when collapsed */}
+        <div
+          className="flex-1 flex flex-col overflow-hidden"
+          style={{
+            opacity: isSidebarCollapsed ? 0 : 1,
+            pointerEvents: isSidebarCollapsed ? 'none' : 'auto',
+            transition: 'opacity 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+          }}
+        >
+          {/* Navigation */}
+          <div className="flex-1 overflow-y-auto py-4 px-3">
           {/* Core Navigation */}
           <div className="mb-6">
-            {!isSidebarCollapsed && (
-              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">
-                Core
-              </h3>
-            )}
+            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-3">
+              Core
+            </h3>
             <div className="space-y-1">
               {coreNavigation.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.href;
-                
+                const featureKey = item.name.toLowerCase().replace(" ", "_");
+                const isLocked = isTierLocked(featureKey);
+
+                // Show locked items with lock icon, but still render them
                 return (
                   <Link
                     key={item.name}
-                    to={item.href}
-                    onClick={handleMobileNavigation}
+                    to={isLocked ? "#" : item.href}
+                    onClick={(e) => {
+                      if (isLocked) {
+                        e.preventDefault();
+                        // Could open TierUpsellModal here
+                        navigate("/app/settings/billing");
+                      } else {
+                        handleMobileNavigation();
+                      }
+                    }}
                     className={`
                       flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200
-                      ${isActive
-                        ? 'bg-white/10 text-white shadow-lg'
-                        : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                      ${
+                        isLocked
+                          ? "text-gray-500 cursor-not-allowed opacity-60"
+                          : isActive
+                            ? "bg-white/10 text-white shadow-lg"
+                            : "text-gray-400 hover:bg-white/5 hover:text-white"
                       }
-                      ${isSidebarCollapsed ? 'justify-center' : ''}
                     `}
                   >
                     <Icon className="h-5 w-5 flex-shrink-0" />
-                    {!isSidebarCollapsed && <span>{item.name}</span>}
-                    {isActive && !isSidebarCollapsed && (
+                    <span>{item.name}</span>
+                    {isLocked && (
+                      <Lock className="ml-auto h-3.5 w-3.5 text-gray-500" />
+                    )}
+                    {isActive && !isLocked && (
                       <div className="ml-auto w-2 h-2 bg-white rounded-full" />
                     )}
                   </Link>
@@ -260,42 +557,21 @@ export default function SimplifiedSidebar({ isSidebarCollapsed, setIsSidebarColl
 
           {/* Advanced Features */}
           <div>
-            {!isSidebarCollapsed && (
-              <button
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                className="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-white transition-colors"
-              >
-                <span>Advanced</span>
-                <ChevronDown className={`h-3 w-3 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
-              </button>
-            )}
-            
-            {(showAdvanced || isSidebarCollapsed) && (
+            <button
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-white transition-colors"
+            >
+              <span>Advanced</span>
+              <ChevronDown
+                className={`h-3 w-3 transition-transform ${showAdvanced ? "rotate-180" : ""}`}
+              />
+            </button>
+
+            {showAdvanced && (
               <div className="space-y-1">
                 {advancedCategories.map((category) => {
                   const Icon = category.icon;
                   const isExpanded = expandedCategories[category.name];
-
-                  if (isSidebarCollapsed) {
-                    // Collapsed state - show category as single icon
-                    return (
-                      <div key={category.name} className="relative group">
-                        <button
-                          onClick={() => toggleCategory(category.name)}
-                          className="w-full flex items-center justify-center p-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-all duration-200"
-                        >
-                          <Icon className="h-5 w-5" />
-                        </button>
-                        
-                        {/* Tooltip for collapsed state */}
-                        <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
-                          <div className="bg-black text-white text-xs px-3 py-2 rounded-md shadow-xl whitespace-nowrap border border-white/20">
-                            {category.name}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  }
 
                   return (
                     <div key={category.name}>
@@ -303,28 +579,38 @@ export default function SimplifiedSidebar({ isSidebarCollapsed, setIsSidebarColl
                       <div
                         className={`
                           flex items-center justify-between cursor-pointer rounded-lg mb-1 transition-all duration-200
-                          ${isExpanded
-                            ? 'backdrop-blur-xl bg-gradient-to-r from-gray-700/30 via-gray-800/40 to-gray-700/30 shadow-lg border-l-4 border-white'
-                            : 'hover:backdrop-blur-sm hover:bg-gray-500/30'
+                          ${
+                            isExpanded
+                              ? "backdrop-blur-xl bg-gradient-to-r from-gray-700/30 via-gray-800/40 to-gray-700/30 shadow-lg border-l-4 border-white"
+                              : "hover:backdrop-blur-sm hover:bg-gray-500/30"
                           }
                         `}
                         onClick={() => toggleCategory(category.name)}
                       >
                         <div className="flex items-center flex-1 px-3 py-2">
-                          <div className={`p-2 rounded-lg mr-3 transition-colors ${
-                            isExpanded ? 'bg-white/20 text-white' : 'text-gray-400'
-                          }`}>
+                          <div
+                            className={`p-2 rounded-lg mr-3 transition-colors ${
+                              isExpanded
+                                ? "bg-white/20 text-white"
+                                : "text-gray-400"
+                            }`}
+                          >
                             <Icon className="h-4 w-4" />
                           </div>
-                          <span className={`font-semibold text-sm ${
-                            isExpanded ? 'text-white' : 'text-gray-300'
-                          }`}>{category.name}</span>
+                          <span
+                            className={`font-semibold text-sm ${
+                              isExpanded ? "text-white" : "text-gray-300"
+                            }`}
+                          >
+                            {category.name}
+                          </span>
                         </div>
                         <div className="px-3">
-                          {isExpanded ? 
-                            <ChevronUp className="h-4 w-4 text-gray-400" /> : 
+                          {isExpanded ? (
+                            <ChevronUp className="h-4 w-4 text-gray-400" />
+                          ) : (
                             <ChevronDown className="h-4 w-4 text-gray-400" />
-                          }
+                          )}
                         </div>
                       </div>
 
@@ -334,24 +620,30 @@ export default function SimplifiedSidebar({ isSidebarCollapsed, setIsSidebarColl
                           {category.items.map((item) => {
                             const ItemIcon = item.icon;
                             const isActive = location.pathname === item.href;
-                            const hasSubItems = item.subItems && item.subItems.length > 0;
+                            const hasSubItems =
+                              item.subItems && item.subItems.length > 0;
                             const isSubExpanded = expandedSubItems[item.name];
 
                             if (hasSubItems) {
                               // Handle sub-items
                               if (item.locked) {
                                 return (
-                                  <div key={item.name} className="relative group ml-2">
+                                  <div
+                                    key={item.name}
+                                    className="relative group ml-2"
+                                  >
                                     <div className="flex items-center justify-between py-2 px-3 rounded-lg cursor-not-allowed text-gray-500 bg-gray-800/30 border border-gray-700/40">
                                       <div className="flex items-center">
                                         <ItemIcon className="h-4 w-4 mr-3 text-gray-500" />
-                                        <span className="text-sm text-gray-500">{item.name}</span>
+                                        <span className="text-sm text-gray-500">
+                                          {item.name}
+                                        </span>
                                       </div>
                                       <Lock className="h-3 w-3 text-gray-500" />
                                     </div>
                                     <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                                       <div className="bg-black text-white text-xs px-3 py-2 rounded-md shadow-xl whitespace-nowrap border border-white/20">
-                                        Coming in {item.version || 'V1.1'}
+                                        Coming in {item.version || "V1.1"}
                                       </div>
                                     </div>
                                   </div>
@@ -362,15 +654,24 @@ export default function SimplifiedSidebar({ isSidebarCollapsed, setIsSidebarColl
                                 <div key={item.name}>
                                   <div
                                     className={`flex items-center justify-between py-2 px-3 rounded-lg cursor-pointer ml-2 ${
-                                      isActive ? 'text-white bg-white/10' : 'text-gray-400 hover:bg-gray-500/30'
+                                      isActive
+                                        ? "text-white bg-white/10"
+                                        : "text-gray-400 hover:bg-gray-500/30"
                                     }`}
                                     onClick={() => {
-                                      const defaultSubItem = item.subItems.find(sub =>
-                                        sub.name.toLowerCase().includes('list') ||
-                                        sub.name.toLowerCase() === 'pipeline' ||
-                                        sub.name.toLowerCase() === 'overview'
+                                      const defaultSubItem = item.subItems.find(
+                                        (sub) =>
+                                          sub.name
+                                            .toLowerCase()
+                                            .includes("list") ||
+                                          sub.name.toLowerCase() ===
+                                            "pipeline" ||
+                                          sub.name.toLowerCase() === "overview",
                                       );
-                                      if (defaultSubItem && defaultSubItem.href) {
+                                      if (
+                                        defaultSubItem &&
+                                        defaultSubItem.href
+                                      ) {
                                         navigate(defaultSubItem.href);
                                         handleMobileNavigation();
                                       }
@@ -378,27 +679,38 @@ export default function SimplifiedSidebar({ isSidebarCollapsed, setIsSidebarColl
                                   >
                                     <div className="flex items-center">
                                       <ItemIcon className="h-4 w-4 mr-3" />
-                                      <span className="text-sm">{item.name}</span>
+                                      <span className="text-sm">
+                                        {item.name}
+                                      </span>
                                     </div>
-                                    <ChevronRight className={`h-3 w-3 transition-transform ${isSubExpanded ? 'rotate-90' : ''}`} />
+                                    <ChevronRight
+                                      className={`h-3 w-3 transition-transform ${isSubExpanded ? "rotate-90" : ""}`}
+                                    />
                                   </div>
 
                                   {isSubExpanded && (
                                     <div className="ml-6 mt-1 space-y-1">
                                       {item.subItems.map((subItem) => {
                                         const SubItemIcon = subItem.icon;
-                                        const isSubActive = location.pathname === subItem.href;
+                                        const isSubActive =
+                                          location.pathname === subItem.href;
 
                                         return subItem.locked ? (
-                                          <div key={subItem.name} className="relative group ml-2">
+                                          <div
+                                            key={subItem.name}
+                                            className="relative group ml-2"
+                                          >
                                             <div className="flex items-center py-2 px-3 rounded-lg cursor-not-allowed text-gray-500 bg-gray-800/30">
                                               <SubItemIcon className="h-3.5 w-3.5 mr-3 text-gray-500" />
-                                              <span className="text-xs text-gray-500">{subItem.name}</span>
+                                              <span className="text-xs text-gray-500">
+                                                {subItem.name}
+                                              </span>
                                               <Lock className="h-3 w-3 text-gray-500 ml-auto" />
                                             </div>
                                             <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                                               <div className="bg-black text-white text-xs px-3 py-2 rounded-md shadow-xl whitespace-nowrap border border-white/20">
-                                                Coming in {subItem.version || 'V1.1'}
+                                                Coming in{" "}
+                                                {subItem.version || "V1.1"}
                                               </div>
                                             </div>
                                           </div>
@@ -408,11 +720,15 @@ export default function SimplifiedSidebar({ isSidebarCollapsed, setIsSidebarColl
                                             to={subItem.href}
                                             onClick={handleMobileNavigation}
                                             className={`flex items-center py-2 px-3 rounded-lg transition-all ${
-                                              isSubActive ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-gray-500/30'
+                                              isSubActive
+                                                ? "bg-white/10 text-white"
+                                                : "text-gray-400 hover:bg-gray-500/30"
                                             }`}
                                           >
                                             <SubItemIcon className="h-3.5 w-3.5 mr-3" />
-                                            <span className="text-xs">{subItem.name}</span>
+                                            <span className="text-xs">
+                                              {subItem.name}
+                                            </span>
                                           </Link>
                                         );
                                       })}
@@ -431,12 +747,14 @@ export default function SimplifiedSidebar({ isSidebarCollapsed, setIsSidebarColl
                                   <div
                                     key={item.name}
                                     className="relative group ml-2 cursor-pointer"
-                                    onClick={() => navigate('/app/beta-access')}
+                                    onClick={() => navigate("/app/beta-access")}
                                   >
                                     <div className="flex items-center justify-between py-2 px-3 rounded-lg text-gray-400 bg-gray-800/30 border border-yellow-500/40 hover:border-yellow-500/60">
                                       <div className="flex items-center gap-2">
                                         <ItemIcon className="h-4 w-4 text-yellow-500/70" />
-                                        <span className="text-sm text-gray-300">{item.name}</span>
+                                        <span className="text-sm text-gray-300">
+                                          {item.name}
+                                        </span>
                                         <Badge className="bg-yellow-500/20 text-yellow-500 text-[10px] px-1.5 py-0 border border-yellow-500/40">
                                           BETA
                                         </Badge>
@@ -455,17 +773,22 @@ export default function SimplifiedSidebar({ isSidebarCollapsed, setIsSidebarColl
 
                             // Regular locked items
                             return item.locked ? (
-                              <div key={item.name} className="relative group ml-2">
+                              <div
+                                key={item.name}
+                                className="relative group ml-2"
+                              >
                                 <div className="flex items-center justify-between py-2 px-3 rounded-lg cursor-not-allowed text-gray-500 bg-gray-800/30 border border-gray-700/40">
                                   <div className="flex items-center">
                                     <ItemIcon className="h-4 w-4 mr-3 text-gray-500" />
-                                    <span className="text-sm text-gray-500">{item.name}</span>
+                                    <span className="text-sm text-gray-500">
+                                      {item.name}
+                                    </span>
                                   </div>
                                   <Lock className="h-3 w-3 text-gray-500" />
                                 </div>
                                 <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                                   <div className="bg-black text-white text-xs px-3 py-2 rounded-md shadow-xl whitespace-nowrap border border-white/20">
-                                    Coming in {item.version || 'V1.1'}
+                                    Coming in {item.version || "V1.1"}
                                   </div>
                                 </div>
                               </div>
@@ -475,7 +798,9 @@ export default function SimplifiedSidebar({ isSidebarCollapsed, setIsSidebarColl
                                 to={item.href}
                                 onClick={handleMobileNavigation}
                                 className={`flex items-center justify-between py-2 px-3 rounded-lg transition-all ml-2 ${
-                                  isActive ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-gray-500/30'
+                                  isActive
+                                    ? "bg-white/10 text-white"
+                                    : "text-gray-400 hover:bg-gray-500/30"
                                 }`}
                               >
                                 <div className="flex items-center">
@@ -500,20 +825,22 @@ export default function SimplifiedSidebar({ isSidebarCollapsed, setIsSidebarColl
           </div>
 
           {/* More Menu */}
-          {!isSidebarCollapsed && (
-            <div className="mt-6 pt-6 border-t border-gray-800">
-              <SidebarMoreMenu pinnedButtons={pinnedButtons || []} onPinnedChange={onPinnedChange} />
-            </div>
-          )}
+          <div className="mt-6 pt-6 border-t border-gray-800">
+            <SidebarMoreMenu
+              pinnedButtons={pinnedButtons || []}
+              onPinnedChange={onPinnedChange}
+            />
+          </div>
         </div>
 
         {/* Bottom Section */}
-        <div className="border-t border-gray-800/50">
-          <div className="px-3 py-2">
-            <AgenciesSelector />
-          </div>
           <div className="border-t border-gray-800/50">
-            <AffiliateSidebarButton />
+            <div className="px-3 py-2">
+              <AgenciesSelector />
+            </div>
+            <div className="border-t border-gray-800/50">
+              <AffiliateSidebarButton />
+            </div>
           </div>
         </div>
       </div>

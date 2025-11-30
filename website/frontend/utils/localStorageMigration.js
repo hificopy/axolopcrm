@@ -3,14 +3,21 @@
  * Migrates data from localStorage to Supabase user-specific storage
  */
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+import {
+  localStorageGet,
+  localStorageRemove,
+  localStorageSet,
+  localStorageGetJSON,
+} from './safeStorage';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
 
 /**
  * Migrate theme preference from localStorage to Supabase
  */
 export const migrateTheme = async (token) => {
   try {
-    const theme = localStorage.getItem('theme');
+    const theme = localStorageGet('theme');
     if (!theme) return null;
 
     // Update theme in Supabase
@@ -29,7 +36,7 @@ export const migrateTheme = async (token) => {
     }
 
     // Clear from localStorage after successful migration
-    localStorage.removeItem('theme');
+    localStorageRemove('theme');
     console.log('✅ Theme migrated to Supabase');
     return theme;
   } catch (error) {
@@ -43,11 +50,8 @@ export const migrateTheme = async (token) => {
  */
 export const migrateTodos = async (token) => {
   try {
-    const todosJson = localStorage.getItem('axolop-todos');
-    if (!todosJson) return null;
-
-    const todos = JSON.parse(todosJson);
-    if (!Array.isArray(todos) || todos.length === 0) return null;
+    const todos = localStorageGetJSON('axolop-todos', null);
+    if (!todos || !Array.isArray(todos) || todos.length === 0) return null;
 
     // Create each todo in Supabase
     const migratedTodos = [];
@@ -74,64 +78,11 @@ export const migrateTodos = async (token) => {
     }
 
     // Clear from localStorage after successful migration
-    localStorage.removeItem('axolop-todos');
+    localStorageRemove('axolop-todos');
     console.log(`✅ ${migratedTodos.length} todos migrated to Supabase`);
     return migratedTodos;
   } catch (error) {
     console.error('Error migrating todos:', error);
-    return null;
-  }
-};
-
-/**
- * Migrate Kate onboarding status from localStorage to Supabase
- */
-export const migrateKateOnboarding = async (token) => {
-  try {
-    const completed = localStorage.getItem('kateOnboardingCompleted');
-    const messages = localStorage.getItem('kateOnboardingMessages');
-
-    if (!completed && !messages) return null;
-
-    const updates = {};
-
-    if (completed === 'true') {
-      updates.kate_onboarding_completed = true;
-    }
-
-    if (messages) {
-      try {
-        updates.kate_onboarding_messages = JSON.parse(messages);
-      } catch (e) {
-        console.error('Error parsing Kate onboarding messages:', e);
-      }
-    }
-
-    if (Object.keys(updates).length === 0) return null;
-
-    // Update preferences in Supabase
-    for (const [key, value] of Object.entries(updates)) {
-      const response = await fetch(`${API_URL}/user-preferences`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ key, value })
-      });
-
-      if (!response.ok) {
-        console.error(`Failed to migrate ${key}`);
-      }
-    }
-
-    // Clear from localStorage after successful migration
-    localStorage.removeItem('kateOnboardingCompleted');
-    localStorage.removeItem('kateOnboardingMessages');
-    console.log('✅ Kate onboarding data migrated to Supabase');
-    return updates;
-  } catch (error) {
-    console.error('Error migrating Kate onboarding:', error);
     return null;
   }
 };
@@ -143,19 +94,15 @@ export const migrateKateOnboarding = async (token) => {
  */
 export const migrateOnboardingResponses = async (token) => {
   try {
-    const responses = localStorage.getItem('onboarding_responses');
-    const recommendedPlan = localStorage.getItem('recommended_plan');
+    const responses = localStorageGetJSON('onboarding_responses', null);
+    const recommendedPlan = localStorageGet('recommended_plan');
 
     if (!responses && !recommendedPlan) return null;
 
     const data = {};
 
     if (responses) {
-      try {
-        data.onboarding_responses = JSON.parse(responses);
-      } catch (e) {
-        console.error('Error parsing onboarding responses:', e);
-      }
+      data.onboarding_responses = responses;
     }
 
     if (recommendedPlan) {
@@ -183,8 +130,8 @@ export const migrateOnboardingResponses = async (token) => {
     }
 
     // Clear from localStorage after successful migration
-    localStorage.removeItem('onboarding_responses');
-    localStorage.removeItem('recommended_plan');
+    localStorageRemove('onboarding_responses');
+    localStorageRemove('recommended_plan');
     console.log('✅ Onboarding responses migrated to Supabase');
     return data;
   } catch (error) {
@@ -200,8 +147,8 @@ export const migrateOnboardingResponses = async (token) => {
 export const migrateAffiliateCode = async (token, userId) => {
   try {
     // Check for both generic and user-specific affiliate codes
-    const genericCode = localStorage.getItem('ref_code');
-    const userCode = localStorage.getItem(`affiliate_code_${userId}`);
+    const genericCode = localStorageGet('ref_code');
+    const userCode = localStorageGet(`affiliate_code_${userId}`);
 
     const code = userCode || genericCode;
     if (!code) return null;
@@ -225,8 +172,8 @@ export const migrateAffiliateCode = async (token, userId) => {
     }
 
     // Clear from localStorage after successful migration
-    localStorage.removeItem('ref_code');
-    localStorage.removeItem(`affiliate_code_${userId}`);
+    localStorageRemove('ref_code');
+    localStorageRemove(`affiliate_code_${userId}`);
     console.log('✅ Affiliate code migrated to Supabase');
     return code;
   } catch (error) {
@@ -245,7 +192,6 @@ export const migrateAllLocalStorageData = async (token, userId) => {
     const results = await Promise.allSettled([
       migrateTheme(token),
       migrateTodos(token),
-      migrateKateOnboarding(token),
       migrateOnboardingResponses(token),
       migrateAffiliateCode(token, userId)
     ]);
@@ -254,7 +200,7 @@ export const migrateAllLocalStorageData = async (token, userId) => {
     console.log(`✅ Migration complete! ${successCount} items migrated.`);
 
     // Set a flag to indicate migration has been completed
-    localStorage.setItem('migration_completed', new Date().toISOString());
+    localStorageSet('migration_completed', new Date().toISOString());
 
     return {
       success: true,
@@ -273,12 +219,12 @@ export const migrateAllLocalStorageData = async (token, userId) => {
  * Check if migration has already been completed
  */
 export const hasMigrationCompleted = () => {
-  return localStorage.getItem('migration_completed') !== null;
+  return localStorageGet('migration_completed') !== null;
 };
 
 /**
  * Reset migration flag (for testing purposes)
  */
 export const resetMigrationFlag = () => {
-  localStorage.removeItem('migration_completed');
+  localStorageRemove('migration_completed');
 };

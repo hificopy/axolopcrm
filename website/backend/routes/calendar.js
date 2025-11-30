@@ -1,4 +1,5 @@
 import express from 'express';
+import crypto from 'crypto';
 import googleCalendarService from '../services/google-calendar-service.js';
 import calendarPresetService from '../services/calendar-preset-service.js';
 import crmCalendarEventsService from '../services/crm-calendar-events-service.js';
@@ -6,6 +7,63 @@ import { protect } from '../middleware/authMiddleware.js';
 import { extractAgencyContext, requireEditPermissions } from '../middleware/agency-access.js';
 
 const router = express.Router();
+
+// Secret key for signing OAuth state (use env var in production)
+const STATE_SECRET = process.env.OAUTH_STATE_SECRET || process.env.JWT_SECRET || 'oauth-state-secret-key';
+
+/**
+ * Generate a signed OAuth state token
+ * Format: userId:timestamp:signature
+ */
+function generateSignedState(userId) {
+  const timestamp = Date.now();
+  const data = `${userId}:${timestamp}`;
+  const signature = crypto
+    .createHmac('sha256', STATE_SECRET)
+    .update(data)
+    .digest('hex')
+    .substring(0, 16); // Use first 16 chars for brevity
+  return `${data}:${signature}`;
+}
+
+/**
+ * Verify and extract userId from signed state token
+ * Returns userId if valid, null if invalid
+ */
+function verifySignedState(state) {
+  try {
+    const parts = state.split(':');
+    if (parts.length !== 3) return null;
+
+    const [userId, timestamp, providedSignature] = parts;
+
+    // Check timestamp isn't too old (15 minutes max)
+    const stateAge = Date.now() - parseInt(timestamp);
+    const maxAge = 15 * 60 * 1000; // 15 minutes
+    if (stateAge > maxAge) {
+      console.warn('OAuth state token expired');
+      return null;
+    }
+
+    // Verify signature
+    const data = `${userId}:${timestamp}`;
+    const expectedSignature = crypto
+      .createHmac('sha256', STATE_SECRET)
+      .update(data)
+      .digest('hex')
+      .substring(0, 16);
+
+    if (providedSignature !== expectedSignature) {
+      console.warn('OAuth state signature mismatch');
+      return null;
+    }
+
+    return userId;
+  } catch (error) {
+    console.error('Error verifying OAuth state:', error);
+    return null;
+  }
+}
 
 // Apply agency context extraction to all routes
 router.use(extractAgencyContext);
@@ -18,7 +76,9 @@ router.use(extractAgencyContext);
 router.get('/google/auth-url', protect, async (req, res) => {
   try {
     const userId = req.user.id;
-    const authUrl = googleCalendarService.getAuthUrl(userId);
+    // Generate signed state token instead of just userId
+    const signedState = generateSignedState(userId);
+    const authUrl = googleCalendarService.getAuthUrl(signedState);
     res.json({ authUrl });
   } catch (error) {
     console.error('Error generating auth URL:', error);
@@ -32,10 +92,17 @@ router.get('/google/auth-url', protect, async (req, res) => {
 router.get('/google/oauth/callback', async (req, res) => {
   try {
     const { code, state } = req.query;
-    const userId = state; // userId passed in state parameter
 
-    if (!code || !userId) {
-      return res.status(400).json({ error: 'Missing authorization code or user ID' });
+    if (!code || !state) {
+      return res.status(400).json({ error: 'Missing authorization code or state' });
+    }
+
+    // Verify signed state and extract userId
+    const userId = verifySignedState(state);
+    if (!userId) {
+      console.warn('Invalid or expired OAuth state token');
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      return res.redirect(`${frontendUrl}/calendar?error=invalid_state`);
     }
 
     // Exchange code for tokens

@@ -26,7 +26,7 @@ import {
   Info,
 } from "lucide-react";
 import { Badge } from "./ui/badge";
-import api from "./lib/api";
+import api from "@/lib/api";
 
 // Industry mappings (matching backend configuration)
 const INDUSTRY_CATEGORIES = {
@@ -497,7 +497,7 @@ const EnhancedLeadImportModal = ({ isOpen, onClose, onLeadsImported }) => {
       formData.append("mapping", JSON.stringify(columnMapping));
       formData.append("industryId", selectedIndustry);
 
-      const response = await api.post("/api/leads/import", formData, {
+      const response = await api.post("/leads/import", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -533,9 +533,9 @@ const EnhancedLeadImportModal = ({ isOpen, onClose, onLeadsImported }) => {
 
     return (
       <div className="space-y-4">
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg p-6">
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 rounded-lg p-6">
           <div className="flex items-center gap-2 mb-4">
-            <FileSpreadsheet className="h-6 w-6 text-blue-600" />
+            <FileSpreadsheet className="h-6 w-6 text-[#3F0D28]" />
             <h3 className="text-lg font-bold text-gray-900">
               {currentIndustry.name} - Spreadsheet Format
             </h3>
@@ -703,7 +703,7 @@ const EnhancedLeadImportModal = ({ isOpen, onClose, onLeadsImported }) => {
                     onClick={() => setSelectedCategory(INDUSTRY_CATEGORIES.B2B)}
                     className={`p-6 rounded-lg border-2 transition-all ${
                       selectedCategory === INDUSTRY_CATEGORIES.B2B
-                        ? "border-[#761B14] bg-red-50"
+                        ? "border-[#3F0D28] bg-red-50"
                         : "border-gray-300 hover:border-gray-400"
                     }`}
                   >
@@ -719,7 +719,7 @@ const EnhancedLeadImportModal = ({ isOpen, onClose, onLeadsImported }) => {
                     onClick={() => setSelectedCategory(INDUSTRY_CATEGORIES.B2C)}
                     className={`p-6 rounded-lg border-2 transition-all ${
                       selectedCategory === INDUSTRY_CATEGORIES.B2C
-                        ? "border-[#761B14] bg-red-50"
+                        ? "border-[#3F0D28] bg-red-50"
                         : "border-gray-300 hover:border-gray-400"
                     }`}
                   >
@@ -780,7 +780,7 @@ const EnhancedLeadImportModal = ({ isOpen, onClose, onLeadsImported }) => {
                 <Button
                   onClick={() => setStep(2)}
                   disabled={!selectedIndustry}
-                  className="bg-[#761B14] hover:bg-[#6b1a12]"
+                  className="btn-premium-red"
                 >
                   Continue to Upload
                 </Button>
@@ -806,7 +806,7 @@ const EnhancedLeadImportModal = ({ isOpen, onClose, onLeadsImported }) => {
                 >
                   Upload CSV File
                 </Label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-[#761B14] transition-colors">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-[#3F0D28] transition-colors">
                   <Upload className="h-12 w-12 mx-auto mb-4 text-gray-400" />
                   <Input
                     id="csvFile"
@@ -925,7 +925,7 @@ const EnhancedLeadImportModal = ({ isOpen, onClose, onLeadsImported }) => {
                     }
                   }}
                   disabled={!csvFile || csvHeaders.length === 0}
-                  className="bg-[#761B14] hover:bg-[#6b1a12]"
+                  className="btn-premium-red"
                 >
                   Review Import
                 </Button>
@@ -979,7 +979,7 @@ const EnhancedLeadImportModal = ({ isOpen, onClose, onLeadsImported }) => {
                 <Button
                   onClick={handleImport}
                   disabled={isLoading}
-                  className="bg-[#761B14] hover:bg-[#6b1a12]"
+                  className="btn-premium-red"
                 >
                   {isLoading ? "Importing..." : "Import Leads"}
                 </Button>
@@ -1041,7 +1041,7 @@ const EnhancedLeadImportModal = ({ isOpen, onClose, onLeadsImported }) => {
                     setValidationErrors([]);
                     setImportResults(null);
                   }}
-                  className="bg-[#761B14] hover:bg-[#6b1a12]"
+                  className="btn-premium-red"
                 >
                   Import More Leads
                 </Button>

@@ -1,6 +1,7 @@
-import { supabaseServer } from '../config/supabase-auth.js';
-import { DateTime } from 'luxon';
-import availabilityService from './availability-service.js';
+import { supabaseServer } from "../config/supabase-auth.js";
+import { DateTime } from "luxon";
+import availabilityService from "./availability-service.js";
+import bookingEmailService from "./booking-email-service.js";
 
 /**
  * Enhanced Booking Link Service
@@ -26,18 +27,18 @@ class EnhancedBookingLinkService {
         slug,
         description,
         internalNote,
-        color = '#0099FF',
+        color = "#0099FF",
 
         // Location
-        locationType = 'phone',
+        locationType = "phone",
         locationDetails = {},
 
         // Timing
         duration = 30,
-        dateRangeType = 'calendar_days',
+        dateRangeType = "calendar_days",
         dateRangeValue = 14,
         startTimeIncrement = 15,
-        timeFormat = '12h',
+        timeFormat = "12h",
         bufferBefore = 0,
         bufferAfter = 0,
 
@@ -49,8 +50,8 @@ class EnhancedBookingLinkService {
 
         // Team/Hosts
         hosts = [],
-        assignmentType = 'round_robin',
-        hostPriority = 'optimize_manually',
+        assignmentType = "round_robin",
+        hostPriority = "optimize_manually",
 
         // Questions
         primaryQuestions = [],
@@ -69,7 +70,7 @@ class EnhancedBookingLinkService {
         routingRules = [],
 
         // Redirects
-        confirmationRedirectType = 'default',
+        confirmationRedirectType = "default",
         confirmationRedirectUrl,
         disqualifiedRedirectUrl,
 
@@ -78,19 +79,19 @@ class EnhancedBookingLinkService {
         sendCancellationEmail = true,
         sendReminderEmails = false,
         reminderTimes = [],
-        replyToType = 'host_email',
+        replyToType = "host_email",
         customReplyTo,
 
         // Customization
-        theme = 'light',
-        brandColorPrimary = '#0236C2',
-        brandColorSecondary = '#031953',
+        theme = "light",
+        brandColorPrimary = "#0236C2",
+        brandColorSecondary = "#031953",
         useGradient = false,
-        schedulerBackground = '#FFFFFF',
-        fontColor = '#1F2A37',
-        borderColor = '#D1D5DB',
-        inputFieldsColor = '#F9FAFB',
-        buttonFontColor = '#FFFFFF',
+        schedulerBackground = "#FFFFFF",
+        fontColor = "#1F2A37",
+        borderColor = "#D1D5DB",
+        inputFieldsColor = "#F9FAFB",
+        buttonFontColor = "#FFFFFF",
         companyLogoUrl,
       } = linkData;
 
@@ -99,18 +100,20 @@ class EnhancedBookingLinkService {
 
       // Check if slug is available
       const { data: existing } = await supabaseServer
-        .from('booking_links')
-        .select('id')
-        .eq('slug', finalSlug)
+        .from("booking_links")
+        .select("id")
+        .eq("slug", finalSlug)
         .single();
 
       if (existing) {
-        throw new Error('Slug already in use. Please choose a different link prefix.');
+        throw new Error(
+          "Slug already in use. Please choose a different link prefix.",
+        );
       }
 
       // Create the booking link
       const { data: bookingLink, error: linkError } = await supabaseServer
-        .from('booking_links')
+        .from("booking_links")
         .insert({
           user_id: userId,
 
@@ -191,29 +194,32 @@ class EnhancedBookingLinkService {
         const hostInserts = hosts.map((host, index) => ({
           booking_link_id: bookingLink.id,
           user_id: host.userId,
-          priority: host.priority || 'medium',
+          priority: host.priority || "medium",
           priority_order: index,
           is_active: true,
         }));
 
         const { error: hostsError } = await supabaseServer
-          .from('booking_link_hosts')
+          .from("booking_link_hosts")
           .insert(hostInserts);
 
-        if (hostsError) console.error('Error adding hosts:', hostsError);
+        if (hostsError) console.error("Error adding hosts:", hostsError);
       }
 
       // Add questions
       const allQuestions = [
-        ...primaryQuestions.map(q => ({ ...q, question_type: 'primary' })),
-        ...secondaryQuestions.map(q => ({ ...q, question_type: 'secondary' })),
+        ...primaryQuestions.map((q) => ({ ...q, question_type: "primary" })),
+        ...secondaryQuestions.map((q) => ({
+          ...q,
+          question_type: "secondary",
+        })),
       ];
 
       if (allQuestions.length > 0) {
         const questionInserts = allQuestions.map((q, index) => ({
           booking_link_id: bookingLink.id,
           question_type: q.question_type,
-          field_type: q.type || q.fieldType || 'text',
+          field_type: q.type || q.fieldType || "text",
           label: q.label,
           placeholder: q.placeholder,
           help_text: q.helpText,
@@ -226,10 +232,11 @@ class EnhancedBookingLinkService {
         }));
 
         const { error: questionsError } = await supabaseServer
-          .from('booking_link_questions')
+          .from("booking_link_questions")
           .insert(questionInserts);
 
-        if (questionsError) console.error('Error adding questions:', questionsError);
+        if (questionsError)
+          console.error("Error adding questions:", questionsError);
       }
 
       // Add disqualification rules
@@ -244,10 +251,11 @@ class EnhancedBookingLinkService {
         }));
 
         const { error: rulesError } = await supabaseServer
-          .from('booking_link_disqualification_rules')
+          .from("booking_link_disqualification_rules")
           .insert(rulesInserts);
 
-        if (rulesError) console.error('Error adding disqualification rules:', rulesError);
+        if (rulesError)
+          console.error("Error adding disqualification rules:", rulesError);
       }
 
       // Add routing rules
@@ -258,21 +266,22 @@ class EnhancedBookingLinkService {
           operator: rule.operator,
           value: rule.value,
           route_to_user_id: rule.routeToUserId,
-          assignment_method: rule.assignmentMethod || 'specific',
+          assignment_method: rule.assignmentMethod || "specific",
           rule_order: index,
         }));
 
         const { error: routingError } = await supabaseServer
-          .from('booking_link_routing_rules')
+          .from("booking_link_routing_rules")
           .insert(routingInserts);
 
-        if (routingError) console.error('Error adding routing rules:', routingError);
+        if (routingError)
+          console.error("Error adding routing rules:", routingError);
       }
 
       // Return complete booking link with related data
       return await this.getBookingLinkById(bookingLink.id);
     } catch (error) {
-      console.error('Error creating booking link:', error);
+      console.error("Error creating booking link:", error);
       throw error;
     }
   }
@@ -283,8 +292,9 @@ class EnhancedBookingLinkService {
   async getBookingLink(slug) {
     try {
       const { data, error } = await supabaseServer
-        .from('booking_links')
-        .select(`
+        .from("booking_links")
+        .select(
+          `
           *,
           booking_link_hosts (
             id,
@@ -307,15 +317,16 @@ class EnhancedBookingLinkService {
             parent_question_id,
             show_if_conditions
           )
-        `)
-        .eq('slug', slug)
-        .eq('is_active', true)
+        `,
+        )
+        .eq("slug", slug)
+        .eq("is_active", true)
         .single();
 
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error getting booking link:', error);
+      console.error("Error getting booking link:", error);
       return null;
     }
   }
@@ -326,8 +337,9 @@ class EnhancedBookingLinkService {
   async getBookingLinkById(id) {
     try {
       const { data, error } = await supabaseServer
-        .from('booking_links')
-        .select(`
+        .from("booking_links")
+        .select(
+          `
           *,
           booking_link_hosts (
             id,
@@ -367,14 +379,15 @@ class EnhancedBookingLinkService {
             assignment_method,
             rule_order
           )
-        `)
-        .eq('id', id)
+        `,
+        )
+        .eq("id", id)
         .single();
 
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error getting booking link by ID:', error);
+      console.error("Error getting booking link by ID:", error);
       return null;
     }
   }
@@ -385,22 +398,24 @@ class EnhancedBookingLinkService {
   async getUserBookingLinks(userId) {
     try {
       const { data, error } = await supabaseServer
-        .from('booking_links')
-        .select(`
+        .from("booking_links")
+        .select(
+          `
           *,
           booking_link_hosts (
             id,
             user_id,
             priority
           )
-        `)
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
+        `,
+        )
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Error getting user booking links:', error);
+      console.error("Error getting user booking links:", error);
       return [];
     }
   }
@@ -412,26 +427,26 @@ class EnhancedBookingLinkService {
     try {
       // Verify ownership
       const { data: existing } = await supabaseServer
-        .from('booking_links')
-        .select('user_id')
-        .eq('id', id)
+        .from("booking_links")
+        .select("user_id")
+        .eq("id", id)
         .single();
 
       if (!existing || existing.user_id !== userId) {
-        throw new Error('Unauthorized');
+        throw new Error("Unauthorized");
       }
 
       const { data, error } = await supabaseServer
-        .from('booking_links')
+        .from("booking_links")
         .update(updates)
-        .eq('id', id)
+        .eq("id", id)
         .select()
         .single();
 
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error updating booking link:', error);
+      console.error("Error updating booking link:", error);
       throw error;
     }
   }
@@ -443,24 +458,24 @@ class EnhancedBookingLinkService {
     try {
       // Verify ownership
       const { data: existing } = await supabaseServer
-        .from('booking_links')
-        .select('user_id')
-        .eq('id', id)
+        .from("booking_links")
+        .select("user_id")
+        .eq("id", id)
         .single();
 
       if (!existing || existing.user_id !== userId) {
-        throw new Error('Unauthorized');
+        throw new Error("Unauthorized");
       }
 
       const { error } = await supabaseServer
-        .from('booking_links')
+        .from("booking_links")
         .delete()
-        .eq('id', id);
+        .eq("id", id);
 
       if (error) throw error;
       return { success: true };
     } catch (error) {
-      console.error('Error deleting booking link:', error);
+      console.error("Error deleting booking link:", error);
       throw error;
     }
   }
@@ -468,21 +483,21 @@ class EnhancedBookingLinkService {
   /**
    * Get available time slots for a booking link
    */
-  async getAvailableSlots(slug, date, timezone = 'America/New_York') {
+  async getAvailableSlots(slug, date, timezone = "America/New_York") {
     try {
       const bookingLink = await this.getBookingLink(slug);
       if (!bookingLink) {
-        throw new Error('Booking link not found');
+        throw new Error("Booking link not found");
       }
 
       // Use availability service to get real available slots
       return await availabilityService.getAvailableSlots(
         bookingLink,
         date,
-        timezone
+        timezone,
       );
     } catch (error) {
-      console.error('Error getting available slots:', error);
+      console.error("Error getting available slots:", error);
       throw error;
     }
   }
@@ -490,20 +505,24 @@ class EnhancedBookingLinkService {
   /**
    * Get availability calendar (7 days with slot counts)
    */
-  async getAvailabilityCalendar(slug, startDate, timezone = 'America/New_York') {
+  async getAvailabilityCalendar(
+    slug,
+    startDate,
+    timezone = "America/New_York",
+  ) {
     try {
       const bookingLink = await this.getBookingLink(slug);
       if (!bookingLink) {
-        throw new Error('Booking link not found');
+        throw new Error("Booking link not found");
       }
 
       return await availabilityService.getAvailabilityCalendar(
         bookingLink,
         startDate,
-        timezone
+        timezone,
       );
     } catch (error) {
-      console.error('Error getting availability calendar:', error);
+      console.error("Error getting availability calendar:", error);
       throw error;
     }
   }
@@ -515,7 +534,7 @@ class EnhancedBookingLinkService {
     try {
       const bookingLink = await this.getBookingLink(slug);
       if (!bookingLink) {
-        throw new Error('Booking link not found');
+        throw new Error("Booking link not found");
       }
 
       let qualified = true;
@@ -525,13 +544,19 @@ class EnhancedBookingLinkService {
       // Check business email requirement
       if (formData.email && bookingLink.require_business_email) {
         const freeEmailDomains = [
-          'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com',
-          'aol.com', 'icloud.com', 'mail.com', 'protonmail.com'
+          "gmail.com",
+          "yahoo.com",
+          "hotmail.com",
+          "outlook.com",
+          "aol.com",
+          "icloud.com",
+          "mail.com",
+          "protonmail.com",
         ];
-        const domain = formData.email.split('@')[1]?.toLowerCase();
+        const domain = formData.email.split("@")[1]?.toLowerCase();
         if (freeEmailDomains.includes(domain)) {
           qualified = false;
-          disqualificationReason = 'We only work with business email addresses';
+          disqualificationReason = "We only work with business email addresses";
           redirectUrl = bookingLink.disqualified_redirect_url;
         }
       }
@@ -539,14 +564,15 @@ class EnhancedBookingLinkService {
       // Check country code filtering
       if (formData.phone && bookingLink.allowed_country_codes) {
         const phoneNumber = formData.phone.trim();
-        if (phoneNumber.startsWith('+')) {
+        if (phoneNumber.startsWith("+")) {
           // Extract country code (first 1-3 digits after +)
           const matches = phoneNumber.match(/^\+(\d{1,3})/);
           if (matches) {
-            const countryCode = '+' + matches[1];
+            const countryCode = "+" + matches[1];
             if (!bookingLink.allowed_country_codes.includes(countryCode)) {
               qualified = false;
-              disqualificationReason = 'We currently only serve specific regions';
+              disqualificationReason =
+                "We currently only serve specific regions";
               redirectUrl = bookingLink.disqualified_redirect_url;
             }
           }
@@ -555,14 +581,16 @@ class EnhancedBookingLinkService {
 
       // Check custom disqualification rules
       const { data: disqualRules } = await supabaseServer
-        .from('booking_link_disqualification_rules')
-        .select('*')
-        .eq('booking_link_id', bookingLink.id)
-        .order('rule_order');
+        .from("booking_link_disqualification_rules")
+        .select("*")
+        .eq("booking_link_id", bookingLink.id)
+        .order("rule_order");
 
       if (disqualRules) {
         for (const rule of disqualRules) {
-          const question = bookingLink.booking_link_questions?.find(q => q.id === rule.question_id);
+          const question = bookingLink.booking_link_questions?.find(
+            (q) => q.id === rule.question_id,
+          );
           if (!question) continue;
 
           const fieldValue = formData[question.label] || formData[question.id];
@@ -570,29 +598,35 @@ class EnhancedBookingLinkService {
           let isDisqualified = false;
 
           switch (rule.operator) {
-            case 'equals':
+            case "equals":
               isDisqualified = fieldValue === rule.value;
               break;
-            case 'not_equals':
+            case "not_equals":
               isDisqualified = fieldValue !== rule.value;
               break;
-            case 'less_than':
+            case "less_than":
               isDisqualified = parseFloat(fieldValue) < parseFloat(rule.value);
               break;
-            case 'greater_than':
+            case "greater_than":
               isDisqualified = parseFloat(fieldValue) > parseFloat(rule.value);
               break;
-            case 'contains':
-              isDisqualified = String(fieldValue).toLowerCase().includes(String(rule.value).toLowerCase());
+            case "contains":
+              isDisqualified = String(fieldValue)
+                .toLowerCase()
+                .includes(String(rule.value).toLowerCase());
               break;
-            case 'not_contains':
-              isDisqualified = !String(fieldValue).toLowerCase().includes(String(rule.value).toLowerCase());
+            case "not_contains":
+              isDisqualified = !String(fieldValue)
+                .toLowerCase()
+                .includes(String(rule.value).toLowerCase());
               break;
           }
 
           if (isDisqualified) {
             qualified = false;
-            disqualificationReason = rule.disqualification_message || 'Based on your responses, we may not be the best fit';
+            disqualificationReason =
+              rule.disqualification_message ||
+              "Based on your responses, we may not be the best fit";
             redirectUrl = bookingLink.disqualified_redirect_url;
             break;
           }
@@ -602,14 +636,14 @@ class EnhancedBookingLinkService {
       // Update or create lead
       if (leadId) {
         await supabaseServer
-          .from('leads')
+          .from("leads")
           .update({
             qualified,
             disqualification_reason: disqualificationReason,
             qualification_data: formData,
             qualification_completed_at: new Date().toISOString(),
           })
-          .eq('id', leadId);
+          .eq("id", leadId);
       }
 
       return {
@@ -617,11 +651,12 @@ class EnhancedBookingLinkService {
         reason: disqualificationReason,
         redirectUrl,
         message: qualified
-          ? 'Great! You qualify for a meeting. Please select a time below.'
-          : disqualificationReason || 'Based on your responses, we may not be the best fit at this time.',
+          ? "Great! You qualify for a meeting. Please select a time below."
+          : disqualificationReason ||
+            "Based on your responses, we may not be the best fit at this time.",
       };
     } catch (error) {
-      console.error('Error qualifying lead:', error);
+      console.error("Error qualifying lead:", error);
       throw error;
     }
   }
@@ -633,33 +668,37 @@ class EnhancedBookingLinkService {
     try {
       // Check routing rules first
       const { data: routingRules } = await supabaseServer
-        .from('booking_link_routing_rules')
-        .select('*')
-        .eq('booking_link_id', bookingLink.id)
-        .order('rule_order');
+        .from("booking_link_routing_rules")
+        .select("*")
+        .eq("booking_link_id", bookingLink.id)
+        .order("rule_order");
 
       if (routingRules && routingRules.length > 0) {
         for (const rule of routingRules) {
-          const question = bookingLink.booking_link_questions?.find(q => q.id === rule.question_id);
+          const question = bookingLink.booking_link_questions?.find(
+            (q) => q.id === rule.question_id,
+          );
           if (!question) continue;
 
           const fieldValue = formData[question.label] || formData[question.id];
           let matches = false;
 
           switch (rule.operator) {
-            case 'equals':
+            case "equals":
               matches = fieldValue === rule.value;
               break;
-            case 'contains':
-              matches = String(fieldValue).toLowerCase().includes(String(rule.value).toLowerCase());
+            case "contains":
+              matches = String(fieldValue)
+                .toLowerCase()
+                .includes(String(rule.value).toLowerCase());
               break;
-            case 'not_equals':
+            case "not_equals":
               matches = fieldValue !== rule.value;
               break;
-            case 'less_than':
+            case "less_than":
               matches = parseFloat(fieldValue) < parseFloat(rule.value);
               break;
-            case 'greater_than':
+            case "greater_than":
               matches = parseFloat(fieldValue) > parseFloat(rule.value);
               break;
           }
@@ -671,20 +710,21 @@ class EnhancedBookingLinkService {
       }
 
       // Fall back to assignment type
-      const hostIds = bookingLink.booking_link_hosts?.map(h => h.user_id) || [];
+      const hostIds =
+        bookingLink.booking_link_hosts?.map((h) => h.user_id) || [];
 
       switch (bookingLink.assignment_type) {
-        case 'round_robin':
+        case "round_robin":
           return await this.roundRobinAssignment(hostIds, bookingLink.id);
 
-        case 'load_balanced':
+        case "load_balanced":
           return await this.loadBalancedAssignment(hostIds);
 
         default:
           return bookingLink.user_id; // Assign to owner
       }
     } catch (error) {
-      console.error('Error determining assignment:', error);
+      console.error("Error determining assignment:", error);
       return bookingLink.user_id;
     }
   }
@@ -697,10 +737,10 @@ class EnhancedBookingLinkService {
 
     try {
       const { data: lastBooking } = await supabaseServer
-        .from('bookings')
-        .select('assigned_to')
-        .eq('booking_link_id', bookingLinkId)
-        .order('created_at', { ascending: false })
+        .from("bookings")
+        .select("assigned_to")
+        .eq("booking_link_id", bookingLinkId)
+        .order("created_at", { ascending: false })
         .limit(1)
         .single();
 
@@ -719,25 +759,33 @@ class EnhancedBookingLinkService {
   /**
    * Load-balanced assignment (fewest current bookings)
    */
-  async loadBalancedAssignment(hostIds) {
+async loadBalancedAssignment(hostIds) {
     if (!hostIds || hostIds.length === 0) return null;
 
     try {
-      const weekStart = DateTime.now().startOf('week').toISO();
-      const weekEnd = DateTime.now().endOf('week').toISO();
+      const weekStart = DateTime.now().startOf("week").toISO();
+      const weekEnd = DateTime.now().endOf("week").toISO();
 
+      // Single query to get all booking counts for all hosts
+      const { data: bookingCounts } = await supabaseServer
+        .from("bookings")
+        .select("assigned_to")
+        .in("assigned_to", hostIds)
+        .gte("scheduled_time", weekStart)
+        .lte("scheduled_time", weekEnd)
+        .neq("status", "cancelled");
+
+      // Count bookings per user in JavaScript (much faster than N+1 queries)
       const counts = {};
-      for (const userId of hostIds) {
-        const { data } = await supabaseServer
-          .from('bookings')
-          .select('id')
-          .eq('assigned_to', userId)
-          .gte('scheduled_time', weekStart)
-          .lte('scheduled_time', weekEnd)
-          .neq('status', 'cancelled');
+      hostIds.forEach(userId => {
+        counts[userId] = 0;
+      });
 
-        counts[userId] = data?.length || 0;
-      }
+      bookingCounts?.forEach(booking => {
+        if (booking.assigned_to && counts[booking.assigned_to] !== undefined) {
+          counts[booking.assigned_to]++;
+        }
+      });
 
       // Find user with lowest count
       let minCount = Infinity;
@@ -752,6 +800,7 @@ class EnhancedBookingLinkService {
 
       return selectedUser;
     } catch (error) {
+      console.error("Error in loadBalancedAssignment:", error);
       return hostIds[0];
     }
   }
@@ -763,13 +812,13 @@ class EnhancedBookingLinkService {
     try {
       const bookingLink = await this.getBookingLink(slug);
       if (!bookingLink) {
-        throw new Error('Booking link not found');
+        throw new Error("Booking link not found");
       }
 
       // Determine assignment based on routing rules
       const assignedTo = await this.determineAssignment(
         bookingLink,
-        bookingData.qualification_data || {}
+        bookingData.qualification_data || {},
       );
 
       // Use availability service to book the slot
@@ -786,7 +835,7 @@ class EnhancedBookingLinkService {
 
       return result.booking;
     } catch (error) {
-      console.error('Error booking slot:', error);
+      console.error("Error booking slot:", error);
       throw error;
     }
   }
@@ -794,12 +843,12 @@ class EnhancedBookingLinkService {
   /**
    * Cancel a booking
    */
-  async cancelBooking(id, reason, cancelledBy = 'lead') {
+  async cancelBooking(id, reason, cancelledBy = "lead") {
     try {
       // Use availability service which also cancels calendar event
       return await availabilityService.cancelBooking(id, reason, cancelledBy);
     } catch (error) {
-      console.error('Error canceling booking:', error);
+      console.error("Error canceling booking:", error);
       throw error;
     }
   }
@@ -807,11 +856,15 @@ class EnhancedBookingLinkService {
   /**
    * Reschedule a booking
    */
-  async rescheduleBooking(id, newScheduledTime, timezone = 'America/New_York') {
+  async rescheduleBooking(id, newScheduledTime, timezone = "America/New_York") {
     try {
-      return await availabilityService.rescheduleBooking(id, newScheduledTime, timezone);
+      return await availabilityService.rescheduleBooking(
+        id,
+        newScheduledTime,
+        timezone,
+      );
     } catch (error) {
-      console.error('Error rescheduling booking:', error);
+      console.error("Error rescheduling booking:", error);
       throw error;
     }
   }
@@ -822,17 +875,20 @@ class EnhancedBookingLinkService {
   async getBookingAnalytics(bookingLinkId) {
     try {
       const { data: bookings } = await supabaseServer
-        .from('bookings')
-        .select('*')
-        .eq('booking_link_id', bookingLinkId)
-        .order('created_at', { ascending: false });
+        .from("bookings")
+        .select("*")
+        .eq("booking_link_id", bookingLinkId)
+        .order("created_at", { ascending: false });
 
       const total = bookings?.length || 0;
-      const completed = bookings?.filter(b => b.status === 'completed').length || 0;
-      const noShows = bookings?.filter(b => b.status === 'no_show').length || 0;
-      const cancelled = bookings?.filter(b => b.status === 'cancelled').length || 0;
-      const qualified = bookings?.filter(b => b.qualified).length || 0;
-      const disqualified = bookings?.filter(b => !b.qualified).length || 0;
+      const completed =
+        bookings?.filter((b) => b.status === "completed").length || 0;
+      const noShows =
+        bookings?.filter((b) => b.status === "no_show").length || 0;
+      const cancelled =
+        bookings?.filter((b) => b.status === "cancelled").length || 0;
+      const qualified = bookings?.filter((b) => b.qualified).length || 0;
+      const disqualified = bookings?.filter((b) => !b.qualified).length || 0;
 
       return {
         total,
@@ -846,7 +902,7 @@ class EnhancedBookingLinkService {
         qualificationRate: total > 0 ? (qualified / total) * 100 : 0,
       };
     } catch (error) {
-      console.error('Error getting booking analytics:', error);
+      console.error("Error getting booking analytics:", error);
       throw error;
     }
   }
@@ -855,20 +911,51 @@ class EnhancedBookingLinkService {
    * Send confirmation email
    */
   async sendConfirmationEmail(booking, bookingLink) {
-    // This will integrate with email-service.js
-    console.log('Sending confirmation email to:', booking.email);
-    // TODO: Implement email sending
+    try {
+      // Get host information if available
+      let hostInfo = null;
+      if (bookingLink.host_id) {
+        const { data: host } = await supabaseServer
+          .from("users")
+          .select("name, email")
+          .eq("id", bookingLink.host_id)
+          .single();
+
+        hostInfo = host;
+      }
+
+      // Send confirmation email using the booking email service
+      await bookingEmailService.sendConfirmationEmail(
+        booking,
+        bookingLink,
+        hostInfo,
+      );
+
+      // Schedule reminder emails if enabled
+      await bookingEmailService.scheduleReminders(booking, bookingLink);
+
+      console.log(
+        `Confirmation email sent to ${booking.email} for booking ${booking.id}`,
+      );
+      return { success: true };
+    } catch (error) {
+      console.error("Error sending confirmation email:", error);
+      throw error;
+    }
   }
 
   /**
    * Generate unique slug from name
    */
   generateSlug(name) {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-      + '-' + Math.random().toString(36).substring(2, 7);
+    return (
+      name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "") +
+      "-" +
+      Math.random().toString(36).substring(2, 7)
+    );
   }
 }
 

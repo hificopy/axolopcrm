@@ -11,7 +11,7 @@ export default function OrganizationSettings() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('general');
 
-  const [organizationSettings, setOrganizationSettings] = useState({
+  const [agencySettings, setAgencySettings] = useState({
     name: 'axolop',
     currency: 'USD',
     timezone: 'America/New_York',
@@ -20,16 +20,16 @@ export default function OrganizationSettings() {
     phone: '+1 813-536-3540'
   });
 
-  const handleOrganizationChange = (e) => {
+  const handleAgencyChange = (e) => {
     const { name, value } = e.target;
-    setOrganizationSettings(prev => ({
+    setAgencySettings(prev => ({
       ...prev,
       [name]: value
     }));
   };
 
   const handleSave = (tab) => {
-    console.warn(`${tab} organization settings saved:`, tab === 'general' ? organizationSettings : {});
+    console.warn(`${tab} agency settings saved:`, tab === 'general' ? agencySettings : {});
     toast({
       title: "Settings Saved",
       description: `${tab.charAt(0).toUpperCase() + tab.slice(1)} settings have been saved successfully.`,
@@ -42,9 +42,9 @@ export default function OrganizationSettings() {
       <div className="bg-white dark:bg-[#1a1d24] border-b border-crm-border px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-crm-text-primary">Organization Settings</h1>
-            <p className="text-sm text-crm-text-secondary mt-1">
-              Manage your organization preferences and settings
+            <h1 className="text-2xl font-semibold text-crm-text-primary">Agency Settings</h1>
+            <p className="text-sm text-gray-900 mt-1">
+              Manage your agency preferences and settings
             </p>
           </div>
         </div>
@@ -62,7 +62,7 @@ export default function OrganizationSettings() {
                     onClick={() => setActiveTab('general')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       activeTab === 'general'
-                        ? 'bg-primary text-white'
+                        ? 'bg-[#3F0D28] text-white'
                         : 'hover:bg-gray-100 text-crm-text-primary'
                     }`}
                   >
@@ -73,7 +73,7 @@ export default function OrganizationSettings() {
                     onClick={() => setActiveTab('team')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       activeTab === 'team'
-                        ? 'bg-primary text-white'
+                        ? 'bg-[#3F0D28] text-white'
                         : 'hover:bg-gray-100 text-crm-text-primary'
                     }`}
                   >
@@ -84,7 +84,7 @@ export default function OrganizationSettings() {
                     onClick={() => setActiveTab('permissions')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                       activeTab === 'permissions'
-                        ? 'bg-primary text-white'
+                        ? 'bg-[#3F0D28] text-white'
                         : 'hover:bg-gray-100 text-crm-text-primary'
                     }`}
                   >
@@ -105,22 +105,22 @@ export default function OrganizationSettings() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <Label className="block text-sm font-medium text-crm-text-secondary mb-2">
-                          Organization Name*
+                        <Label className="block text-sm font-medium text-gray-900 mb-2">
+                          Agency Name*
                         </Label>
                         <Input
                           name="name"
-                          value={organizationSettings.name}
-                          onChange={handleOrganizationChange}
+                          value={agencySettings.name}
+                          onChange={handleAgencyChange}
                           className="w-full"
                         />
                       </div>
 
                       <div>
-                        <Label className="block text-sm font-medium text-crm-text-secondary mb-2">
+                        <Label className="block text-sm font-medium text-gray-900 mb-2">
                           Currency
                         </Label>
-                        <Select name="currency" value={organizationSettings.currency} onValueChange={(value) => setOrganizationSettings(prev => ({...prev, currency: value}))}>
+                        <Select name="currency" value={agencySettings.currency} onValueChange={(value) => setAgencySettings(prev => ({...prev, currency: value}))}>
                           <SelectTrigger className="w-full">
                             <SelectValue />
                           </SelectTrigger>
@@ -133,10 +133,10 @@ export default function OrganizationSettings() {
                       </div>
 
                       <div>
-                        <Label className="block text-sm font-medium text-crm-text-secondary mb-2">
+                        <Label className="block text-sm font-medium text-gray-900 mb-2">
                           Timezone
                         </Label>
-                        <Select name="timezone" value={organizationSettings.timezone} onValueChange={(value) => setOrganizationSettings(prev => ({...prev, timezone: value}))}>
+                        <Select name="timezone" value={agencySettings.timezone} onValueChange={(value) => setAgencySettings(prev => ({...prev, timezone: value}))}>
                           <SelectTrigger className="w-full">
                             <SelectValue />
                           </SelectTrigger>
@@ -150,37 +150,37 @@ export default function OrganizationSettings() {
                       </div>
 
                       <div>
-                        <Label className="block text-sm font-medium text-crm-text-secondary mb-2">
+                        <Label className="block text-sm font-medium text-gray-900 mb-2">
                           Country
                         </Label>
                         <Input
                           name="country"
-                          value={organizationSettings.country}
-                          onChange={handleOrganizationChange}
+                          value={agencySettings.country}
+                          onChange={handleAgencyChange}
                           className="w-full"
                         />
                       </div>
 
                       <div className="md:col-span-2">
-                        <Label className="block text-sm font-medium text-crm-text-secondary mb-2">
+                        <Label className="block text-sm font-medium text-gray-900 mb-2">
                           Address
                         </Label>
                         <Input
                           name="address"
-                          value={organizationSettings.address}
-                          onChange={handleOrganizationChange}
+                          value={agencySettings.address}
+                          onChange={handleAgencyChange}
                           className="w-full"
                         />
                       </div>
 
                       <div>
-                        <Label className="block text-sm font-medium text-crm-text-secondary mb-2">
+                        <Label className="block text-sm font-medium text-gray-900 mb-2">
                           Phone
                         </Label>
                         <Input
                           name="phone"
-                          value={organizationSettings.phone}
-                          onChange={handleOrganizationChange}
+                          value={agencySettings.phone}
+                          onChange={handleAgencyChange}
                           className="w-full"
                         />
                       </div>
@@ -228,32 +228,32 @@ export default function OrganizationSettings() {
                         <table className="w-full">
                           <thead>
                             <tr className="border-b border-crm-border">
-                              <th className="text-left py-3 px-4 text-sm font-medium text-crm-text-secondary">User</th>
-                              <th className="text-left py-3 px-4 text-sm font-medium text-crm-text-secondary">Role</th>
-                              <th className="text-left py-3 px-4 text-sm font-medium text-crm-text-secondary">Email & Phone</th>
-                              <th className="text-left py-3 px-4 text-sm font-medium text-crm-text-secondary">2FA</th>
-                              <th className="text-left py-3 px-4 text-sm font-medium text-crm-text-secondary">Auto-Record Calls</th>
+                              <th className="text-left py-3 px-4 text-sm font-medium text-gray-900">User</th>
+                              <th className="text-left py-3 px-4 text-sm font-medium text-gray-900">Role</th>
+                              <th className="text-left py-3 px-4 text-sm font-medium text-gray-900">Email & Phone</th>
+                              <th className="text-left py-3 px-4 text-sm font-medium text-gray-900">2FA</th>
+                              <th className="text-left py-3 px-4 text-sm font-medium text-gray-900">Auto-Record Calls</th>
                             </tr>
                           </thead>
                           <tbody>
                             <tr className="border-b border-gray-100">
                               <td className="py-3 px-4">
                                 <div className="flex items-center gap-3">
-                                  <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white text-sm font-semibold">
+                                  <div className="h-8 w-8 rounded-full bg-[#3F0D28] flex items-center justify-center text-white text-sm font-semibold">
                                     JR
                                   </div>
                                   <span className="font-medium text-crm-text-primary">Juan Romero</span>
                                 </div>
                               </td>
                               <td className="py-3 px-4">
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#3F0D28]/10 text-[#3F0D28]">
                                   Admin
                                 </span>
                               </td>
                               <td className="py-3 px-4">
                                 <div>
                                   <p className="text-crm-text-primary">juan@axolop.com</p>
-                                  <p className="text-sm text-crm-text-secondary">+1 813-536-3540</p>
+                                  <p className="text-sm text-gray-600">+1 813-536-3540</p>
                                 </div>
                               </td>
                               <td className="py-3 px-4">
@@ -262,8 +262,8 @@ export default function OrganizationSettings() {
                                 </span>
                               </td>
                               <td className="py-3 px-4">
-                                <span className="text-crm-text-secondary">Auto-Record Calls</span>
-                                <div className="flex items-center gap-1 text-crm-text-secondary text-sm">
+                                <span className="text-gray-600">Auto-Record Calls</span>
+                                <div className="flex items-center gap-1 text-gray-600 text-sm">
                                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                   </svg>
@@ -290,24 +290,24 @@ export default function OrganizationSettings() {
                     <h2 className="text-xl font-semibold text-crm-text-primary mb-6">Roles & Permissions</h2>
 
                     <div className="mb-6">
-                      <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                      <div className="bg-[#3F0D28]/5 border border-[#3F0D28]/20 rounded-lg p-4 mb-6">
                         <div className="flex items-start gap-3">
-                          <svg className="h-5 w-5 text-red-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <svg className="h-5 w-5 text-[#3F0D28] mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                           <div>
-                            <h3 className="font-medium text-red-900">Custom Roles & Permissions</h3>
-                            <p className="text-sm text-red-700 mt-1">
+                            <h3 className="font-medium text-[#3F0D28]">Custom Roles & Permissions</h3>
+                            <p className="text-sm text-[#2a0919] mt-1">
                               Custom Roles & Permissions requires an upgraded plan
                             </p>
-                            <Button variant="default" className="mt-2 bg-red-600 hover:bg-red-700">
+                            <Button variant="default" className="mt-2 btn-premium-red">
                               Upgrade Now
                             </Button>
                           </div>
                         </div>
                       </div>
 
-                      <p className="text-crm-text-secondary mb-6">
+                      <p className="text-gray-900 mb-6">
                         Roles allow you to set which users are allowed to perform certain actions within Close...
                       </p>
 
@@ -322,10 +322,10 @@ export default function OrganizationSettings() {
                               </div>
                               <div>
                                 <h3 className="font-semibold text-crm-text-primary">Admin</h3>
-                                <p className="text-sm text-crm-text-secondary">SYSTEM</p>
+                                <p className="text-sm text-gray-600">SYSTEM</p>
                               </div>
                             </div>
-                            <p className="text-sm text-crm-text-secondary">1 user</p>
+                            <p className="text-sm text-gray-600">1 user</p>
                           </CardContent>
                         </Card>
 
@@ -339,10 +339,10 @@ export default function OrganizationSettings() {
                               </div>
                               <div>
                                 <h3 className="font-semibold text-crm-text-primary">Super User</h3>
-                                <p className="text-sm text-crm-text-secondary">SYSTEM</p>
+                                <p className="text-sm text-gray-600">SYSTEM</p>
                               </div>
                             </div>
-                            <p className="text-sm text-crm-text-secondary">No users</p>
+                            <p className="text-sm text-gray-600">No users</p>
                           </CardContent>
                         </Card>
 
@@ -356,10 +356,10 @@ export default function OrganizationSettings() {
                               </div>
                               <div>
                                 <h3 className="font-semibold text-crm-text-primary">User</h3>
-                                <p className="text-sm text-crm-text-secondary">SYSTEM</p>
+                                <p className="text-sm text-gray-600">SYSTEM</p>
                               </div>
                             </div>
-                            <p className="text-sm text-crm-text-secondary">No users</p>
+                            <p className="text-sm text-gray-600">No users</p>
                           </CardContent>
                         </Card>
 
@@ -373,10 +373,10 @@ export default function OrganizationSettings() {
                               </div>
                               <div>
                                 <h3 className="font-semibold text-crm-text-primary">Restricted User</h3>
-                                <p className="text-sm text-crm-text-secondary">SYSTEM</p>
+                                <p className="text-sm text-gray-600">SYSTEM</p>
                               </div>
                             </div>
-                            <p className="text-sm text-crm-text-secondary">No users</p>
+                            <p className="text-sm text-gray-600">No users</p>
                           </CardContent>
                         </Card>
                       </div>

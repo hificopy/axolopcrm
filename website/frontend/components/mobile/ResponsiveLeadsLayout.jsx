@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Users, Phone, Mail, Building2, Calendar, DollarSign, MoreVertical, Edit3, Trash2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -109,7 +109,7 @@ export const MobileLeadCard = ({ lead, onEdit, onDelete, onView, onSelect, isSel
 // Mobile stats card component
 export const MobileStatsCard = ({ title, value, icon: Icon, color = "blue", trend }) => {
   const colorClasses = {
-    blue: 'bg-blue-50 text-blue-600 border-blue-200',
+    blue: 'bg-blue-50 text-[#3F0D28] border-gray-200',
     green: 'bg-green-50 text-green-600 border-green-200',
     amber: 'bg-amber-50 text-amber-600 border-amber-200',
     red: 'bg-red-50 text-red-600 border-red-200',
@@ -327,7 +327,7 @@ export const MobileActionBar = ({
           <Button
             onClick={onAddNew}
             size="sm"
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+            className="flex-1 bg-[#3F0D28] hover:bg-[#5a1a3a] text-white"
           >
             <span className="text-lg">+</span>
             <span className="ml-1">Add Lead</span>

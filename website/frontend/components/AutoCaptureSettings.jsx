@@ -76,7 +76,7 @@ export default function AutoCaptureSettings({
           <div className="space-y-2">
             <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
               <div className="flex items-center gap-3">
-                <Shield className="h-4 w-4 text-blue-600" />
+                <Shield className="h-4 w-4 text-[#3F0D28]" />
                 <div>
                   <Label htmlFor="privacy-notice" className="text-sm font-medium">
                     Show Privacy Notice
@@ -110,7 +110,7 @@ export default function AutoCaptureSettings({
               <Info className="h-4 w-4" />
               How it works
             </div>
-            <p className="text-xs text-blue-600">
+            <p className="text-xs text-[#3F0D28]">
               When enabled, lead information (name, email, etc.) is automatically saved as users
               type. Draft leads appear in your CRM with a grey indicator until you verify them.
               {showPrivacyNotice && ' A small privacy notice will be shown to users.'}

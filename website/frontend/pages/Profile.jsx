@@ -173,9 +173,9 @@ export default function Profile() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: formData.name,
-          first_name: formData.name.split(' ')[0],
-          last_name: formData.name.split(' ').slice(1).join(' '),
+          name: formData.name || '',
+          first_name: (formData.name || '').split(' ')[0] || '',
+          last_name: (formData.name || '').split(' ').slice(1).join(' ') || '',
           phone: formData.phone,
           company: formData.company,
           job_title: formData.title,
@@ -226,7 +226,7 @@ export default function Profile() {
                 variant="outline"
                 size="sm"
                 onClick={disableDemoMode}
-                className="text-xs py-1.5 px-3 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                className="text-xs py-1.5 px-3 border-[#3F0D28]/20 text-[#3F0D28] hover:bg-[#3F0D28]/5 hover:border-[#3F0D28]/30"
               >
                 <X className="h-4 w-4 mr-1" />
                 Exit Mode
@@ -242,7 +242,7 @@ export default function Profile() {
           {/* Profile Header */}
           <div className="bg-white dark:bg-[#1a1d24] rounded-lg border border-crm-border p-6 mb-6">
             {uploadError && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm">
+              <div className="mb-4 p-3 bg-[#3F0D28]/5 border border-[#3F0D28]/20 text-[#3F0D28] rounded-lg text-sm">
                 {uploadError}
               </div>
             )}
@@ -257,7 +257,7 @@ export default function Profile() {
                   />
                 ) : (
                   <div className="h-24 w-24 rounded-full bg-primary flex items-center justify-center text-white text-2xl font-semibold">
-                    {user.name.split(' ').map(n => n[0]).join('')}
+                    {(user?.name || 'U').split(' ').map(n => n?.[0] || '').join('').toUpperCase() || 'U'}
                   </div>
                 )}
 
@@ -272,7 +272,7 @@ export default function Profile() {
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadingAvatar}
-                  className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-premium-red absolute bottom-0 right-0 h-8 w-8 rounded-full flex items-center justify-center text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {uploadingAvatar ? (
                     <Loader2 className="h-4 w-4 animate-spin" />

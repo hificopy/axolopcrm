@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { localStorageGet, localStorageSet } from '../utils/safeStorage';
 
 const ThemeContext = createContext();
 
@@ -23,12 +24,12 @@ export const ThemeProvider = ({ children }) => {
       const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       root.classList.remove('light', 'dark');
       root.classList.add(systemPrefersDark ? 'dark' : 'light');
-      localStorage.setItem('theme', 'auto');
+      localStorageSet('theme', 'auto');
     } else {
       // Apply specific theme
       root.classList.remove('light', 'dark');
       root.classList.add(themeValue);
-      localStorage.setItem('theme', themeValue);
+      localStorageSet('theme', themeValue);
     }
   }, []);
 
@@ -45,7 +46,7 @@ export const ThemeProvider = ({ children }) => {
     };
 
     // Apply initial theme
-    const savedTheme = localStorage.getItem('theme') || 'light';
+    const savedTheme = localStorageGet('theme', 'light');
     setTheme(savedTheme);
 
     // Apply the theme immediately to the DOM based on the current theme state

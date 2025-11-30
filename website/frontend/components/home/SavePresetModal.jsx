@@ -45,7 +45,7 @@ export default function SavePresetModal({ isOpen, onClose, onSave, currentPreset
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Save className="h-5 w-5 text-[#761B14]" />
+            <Save className="h-5 w-5 text-[#3F0D28]" />
             Save Dashboard Preset
           </DialogTitle>
           <DialogDescription>

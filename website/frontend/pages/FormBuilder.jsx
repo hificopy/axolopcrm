@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Plus,
   Type,
@@ -26,29 +26,74 @@ import {
   Building,
   Bell,
   Copy,
-  Workflow
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useToast } from '@/components/ui/use-toast';
-import { validateFormLogic } from '@/utils/formLogicEngine';
-import formsApi from '@/services/formsApi';
-import WorkflowTab from './formBuilder/WorkflowTab';
+  Workflow,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
+import { validateFormLogic } from "@/utils/formLogicEngine";
+import formsApi from "@/services/formsApi";
+import WorkflowTab from "./formBuilder/WorkflowTab";
 
 // Available question types for conversational forms
 const questionTypes = [
-  { id: 'short-text', name: 'Short Text', icon: Type, description: 'Ask for short text responses' },
-  { id: 'long-text', name: 'Long Text', icon: MessageSquare, description: 'Ask for detailed text responses' },
-  { id: 'email', name: 'Email', icon: Mail, description: 'Collect email addresses' },
-  { id: 'phone', name: 'Phone', icon: Phone, description: 'Collect phone numbers' },
-  { id: 'number', name: 'Number', icon: Minus, description: 'Ask for numerical responses' },
-  { id: 'multiple-choice', name: 'Multiple Choice', icon: ListOrdered, description: 'Single selection from options' },
-  { id: 'checkboxes', name: 'Checkboxes', icon: ListOrdered, description: 'Multiple selections from options' },
-  { id: 'date', name: 'Date', icon: Calendar, description: 'Date picker' },
-  { id: 'rating', name: 'Rating', icon: Star, description: 'Star rating scale' },
-  { id: 'file-upload', name: 'File Upload', icon: Image, description: 'Allow file uploads' },
+  {
+    id: "short-text",
+    name: "Short Text",
+    icon: Type,
+    description: "Ask for short text responses",
+  },
+  {
+    id: "long-text",
+    name: "Long Text",
+    icon: MessageSquare,
+    description: "Ask for detailed text responses",
+  },
+  {
+    id: "email",
+    name: "Email",
+    icon: Mail,
+    description: "Collect email addresses",
+  },
+  {
+    id: "phone",
+    name: "Phone",
+    icon: Phone,
+    description: "Collect phone numbers",
+  },
+  {
+    id: "number",
+    name: "Number",
+    icon: Minus,
+    description: "Ask for numerical responses",
+  },
+  {
+    id: "multiple-choice",
+    name: "Multiple Choice",
+    icon: ListOrdered,
+    description: "Single selection from options",
+  },
+  {
+    id: "checkboxes",
+    name: "Checkboxes",
+    icon: ListOrdered,
+    description: "Multiple selections from options",
+  },
+  { id: "date", name: "Date", icon: Calendar, description: "Date picker" },
+  {
+    id: "rating",
+    name: "Rating",
+    icon: Star,
+    description: "Star rating scale",
+  },
+  {
+    id: "file-upload",
+    name: "File Upload",
+    icon: Image,
+    description: "Allow file uploads",
+  },
 ];
 
 export default function FormBuilder() {
@@ -56,89 +101,95 @@ export default function FormBuilder() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [form, setForm] = useState({
-    id: 'new-form',
-    title: 'Untitled Form',
-    description: 'Describe what this form is about',
+    id: "new-form",
+    title: "Untitled Form",
+    description: "Describe what this form is about",
     is_active: false,
     is_published: false,
     settings: {
       branding: true,
       analytics: true,
       notifications: true,
-      mode: 'standard',
-      theme: 'default',
+      mode: "standard",
+      theme: "default",
       create_contact: false,
       contact_mapping: {},
-    }
+    },
   });
 
   const [questions, setQuestions] = useState([
     {
-      id: '1',
-      type: 'short-text',
-      title: 'What is your name?',
+      id: "1",
+      type: "short-text",
+      title: "What is your name?",
       required: true,
       options: [],
       settings: {
-        placeholder: 'Enter your full name',
+        placeholder: "Enter your full name",
       },
       lead_scoring_enabled: false,
       lead_scoring: {},
       conditional_logic: [],
       showThankYou: false,
-      thankYouTitle: '',
-      thankYouMessage: '',
-      redirectUrl: ''
+      thankYouTitle: "",
+      thankYouMessage: "",
+      redirectUrl: "",
     },
     {
-      id: '2',
-      type: 'email',
-      title: 'What is your email address?',
+      id: "2",
+      type: "email",
+      title: "What is your email address?",
       required: true,
       options: [],
       settings: {
-        placeholder: 'your.email@example.com',
+        placeholder: "your.email@example.com",
       },
       lead_scoring_enabled: false,
       lead_scoring: {},
       conditional_logic: [],
       showThankYou: false,
-      thankYouTitle: '',
-      thankYouMessage: '',
-      redirectUrl: ''
-    }
+      thankYouTitle: "",
+      thankYouMessage: "",
+      redirectUrl: "",
+    },
   ]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const [selectedQuestion, setSelectedQuestion] = useState(null);
-  const [formMode, setFormMode] = useState('standard'); // standard, lead-qualification
+  const [formMode, setFormMode] = useState("standard"); // standard, lead-qualification
   const [leadScores, setLeadScores] = useState({}); // Store lead scores for each question option
   const [showTriggers, setShowTriggers] = useState(false);
   const [showScoringPopup, setShowScoringPopup] = useState(false);
   const [showWorkflow, setShowWorkflow] = useState(false);
   const [workflowNodes, setWorkflowNodes] = useState([
-    { id: 'start', type: 'start', position: { x: 250, y: 50 }, data: { label: 'Start' } }
+    {
+      id: "start",
+      type: "start",
+      position: { x: 250, y: 50 },
+      data: { label: "Start" },
+    },
   ]);
   const [workflowEdges, setWorkflowEdges] = useState([]);
   const [endings, setEndings] = useState([
     {
-      id: 'end-default',
-      title: 'Thank You!',
-      message: 'Your response has been recorded.',
-      icon: 'success',
+      id: "end-default",
+      title: "Thank You!",
+      message: "Your response has been recorded.",
+      icon: "success",
       mark_as_qualified: null,
-    }
+    },
   ]);
   const [responses, setResponses] = useState({});
-  const [previewMode, setPreviewMode] = useState('desktop'); // desktop, mobile
+  const [previewMode, setPreviewMode] = useState("desktop"); // desktop, mobile
 
   useEffect(() => {
     // Fetch the form from API if editing
-    if (formId && formId !== 'new' && !formId.startsWith('new-')) {
-      formsApi.getForm(formId)
-        .then(formData => {
+    if (formId && formId !== "new" && !formId.startsWith("new-")) {
+      formsApi
+        .getForm(formId)
+        .then((formData) => {
           // Ensure settings exists with default values
           const formWithSettings = {
             ...formData,
@@ -146,39 +197,39 @@ export default function FormBuilder() {
               branding: true,
               analytics: true,
               notifications: true,
-              mode: 'standard',
-              theme: 'default',
+              mode: "standard",
+              theme: "default",
               create_contact: false,
               contact_mapping: {},
-              ...(formData.settings || {}) // Merge with existing settings if any
-            }
+              ...(formData.settings || {}), // Merge with existing settings if any
+            },
           };
           setForm(formWithSettings);
           // Initialize lead scoring fields for existing questions
-          const questionsWithScoring = (formData.questions || []).map(q => ({
+          const questionsWithScoring = (formData.questions || []).map((q) => ({
             ...q,
             lead_scoring_enabled: q.lead_scoring_enabled || false,
             lead_scoring: q.lead_scoring || {},
-            conditional_logic: q.conditional_logic || []
+            conditional_logic: q.conditional_logic || [],
           }));
           setQuestions(questionsWithScoring);
           setLoading(false);
         })
-        .catch(err => {
+        .catch((err) => {
           setError(err);
           setLoading(false);
         });
     } else {
       // Creating a new form
       setForm({
-        id: formId || 'new-form',
-        title: 'Untitled Form',
-        description: 'Describe what this form is about',
+        id: formId || "new-form",
+        title: "Untitled Form",
+        description: "Describe what this form is about",
         settings: {
           branding: true,
           analytics: true,
           notifications: true,
-        }
+        },
       });
       setLoading(false);
     }
@@ -190,26 +241,31 @@ export default function FormBuilder() {
       type: type.id,
       title: `New ${type.name} Question`,
       required: false,
-      options: type.id === 'multiple-choice' || type.id === 'checkboxes' ? ['Option 1', 'Option 2'] : [],
+      options:
+        type.id === "multiple-choice" || type.id === "checkboxes"
+          ? ["Option 1", "Option 2"]
+          : [],
       settings: {},
       lead_scoring_enabled: false,
       lead_scoring: {},
       conditional_logic: [],
       showThankYou: false,
-      thankYouTitle: '',
-      thankYouMessage: '',
-      redirectUrl: ''
+      thankYouTitle: "",
+      thankYouMessage: "",
+      redirectUrl: "",
     };
 
     setQuestions([...questions, newQuestion]);
   };
 
   const updateQuestion = (id, updates) => {
-    setQuestions(questions.map(q => q.id === id ? { ...q, ...updates } : q));
+    setQuestions(
+      questions.map((q) => (q.id === id ? { ...q, ...updates } : q)),
+    );
   };
 
   const deleteQuestion = (id) => {
-    setQuestions(questions.filter(q => q.id !== id));
+    setQuestions(questions.filter((q) => q.id !== id));
     if (selectedQuestion?.id === id) {
       setSelectedQuestion(null);
     }
@@ -228,15 +284,15 @@ export default function FormBuilder() {
 
   const calculateLeadScore = () => {
     let totalScore = 0;
-    
-    questions.forEach(question => {
+
+    questions.forEach((question) => {
       if (question.lead_scoring_enabled && question.lead_scoring) {
         const response = responses[question.id];
-        
+
         if (response !== undefined && response !== null) {
           if (Array.isArray(response)) {
             // Handle checkboxes (multiple selections)
-            response.forEach(option => {
+            response.forEach((option) => {
               const score = question.lead_scoring[option] || 0;
               totalScore += score;
             });
@@ -248,7 +304,7 @@ export default function FormBuilder() {
         }
       }
     });
-    
+
     return totalScore;
   };
 
@@ -267,7 +323,9 @@ export default function FormBuilder() {
     return (
       <div className="h-full min-h-screen flex items-center justify-center pt-[150px] bg-gray-50">
         <div className="text-center">
-          <h2 className="text-xl font-bold text-crm-text-primary mb-2">Error Loading Form</h2>
+          <h2 className="text-xl font-bold text-crm-text-primary mb-2">
+            Error Loading Form
+          </h2>
           <p className="text-crm-text-secondary mb-4">{error.message}</p>
           <Button onClick={() => window.location.reload()}>Try Again</Button>
         </div>
@@ -301,20 +359,24 @@ export default function FormBuilder() {
             <div className="flex items-center gap-2 px-3 py-1.5 border rounded-md bg-white">
               <label className="flex items-center cursor-pointer gap-2">
                 <span className="text-sm font-medium text-gray-700">
-                  {form.is_active ? 'Published' : 'Draft'}
+                  {form.is_active ? "Published" : "Draft"}
                 </span>
                 <button
                   type="button"
                   onClick={() => {
-                    setForm({ ...form, is_active: !form.is_active, is_published: !form.is_published });
+                    setForm({
+                      ...form,
+                      is_active: !form.is_active,
+                      is_published: !form.is_published,
+                    });
                   }}
                   className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-                    form.is_active ? 'bg-green-600' : 'bg-gray-300'
+                    form.is_active ? "bg-green-600" : "bg-gray-300"
                   }`}
                 >
                   <span
                     className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      form.is_active ? 'translate-x-5' : 'translate-x-0.5'
+                      form.is_active ? "translate-x-5" : "translate-x-0.5"
                     }`}
                   />
                 </button>
@@ -325,15 +387,19 @@ export default function FormBuilder() {
               variant="outline"
               size="sm"
               onClick={async () => {
-                console.log('🔵 [SAVE] Button clicked!');
-                console.log('🔵 [SAVE] formId:', formId);
-                console.log('🔵 [SAVE] form.id:', form.id);
-                console.log('🔵 [SAVE] form.title:', form.title);
-                console.log('🔵 [SAVE] questions count:', questions.length);
+                console.log("🔵 [SAVE] Button clicked!");
+                console.log("🔵 [SAVE] formId:", formId);
+                console.log("🔵 [SAVE] form.id:", form.id);
+                console.log("🔵 [SAVE] form.title:", form.title);
+                console.log("🔵 [SAVE] questions count:", questions.length);
 
                 try {
-                  if (formId && formId !== 'new' && !formId.startsWith('new-')) {
-                    console.log('🟡 [SAVE] Updating existing form...');
+                  if (
+                    formId &&
+                    formId !== "new" &&
+                    !formId.startsWith("new-")
+                  ) {
+                    console.log("🟡 [SAVE] Updating existing form...");
                     // Update existing form
                     await formsApi.updateForm(form.id, {
                       title: form.title,
@@ -344,20 +410,20 @@ export default function FormBuilder() {
                       workflow_edges: workflowEdges,
                       endings: endings,
                       is_active: form.is_active,
-                      is_published: form.is_published
+                      is_published: form.is_published,
                     });
-                    console.log('✅ [SAVE] Form updated successfully');
+                    console.log("✅ [SAVE] Form updated successfully");
                   } else {
-                    console.log('🟢 [SAVE] Creating NEW form...');
-                    console.log('🟢 [SAVE] Data to send:', {
+                    console.log("🟢 [SAVE] Creating NEW form...");
+                    console.log("🟢 [SAVE] Data to send:", {
                       title: form.title,
                       description: form.description,
                       questionsCount: questions.length,
-                      settings: form.settings
+                      settings: form.settings,
                     });
 
                     // Create new form
-                    console.log('🟢 [SAVE] Calling formsApi.createForm()...');
+                    console.log("🟢 [SAVE] Calling formsApi.createForm()...");
                     const newForm = await formsApi.createForm({
                       title: form.title,
                       description: form.description,
@@ -367,21 +433,27 @@ export default function FormBuilder() {
                       workflow_edges: workflowEdges,
                       endings: endings,
                       is_active: form.is_active,
-                      is_published: form.is_published
+                      is_published: form.is_published,
                     });
-                    console.log('✅ [SAVE] API returned:', newForm);
+                    console.log("✅ [SAVE] API returned:", newForm);
 
                     // Update state with new form ID
                     setForm(newForm);
-                    console.log('✅ [SAVE] State updated');
+                    console.log("✅ [SAVE] State updated");
 
                     // Navigate to the new form's edit page
-                    navigate(`/app/forms/builder/${newForm.id}`, { replace: true });
-                    console.log('✅ [SAVE] Navigation triggered');
+                    navigate(`/app/forms/builder/${newForm.id}`, {
+                      replace: true,
+                    });
+                    console.log("✅ [SAVE] Navigation triggered");
                   }
                 } catch (error) {
-                  console.error('❌ [SAVE] Error saving form:', error);
-                  console.error('❌ [SAVE] Error details:', error.message, error.stack);
+                  console.error("❌ [SAVE] Error saving form:", error);
+                  console.error(
+                    "❌ [SAVE] Error details:",
+                    error.message,
+                    error.stack,
+                  );
                   toast({
                     title: "Error saving form",
                     description: error.message,
@@ -397,8 +469,15 @@ export default function FormBuilder() {
               variant="outline"
               size="sm"
               onClick={() => {
-                if (form.id && form.id !== 'new-form' && !form.id.toString().startsWith('new-')) {
-                  window.open(`${window.location.origin}/forms/preview/${form.id}`, '_blank');
+                if (
+                  form.id &&
+                  form.id !== "new-form" &&
+                  !form.id.toString().startsWith("new-")
+                ) {
+                  window.open(
+                    `${window.location.origin}/forms/preview/${form.id}`,
+                    "_blank",
+                  );
                 }
                 // Silently do nothing if form not saved yet
               }}
@@ -410,7 +489,11 @@ export default function FormBuilder() {
               variant="outline"
               size="sm"
               onClick={() => {
-                if (form.id && form.id !== 'new-form' && !form.id.toString().startsWith('new-')) {
+                if (
+                  form.id &&
+                  form.id !== "new-form" &&
+                  !form.id.toString().startsWith("new-")
+                ) {
                   const formUrl = `${window.location.origin}/forms/preview/${form.id}`;
                   navigator.clipboard.writeText(formUrl);
                   // Silently copy to clipboard without popup
@@ -425,7 +508,11 @@ export default function FormBuilder() {
               variant="outline"
               size="sm"
               onClick={() => {
-                if (form.id && form.id !== 'new-form' && !form.id.toString().startsWith('new-')) {
+                if (
+                  form.id &&
+                  form.id !== "new-form" &&
+                  !form.id.toString().startsWith("new-")
+                ) {
                   const embedCode = formsApi.generateEmbedCode(form.id);
                   navigator.clipboard.writeText(embedCode.directLink);
                   // Silently copy to clipboard without popup
@@ -444,7 +531,9 @@ export default function FormBuilder() {
         {/* Left Panel - Question Types */}
         <div className="w-64 bg-white border-r border-crm-border overflow-y-auto">
           <div className="p-4">
-            <h3 className="font-semibold text-crm-text-primary mb-3">Question Types</h3>
+            <h3 className="font-semibold text-crm-text-primary mb-3">
+              Question Types
+            </h3>
             <div className="space-y-1">
               {questionTypes.map((type) => {
                 const Icon = type.icon;
@@ -457,18 +546,22 @@ export default function FormBuilder() {
                     <Icon className="h-5 w-5 text-primary" />
                     <div>
                       <div className="font-medium text-sm">{type.name}</div>
-                      <div className="text-xs text-crm-text-secondary">{type.description}</div>
+                      <div className="text-xs text-crm-text-secondary">
+                        {type.description}
+                      </div>
                     </div>
                   </button>
                 );
               })}
             </div>
-            
+
             {/* Content Triggers Button */}
             <div className="mt-6 pt-4 border-t border-gray-200">
-              <h3 className="font-semibold text-crm-text-primary mb-3">Logic & Triggers</h3>
-              <Button 
-                variant="outline" 
+              <h3 className="font-semibold text-crm-text-primary mb-3">
+                Logic & Triggers
+              </h3>
+              <Button
+                variant="outline"
                 className="w-full justify-start"
                 onClick={() => setShowTriggers(true)}
               >
@@ -487,38 +580,56 @@ export default function FormBuilder() {
               <div className="flex items-center gap-2">
                 {selectedQuestion ? (
                   <>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       size="sm"
                       onClick={() => {
-                        const currentIndex = questions.findIndex(q => q.id === selectedQuestion.id);
+                        const currentIndex = questions.findIndex(
+                          (q) => q.id === selectedQuestion.id,
+                        );
                         if (currentIndex > 0) {
                           setSelectedQuestion(questions[currentIndex - 1]);
                         }
                       }}
-                      disabled={questions.findIndex(q => q.id === selectedQuestion.id) === 0}
+                      disabled={
+                        questions.findIndex(
+                          (q) => q.id === selectedQuestion.id,
+                        ) === 0
+                      }
                     >
                       ← Prev
                     </Button>
                     <span className="text-sm text-crm-text-secondary mx-2">
-                      {questions.findIndex(q => q.id === selectedQuestion.id) + 1} of {questions.length}
+                      {questions.findIndex(
+                        (q) => q.id === selectedQuestion.id,
+                      ) + 1}{" "}
+                      of {questions.length}
                     </span>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       size="sm"
                       onClick={() => {
-                        const currentIndex = questions.findIndex(q => q.id === selectedQuestion.id);
+                        const currentIndex = questions.findIndex(
+                          (q) => q.id === selectedQuestion.id,
+                        );
                         if (currentIndex < questions.length - 1) {
                           setSelectedQuestion(questions[currentIndex + 1]);
                         }
                       }}
-                      disabled={questions.findIndex(q => q.id === selectedQuestion.id) === questions.length - 1}
+                      disabled={
+                        questions.findIndex(
+                          (q) => q.id === selectedQuestion.id,
+                        ) ===
+                        questions.length - 1
+                      }
                     >
                       Next →
                     </Button>
                   </>
                 ) : (
-                  <span className="text-sm text-crm-text-secondary">Select a question to preview</span>
+                  <span className="text-sm text-crm-text-secondary">
+                    Select a question to preview
+                  </span>
                 )}
               </div>
               <div className="flex items-center gap-2">
@@ -526,44 +637,50 @@ export default function FormBuilder() {
                 <div className="w-2 h-2 rounded-full bg-green-500"></div>
               </div>
             </div>
-            
+
             {/* Preview Device Toggle */}
             <div className="flex justify-center">
               <div className="flex items-center border border-crm-border rounded-lg overflow-hidden">
                 <button
                   className={`px-3 py-1.5 text-xs ${
-                    previewMode === 'desktop'
-                      ? 'bg-primary text-white' 
-                      : 'bg-white text-crm-text-secondary hover:bg-gray-50'
+                    previewMode === "desktop"
+                      ? "bg-primary text-white"
+                      : "bg-white text-crm-text-secondary hover:bg-gray-50"
                   }`}
-                  onClick={() => setPreviewMode('desktop')}
+                  onClick={() => setPreviewMode("desktop")}
                 >
                   Desktop
                 </button>
                 <div className="w-px h-6 bg-gray-300"></div>
                 <button
                   className={`px-3 py-1.5 text-xs ${
-                    previewMode === 'mobile'
-                      ? 'bg-primary text-white' 
-                      : 'bg-white text-crm-text-secondary hover:bg-gray-50'
+                    previewMode === "mobile"
+                      ? "bg-primary text-white"
+                      : "bg-white text-crm-text-secondary hover:bg-gray-50"
                   }`}
-                  onClick={() => setPreviewMode('mobile')}
+                  onClick={() => setPreviewMode("mobile")}
                 >
                   Mobile
                 </button>
               </div>
             </div>
           </div>
-          
+
           {/* Question Preview Area */}
           <div className="flex-1 flex items-center justify-center p-6 overflow-auto bg-gray-100">
             {selectedQuestion ? (
-              <div className={`${previewMode === 'mobile' ? 'w-full max-w-sm mx-4' : 'w-full max-w-4xl'}`}>
+              <div
+                className={`${previewMode === "mobile" ? "w-full max-w-sm mx-4" : "w-full max-w-4xl"}`}
+              >
                 <div className="bg-white min-h-[500px] rounded-xl shadow-sm overflow-hidden flex flex-col">
                   {/* Header */}
                   <div className="bg-white border-b border-gray-200 p-6">
-                    <h1 className="text-xl font-bold text-crm-text-primary">{form.title}</h1>
-                    <p className="text-crm-text-secondary mt-1">{form.description}</p>
+                    <h1 className="text-xl font-bold text-crm-text-primary">
+                      {form.title}
+                    </h1>
+                    <p className="text-crm-text-secondary mt-1">
+                      {form.description}
+                    </p>
                   </div>
 
                   {/* Question */}
@@ -572,15 +689,28 @@ export default function FormBuilder() {
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2 text-sm text-crm-text-secondary">
                           <span className="font-medium">
-                            Question {questions.findIndex(q => q.id === selectedQuestion.id) + 1}
+                            Question{" "}
+                            {questions.findIndex(
+                              (q) => q.id === selectedQuestion.id,
+                            ) + 1}
                           </span>
-                          {selectedQuestion.required && <span className="text-red-500">*</span>}
+                          {selectedQuestion.required && (
+                            <span className="text-[#3F0D28]">*</span>
+                          )}
                         </div>
-                        {formMode === 'lead-qualification' && selectedQuestion.lead_scoring_enabled && (
-                          <span className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">
-                            +{Object.values(selectedQuestion.lead_scoring || {}).reduce((sum, score) => sum + (score || 0), 0)} pts
-                          </span>
-                        )}
+                        {formMode === "lead-qualification" &&
+                          selectedQuestion.lead_scoring_enabled && (
+                            <span className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">
+                              +
+                              {Object.values(
+                                selectedQuestion.lead_scoring || {},
+                              ).reduce(
+                                (sum, score) => sum + (score || 0),
+                                0,
+                              )}{" "}
+                              pts
+                            </span>
+                          )}
                       </div>
 
                       <h2 className="text-lg font-semibold text-crm-text-primary mb-4">
@@ -588,77 +718,91 @@ export default function FormBuilder() {
                       </h2>
 
                       <div className="mt-4">
-                        {selectedQuestion.type === 'short-text' && (
+                        {selectedQuestion.type === "short-text" && (
                           <Input
-                            value={responses[selectedQuestion.id] || ''}
+                            value={responses[selectedQuestion.id] || ""}
                             onChange={(e) => {
-                              setResponses(prev => ({
+                              setResponses((prev) => ({
                                 ...prev,
-                                [selectedQuestion.id]: e.target.value
+                                [selectedQuestion.id]: e.target.value,
                               }));
                             }}
-                            placeholder={selectedQuestion.settings.placeholder || 'Type your answer'}
+                            placeholder={
+                              selectedQuestion.settings.placeholder ||
+                              "Type your answer"
+                            }
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                           />
                         )}
 
-                        {selectedQuestion.type === 'long-text' && (
+                        {selectedQuestion.type === "long-text" && (
                           <textarea
-                            value={responses[selectedQuestion.id] || ''}
+                            value={responses[selectedQuestion.id] || ""}
                             onChange={(e) => {
-                              setResponses(prev => ({
+                              setResponses((prev) => ({
                                 ...prev,
-                                [selectedQuestion.id]: e.target.value
+                                [selectedQuestion.id]: e.target.value,
                               }));
                             }}
-                            placeholder={selectedQuestion.settings.placeholder || 'Type your answer'}
+                            placeholder={
+                              selectedQuestion.settings.placeholder ||
+                              "Type your answer"
+                            }
                             rows="4"
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                           />
                         )}
 
-                        {selectedQuestion.type === 'email' && (
+                        {selectedQuestion.type === "email" && (
                           <input
                             type="email"
-                            value={responses[selectedQuestion.id] || ''}
+                            value={responses[selectedQuestion.id] || ""}
                             onChange={(e) => {
-                              setResponses(prev => ({
+                              setResponses((prev) => ({
                                 ...prev,
-                                [selectedQuestion.id]: e.target.value
+                                [selectedQuestion.id]: e.target.value,
                               }));
                             }}
-                            placeholder={selectedQuestion.settings.placeholder || 'your.email@example.com'}
+                            placeholder={
+                              selectedQuestion.settings.placeholder ||
+                              "your.email@example.com"
+                            }
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                           />
                         )}
 
-                        {selectedQuestion.type === 'number' && (
+                        {selectedQuestion.type === "number" && (
                           <input
                             type="number"
-                            value={responses[selectedQuestion.id] || ''}
+                            value={responses[selectedQuestion.id] || ""}
                             onChange={(e) => {
-                              setResponses(prev => ({
+                              setResponses((prev) => ({
                                 ...prev,
-                                [selectedQuestion.id]: e.target.value
+                                [selectedQuestion.id]: e.target.value,
                               }));
                             }}
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                           />
                         )}
 
-                        {selectedQuestion.type === 'multiple-choice' && (
+                        {selectedQuestion.type === "multiple-choice" && (
                           <div className="space-y-2">
                             {selectedQuestion.options.map((option, idx) => (
-                              <label key={idx} className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                              <label
+                                key={idx}
+                                className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
+                              >
                                 <input
                                   type="radio"
                                   name={selectedQuestion.id}
                                   value={option}
-                                  checked={responses[selectedQuestion.id] === option}
+                                  checked={
+                                    responses[selectedQuestion.id] === option
+                                  }
                                   onChange={(e) => {
-                                    setResponses(prev => ({
+                                    setResponses((prev) => ({
                                       ...prev,
-                                      [selectedQuestion.id]: e.target.value
+                                      [selectedQuestion.id]: e.target.value,
                                     }));
                                   }}
                                   className="mr-3"
@@ -669,24 +813,32 @@ export default function FormBuilder() {
                           </div>
                         )}
 
-                        {selectedQuestion.type === 'checkboxes' && (
+                        {selectedQuestion.type === "checkboxes" && (
                           <div className="space-y-2">
                             {selectedQuestion.options.map((option, idx) => (
-                              <label key={idx} className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                              <label
+                                key={idx}
+                                className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
+                              >
                                 <input
                                   type="checkbox"
-                                  checked={(responses[selectedQuestion.id] || []).includes(option)}
+                                  checked={(
+                                    responses[selectedQuestion.id] || []
+                                  ).includes(option)}
                                   onChange={(e) => {
-                                    const currentValue = responses[selectedQuestion.id] || [];
+                                    const currentValue =
+                                      responses[selectedQuestion.id] || [];
                                     let newValue;
                                     if (e.target.checked) {
                                       newValue = [...currentValue, option];
                                     } else {
-                                      newValue = currentValue.filter(item => item !== option);
+                                      newValue = currentValue.filter(
+                                        (item) => item !== option,
+                                      );
                                     }
-                                    setResponses(prev => ({
+                                    setResponses((prev) => ({
                                       ...prev,
-                                      [selectedQuestion.id]: newValue
+                                      [selectedQuestion.id]: newValue,
                                     }));
                                   }}
                                   value={option}
@@ -698,33 +850,33 @@ export default function FormBuilder() {
                           </div>
                         )}
 
-                        {selectedQuestion.type === 'date' && (
+                        {selectedQuestion.type === "date" && (
                           <input
                             type="date"
-                            value={responses[selectedQuestion.id] || ''}
+                            value={responses[selectedQuestion.id] || ""}
                             onChange={(e) => {
-                              setResponses(prev => ({
+                              setResponses((prev) => ({
                                 ...prev,
-                                [selectedQuestion.id]: e.target.value
+                                [selectedQuestion.id]: e.target.value,
                               }));
                             }}
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                           />
                         )}
 
-                        {selectedQuestion.type === 'rating' && (
+                        {selectedQuestion.type === "rating" && (
                           <div className="flex gap-1">
                             {[1, 2, 3, 4, 5].map((star) => (
                               <button
                                 key={star}
                                 type="button"
                                 onClick={() => {
-                                  setResponses(prev => ({
+                                  setResponses((prev) => ({
                                     ...prev,
-                                    [selectedQuestion.id]: star
+                                    [selectedQuestion.id]: star,
                                   }));
                                 }}
-                                className={`text-2xl ${star <= (responses[selectedQuestion.id] || 0) ? 'text-yellow-400' : 'text-gray-300'}`}
+                                className={`text-2xl ${star <= (responses[selectedQuestion.id] || 0) ? "text-yellow-400" : "text-gray-300"}`}
                               >
                                 ★
                               </button>
@@ -732,7 +884,7 @@ export default function FormBuilder() {
                           </div>
                         )}
 
-                        {selectedQuestion.type === 'file-upload' && (
+                        {selectedQuestion.type === "file-upload" && (
                           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                             <input
                               type="file"
@@ -741,14 +893,14 @@ export default function FormBuilder() {
                               onChange={(e) => {
                                 const file = e.target.files[0];
                                 if (file) {
-                                  setResponses(prev => ({
+                                  setResponses((prev) => ({
                                     ...prev,
-                                    [selectedQuestion.id]: file.name  // Store filename or file object as needed
+                                    [selectedQuestion.id]: file.name, // Store filename or file object as needed
                                   }));
                                 }
                               }}
                             />
-                            <label 
+                            <label
                               htmlFor={`file-upload-${selectedQuestion.id}`}
                               className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
                             >
@@ -768,26 +920,39 @@ export default function FormBuilder() {
                       <Button
                         variant="outline"
                         onClick={() => {
-                          const currentIndex = questions.findIndex(q => q.id === selectedQuestion.id);
+                          const currentIndex = questions.findIndex(
+                            (q) => q.id === selectedQuestion.id,
+                          );
                           if (currentIndex > 0) {
                             setSelectedQuestion(questions[currentIndex - 1]);
                           }
                         }}
-                        disabled={questions.findIndex(q => q.id === selectedQuestion.id) === 0}
+                        disabled={
+                          questions.findIndex(
+                            (q) => q.id === selectedQuestion.id,
+                          ) === 0
+                        }
                       >
                         ← Back
                       </Button>
 
                       <Button
                         onClick={() => {
-                          const currentIndex = questions.findIndex(q => q.id === selectedQuestion.id);
+                          const currentIndex = questions.findIndex(
+                            (q) => q.id === selectedQuestion.id,
+                          );
                           if (currentIndex < questions.length - 1) {
                             // Move to next question
                             setSelectedQuestion(questions[currentIndex + 1]);
                           } else {
                             // Calculate lead score and submit form
                             const totalScore = calculateLeadScore();
-                            console.warn('Form submitted with responses:', responses, 'Lead Score:', totalScore);
+                            console.warn(
+                              "Form submitted with responses:",
+                              responses,
+                              "Lead Score:",
+                              totalScore,
+                            );
 
                             // In a real application, this would save to the CRM
                             // formsApi.submitForm(form.id, responses, totalScore);
@@ -796,7 +961,12 @@ export default function FormBuilder() {
                           }
                         }}
                       >
-                        {questions.findIndex(q => q.id === selectedQuestion.id) === questions.length - 1 ? 'Submit Form' : 'Next →'}
+                        {questions.findIndex(
+                          (q) => q.id === selectedQuestion.id,
+                        ) ===
+                        questions.length - 1
+                          ? "Submit Form"
+                          : "Next →"}
                       </Button>
                     </div>
 
@@ -805,11 +975,16 @@ export default function FormBuilder() {
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
                           className="bg-primary h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${((questions.findIndex(q => q.id === selectedQuestion.id) + 1) / questions.length) * 100}%` }}
+                          style={{
+                            width: `${((questions.findIndex((q) => q.id === selectedQuestion.id) + 1) / questions.length) * 100}%`,
+                          }}
                         ></div>
                       </div>
                       <div className="text-right text-xs text-crm-text-secondary mt-1">
-                        {questions.findIndex(q => q.id === selectedQuestion.id) + 1} of {questions.length}
+                        {questions.findIndex(
+                          (q) => q.id === selectedQuestion.id,
+                        ) + 1}{" "}
+                        of {questions.length}
                       </div>
                     </div>
                   </div>
@@ -818,21 +993,23 @@ export default function FormBuilder() {
             ) : (
               <div className="text-center text-crm-text-secondary">
                 <div className="text-lg mb-2">No question selected</div>
-                <p className="text-sm">Select a question from the outline to preview it here</p>
+                <p className="text-sm">
+                  Select a question from the outline to preview it here
+                </p>
               </div>
             )}
           </div>
         </div>
 
         {/* Right Panel - Outline and Settings */}
-        <div className="w-80 bg-white border-l border-crm-border overflow-y-auto flex flex-col">
+        <div className="w-full sm:w-80 bg-white border-l border-crm-border overflow-y-auto flex flex-col">
           {/* Tab Navigation */}
           <div className="border-b border-crm-border flex">
             <button
               className={`flex-1 py-3 text-sm font-medium ${
-                !selectedQuestion 
-                  ? 'text-primary border-b-2 border-primary' 
-                  : 'text-crm-text-secondary hover:text-crm-text-primary'
+                !selectedQuestion
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-crm-text-secondary hover:text-crm-text-primary"
               }`}
               onClick={() => setSelectedQuestion(null)}
             >
@@ -840,9 +1017,9 @@ export default function FormBuilder() {
             </button>
             <button
               className={`flex-1 py-3 text-sm font-medium ${
-                selectedQuestion 
-                  ? 'text-primary border-b-2 border-primary' 
-                  : 'text-crm-text-secondary hover:text-crm-text-primary'
+                selectedQuestion
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-crm-text-secondary hover:text-crm-text-primary"
               }`}
               onClick={() => {
                 if (selectedQuestion) {
@@ -860,7 +1037,9 @@ export default function FormBuilder() {
             {selectedQuestion ? (
               <div className="h-full">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-crm-text-primary">Question Settings</h3>
+                  <h3 className="font-semibold text-crm-text-primary">
+                    Question Settings
+                  </h3>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -869,14 +1048,19 @@ export default function FormBuilder() {
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
-                
-                <div className="mb-4 p-3 bg-red-50 rounded-lg border border-red-200">
-                  <div className="flex items-center gap-2 text-red-800 text-sm">
+
+                <div className="mb-4 p-3 bg-[#3F0D28]/5 rounded-lg border border-[#3F0D28]/20">
+                  <div className="flex items-center gap-2 text-[#3F0D28] text-sm">
                     <Target className="h-4 w-4" />
-                    <span className="font-medium">{selectedQuestion.title}</span>
+                    <span className="font-medium">
+                      {selectedQuestion.title}
+                    </span>
                   </div>
-                  <div className="text-xs text-red-600 mt-1">
-                    Question {questions.findIndex(q => q.id === selectedQuestion.id) + 1} of {questions.length}
+                  <div className="text-xs text-[#2a0919] mt-1">
+                    Question{" "}
+                    {questions.findIndex((q) => q.id === selectedQuestion.id) +
+                      1}{" "}
+                    of {questions.length}
                   </div>
                 </div>
 
@@ -886,7 +1070,10 @@ export default function FormBuilder() {
                     <Input
                       value={selectedQuestion.title}
                       onChange={(e) => {
-                        const newQuestion = { ...selectedQuestion, title: e.target.value };
+                        const newQuestion = {
+                          ...selectedQuestion,
+                          title: e.target.value,
+                        };
                         updateQuestion(selectedQuestion.id, newQuestion);
                         setSelectedQuestion(newQuestion);
                       }}
@@ -901,15 +1088,21 @@ export default function FormBuilder() {
                       type="checkbox"
                       checked={selectedQuestion.required}
                       onChange={(e) => {
-                        updateQuestion(selectedQuestion.id, { required: e.target.checked });
-                        setSelectedQuestion({ ...selectedQuestion, required: e.target.checked });
+                        updateQuestion(selectedQuestion.id, {
+                          required: e.target.checked,
+                        });
+                        setSelectedQuestion({
+                          ...selectedQuestion,
+                          required: e.target.checked,
+                        });
                       }}
                       className="ml-2 rounded"
                     />
                   </div>
 
                   {/* Options Editor for multiple choice/checkboxes */}
-                  {(selectedQuestion.type === 'multiple-choice' || selectedQuestion.type === 'checkboxes') && (
+                  {(selectedQuestion.type === "multiple-choice" ||
+                    selectedQuestion.type === "checkboxes") && (
                     <div>
                       <Label>Answer Options</Label>
                       <div className="mt-2 space-y-2">
@@ -918,10 +1111,18 @@ export default function FormBuilder() {
                             <Input
                               value={option}
                               onChange={(e) => {
-                                const newOptions = [...selectedQuestion.options];
+                                const newOptions = [
+                                  ...selectedQuestion.options,
+                                ];
                                 newOptions[idx] = e.target.value;
-                                const newQuestion = { ...selectedQuestion, options: newOptions };
-                                updateQuestion(selectedQuestion.id, newQuestion);
+                                const newQuestion = {
+                                  ...selectedQuestion,
+                                  options: newOptions,
+                                };
+                                updateQuestion(
+                                  selectedQuestion.id,
+                                  newQuestion,
+                                );
                                 setSelectedQuestion(newQuestion);
                               }}
                               placeholder={`Option ${idx + 1}`}
@@ -932,9 +1133,18 @@ export default function FormBuilder() {
                               size="sm"
                               className="h-8 w-8 p-0"
                               onClick={() => {
-                                const newOptions = selectedQuestion.options.filter((_, i) => i !== idx);
-                                const newQuestion = { ...selectedQuestion, options: newOptions };
-                                updateQuestion(selectedQuestion.id, newQuestion);
+                                const newOptions =
+                                  selectedQuestion.options.filter(
+                                    (_, i) => i !== idx,
+                                  );
+                                const newQuestion = {
+                                  ...selectedQuestion,
+                                  options: newOptions,
+                                };
+                                updateQuestion(
+                                  selectedQuestion.id,
+                                  newQuestion,
+                                );
                                 setSelectedQuestion(newQuestion);
                               }}
                             >
@@ -947,8 +1157,14 @@ export default function FormBuilder() {
                           size="sm"
                           className="w-full"
                           onClick={() => {
-                            const newOptions = [...(selectedQuestion.options || []), `Option ${(selectedQuestion.options?.length || 0) + 1}`];
-                            const newQuestion = { ...selectedQuestion, options: newOptions };
+                            const newOptions = [
+                              ...(selectedQuestion.options || []),
+                              `Option ${(selectedQuestion.options?.length || 0) + 1}`,
+                            ];
+                            const newQuestion = {
+                              ...selectedQuestion,
+                              options: newOptions,
+                            };
                             updateQuestion(selectedQuestion.id, newQuestion);
                             setSelectedQuestion(newQuestion);
                           }}
@@ -963,11 +1179,19 @@ export default function FormBuilder() {
                   <div>
                     <Label>Placeholder Text</Label>
                     <Input
-                      value={selectedQuestion.settings.placeholder || ''}
+                      value={selectedQuestion.settings.placeholder || ""}
                       onChange={(e) => {
-                        const newSettings = { ...selectedQuestion.settings, placeholder: e.target.value };
-                        updateQuestion(selectedQuestion.id, { settings: newSettings });
-                        setSelectedQuestion({ ...selectedQuestion, settings: newSettings });
+                        const newSettings = {
+                          ...selectedQuestion.settings,
+                          placeholder: e.target.value,
+                        };
+                        updateQuestion(selectedQuestion.id, {
+                          settings: newSettings,
+                        });
+                        setSelectedQuestion({
+                          ...selectedQuestion,
+                          settings: newSettings,
+                        });
                       }}
                       placeholder="Enter placeholder text"
                     />
@@ -977,11 +1201,19 @@ export default function FormBuilder() {
                     <Label>Validation</Label>
                     <select
                       className="w-full p-2 border border-gray-300 rounded-md"
-                      value={selectedQuestion.settings.validation || ''}
+                      value={selectedQuestion.settings.validation || ""}
                       onChange={(e) => {
-                        const newSettings = { ...selectedQuestion.settings, validation: e.target.value };
-                        updateQuestion(selectedQuestion.id, { settings: newSettings });
-                        setSelectedQuestion({ ...selectedQuestion, settings: newSettings });
+                        const newSettings = {
+                          ...selectedQuestion.settings,
+                          validation: e.target.value,
+                        };
+                        updateQuestion(selectedQuestion.id, {
+                          settings: newSettings,
+                        });
+                        setSelectedQuestion({
+                          ...selectedQuestion,
+                          settings: newSettings,
+                        });
                       }}
                     >
                       <option value="">No validation</option>
@@ -992,18 +1224,20 @@ export default function FormBuilder() {
                       <option value="required">Required</option>
                     </select>
                   </div>
-                  
+
                   {/* Lead Qualification Scoring */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <Label className="flex items-center gap-2 cursor-pointer">
                         <input
                           type="checkbox"
-                          checked={selectedQuestion.lead_scoring_enabled || false}
+                          checked={
+                            selectedQuestion.lead_scoring_enabled || false
+                          }
                           onChange={(e) => {
-                            const newQuestion = { 
-                              ...selectedQuestion, 
-                              lead_scoring_enabled: e.target.checked 
+                            const newQuestion = {
+                              ...selectedQuestion,
+                              lead_scoring_enabled: e.target.checked,
                             };
                             updateQuestion(selectedQuestion.id, newQuestion);
                             setSelectedQuestion(newQuestion);
@@ -1021,7 +1255,7 @@ export default function FormBuilder() {
                             // Reset all scores to 0
                             const newQuestion = {
                               ...selectedQuestion,
-                              lead_scoring: {}
+                              lead_scoring: {},
                             };
                             updateQuestion(selectedQuestion.id, newQuestion);
                             setSelectedQuestion(newQuestion);
@@ -1044,87 +1278,126 @@ export default function FormBuilder() {
                         )}
                       </div>
                     </div>
-                    
+
                     {selectedQuestion.lead_scoring_enabled && (
                       <div className="mt-3 pl-6 space-y-3">
-                        <div className="text-sm font-medium text-crm-text-primary mb-1">Assign points to responses:</div>
-                        
-                        {selectedQuestion.type === 'multiple-choice' && selectedQuestion.options && selectedQuestion.options.map((option, idx) => (
-                          <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <span className="text-sm text-crm-text-secondary truncate flex-1 mr-2">{option}</span>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm">=</span>
-                              <input
-                                type="number"
-                                value={selectedQuestion.lead_scoring?.[option] || 0}
-                                onChange={(e) => {
-                                  const newScoring = { 
-                                    ...selectedQuestion.lead_scoring, 
-                                    [option]: parseInt(e.target.value) || 0 
-                                  };
-                                  const newQuestion = { 
-                                    ...selectedQuestion, 
-                                    lead_scoring: newScoring 
-                                  };
-                                  updateQuestion(selectedQuestion.id, newQuestion);
-                                  setSelectedQuestion(newQuestion);
-                                }}
-                                className="w-16 p-1 border border-gray-300 rounded text-xs text-center"
-                                placeholder="0"
-                              />
-                              <span className="text-sm">pts</span>
+                        <div className="text-sm font-medium text-crm-text-primary mb-1">
+                          Assign points to responses:
+                        </div>
+
+                        {selectedQuestion.type === "multiple-choice" &&
+                          selectedQuestion.options &&
+                          selectedQuestion.options.map((option, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center justify-between p-2 bg-gray-50 rounded"
+                            >
+                              <span className="text-sm text-crm-text-secondary truncate flex-1 mr-2">
+                                {option}
+                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm">=</span>
+                                <input
+                                  type="number"
+                                  value={
+                                    selectedQuestion.lead_scoring?.[option] || 0
+                                  }
+                                  onChange={(e) => {
+                                    const newScoring = {
+                                      ...selectedQuestion.lead_scoring,
+                                      [option]: parseInt(e.target.value) || 0,
+                                    };
+                                    const newQuestion = {
+                                      ...selectedQuestion,
+                                      lead_scoring: newScoring,
+                                    };
+                                    updateQuestion(
+                                      selectedQuestion.id,
+                                      newQuestion,
+                                    );
+                                    setSelectedQuestion(newQuestion);
+                                  }}
+                                  className="w-16 p-1 border border-gray-300 rounded text-xs text-center"
+                                  placeholder="0"
+                                />
+                                <span className="text-sm">pts</span>
+                              </div>
                             </div>
-                          </div>
-                        ))}
-                        
-                        {selectedQuestion.type === 'checkboxes' && selectedQuestion.options && selectedQuestion.options.map((option, idx) => (
-                          <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <span className="text-sm text-crm-text-secondary truncate flex-1 mr-2">{option}</span>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm">=</span>
-                              <input
-                                type="number"
-                                value={selectedQuestion.lead_scoring?.[option] || 0}
-                                onChange={(e) => {
-                                  const newScoring = { 
-                                    ...selectedQuestion.lead_scoring, 
-                                    [option]: parseInt(e.target.value) || 0 
-                                  };
-                                  const newQuestion = { 
-                                    ...selectedQuestion, 
-                                    lead_scoring: newScoring 
-                                  };
-                                  updateQuestion(selectedQuestion.id, newQuestion);
-                                  setSelectedQuestion(newQuestion);
-                                }}
-                                className="w-16 p-1 border border-gray-300 rounded text-xs text-center"
-                                placeholder="0"
-                              />
-                              <span className="text-sm">pts</span>
+                          ))}
+
+                        {selectedQuestion.type === "checkboxes" &&
+                          selectedQuestion.options &&
+                          selectedQuestion.options.map((option, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center justify-between p-2 bg-gray-50 rounded"
+                            >
+                              <span className="text-sm text-crm-text-secondary truncate flex-1 mr-2">
+                                {option}
+                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm">=</span>
+                                <input
+                                  type="number"
+                                  value={
+                                    selectedQuestion.lead_scoring?.[option] || 0
+                                  }
+                                  onChange={(e) => {
+                                    const newScoring = {
+                                      ...selectedQuestion.lead_scoring,
+                                      [option]: parseInt(e.target.value) || 0,
+                                    };
+                                    const newQuestion = {
+                                      ...selectedQuestion,
+                                      lead_scoring: newScoring,
+                                    };
+                                    updateQuestion(
+                                      selectedQuestion.id,
+                                      newQuestion,
+                                    );
+                                    setSelectedQuestion(newQuestion);
+                                  }}
+                                  className="w-16 p-1 border border-gray-300 rounded text-xs text-center"
+                                  placeholder="0"
+                                />
+                                <span className="text-sm">pts</span>
+                              </div>
                             </div>
-                          </div>
-                        ))}
-                        
-                        {selectedQuestion.type === 'rating' && (
+                          ))}
+
+                        {selectedQuestion.type === "rating" && (
                           <div className="space-y-2">
                             {[1, 2, 3, 4, 5].map((value) => (
-                              <div key={value} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                                <span className="text-sm text-crm-text-secondary">Rate {value}</span>
+                              <div
+                                key={value}
+                                className="flex items-center justify-between p-2 bg-gray-50 rounded"
+                              >
+                                <span className="text-sm text-crm-text-secondary">
+                                  Rate {value}
+                                </span>
                                 <div className="flex items-center gap-2">
                                   <span className="text-sm">=</span>
                                   <input
                                     type="number"
-                                    value={selectedQuestion.lead_scoring?.[`rating-${value}`] || 0}
+                                    value={
+                                      selectedQuestion.lead_scoring?.[
+                                        `rating-${value}`
+                                      ] || 0
+                                    }
                                     onChange={(e) => {
-                                      const newScoring = { 
-                                        ...selectedQuestion.lead_scoring, 
-                                        [`rating-${value}`]: parseInt(e.target.value) || 0 
+                                      const newScoring = {
+                                        ...selectedQuestion.lead_scoring,
+                                        [`rating-${value}`]:
+                                          parseInt(e.target.value) || 0,
                                       };
-                                      const newQuestion = { 
-                                        ...selectedQuestion, 
-                                        lead_scoring: newScoring 
+                                      const newQuestion = {
+                                        ...selectedQuestion,
+                                        lead_scoring: newScoring,
                                       };
-                                      updateQuestion(selectedQuestion.id, newQuestion);
+                                      updateQuestion(
+                                        selectedQuestion.id,
+                                        newQuestion,
+                                      );
                                       setSelectedQuestion(newQuestion);
                                     }}
                                     className="w-16 p-1 border border-gray-300 rounded text-xs text-center"
@@ -1136,36 +1409,41 @@ export default function FormBuilder() {
                             ))}
                           </div>
                         )}
-                        
+
                         <div className="pt-2 border-t border-gray-200">
                           <div className="text-xs text-crm-text-secondary">
-                            Points will be added to the lead's score when respondents select these options
+                            Points will be added to the lead's score when
+                            respondents select these options
                           </div>
                         </div>
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Detailed Scoring Popup */}
                   {selectedQuestion.lead_scoring_enabled && (
-                    <div className="mt-4 p-3 bg-red-50 rounded-lg border border-red-200">
+                    <div className="mt-4 p-3 bg-[#3F0D28]/5 rounded-lg border border-[#3F0D28]/20">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-red-800 text-sm">
+                        <div className="flex items-center gap-2 text-[#3F0D28] text-sm">
                           <Target className="h-4 w-4" />
                           <span className="font-medium">Lead Scoring</span>
                         </div>
-                        <span className="text-xs font-medium text-red-700">
-                          {Object.values(selectedQuestion.lead_scoring || {}).reduce((sum, score) => sum + (score || 0), 0)} pts possible
+                        <span className="text-xs font-medium text-[#2a0919]">
+                          {Object.values(
+                            selectedQuestion.lead_scoring || {},
+                          ).reduce((sum, score) => sum + (score || 0), 0)}{" "}
+                          pts possible
                         </span>
                       </div>
-                      <div className="mt-2 text-xs text-red-600">
-                        {selectedQuestion.lead_scoring && Object.keys(selectedQuestion.lead_scoring).length > 0 
-                          ? 'Scoring configured' 
-                          : 'Configure scoring for this question'}
+                      <div className="mt-2 text-xs text-[#2a0919]">
+                        {selectedQuestion.lead_scoring &&
+                        Object.keys(selectedQuestion.lead_scoring).length > 0
+                          ? "Scoring configured"
+                          : "Configure scoring for this question"}
                       </div>
                     </div>
                   )}
-                  
+
                   {/* Thank You Screen */}
                   <div className="pt-4 border-t border-gray-200">
                     <Label className="flex items-center gap-2 cursor-pointer mb-3">
@@ -1175,7 +1453,7 @@ export default function FormBuilder() {
                         onChange={(e) => {
                           const newQuestion = {
                             ...selectedQuestion,
-                            showThankYou: e.target.checked
+                            showThankYou: e.target.checked,
                           };
                           updateQuestion(selectedQuestion.id, newQuestion);
                           setSelectedQuestion(newQuestion);
@@ -1187,14 +1465,16 @@ export default function FormBuilder() {
                     {selectedQuestion?.showThankYou && (
                       <div className="pl-6 space-y-3">
                         <div>
-                          <Label className="text-xs font-medium text-crm-text-primary">Thank You Title</Label>
+                          <Label className="text-xs font-medium text-crm-text-primary">
+                            Thank You Title
+                          </Label>
                           <input
                             type="text"
-                            value={selectedQuestion.thankYouTitle || ''}
+                            value={selectedQuestion.thankYouTitle || ""}
                             onChange={(e) => {
                               const newQuestion = {
                                 ...selectedQuestion,
-                                thankYouTitle: e.target.value
+                                thankYouTitle: e.target.value,
                               };
                               updateQuestion(selectedQuestion.id, newQuestion);
                               setSelectedQuestion(newQuestion);
@@ -1204,13 +1484,15 @@ export default function FormBuilder() {
                           />
                         </div>
                         <div>
-                          <Label className="text-xs font-medium text-crm-text-primary">Thank You Message</Label>
+                          <Label className="text-xs font-medium text-crm-text-primary">
+                            Thank You Message
+                          </Label>
                           <textarea
-                            value={selectedQuestion.thankYouMessage || ''}
+                            value={selectedQuestion.thankYouMessage || ""}
                             onChange={(e) => {
                               const newQuestion = {
                                 ...selectedQuestion,
-                                thankYouMessage: e.target.value
+                                thankYouMessage: e.target.value,
                               };
                               updateQuestion(selectedQuestion.id, newQuestion);
                               setSelectedQuestion(newQuestion);
@@ -1221,14 +1503,16 @@ export default function FormBuilder() {
                           />
                         </div>
                         <div>
-                          <Label className="text-xs font-medium text-crm-text-primary">Redirect URL (optional)</Label>
+                          <Label className="text-xs font-medium text-crm-text-primary">
+                            Redirect URL (optional)
+                          </Label>
                           <input
                             type="text"
-                            value={selectedQuestion.redirectUrl || ''}
+                            value={selectedQuestion.redirectUrl || ""}
                             onChange={(e) => {
                               const newQuestion = {
                                 ...selectedQuestion,
-                                redirectUrl: e.target.value
+                                redirectUrl: e.target.value,
                               };
                               updateQuestion(selectedQuestion.id, newQuestion);
                               setSelectedQuestion(newQuestion);
@@ -1240,29 +1524,32 @@ export default function FormBuilder() {
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Conditional Logic - Logic Jumps */}
                   <div className="pt-4 border-t border-gray-200">
                     <div className="flex items-center justify-between mb-3">
                       <Label className="flex items-center gap-2 cursor-pointer m-0">
                         <input
                           type="checkbox"
-                          checked={selectedQuestion?.conditional_logic && selectedQuestion.conditional_logic.length > 0}
+                          checked={
+                            selectedQuestion?.conditional_logic &&
+                            selectedQuestion.conditional_logic.length > 0
+                          }
                           onChange={(e) => {
                             if (e.target.checked) {
                               // Add first default rule
                               const newRule = {
                                 condition: {
                                   field: selectedQuestion.id,
-                                  operator: 'equals',
-                                  value: ''
+                                  operator: "equals",
+                                  value: "",
                                 },
-                                thenGoTo: '',
-                                action: 'jump'
+                                thenGoTo: "",
+                                action: "jump",
                               };
                               const newQuestion = {
                                 ...selectedQuestion,
-                                conditional_logic: [newRule]
+                                conditional_logic: [newRule],
                               };
                               updateQuestion(selectedQuestion.id, newQuestion);
                               setSelectedQuestion(newQuestion);
@@ -1270,7 +1557,7 @@ export default function FormBuilder() {
                               // Disable conditional logic
                               const newQuestion = {
                                 ...selectedQuestion,
-                                conditional_logic: []
+                                conditional_logic: [],
                               };
                               updateQuestion(selectedQuestion.id, newQuestion);
                               setSelectedQuestion(newQuestion);
@@ -1283,239 +1570,358 @@ export default function FormBuilder() {
                       </Label>
                     </div>
 
-                    {selectedQuestion?.conditional_logic && selectedQuestion.conditional_logic.length > 0 && (
-                      <div className="mt-3 space-y-3">
-                        <div className="text-xs text-crm-text-secondary px-1 mb-2">
-                          If user answers this question, then:
-                        </div>
+                    {selectedQuestion?.conditional_logic &&
+                      selectedQuestion.conditional_logic.length > 0 && (
+                        <div className="mt-3 space-y-3">
+                          <div className="text-xs text-crm-text-secondary px-1 mb-2">
+                            If user answers this question, then:
+                          </div>
 
-                        {selectedQuestion.conditional_logic?.map((rule, idx) => (
-                          <div key={idx} className="space-y-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="text-xs font-semibold text-red-900 flex items-center gap-1">
-                                <GitBranch className="h-3 w-3" />
-                                Logic Rule #{idx + 1}
-                              </div>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-5 w-5 p-0"
-                                onClick={() => {
-                                  const newRules = [...selectedQuestion.conditional_logic];
-                                  newRules.splice(idx, 1);
-                                  const newQuestion = {
-                                    ...selectedQuestion,
-                                    conditional_logic: newRules
-                                  };
-                                  updateQuestion(selectedQuestion.id, newQuestion);
-                                  setSelectedQuestion(newQuestion);
-                                }}
+                          {selectedQuestion.conditional_logic?.map(
+                            (rule, idx) => (
+                              <div
+                                key={idx}
+                                className="space-y-2 p-3 bg-[#3F0D28]/5 border border-[#3F0D28]/20 rounded-lg"
                               >
-                                <X className="h-3 w-3" />
-                              </Button>
-                            </div>
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="text-xs font-semibold text-[#3F0D28] flex items-center gap-1">
+                                    <GitBranch className="h-3 w-3" />
+                                    Logic Rule #{idx + 1}
+                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-5 w-5 p-0"
+                                    onClick={() => {
+                                      const newRules = [
+                                        ...selectedQuestion.conditional_logic,
+                                      ];
+                                      newRules.splice(idx, 1);
+                                      const newQuestion = {
+                                        ...selectedQuestion,
+                                        conditional_logic: newRules,
+                                      };
+                                      updateQuestion(
+                                        selectedQuestion.id,
+                                        newQuestion,
+                                      );
+                                      setSelectedQuestion(newQuestion);
+                                    }}
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                </div>
 
-                            {/* Condition Type */}
-                            <div className="space-y-2">
-                              <div className="text-xs text-red-800 font-medium">If answer:</div>
-                              <div className="grid grid-cols-2 gap-2">
-                                <select
-                                  value={rule.condition?.operator || rule.operator || 'equals'}
-                                  onChange={(e) => {
-                                    const newRules = [...selectedQuestion.conditional_logic];
-                                    newRules[idx] = {
-                                      ...newRules[idx],
-                                      condition: {
-                                        ...(newRules[idx].condition || {}),
-                                        field: selectedQuestion.id,
-                                        operator: e.target.value
+                                {/* Condition Type */}
+                                <div className="space-y-2">
+                                  <div className="text-xs text-[#3F0D28] font-medium">
+                                    If answer:
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <select
+                                      value={
+                                        rule.condition?.operator ||
+                                        rule.operator ||
+                                        "equals"
                                       }
-                                    };
-                                    const newQuestion = {
-                                      ...selectedQuestion,
-                                      conditional_logic: newRules
-                                    };
-                                    updateQuestion(selectedQuestion.id, newQuestion);
-                                    setSelectedQuestion(newQuestion);
-                                  }}
-                                  className="text-xs p-2 border border-red-300 rounded bg-white"
-                                >
-                                  <option value="equals">Is equal to</option>
-                                  <option value="not_equals">Is not equal to</option>
-                                  <option value="contains">Contains</option>
-                                  <option value="not_contains">Does not contain</option>
-                                  <option value="greater_than">Greater than</option>
-                                  <option value="less_than">Less than</option>
-                                  <option value="is_empty">Is empty</option>
-                                  <option value="is_not_empty">Is not empty</option>
-                                </select>
+                                      onChange={(e) => {
+                                        const newRules = [
+                                          ...selectedQuestion.conditional_logic,
+                                        ];
+                                        newRules[idx] = {
+                                          ...newRules[idx],
+                                          condition: {
+                                            ...(newRules[idx].condition || {}),
+                                            field: selectedQuestion.id,
+                                            operator: e.target.value,
+                                          },
+                                        };
+                                        const newQuestion = {
+                                          ...selectedQuestion,
+                                          conditional_logic: newRules,
+                                        };
+                                        updateQuestion(
+                                          selectedQuestion.id,
+                                          newQuestion,
+                                        );
+                                        setSelectedQuestion(newQuestion);
+                                      }}
+                                      className="text-xs p-2 border border-[#3F0D28]/30 rounded bg-white"
+                                    >
+                                      <option value="equals">
+                                        Is equal to
+                                      </option>
+                                      <option value="not_equals">
+                                        Is not equal to
+                                      </option>
+                                      <option value="contains">Contains</option>
+                                      <option value="not_contains">
+                                        Does not contain
+                                      </option>
+                                      <option value="greater_than">
+                                        Greater than
+                                      </option>
+                                      <option value="less_than">
+                                        Less than
+                                      </option>
+                                      <option value="is_empty">Is empty</option>
+                                      <option value="is_not_empty">
+                                        Is not empty
+                                      </option>
+                                    </select>
 
-                                {/* Value input - hide for is_empty/is_not_empty */}
-                                {!['is_empty', 'is_not_empty'].includes(rule.condition?.operator || rule.operator) && (
-                                  <>
-                                    {(selectedQuestion.type === 'multiple-choice' || selectedQuestion.type === 'checkboxes') && selectedQuestion.options ? (
-                                      <select
-                                        value={rule.condition?.value || rule.value || ''}
-                                        onChange={(e) => {
-                                          const newRules = [...selectedQuestion.conditional_logic];
-                                          newRules[idx] = {
-                                            ...newRules[idx],
-                                            condition: {
-                                              ...(newRules[idx].condition || {}),
-                                              field: selectedQuestion.id,
-                                              operator: newRules[idx].condition?.operator || 'equals',
-                                              value: e.target.value
+                                    {/* Value input - hide for is_empty/is_not_empty */}
+                                    {!["is_empty", "is_not_empty"].includes(
+                                      rule.condition?.operator || rule.operator,
+                                    ) && (
+                                      <>
+                                        {(selectedQuestion.type ===
+                                          "multiple-choice" ||
+                                          selectedQuestion.type ===
+                                            "checkboxes") &&
+                                        selectedQuestion.options ? (
+                                          <select
+                                            value={
+                                              rule.condition?.value ||
+                                              rule.value ||
+                                              ""
                                             }
-                                          };
-                                          const newQuestion = {
-                                            ...selectedQuestion,
-                                            conditional_logic: newRules
-                                          };
-                                          updateQuestion(selectedQuestion.id, newQuestion);
-                                          setSelectedQuestion(newQuestion);
-                                        }}
-                                        className="text-xs p-2 border border-red-300 rounded bg-white"
-                                      >
-                                        <option value="">Select option...</option>
-                                        {selectedQuestion.options.map((opt, optIdx) => (
-                                          <option key={optIdx} value={opt}>{opt}</option>
-                                        ))}
-                                      </select>
-                                    ) : (
-                                      <input
-                                        type="text"
-                                        value={rule.condition?.value || rule.value || ''}
-                                        onChange={(e) => {
-                                          const newRules = [...selectedQuestion.conditional_logic];
-                                          newRules[idx] = {
-                                            ...newRules[idx],
-                                            condition: {
-                                              ...(newRules[idx].condition || {}),
-                                              field: selectedQuestion.id,
-                                              operator: newRules[idx].condition?.operator || 'equals',
-                                              value: e.target.value
+                                            onChange={(e) => {
+                                              const newRules = [
+                                                ...selectedQuestion.conditional_logic,
+                                              ];
+                                              newRules[idx] = {
+                                                ...newRules[idx],
+                                                condition: {
+                                                  ...(newRules[idx].condition ||
+                                                    {}),
+                                                  field: selectedQuestion.id,
+                                                  operator:
+                                                    newRules[idx].condition
+                                                      ?.operator || "equals",
+                                                  value: e.target.value,
+                                                },
+                                              };
+                                              const newQuestion = {
+                                                ...selectedQuestion,
+                                                conditional_logic: newRules,
+                                              };
+                                              updateQuestion(
+                                                selectedQuestion.id,
+                                                newQuestion,
+                                              );
+                                              setSelectedQuestion(newQuestion);
+                                            }}
+                                            className="text-xs p-2 border border-[#3F0D28]/30 rounded bg-white"
+                                          >
+                                            <option value="">
+                                              Select option...
+                                            </option>
+                                            {selectedQuestion.options.map(
+                                              (opt, optIdx) => (
+                                                <option
+                                                  key={optIdx}
+                                                  value={opt}
+                                                >
+                                                  {opt}
+                                                </option>
+                                              ),
+                                            )}
+                                          </select>
+                                        ) : (
+                                          <input
+                                            type="text"
+                                            value={
+                                              rule.condition?.value ||
+                                              rule.value ||
+                                              ""
                                             }
-                                          };
-                                          const newQuestion = {
-                                            ...selectedQuestion,
-                                            conditional_logic: newRules
-                                          };
-                                          updateQuestion(selectedQuestion.id, newQuestion);
-                                          setSelectedQuestion(newQuestion);
-                                        }}
-                                        placeholder="Enter value..."
-                                        className="text-xs p-2 border border-red-300 rounded bg-white"
-                                      />
+                                            onChange={(e) => {
+                                              const newRules = [
+                                                ...selectedQuestion.conditional_logic,
+                                              ];
+                                              newRules[idx] = {
+                                                ...newRules[idx],
+                                                condition: {
+                                                  ...(newRules[idx].condition ||
+                                                    {}),
+                                                  field: selectedQuestion.id,
+                                                  operator:
+                                                    newRules[idx].condition
+                                                      ?.operator || "equals",
+                                                  value: e.target.value,
+                                                },
+                                              };
+                                              const newQuestion = {
+                                                ...selectedQuestion,
+                                                conditional_logic: newRules,
+                                              };
+                                              updateQuestion(
+                                                selectedQuestion.id,
+                                                newQuestion,
+                                              );
+                                              setSelectedQuestion(newQuestion);
+                                            }}
+                                            placeholder="Enter value..."
+                                            className="text-xs p-2 border border-[#3F0D28]/30 rounded bg-white"
+                                          />
+                                        )}
+                                      </>
                                     )}
-                                  </>
+                                  </div>
+                                </div>
+
+                                {/* Action */}
+                                <div className="space-y-2">
+                                  <div className="text-xs text-[#3F0D28] font-medium">
+                                    Then:
+                                  </div>
+                                  <select
+                                    value={rule.action || "jump"}
+                                    onChange={(e) => {
+                                      const newRules = [
+                                        ...selectedQuestion.conditional_logic,
+                                      ];
+                                      newRules[idx] = {
+                                        ...newRules[idx],
+                                        action: e.target.value,
+                                      };
+                                      const newQuestion = {
+                                        ...selectedQuestion,
+                                        conditional_logic: newRules,
+                                      };
+                                      updateQuestion(
+                                        selectedQuestion.id,
+                                        newQuestion,
+                                      );
+                                      setSelectedQuestion(newQuestion);
+                                    }}
+                                    className="w-full text-xs p-2 border border-[#3F0D28]/30 rounded bg-white"
+                                  >
+                                    <option value="jump">
+                                      Jump to question
+                                    </option>
+                                    <option value="submit">
+                                      Submit form (qualified)
+                                    </option>
+                                    <option value="disqualify">
+                                      Disqualify lead
+                                    </option>
+                                  </select>
+                                </div>
+
+                                {/* Target Question (only show for 'jump' action) */}
+                                {rule.action === "jump" && (
+                                  <div className="space-y-2">
+                                    <div className="text-xs text-[#3F0D28] font-medium">
+                                      Jump to:
+                                    </div>
+                                    <select
+                                      value={rule.thenGoTo || ""}
+                                      onChange={(e) => {
+                                        const newRules = [
+                                          ...selectedQuestion.conditional_logic,
+                                        ];
+                                        newRules[idx] = {
+                                          ...newRules[idx],
+                                          thenGoTo: e.target.value,
+                                        };
+                                        const newQuestion = {
+                                          ...selectedQuestion,
+                                          conditional_logic: newRules,
+                                        };
+                                        updateQuestion(
+                                          selectedQuestion.id,
+                                          newQuestion,
+                                        );
+                                        setSelectedQuestion(newQuestion);
+                                      }}
+                                      className="w-full text-xs p-2 border border-[#3F0D28]/30 rounded bg-white"
+                                    >
+                                      <option value="">
+                                        Next question (default)
+                                      </option>
+                                      {questions
+                                        .filter(
+                                          (q) => q.id !== selectedQuestion.id,
+                                        )
+                                        .map((q, qIdx) => (
+                                          <option key={q.id} value={q.id}>
+                                            Question{" "}
+                                            {questions.findIndex(
+                                              (qq) => qq.id === q.id,
+                                            ) + 1}
+                                            : {q.title}
+                                          </option>
+                                        ))}
+                                    </select>
+                                  </div>
+                                )}
+
+                                {/* Disqualification Message (only show for 'disqualify' action) */}
+                                {rule.action === "disqualify" && (
+                                  <div className="space-y-2">
+                                    <div className="text-xs text-[#3F0D28] font-medium">
+                                      Disqualification Message:
+                                    </div>
+                                    <textarea
+                                      value={
+                                        selectedQuestion.disqualificationMessage ||
+                                        ""
+                                      }
+                                      onChange={(e) => {
+                                        const newQuestion = {
+                                          ...selectedQuestion,
+                                          disqualificationMessage:
+                                            e.target.value,
+                                        };
+                                        updateQuestion(
+                                          selectedQuestion.id,
+                                          newQuestion,
+                                        );
+                                        setSelectedQuestion(newQuestion);
+                                      }}
+                                      placeholder="Unfortunately, you do not meet the criteria..."
+                                      rows="2"
+                                      className="w-full text-xs p-2 border border-[#3F0D28]/30 rounded bg-white"
+                                    />
+                                  </div>
                                 )}
                               </div>
-                            </div>
+                            ),
+                          )}
 
-                            {/* Action */}
-                            <div className="space-y-2">
-                              <div className="text-xs text-red-800 font-medium">Then:</div>
-                              <select
-                                value={rule.action || 'jump'}
-                                onChange={(e) => {
-                                  const newRules = [...selectedQuestion.conditional_logic];
-                                  newRules[idx] = { ...newRules[idx], action: e.target.value };
-                                  const newQuestion = {
-                                    ...selectedQuestion,
-                                    conditional_logic: newRules
-                                  };
-                                  updateQuestion(selectedQuestion.id, newQuestion);
-                                  setSelectedQuestion(newQuestion);
-                                }}
-                                className="w-full text-xs p-2 border border-red-300 rounded bg-white"
-                              >
-                                <option value="jump">Jump to question</option>
-                                <option value="submit">Submit form (qualified)</option>
-                                <option value="disqualify">Disqualify lead</option>
-                              </select>
-                            </div>
-
-                            {/* Target Question (only show for 'jump' action) */}
-                            {rule.action === 'jump' && (
-                              <div className="space-y-2">
-                                <div className="text-xs text-red-800 font-medium">Jump to:</div>
-                                <select
-                                  value={rule.thenGoTo || ''}
-                                  onChange={(e) => {
-                                    const newRules = [...selectedQuestion.conditional_logic];
-                                    newRules[idx] = { ...newRules[idx], thenGoTo: e.target.value };
-                                    const newQuestion = {
-                                      ...selectedQuestion,
-                                      conditional_logic: newRules
-                                    };
-                                    updateQuestion(selectedQuestion.id, newQuestion);
-                                    setSelectedQuestion(newQuestion);
-                                  }}
-                                  className="w-full text-xs p-2 border border-red-300 rounded bg-white"
-                                >
-                                  <option value="">Next question (default)</option>
-                                  {questions
-                                    .filter(q => q.id !== selectedQuestion.id)
-                                    .map((q, qIdx) => (
-                                      <option key={q.id} value={q.id}>
-                                        Question {questions.findIndex(qq => qq.id === q.id) + 1}: {q.title}
-                                      </option>
-                                    ))}
-                                </select>
-                              </div>
-                            )}
-
-                            {/* Disqualification Message (only show for 'disqualify' action) */}
-                            {rule.action === 'disqualify' && (
-                              <div className="space-y-2">
-                                <div className="text-xs text-red-800 font-medium">Disqualification Message:</div>
-                                <textarea
-                                  value={selectedQuestion.disqualificationMessage || ''}
-                                  onChange={(e) => {
-                                    const newQuestion = {
-                                      ...selectedQuestion,
-                                      disqualificationMessage: e.target.value
-                                    };
-                                    updateQuestion(selectedQuestion.id, newQuestion);
-                                    setSelectedQuestion(newQuestion);
-                                  }}
-                                  placeholder="Unfortunately, you do not meet the criteria..."
-                                  rows="2"
-                                  className="w-full text-xs p-2 border border-red-300 rounded bg-white"
-                                />
-                              </div>
-                            )}
-                          </div>
-                        ))}
-
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full border-red-300 text-red-700 hover:bg-red-50"
-                          onClick={() => {
-                            if (!selectedQuestion) return;
-                            const newRule = {
-                              condition: {
-                                field: selectedQuestion.id,
-                                operator: 'equals',
-                                value: ''
-                              },
-                              thenGoTo: '',
-                              action: 'jump'
-                            };
-                            const newQuestion = {
-                              ...selectedQuestion,
-                              conditional_logic: [...selectedQuestion.conditional_logic, newRule]
-                            };
-                            updateQuestion(selectedQuestion.id, newQuestion);
-                            setSelectedQuestion(newQuestion);
-                          }}
-                        >
-                          <Plus className="h-3 w-3 mr-1" />
-                          Add Another Rule
-                        </Button>
-                      </div>
-                    )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full border-[#3F0D28]/30 text-[#3F0D28] hover:bg-[#3F0D28]/5"
+                            onClick={() => {
+                              if (!selectedQuestion) return;
+                              const newRule = {
+                                condition: {
+                                  field: selectedQuestion.id,
+                                  operator: "equals",
+                                  value: "",
+                                },
+                                thenGoTo: "",
+                                action: "jump",
+                              };
+                              const newQuestion = {
+                                ...selectedQuestion,
+                                conditional_logic: [
+                                  ...selectedQuestion.conditional_logic,
+                                  newRule,
+                                ],
+                              };
+                              updateQuestion(selectedQuestion.id, newQuestion);
+                              setSelectedQuestion(newQuestion);
+                            }}
+                          >
+                            <Plus className="h-3 w-3 mr-1" />
+                            Add Another Rule
+                          </Button>
+                        </div>
+                      )}
                   </div>
                 </div>
               </div>
@@ -1523,33 +1929,37 @@ export default function FormBuilder() {
               <div className="h-full">
                 <h3 className="font-semibold text-crm-text-primary mb-4 flex items-center justify-between">
                   <span>Form Outline</span>
-                  <span className="text-sm text-crm-text-secondary">{questions.length} questions</span>
+                  <span className="text-sm text-crm-text-secondary">
+                    {questions.length} questions
+                  </span>
                 </h3>
-                
+
                 {/* Form Mode Toggle */}
                 <div className="mb-4 p-3 bg-gray-50 rounded-lg border">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-crm-text-primary">Form Mode</span>
+                    <span className="text-sm font-medium text-crm-text-primary">
+                      Form Mode
+                    </span>
                   </div>
                   <div className="flex items-center border border-crm-border rounded-lg overflow-hidden">
                     <button
                       className={`flex-1 py-1.5 text-xs ${
-                        formMode === 'standard' 
-                          ? 'bg-primary text-white' 
-                          : 'bg-white text-crm-text-secondary hover:bg-gray-50'
+                        formMode === "standard"
+                          ? "bg-primary text-white"
+                          : "bg-white text-crm-text-secondary hover:bg-gray-50"
                       }`}
-                      onClick={() => setFormMode('standard')}
+                      onClick={() => setFormMode("standard")}
                     >
                       Standard
                     </button>
                     <div className="w-px h-6 bg-gray-300"></div>
                     <button
                       className={`flex-1 py-1.5 text-xs ${
-                        formMode === 'lead-qualification' 
-                          ? 'bg-primary text-white' 
-                          : 'bg-white text-crm-text-secondary hover:bg-gray-50'
+                        formMode === "lead-qualification"
+                          ? "bg-primary text-white"
+                          : "bg-white text-crm-text-secondary hover:bg-gray-50"
                       }`}
-                      onClick={() => setFormMode('lead-qualification')}
+                      onClick={() => setFormMode("lead-qualification")}
                     >
                       Lead Qual
                     </button>
@@ -1559,12 +1969,17 @@ export default function FormBuilder() {
                 {/* Contact Creation Settings */}
                 <div className="mb-4 p-3 bg-gray-50 rounded-lg border">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-crm-text-primary">Contact Creation</span>
+                    <span className="text-sm font-medium text-crm-text-primary">
+                      Contact Creation
+                    </span>
                     <input
                       type="checkbox"
                       checked={form.settings?.create_contact || false}
                       onChange={(e) => {
-                        const newSettings = { ...(form.settings || {}), create_contact: e.target.checked };
+                        const newSettings = {
+                          ...(form.settings || {}),
+                          create_contact: e.target.checked,
+                        };
                         setForm({ ...form, settings: newSettings });
                       }}
                       className="rounded"
@@ -1579,17 +1994,21 @@ export default function FormBuilder() {
 
                 <div className="space-y-2">
                   {questions.map((question, index) => {
-                    const questionType = questionTypes.find(qt => qt.id === question.type);
+                    const questionType = questionTypes.find(
+                      (qt) => qt.id === question.type,
+                    );
                     const Icon = questionType?.icon || Type;
-                    const hasConditionalLogic = question.conditional_logic && question.conditional_logic.length > 0;
+                    const hasConditionalLogic =
+                      question.conditional_logic &&
+                      question.conditional_logic.length > 0;
 
                     return (
                       <div
                         key={question.id}
                         className={`p-3 rounded-lg border cursor-pointer transition-colors ${
                           selectedQuestion?.id === question.id
-                            ? 'border-primary bg-primary/5'
-                            : 'border-gray-200 hover:bg-gray-50'
+                            ? "border-primary bg-primary/5"
+                            : "border-gray-200 hover:bg-gray-50"
                         }`}
                         onClick={() => setSelectedQuestion(question)}
                       >
@@ -1597,24 +2016,40 @@ export default function FormBuilder() {
                           <div className="flex flex-col items-center gap-1">
                             <Icon className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
                             {hasConditionalLogic && (
-                              <GitBranch className="h-3 w-3 text-red-600" title="Has conditional logic" />
+                              <GitBranch
+                                className="h-3 w-3 text-[#3F0D28]"
+                                title="Has conditional logic"
+                              />
                             )}
-                            {formMode === 'lead-qualification' && question.lead_scoring_enabled && (
-                              <Target className="h-3 w-3 text-green-600" title="Lead scoring enabled" />
-                            )}
+                            {formMode === "lead-qualification" &&
+                              question.lead_scoring_enabled && (
+                                <Target
+                                  className="h-3 w-3 text-green-600"
+                                  title="Lead scoring enabled"
+                                />
+                              )}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="font-medium text-sm text-crm-text-primary truncate">
                               {index + 1}. {question.title}
                             </div>
                             <div className="text-xs text-crm-text-secondary">
-                              <span className="capitalize">{questionType?.name || question.type}</span>
-                              {question.required && <span className="text-red-500"> *</span>}
-                              {formMode === 'lead-qualification' && question.lead_scoring_enabled && (
-                                <span className="ml-1 text-green-600">• Scored</span>
+                              <span className="capitalize">
+                                {questionType?.name || question.type}
+                              </span>
+                              {question.required && (
+                                <span className="text-[#3F0D28]"> *</span>
                               )}
+                              {formMode === "lead-qualification" &&
+                                question.lead_scoring_enabled && (
+                                  <span className="ml-1 text-green-600">
+                                    • Scored
+                                  </span>
+                                )}
                               {hasConditionalLogic && (
-                                <span className="ml-1 text-red-600">• Logic</span>
+                                <span className="ml-1 text-[#3F0D28]">
+                                  • Logic
+                                </span>
                               )}
                             </div>
                           </div>
@@ -1638,7 +2073,9 @@ export default function FormBuilder() {
                 {questions.length === 0 && (
                   <div className="text-center py-8 text-crm-text-secondary">
                     <p className="text-sm">No questions yet</p>
-                    <p className="text-xs mt-1">Add questions to build your form</p>
+                    <p className="text-xs mt-1">
+                      Add questions to build your form
+                    </p>
                   </div>
                 )}
               </div>
@@ -1653,18 +2090,22 @@ export default function FormBuilder() {
           <div className="bg-white rounded-xl max-w-3xl w-full max-h-[85vh] flex flex-col">
             <div className="flex items-center justify-between p-6 border-b">
               <div>
-                <h2 className="text-xl font-semibold text-crm-text-primary">Content Triggers</h2>
-                <p className="text-sm text-crm-text-secondary">Define automated actions based on user responses</p>
+                <h2 className="text-xl font-semibold text-crm-text-primary">
+                  Content Triggers
+                </h2>
+                <p className="text-sm text-crm-text-secondary">
+                  Define automated actions based on user responses
+                </p>
               </div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setShowTriggers(false)}
               >
                 <X className="h-4 w-4" />
               </Button>
             </div>
-            
+
             <div className="p-6 overflow-y-auto flex-1">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Lead Scoring Section */}
@@ -1680,29 +2121,54 @@ export default function FormBuilder() {
                       Assign scores to responses to qualify leads automatically
                     </p>
                     <div className="space-y-3">
-                      {questions.filter(q => q.lead_scoring_enabled).map((question) => (
-                        <div key={question.id} className="p-3 border rounded-lg bg-gray-50">
-                          <div className="font-medium text-sm mb-1 truncate">{question.title}</div>
-                          <div className="text-xs text-crm-text-secondary space-y-1">
-                            {Object.entries(question.lead_scoring || {})
-                              .filter(([_, score]) => score !== 0 && score !== undefined)
-                              .map(([option, score]) => (
-                                <div key={option} className="flex justify-between">
-                                  <span className="truncate max-w-[120px]">{option}</span>
-                                  <span className="font-medium text-primary">{score} pts</span>
-                                </div>
-                              ))}
-                          </div>
-                          <div className="mt-2 pt-2 border-t border-gray-200">
-                            <div className="text-xs text-crm-text-secondary">Total possible: 
-                              <span className="font-medium">
-                                {Object.values(question.lead_scoring || {}).reduce((sum, score) => sum + (score || 0), 0)} pts
-                              </span>
+                      {questions
+                        .filter((q) => q.lead_scoring_enabled)
+                        .map((question) => (
+                          <div
+                            key={question.id}
+                            className="p-3 border rounded-lg bg-gray-50"
+                          >
+                            <div className="font-medium text-sm mb-1 truncate">
+                              {question.title}
+                            </div>
+                            <div className="text-xs text-crm-text-secondary space-y-1">
+                              {Object.entries(question.lead_scoring || {})
+                                .filter(
+                                  ([_, score]) =>
+                                    score !== 0 && score !== undefined,
+                                )
+                                .map(([option, score]) => (
+                                  <div
+                                    key={option}
+                                    className="flex justify-between"
+                                  >
+                                    <span className="truncate max-w-[120px]">
+                                      {option}
+                                    </span>
+                                    <span className="font-medium text-primary">
+                                      {score} pts
+                                    </span>
+                                  </div>
+                                ))}
+                            </div>
+                            <div className="mt-2 pt-2 border-t border-gray-200">
+                              <div className="text-xs text-crm-text-secondary">
+                                Total possible:
+                                <span className="font-medium">
+                                  {Object.values(
+                                    question.lead_scoring || {},
+                                  ).reduce(
+                                    (sum, score) => sum + (score || 0),
+                                    0,
+                                  )}{" "}
+                                  pts
+                                </span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                      {questions.filter(q => q.lead_scoring_enabled).length === 0 && (
+                        ))}
+                      {questions.filter((q) => q.lead_scoring_enabled)
+                        .length === 0 && (
                         <div className="text-center py-4 text-crm-text-secondary text-sm">
                           No questions have scoring enabled
                         </div>
@@ -1710,7 +2176,7 @@ export default function FormBuilder() {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 {/* Conditional Logic Section */}
                 <Card>
                   <CardHeader>
@@ -1737,7 +2203,7 @@ export default function FormBuilder() {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 {/* CRM Integration Section */}
                 <Card>
                   <CardHeader>
@@ -1753,7 +2219,11 @@ export default function FormBuilder() {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between p-2 border rounded">
                         <span className="text-sm">Create new lead</span>
-                        <input type="checkbox" defaultChecked className="rounded" />
+                        <input
+                          type="checkbox"
+                          defaultChecked
+                          className="rounded"
+                        />
                       </div>
                       <div className="flex items-center justify-between p-2 border rounded">
                         <span className="text-sm">Add to campaign</span>
@@ -1766,7 +2236,7 @@ export default function FormBuilder() {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 {/* Notifications Section */}
                 <Card>
                   <CardHeader>
@@ -1790,7 +2260,7 @@ export default function FormBuilder() {
                 </Card>
               </div>
             </div>
-            
+
             <div className="p-6 border-t flex justify-between">
               <Button variant="outline" onClick={() => setShowTriggers(false)}>
                 Cancel
@@ -1805,119 +2275,156 @@ export default function FormBuilder() {
           </div>
         </div>
       )}
-      
+
       {/* Detailed Scoring Popup */}
       {showScoringPopup && selectedQuestion && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-2xl w-full max-h-[80vh] flex flex-col">
             <div className="flex items-center justify-between p-6 border-b">
               <div>
-                <h2 className="text-xl font-semibold text-crm-text-primary">Lead Scoring</h2>
-                <p className="text-sm text-crm-text-secondary">Assign points to each answer option</p>
+                <h2 className="text-xl font-semibold text-crm-text-primary">
+                  Lead Scoring
+                </h2>
+                <p className="text-sm text-crm-text-secondary">
+                  Assign points to each answer option
+                </p>
               </div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setShowScoringPopup(false)}
               >
                 <X className="h-4 w-4" />
               </Button>
             </div>
-            
+
             <div className="p-6 overflow-y-auto flex-1">
               <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-medium text-crm-text-primary">{selectedQuestion?.title || 'Select a question'}</h3>
-                <p className="text-sm text-crm-text-secondary mt-1">{questionTypes.find(qt => qt.id === selectedQuestion?.type)?.name || 'Question type'}</p>
+                <h3 className="font-medium text-crm-text-primary">
+                  {selectedQuestion?.title || "Select a question"}
+                </h3>
+                <p className="text-sm text-crm-text-secondary mt-1">
+                  {questionTypes.find((qt) => qt.id === selectedQuestion?.type)
+                    ?.name || "Question type"}
+                </p>
               </div>
-              
+
               <div className="space-y-3">
-                {selectedQuestion.type === 'multiple-choice' && selectedQuestion.options && selectedQuestion.options.map((option, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 border rounded-lg">
-                    <span className="text-sm text-crm-text-primary flex-1">{option}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">=</span>
-                      <input
-                        type="number"
-                        value={selectedQuestion.lead_scoring?.[option] || 0}
-                        onChange={(e) => {
-                          const newScoring = { 
-                            ...selectedQuestion.lead_scoring, 
-                            [option]: parseInt(e.target.value) || 0 
-                          };
-                          const newQuestion = { 
-                            ...selectedQuestion, 
-                            lead_scoring: newScoring 
-                          };
-                          updateQuestion(selectedQuestion.id, newQuestion);
-                          // Update the selectedQuestion state to reflect changes in the popup
-                          setSelectedQuestion(newQuestion);
-                        }}
-                        className="w-20 p-2 border border-gray-300 rounded text-sm text-center"
-                        placeholder="0"
-                      />
-                      <span className="text-sm">points</span>
+                {selectedQuestion.type === "multiple-choice" &&
+                  selectedQuestion.options &&
+                  selectedQuestion.options.map((option, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between p-3 border rounded-lg"
+                    >
+                      <span className="text-sm text-crm-text-primary flex-1">
+                        {option}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">=</span>
+                        <input
+                          type="number"
+                          value={selectedQuestion.lead_scoring?.[option] || 0}
+                          onChange={(e) => {
+                            const newScoring = {
+                              ...selectedQuestion.lead_scoring,
+                              [option]: parseInt(e.target.value) || 0,
+                            };
+                            const newQuestion = {
+                              ...selectedQuestion,
+                              lead_scoring: newScoring,
+                            };
+                            updateQuestion(selectedQuestion.id, newQuestion);
+                            // Update the selectedQuestion state to reflect changes in the popup
+                            setSelectedQuestion(newQuestion);
+                          }}
+                          className="w-20 p-2 border border-gray-300 rounded text-sm text-center"
+                          placeholder="0"
+                        />
+                        <span className="text-sm">points</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
-                
-                {selectedQuestion.type === 'checkboxes' && selectedQuestion.options && selectedQuestion.options.map((option, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 border rounded-lg">
-                    <span className="text-sm text-crm-text-primary flex-1">{option}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">=</span>
-                      <input
-                        type="number"
-                        value={selectedQuestion.lead_scoring?.[option] || 0}
-                        onChange={(e) => {
-                          const newScoring = { 
-                            ...selectedQuestion.lead_scoring, 
-                            [option]: parseInt(e.target.value) || 0 
-                          };
-                          const newQuestion = { 
-                            ...selectedQuestion, 
-                            lead_scoring: newScoring 
-                          };
-                          updateQuestion(selectedQuestion.id, newQuestion);
-                        }}
-                        className="w-20 p-2 border border-gray-300 rounded text-sm text-center"
-                        placeholder="0"
-                      />
-                      <span className="text-sm">points</span>
+                  ))}
+
+                {selectedQuestion.type === "checkboxes" &&
+                  selectedQuestion.options &&
+                  selectedQuestion.options.map((option, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between p-3 border rounded-lg"
+                    >
+                      <span className="text-sm text-crm-text-primary flex-1">
+                        {option}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">=</span>
+                        <input
+                          type="number"
+                          value={selectedQuestion.lead_scoring?.[option] || 0}
+                          onChange={(e) => {
+                            const newScoring = {
+                              ...selectedQuestion.lead_scoring,
+                              [option]: parseInt(e.target.value) || 0,
+                            };
+                            const newQuestion = {
+                              ...selectedQuestion,
+                              lead_scoring: newScoring,
+                            };
+                            updateQuestion(selectedQuestion.id, newQuestion);
+                          }}
+                          className="w-20 p-2 border border-gray-300 rounded text-sm text-center"
+                          placeholder="0"
+                        />
+                        <span className="text-sm">points</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
-                
-                {selectedQuestion.type === 'rating' && [1, 2, 3, 4, 5].map((value) => (
-                  <div key={value} className="flex items-center justify-between p-3 border rounded-lg">
-                    <span className="text-sm text-crm-text-primary flex-1">Rate {value}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">=</span>
-                      <input
-                        type="number"
-                        value={selectedQuestion.lead_scoring?.[`rating-${value}`] || 0}
-                        onChange={(e) => {
-                          const newScoring = { 
-                            ...selectedQuestion.lead_scoring, 
-                            [`rating-${value}`]: parseInt(e.target.value) || 0 
-                          };
-                          const newQuestion = { 
-                            ...selectedQuestion, 
-                            lead_scoring: newScoring 
-                          };
-                          updateQuestion(selectedQuestion.id, newQuestion);
-                        }}
-                        className="w-20 p-2 border border-gray-300 rounded text-sm text-center"
-                        placeholder="0"
-                      />
-                      <span className="text-sm">points</span>
+                  ))}
+
+                {selectedQuestion.type === "rating" &&
+                  [1, 2, 3, 4, 5].map((value) => (
+                    <div
+                      key={value}
+                      className="flex items-center justify-between p-3 border rounded-lg"
+                    >
+                      <span className="text-sm text-crm-text-primary flex-1">
+                        Rate {value}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">=</span>
+                        <input
+                          type="number"
+                          value={
+                            selectedQuestion.lead_scoring?.[
+                              `rating-${value}`
+                            ] || 0
+                          }
+                          onChange={(e) => {
+                            const newScoring = {
+                              ...selectedQuestion.lead_scoring,
+                              [`rating-${value}`]:
+                                parseInt(e.target.value) || 0,
+                            };
+                            const newQuestion = {
+                              ...selectedQuestion,
+                              lead_scoring: newScoring,
+                            };
+                            updateQuestion(selectedQuestion.id, newQuestion);
+                          }}
+                          className="w-20 p-2 border border-gray-300 rounded text-sm text-center"
+                          placeholder="0"
+                        />
+                        <span className="text-sm">points</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </div>
-            
+
             <div className="p-6 border-t flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setShowScoringPopup(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowScoringPopup(false)}
+              >
                 Close
               </Button>
             </div>
@@ -1930,8 +2437,14 @@ export default function FormBuilder() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-crm-dark-primary rounded-lg w-full h-[90vh] max-w-7xl flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
-              <h2 className="text-xl font-semibold text-crm-text-primary">Form Workflow</h2>
-              <Button variant="ghost" size="sm" onClick={() => setShowWorkflow(false)}>
+              <h2 className="text-xl font-semibold text-crm-text-primary">
+                Form Workflow
+              </h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowWorkflow(false)}
+              >
                 <X className="h-5 w-5" />
               </Button>
             </div>

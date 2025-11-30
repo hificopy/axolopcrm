@@ -132,7 +132,7 @@ export default function MeetingsPanel({ className = '' }) {
           onClick={() => setSelectedDate(date)}
           className={`h-8 w-8 rounded-full flex items-center justify-center text-sm transition-all ${
             isToday
-              ? 'bg-[#761B14] text-white font-bold'
+              ? 'bg-[#3F0D28] text-white font-bold'
               : isSelected
               ? 'bg-gray-200 text-gray-900 font-semibold'
               : 'text-gray-700 hover:bg-gray-100'
@@ -152,7 +152,7 @@ export default function MeetingsPanel({ className = '' }) {
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-[#761B14]" />
+            <Calendar className="h-5 w-5 text-[#3F0D28]" />
             Meetings
           </h2>
           <button
@@ -262,7 +262,7 @@ export default function MeetingsPanel({ className = '' }) {
                   key={meeting.id || index}
                   className={`border hover:shadow-md transition-all ${
                     meeting.source === 'google'
-                      ? 'border-blue-200 bg-blue-50/30'
+                      ? 'border-gray-200 bg-blue-50/30'
                       : 'border-gray-200'
                   }`}
                 >
@@ -309,7 +309,7 @@ export default function MeetingsPanel({ className = '' }) {
                             className={`text-xs ${
                               meeting.source === 'google'
                                 ? 'border-blue-300 text-blue-700 bg-blue-50'
-                                : 'border-[#761B14]/30 text-[#761B14] bg-red-50'
+                                : 'border-[#3F0D28]/30 text-[#3F0D28] bg-red-50'
                             }`}
                           >
                             {meeting.type}

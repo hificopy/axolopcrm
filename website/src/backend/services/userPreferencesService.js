@@ -1,8 +1,7 @@
-import { createClient } from '@supabase/supabase-js';
+import { supabaseServer } from "../config/supabase-auth.js";
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Use the shared supabaseServer client (service role key) from config
+const supabase = supabaseServer;
 
 /**
  * User Preferences Service
@@ -16,12 +15,12 @@ class UserPreferencesService {
   async getUserPreferences(userId) {
     try {
       const { data, error } = await supabase
-        .from('user_preferences')
-        .select('*')
-        .eq('user_id', userId)
+        .from("user_preferences")
+        .select("*")
+        .eq("user_id", userId)
         .single();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error && error.code !== "PGRST116") {
         // PGRST116 is "no rows returned" which is fine, we'll create one
         throw error;
       }
@@ -33,7 +32,7 @@ class UserPreferencesService {
 
       return { success: true, data };
     } catch (error) {
-      console.error('Error getting user preferences:', error);
+      console.error("Error getting user preferences:", error);
       throw error;
     }
   }
@@ -44,17 +43,16 @@ class UserPreferencesService {
   async createDefaultPreferences(userId) {
     try {
       const { data, error } = await supabase
-        .from('user_preferences')
+        .from("user_preferences")
         .insert({
           user_id: userId,
-          kate_onboarding_completed: false,
-          kate_onboarding_messages: [],
+
           dashboard_layout: {},
           dashboard_widgets: [],
-          default_view_contacts: 'table',
-          default_view_leads: 'table',
-          default_view_opportunities: 'kanban',
-          preferences: {}
+          default_view_contacts: "table",
+          default_view_leads: "table",
+          default_view_opportunities: "kanban",
+          preferences: {},
         })
         .select()
         .single();
@@ -62,7 +60,7 @@ class UserPreferencesService {
       if (error) throw error;
       return { success: true, data };
     } catch (error) {
-      console.error('Error creating default preferences:', error);
+      console.error("Error creating default preferences:", error);
       throw error;
     }
   }
@@ -77,18 +75,11 @@ class UserPreferencesService {
 
       // Update the specific field or merge into preferences JSONB
       const updates = {};
-      if (key === 'kate_onboarding_completed') {
-        updates.kate_onboarding_completed = value;
-        if (value === true) {
-          updates.kate_onboarding_completed_at = new Date().toISOString();
-        }
-      } else if (key === 'kate_onboarding_messages') {
-        updates.kate_onboarding_messages = value;
-      } else if (key === 'dashboard_layout') {
+      if (key === "dashboard_layout") {
         updates.dashboard_layout = value;
-      } else if (key === 'dashboard_widgets') {
+      } else if (key === "dashboard_widgets") {
         updates.dashboard_widgets = value;
-      } else if (key.startsWith('default_view_')) {
+      } else if (key.startsWith("default_view_")) {
         updates[key] = value;
       } else {
         // Store in preferences JSONB
@@ -97,16 +88,16 @@ class UserPreferencesService {
       }
 
       const { data, error } = await supabase
-        .from('user_preferences')
+        .from("user_preferences")
         .update(updates)
-        .eq('user_id', userId)
+        .eq("user_id", userId)
         .select()
         .single();
 
       if (error) throw error;
       return { success: true, data };
     } catch (error) {
-      console.error('Error updating preference:', error);
+      console.error("Error updating preference:", error);
       throw error;
     }
   }
@@ -116,20 +107,21 @@ class UserPreferencesService {
    */
   async updateUserSettings(userId, settings) {
     try {
-      // First check if user_settings exists
+      // Use user_preferences table instead since user_settings doesn't exist
+      // Store settings in the preferences JSONB field
       const { data: existing } = await supabase
-        .from('user_settings')
-        .select('id')
-        .eq('user_id', userId)
+        .from("user_preferences")
+        .select("preferences")
+        .eq("user_id", userId)
         .single();
 
       if (!existing) {
-        // Create new settings
+        // Create new preferences with settings
         const { data, error } = await supabase
-          .from('user_settings')
+          .from("user_preferences")
           .insert({
             user_id: userId,
-            ...settings
+            preferences: settings,
           })
           .select()
           .single();
@@ -137,11 +129,17 @@ class UserPreferencesService {
         if (error) throw error;
         return { success: true, data };
       } else {
-        // Update existing settings
+        // Update existing preferences
+        const currentPreferences = existing.preferences || {};
+        const updatedPreferences = { ...currentPreferences, ...settings };
+
         const { data, error } = await supabase
-          .from('user_settings')
-          .update(settings)
-          .eq('user_id', userId)
+          .from("user_preferences")
+          .update({
+            preferences: updatedPreferences,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("user_id", userId)
           .select()
           .single();
 
@@ -149,7 +147,7 @@ class UserPreferencesService {
         return { success: true, data };
       }
     } catch (error) {
-      console.error('Error updating user settings:', error);
+      console.error("Error updating user settings:", error);
       throw error;
     }
   }
@@ -160,12 +158,12 @@ class UserPreferencesService {
   async getUserSettings(userId) {
     try {
       const { data, error } = await supabase
-        .from('user_settings')
-        .select('*')
-        .eq('user_id', userId)
+        .from("user_settings")
+        .select("*")
+        .eq("user_id", userId)
         .single();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error && error.code !== "PGRST116") {
         throw error;
       }
 
@@ -174,18 +172,18 @@ class UserPreferencesService {
         return {
           success: true,
           data: {
-            theme: 'system',
+            theme: "system",
             email_notifications: true,
             push_notifications: true,
             sms_notifications: false,
-            marketing_emails: false
-          }
+            marketing_emails: false,
+          },
         };
       }
 
       return { success: true, data };
     } catch (error) {
-      console.error('Error getting user settings:', error);
+      console.error("Error getting user settings:", error);
       throw error;
     }
   }
@@ -196,16 +194,15 @@ class UserPreferencesService {
   async getUserTodos(userId) {
     try {
       const { data, error } = await supabase
-        .from('user_todos')
-        .select('*')
-        .eq('user_id', userId)
-        .order('sort_order', { ascending: true })
-        .order('created_at', { ascending: false });
+        .from("user_todos")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       return { success: true, data: data || [] };
     } catch (error) {
-      console.error('Error getting user todos:', error);
+      console.error("Error getting user todos:", error);
       throw error;
     }
   }
@@ -216,17 +213,17 @@ class UserPreferencesService {
   async createTodo(userId, todoData) {
     try {
       const { data, error } = await supabase
-        .from('user_todos')
+        .from("user_todos")
         .insert({
           user_id: userId,
           title: todoData.title,
           description: todoData.description,
           completed: todoData.completed || false,
-          priority: todoData.priority || 'medium',
+          priority: todoData.priority || "medium",
           due_date: todoData.due_date,
           category: todoData.category,
           tags: todoData.tags,
-          sort_order: todoData.sort_order || 0
+          sort_order: todoData.sort_order || 0,
         })
         .select()
         .single();
@@ -234,7 +231,7 @@ class UserPreferencesService {
       if (error) throw error;
       return { success: true, data };
     } catch (error) {
-      console.error('Error creating todo:', error);
+      console.error("Error creating todo:", error);
       throw error;
     }
   }
@@ -245,17 +242,17 @@ class UserPreferencesService {
   async updateTodo(userId, todoId, updates) {
     try {
       const { data, error } = await supabase
-        .from('user_todos')
+        .from("user_todos")
         .update(updates)
-        .eq('id', todoId)
-        .eq('user_id', userId)
+        .eq("id", todoId)
+        .eq("user_id", userId)
         .select()
         .single();
 
       if (error) throw error;
       return { success: true, data };
     } catch (error) {
-      console.error('Error updating todo:', error);
+      console.error("Error updating todo:", error);
       throw error;
     }
   }
@@ -266,15 +263,15 @@ class UserPreferencesService {
   async deleteTodo(userId, todoId) {
     try {
       const { error } = await supabase
-        .from('user_todos')
+        .from("user_todos")
         .delete()
-        .eq('id', todoId)
-        .eq('user_id', userId);
+        .eq("id", todoId)
+        .eq("user_id", userId);
 
       if (error) throw error;
       return { success: true };
     } catch (error) {
-      console.error('Error deleting todo:', error);
+      console.error("Error deleting todo:", error);
       throw error;
     }
   }
@@ -286,10 +283,10 @@ class UserPreferencesService {
     try {
       // Get current todo
       const { data: todo, error: fetchError } = await supabase
-        .from('user_todos')
-        .select('completed')
-        .eq('id', todoId)
-        .eq('user_id', userId)
+        .from("user_todos")
+        .select("completed")
+        .eq("id", todoId)
+        .eq("user_id", userId)
         .single();
 
       if (fetchError) throw fetchError;
@@ -297,21 +294,21 @@ class UserPreferencesService {
       // Toggle completion
       const updates = {
         completed: !todo.completed,
-        completed_at: !todo.completed ? new Date().toISOString() : null
+        completed_at: !todo.completed ? new Date().toISOString() : null,
       };
 
       const { data, error } = await supabase
-        .from('user_todos')
+        .from("user_todos")
         .update(updates)
-        .eq('id', todoId)
-        .eq('user_id', userId)
+        .eq("id", todoId)
+        .eq("user_id", userId)
         .select()
         .single();
 
       if (error) throw error;
       return { success: true, data };
     } catch (error) {
-      console.error('Error toggling todo completion:', error);
+      console.error("Error toggling todo completion:", error);
       throw error;
     }
   }
@@ -324,49 +321,69 @@ class UserPreferencesService {
       const updates = todos.map((todo, index) => ({
         id: todo.id,
         user_id: userId,
-        sort_order: index
+        sort_order: index,
       }));
 
       // Use upsert to update sort_order
       const { data, error } = await supabase
-        .from('user_todos')
-        .upsert(updates, { onConflict: 'id' })
+        .from("user_todos")
+        .upsert(updates, { onConflict: "id" })
         .select();
 
       if (error) throw error;
       return { success: true, data };
     } catch (error) {
-      console.error('Error bulk updating todos:', error);
+      console.error("Error bulk updating todos:", error);
       throw error;
     }
   }
 
   /**
-   * Get sidebar menu buttons for a user
-   * Returns array of button IDs that should be visible in the More menu
+   * Update user settings (theme, notifications, etc.)
    */
-  async getSidebarMenuButtons(userId) {
+  async updateUserSettings(userId, settings) {
     try {
-      const { data, error } = await supabase
-        .from('user_preferences')
-        .select('preferences')
-        .eq('user_id', userId)
+      // Use user_preferences table instead since user_settings doesn't exist
+      // Store settings in preferences JSONB field
+      const { data: existing } = await supabase
+        .from("user_preferences")
+        .select("preferences")
+        .eq("user_id", userId)
         .single();
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
+      if (!existing) {
+        // Create new preferences with settings
+        const { data, error } = await supabase
+          .from("user_preferences")
+          .insert({
+            user_id: userId,
+            preferences: settings,
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        return { success: true, data };
+      } else {
+        // Update existing preferences
+        const currentPreferences = existing.preferences || {};
+        const updatedPreferences = { ...currentPreferences, ...settings };
+        
+        const { data, error } = await supabase
+          .from("user_preferences")
+          .update({
+            preferences: updatedPreferences,
+            updated_at: new Date().toISOString()
+          })
+          .eq("user_id", userId)
+          .select()
+          .single();
+
+        if (error) throw error;
+        return { success: true, data };
       }
-
-      // Default buttons (first 2 are active by default)
-      const defaultButtons = ['quick-search', 'help'];
-
-      // Return saved buttons from preferences JSONB or defaults
-      return {
-        success: true,
-        data: data?.preferences?.sidebar_menu_buttons || defaultButtons
-      };
     } catch (error) {
-      console.error('Error getting sidebar menu buttons:', error);
+      console.error("Error updating user settings:", error);
       throw error;
     }
   }
@@ -378,25 +395,25 @@ class UserPreferencesService {
   async getPinnedQuickActions(userId) {
     try {
       const { data, error } = await supabase
-        .from('user_preferences')
-        .select('preferences')
-        .eq('user_id', userId)
+        .from("user_preferences")
+        .select("preferences")
+        .eq("user_id", userId)
         .single();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error && error.code !== "PGRST116") {
         throw error;
       }
 
       // Default pinned buttons (help and notifications)
-      const defaultPinned = ['help', 'notifications'];
+      const defaultPinned = ["help", "notifications"];
 
       // Return saved pinned buttons from preferences JSONB or defaults
       return {
         success: true,
-        data: data?.preferences?.pinned_quick_actions || defaultPinned
+        data: data?.preferences?.pinned_quick_actions || defaultPinned,
       };
     } catch (error) {
-      console.error('Error getting pinned quick actions:', error);
+      console.error("Error getting pinned quick actions:", error);
       throw error;
     }
   }
@@ -409,17 +426,17 @@ class UserPreferencesService {
     try {
       // Validate max 4 buttons
       if (pinnedButtons.length > 4) {
-        throw new Error('Maximum 4 pinned quick action buttons allowed');
+        throw new Error("Maximum 4 pinned quick action buttons allowed");
       }
 
       // First, get the existing preferences row
       const { data: existing, error: fetchError } = await supabase
-        .from('user_preferences')
-        .select('preferences')
-        .eq('user_id', userId)
+        .from("user_preferences")
+        .select("preferences")
+        .eq("user_id", userId)
         .single();
 
-      if (fetchError && fetchError.code !== 'PGRST116') {
+      if (fetchError && fetchError.code !== "PGRST116") {
         throw fetchError;
       }
 
@@ -427,16 +444,16 @@ class UserPreferencesService {
       const currentPreferences = existing?.preferences || {};
       const updatedPreferences = {
         ...currentPreferences,
-        pinned_quick_actions: pinnedButtons
+        pinned_quick_actions: pinnedButtons,
       };
 
       if (!existing) {
         // Create new row if doesn't exist
         const { data, error } = await supabase
-          .from('user_preferences')
+          .from("user_preferences")
           .insert({
             user_id: userId,
-            preferences: updatedPreferences
+            preferences: updatedPreferences,
           })
           .select()
           .single();
@@ -446,12 +463,12 @@ class UserPreferencesService {
       } else {
         // Update existing row
         const { data, error } = await supabase
-          .from('user_preferences')
+          .from("user_preferences")
           .update({
             preferences: updatedPreferences,
-            updated_at: new Date().toISOString()
+            updated_at: new Date().toISOString(),
           })
-          .eq('user_id', userId)
+          .eq("user_id", userId)
           .select()
           .single();
 
@@ -459,7 +476,7 @@ class UserPreferencesService {
         return { success: true, data: pinnedButtons };
       }
     } catch (error) {
-      console.error('Error updating pinned quick actions:', error);
+      console.error("Error updating pinned quick actions:", error);
       throw error;
     }
   }
@@ -472,17 +489,17 @@ class UserPreferencesService {
     try {
       // Validate max 12 buttons
       if (buttons.length > 12) {
-        throw new Error('Maximum 12 sidebar menu buttons allowed');
+        throw new Error("Maximum 12 sidebar menu buttons allowed");
       }
 
       // First, get the existing preferences row
       const { data: existing, error: fetchError } = await supabase
-        .from('user_preferences')
-        .select('preferences')
-        .eq('user_id', userId)
+        .from("user_preferences")
+        .select("preferences")
+        .eq("user_id", userId)
         .single();
 
-      if (fetchError && fetchError.code !== 'PGRST116') {
+      if (fetchError && fetchError.code !== "PGRST116") {
         throw fetchError;
       }
 
@@ -490,16 +507,16 @@ class UserPreferencesService {
       const currentPreferences = existing?.preferences || {};
       const updatedPreferences = {
         ...currentPreferences,
-        sidebar_menu_buttons: buttons
+        sidebar_menu_buttons: buttons,
       };
 
       if (!existing) {
         // Create new row if doesn't exist
         const { data, error } = await supabase
-          .from('user_preferences')
+          .from("user_preferences")
           .insert({
             user_id: userId,
-            preferences: updatedPreferences
+            preferences: updatedPreferences,
           })
           .select()
           .single();
@@ -509,12 +526,12 @@ class UserPreferencesService {
       } else {
         // Update existing row
         const { data, error } = await supabase
-          .from('user_preferences')
+          .from("user_preferences")
           .update({
             preferences: updatedPreferences,
-            updated_at: new Date().toISOString()
+            updated_at: new Date().toISOString(),
           })
-          .eq('user_id', userId)
+          .eq("user_id", userId)
           .select()
           .single();
 
@@ -522,7 +539,7 @@ class UserPreferencesService {
         return { success: true, data: buttons };
       }
     } catch (error) {
-      console.error('Error updating sidebar menu buttons:', error);
+      console.error("Error updating sidebar menu buttons:", error);
       throw error;
     }
   }

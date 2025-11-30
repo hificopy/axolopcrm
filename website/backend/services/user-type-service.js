@@ -3,7 +3,7 @@
  * Determines user type, permissions, and subscription status
  *
  * User Types:
- * - GOD_MODE: Hand-picked by Axolop (axolopcrm@gmail.com and whitelist)
+ * - GOD_MODE: Hand-picked by Axolop (configured via GOD_MODE_EMAILS env var)
  * - AGENCY_ADMIN: Paying user who owns an agency (gets 3 free seats)
  * - FREE_USER: User on free plan (no agency ownership)
  * - TRIAL_USER: User on trial period
@@ -13,22 +13,32 @@
 import { supabaseServer } from '../config/supabase-auth.js';
 import { SUBSCRIPTION_TIERS } from '../utils/subscription-tiers.js';
 
-// God mode users (hand-picked by Axolop)
-const GOD_MODE_USERS = [
-  'axolopcrm@gmail.com',
-  // Add more god mode users here as needed
-];
+/**
+ * Parse comma-separated email list from environment variable
+ * Falls back to empty array if not set
+ */
+const parseEmailList = (envVar) => {
+  const value = process.env[envVar];
+  if (!value) return [];
+  return value.split(',').map(email => email.trim().toLowerCase()).filter(Boolean);
+};
 
-// Beta users (early access to beta features like Funnels)
+// God mode users (configured via GOD_MODE_EMAILS env var)
+// Example: GOD_MODE_EMAILS=admin@example.com,super@example.com
+const GOD_MODE_USERS = parseEmailList('GOD_MODE_EMAILS');
+
+// Beta users (configured via BETA_USERS_EMAILS env var)
+// Falls back to including god mode users
 const BETA_USERS = [
-  'axolopcrm@gmail.com', // God mode also gets beta access
-  // Add beta users here
+  ...GOD_MODE_USERS,
+  ...parseEmailList('BETA_USERS_EMAILS')
 ];
 
-// Developer users (developer access to beta features)
+// Developer users (configured via DEVELOPER_USERS_EMAILS env var)
+// Falls back to including god mode users
 const DEVELOPER_USERS = [
-  'axolopcrm@gmail.com', // God mode also gets developer access
-  // Add developer users here
+  ...GOD_MODE_USERS,
+  ...parseEmailList('DEVELOPER_USERS_EMAILS')
 ];
 
 const USER_TYPES = {
@@ -488,6 +498,16 @@ export function isBetaUser(userEmail) {
 export function isDeveloperUser(userEmail) {
   if (!userEmail) return false;
   return DEVELOPER_USERS.includes(userEmail.toLowerCase());
+}
+
+/**
+ * Check if user is a god mode user (configured via GOD_MODE_EMAILS env var)
+ * @param {string} userEmail - User email
+ * @returns {boolean} True if user is a god mode user
+ */
+export function isGodModeUser(userEmail) {
+  if (!userEmail) return false;
+  return GOD_MODE_USERS.includes(userEmail.toLowerCase());
 }
 
 export default {

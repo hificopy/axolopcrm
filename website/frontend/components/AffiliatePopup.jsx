@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { X, Copy, Check, RefreshCw } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useSupabase } from '../context/SupabaseContext';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { X, Copy, Check, RefreshCw } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useSupabase } from "../context/SupabaseContext";
+import { localStorageGet, localStorageSet } from "../utils/safeStorage";
+import axios from "axios";
 
 const AffiliatePopup = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const { session, user } = useSupabase();
   const [affiliateCode, setAffiliateCode] = useState(null);
-  const [userFirstName, setUserFirstName] = useState('');
+  const [userFirstName, setUserFirstName] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -22,9 +23,9 @@ const AffiliatePopup = ({ isOpen, onClose }) => {
 
       // Check localStorage first for cached affiliate code
       if (user?.id) {
-        const cachedCode = localStorage.getItem(`affiliate_code_${user.id}`);
+        const cachedCode = localStorageGet(`affiliate_code_${user.id}`);
         if (cachedCode) {
-          console.log('✅ Loaded cached affiliate code:', cachedCode);
+          console.log("✅ Loaded cached affiliate code:", cachedCode);
           setAffiliateCode(cachedCode);
         }
       }
@@ -38,67 +39,70 @@ const AffiliatePopup = ({ isOpen, onClose }) => {
 
   // Helper function to capitalize first letter, lowercase rest
   const formatFirstName = (name) => {
-    if (!name || name === 'User') return name;
+    if (!name || name === "User") return name;
     return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
   };
 
   const fetchUserProfile = async () => {
     try {
-      console.log('📋 User object:', user);
-      console.log('📋 User metadata:', user?.user_metadata);
+      console.log("📋 User object:", user);
+      console.log("📋 User metadata:", user?.user_metadata);
 
       // Try to get first name from user metadata first (most reliable for Supabase)
-      let firstName = user?.user_metadata?.first_name ||
-                     user?.user_metadata?.name?.split(' ')[0] ||
-                     user?.user_metadata?.full_name?.split(' ')[0];
+      let firstName =
+        user?.user_metadata?.first_name ||
+        user?.user_metadata?.name?.split(" ")[0] ||
+        user?.user_metadata?.full_name?.split(" ")[0];
 
       // If we have a first name from metadata, use it
       if (firstName) {
         const formatted = formatFirstName(firstName);
-        console.log('✅ Got first name from user metadata:', formatted);
+        console.log("✅ Got first name from user metadata:", formatted);
         setUserFirstName(formatted);
         return;
       }
 
       // Otherwise try to fetch from profile API
       if (!session?.access_token) {
-        console.log('No session token, cannot fetch profile');
+        console.log("No session token, cannot fetch profile");
         // Last resort: use email username
         if (user?.email) {
-          const emailName = user.email.split('@')[0];
+          const emailName = user.email.split("@")[0];
           setUserFirstName(formatFirstName(emailName));
         }
         return;
       }
 
-      console.log('Fetching user profile from API...');
+      console.log("Fetching user profile from API...");
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1'}/profile`,
+        `${import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "http://localhost:3002/api/v1"}/profile`,
         {
-          headers: { Authorization: `Bearer ${session.access_token}` }
-        }
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        },
       );
 
-      console.log('📋 Profile response:', response.data);
+      console.log("📋 Profile response:", response.data);
 
-      firstName = response.data.first_name ||
-                 response.data.name?.split(' ')[0] ||
-                 response.data.full_name?.split(' ')[0] ||
-                 user?.user_metadata?.first_name ||
-                 user?.user_metadata?.name?.split(' ')[0];
+      firstName =
+        response.data.first_name ||
+        response.data.name?.split(" ")[0] ||
+        response.data.full_name?.split(" ")[0] ||
+        user?.user_metadata?.first_name ||
+        user?.user_metadata?.name?.split(" ")[0];
 
-      const formatted = formatFirstName(firstName || 'User');
-      console.log('✅ First name set to:', formatted);
+      const formatted = formatFirstName(firstName || "User");
+      console.log("✅ First name set to:", formatted);
       setUserFirstName(formatted);
     } catch (err) {
-      console.error('Error fetching profile:', err);
+      console.error("Error fetching profile:", err);
       // Fallback to user metadata
-      const firstName = user?.user_metadata?.first_name ||
-                       user?.user_metadata?.name?.split(' ')[0] ||
-                       user?.user_metadata?.full_name?.split(' ')[0];
+      const firstName =
+        user?.user_metadata?.first_name ||
+        user?.user_metadata?.name?.split(" ")[0] ||
+        user?.user_metadata?.full_name?.split(" ")[0];
 
-      const formatted = formatFirstName(firstName || 'User');
-      console.log('Using fallback first name:', formatted);
+      const formatted = formatFirstName(firstName || "User");
+      console.log("Using fallback first name:", formatted);
       setUserFirstName(formatted);
     }
   };
@@ -109,10 +113,10 @@ const AffiliatePopup = ({ isOpen, onClose }) => {
       if (!session?.access_token) return;
 
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1'}/affiliate/profile`,
+        `${import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "http://localhost:3002/api/v1"}/affiliate/profile`,
         {
-          headers: { Authorization: `Bearer ${session.access_token}` }
-        }
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        },
       );
 
       if (response.data?.success && response.data?.data?.referral_code) {
@@ -121,14 +125,14 @@ const AffiliatePopup = ({ isOpen, onClose }) => {
 
         // Save to localStorage for persistence across sessions
         if (user?.id) {
-          localStorage.setItem(`affiliate_code_${user.id}`, code);
-          console.log('💾 Saved affiliate code to localStorage');
+          localStorageSet(`affiliate_code_${user.id}`, code);
+          console.log("💾 Saved affiliate code to localStorage");
         }
       }
     } catch (err) {
       // If 404, user doesn't have affiliate account yet - this is fine
       if (err.response?.status !== 404) {
-        console.error('Error checking affiliate:', err);
+        console.error("Error checking affiliate:", err);
       }
     } finally {
       setIsLoading(false);
@@ -141,85 +145,102 @@ const AffiliatePopup = ({ isOpen, onClose }) => {
 
     try {
       if (!session?.access_token) {
-        setError('Please sign in to join the affiliate program');
+        setError("Please sign in to join the affiliate program");
         setIsGenerating(false);
         return;
       }
 
-      console.log('Joining affiliate program...');
+      console.log("Joining affiliate program...");
 
       // Add timeout to prevent indefinite hanging
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
 
       const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1'}/affiliate/join`,
+        `${import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "http://localhost:3002/api/v1"}/affiliate/join`,
         {},
         {
           headers: {
-            'Authorization': `Bearer ${session.access_token}`,
+            Authorization: `Bearer ${session.access_token}`,
           },
           signal: controller.signal, // Add the abort signal for timeout
-        }
+        },
       );
 
       clearTimeout(timeoutId); // Clear timeout since request completed
 
-      console.log('Affiliate response:', response.data);
+      console.log("Affiliate response:", response.data);
 
       // Handle successful response
       if (response.data?.success && response.data?.data?.referral_code) {
         const code = response.data.data.referral_code;
         setAffiliateCode(code);
-        console.log('Affiliate code set:', code);
+        console.log("Affiliate code set:", code);
 
         // Save to localStorage for persistence
         if (user?.id) {
-          localStorage.setItem(`affiliate_code_${user.id}`, code);
-          console.log('💾 Saved affiliate code to localStorage');
+          localStorageSet(`affiliate_code_${user.id}`, code);
+          console.log("💾 Saved affiliate code to localStorage");
         }
       } else if (response.data?.data?.referral_code) {
         // Handle case where success flag might not be present
         const code = response.data.data.referral_code;
         setAffiliateCode(code);
-        console.log('Affiliate code set (no success flag):', code);
+        console.log("Affiliate code set (no success flag):", code);
 
         // Save to localStorage
         if (user?.id) {
-          localStorage.setItem(`affiliate_code_${user.id}`, code);
+          localStorageSet(`affiliate_code_${user.id}`, code);
         }
       } else {
-        console.error('Unexpected response structure:', response.data);
-        setError('Received unexpected response. Please try again or contact support.');
+        console.error("Unexpected response structure:", response.data);
+        setError(
+          "Received unexpected response. Please try again or contact support.",
+        );
       }
     } catch (err) {
-      console.error('Error joining affiliate program:', err);
+      console.error("Error joining affiliate program:", err);
 
       // Handle timeout specifically
-      if (err.code === 'ERR_CANCELED' || err.name === 'AbortError') {
-        setError('Request timed out. Please check your connection and try again. The affiliate database may not be set up yet.');
+      if (err.code === "ERR_CANCELED" || err.name === "AbortError") {
+        setError(
+          "Request timed out. Please check your connection and try again. The affiliate database may not be set up yet.",
+        );
         setIsGenerating(false);
         return;
       }
 
       // Handle network errors
       if (!err.response) {
-        setError('Network error. Please check your connection and try again. The affiliate database may not be set up yet.');
+        setError(
+          "Network error. Please check your connection and try again. The affiliate database may not be set up yet.",
+        );
         setIsGenerating(false);
         return;
       }
 
-      console.error('Error response:', err.response?.data);
+      console.error("Error response:", err.response?.data);
 
       // Provide helpful error messages
       if (err.response?.status === 401) {
-        setError('Please sign in to join the affiliate program');
-      } else if (err.response?.data?.message?.includes('Affiliate tables are not set up') ||
-                 err.response?.data?.message?.includes('database is not set up') ||
-                 err.response?.data?.message?.includes('does not exist')) {
-        setError('Database not set up yet. Please run the affiliate database migration first. Check TO-DOS.md for instructions. Hint: ' + (err.response?.data?.hint || ''));
+        setError("Please sign in to join the affiliate program");
+      } else if (
+        err.response?.data?.message?.includes(
+          "Affiliate tables are not set up",
+        ) ||
+        err.response?.data?.message?.includes("database is not set up") ||
+        err.response?.data?.message?.includes("does not exist")
+      ) {
+        setError(
+          "Database not set up yet. Please run the affiliate database migration first. Check TO-DOS.md for instructions. Hint: " +
+            (err.response?.data?.hint || ""),
+        );
       } else {
-        setError(err.response?.data?.error || err.response?.data?.message || 'Failed to join affiliate program. Please try again.');
+        setError(
+          err.response?.data?.error ||
+            err.response?.data?.message ||
+            "Failed to join affiliate program. Please try again.",
+        );
       }
     } finally {
       // Set generating to false in the finally block to ensure it always resets
@@ -231,12 +252,13 @@ const AffiliatePopup = ({ isOpen, onClose }) => {
   const handleCopyLink = () => {
     if (affiliateCode) {
       // Create personalized affiliate link with user's first name
-      const affiliateLink = userFirstName && userFirstName !== 'User'
-        ? `https://axolop.com/?ref=${affiliateCode}&fname=${encodeURIComponent(userFirstName)}`
-        : `https://axolop.com/?ref=${affiliateCode}`;
+      const affiliateLink =
+        userFirstName && userFirstName !== "User"
+          ? `https://axolop.com/?ref=${affiliateCode}&fname=${encodeURIComponent(userFirstName)}`
+          : `https://axolop.com/?ref=${affiliateCode}`;
 
-      console.log('Copying affiliate link:', affiliateLink);
-      console.log('User first name:', userFirstName);
+      console.log("Copying affiliate link:", affiliateLink);
+      console.log("User first name:", userFirstName);
 
       navigator.clipboard.writeText(affiliateLink);
       setCopied(true);
@@ -246,11 +268,15 @@ const AffiliatePopup = ({ isOpen, onClose }) => {
 
   const handleLoginClick = () => {
     onClose();
-    navigate('/app/affiliate');
+    navigate("/app/affiliate");
   };
 
   const handleRegenerateCode = async () => {
-    if (!confirm('⚠️ Are you sure? This will invalidate your current referral link and create a new one. All existing links you\'ve shared will stop working.')) {
+    if (
+      !confirm(
+        "⚠️ Are you sure? This will invalidate your current referral link and create a new one. All existing links you've shared will stop working.",
+      )
+    ) {
       return;
     }
 
@@ -259,19 +285,19 @@ const AffiliatePopup = ({ isOpen, onClose }) => {
 
     try {
       if (!session?.access_token) {
-        setError('Please sign in to regenerate your code');
+        setError("Please sign in to regenerate your code");
         return;
       }
 
       // Call backend to regenerate (you'll need to add this endpoint)
       const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:3002/api/v1'}/affiliate/regenerate`,
+        `${import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "http://localhost:3002/api/v1"}/affiliate/regenerate`,
         {},
         {
           headers: {
-            'Authorization': `Bearer ${session.access_token}`,
+            Authorization: `Bearer ${session.access_token}`,
           },
-        }
+        },
       );
 
       if (response.data?.success && response.data?.data?.referral_code) {
@@ -280,14 +306,17 @@ const AffiliatePopup = ({ isOpen, onClose }) => {
 
         // Update localStorage
         if (user?.id) {
-          localStorage.setItem(`affiliate_code_${user.id}`, newCode);
+          localStorageSet(`affiliate_code_${user.id}`, newCode);
         }
 
-        console.log('✅ Code regenerated:', newCode);
+        console.log("✅ Code regenerated:", newCode);
       }
     } catch (err) {
-      console.error('Error regenerating code:', err);
-      setError(err.response?.data?.message || 'Failed to regenerate code. Please try again.');
+      console.error("Error regenerating code:", err);
+      setError(
+        err.response?.data?.message ||
+          "Failed to regenerate code. Please try again.",
+      );
     } finally {
       setIsRegenerating(false);
     }
@@ -305,8 +334,14 @@ const AffiliatePopup = ({ isOpen, onClose }) => {
 
       {/* Modal */}
       <div className="relative w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-xl shadow-2xl shadow-black/30">
-        {/* Premium gradient background */}
-        <div className="bg-gradient-to-br from-[#761B14] via-[#5a1610] to-[#3d0f0b] rounded-xl border border-white/20">
+        {/* Black gradient background */}
+        <div
+          className="rounded-xl border border-gray-700"
+          style={{
+            background:
+              "linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #000000 100%)",
+          }}
+        >
           {/* Close button */}
           <button
             onClick={onClose}
@@ -320,8 +355,18 @@ const AffiliatePopup = ({ isOpen, onClose }) => {
             {/* Header */}
             <div className="text-center mb-4">
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white/20 mb-3 border border-white/30">
-                <svg className="w-6 h-6 text-[#ff6b4a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                <svg
+                  className="w-6 h-6 text-[#ff6b4a]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                  />
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-white mb-1">
@@ -334,29 +379,42 @@ const AffiliatePopup = ({ isOpen, onClose }) => {
 
             {/* Video Section - Compact */}
             <div className="mb-4 rounded-lg overflow-hidden bg-black/50 aspect-video relative group border border-white/20">
-              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#ff6b4a]/20 to-[#761B14]/20">
+              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#ff6b4a]/20 to-[#3F0D28]/20">
                 <div className="text-center text-white">
                   <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-white/20 flex items-center justify-center border border-white/30">
-                    <svg className="w-6 h-6 text-[#ff6b4a]" fill="currentColor" viewBox="0 0 20 20">
+                    <svg
+                      className="w-6 h-6 text-[#ff6b4a]"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
                       <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
                     </svg>
                   </div>
-                  <p className="text-xs text-white/70 font-medium">Watch how it works</p>
+                  <p className="text-xs text-white/70 font-medium">
+                    Watch how it works
+                  </p>
                 </div>
               </div>
             </div>
 
             {/* How it works section */}
             <div className="mb-5">
-              <h3 className="text-lg font-bold text-white mb-3 text-center">How it works?</h3>
+              <h3 className="text-lg font-bold text-white mb-3 text-center">
+                How it works?
+              </h3>
               <div className="space-y-3">
                 <div className="flex items-start gap-3 p-3 rounded-lg bg-white/10 border border-white/20">
                   <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-[#ff6b4a] to-[#ff8566] flex items-center justify-center text-white font-bold text-xs">
                     1
                   </div>
                   <div>
-                    <h4 className="font-semibold text-white text-sm mb-0.5">Copy your personalized link</h4>
-                    <p className="text-white/80 text-xs">Your unique referral link includes your name for a personal touch.</p>
+                    <h4 className="font-semibold text-white text-sm mb-0.5">
+                      Copy your personalized link
+                    </h4>
+                    <p className="text-white/80 text-xs">
+                      Your unique referral link includes your name for a
+                      personal touch.
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 rounded-lg bg-white/10 border border-white/20">
@@ -364,8 +422,13 @@ const AffiliatePopup = ({ isOpen, onClose }) => {
                     2
                   </div>
                   <div>
-                    <h4 className="font-semibold text-white text-sm mb-0.5">Share with your network</h4>
-                    <p className="text-white/80 text-xs">Share on social media, with clients, or your email list. We'll close them on the phone.</p>
+                    <h4 className="font-semibold text-white text-sm mb-0.5">
+                      Share with your network
+                    </h4>
+                    <p className="text-white/80 text-xs">
+                      Share on social media, with clients, or your email list.
+                      We'll close them on the phone.
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 rounded-lg bg-white/10 border border-white/20">
@@ -373,8 +436,13 @@ const AffiliatePopup = ({ isOpen, onClose }) => {
                     3
                   </div>
                   <div>
-                    <h4 className="font-semibold text-white text-sm mb-0.5">Earn 40% recurring commission</h4>
-                    <p className="text-white/80 text-xs">You get a 40% recurring commission for every paying customer you refer.</p>
+                    <h4 className="font-semibold text-white text-sm mb-0.5">
+                      Earn 40% recurring commission
+                    </h4>
+                    <p className="text-white/80 text-xs">
+                      You get a 40% recurring commission for every paying
+                      customer you refer.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -395,7 +463,9 @@ const AffiliatePopup = ({ isOpen, onClose }) => {
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
                   <span className="relative z-10">
-                    {isGenerating ? 'Generating your link...' : 'Join Affiliate Program'}
+                    {isGenerating
+                      ? "Generating your link..."
+                      : "Join Affiliate Program"}
                   </span>
                 </button>
               </div>
@@ -404,9 +474,10 @@ const AffiliatePopup = ({ isOpen, onClose }) => {
                 <div className="flex items-center gap-2 p-3 rounded-lg bg-white/10 border border-white/30">
                   <input
                     type="text"
-                    value={userFirstName && userFirstName !== 'User'
-                      ? `https://axolop.com/?ref=${affiliateCode}&fname=${encodeURIComponent(userFirstName)}`
-                      : `https://axolop.com/?ref=${affiliateCode}`
+                    value={
+                      userFirstName && userFirstName !== "User"
+                        ? `https://axolop.com/?ref=${affiliateCode}&fname=${encodeURIComponent(userFirstName)}`
+                        : `https://axolop.com/?ref=${affiliateCode}`
                     }
                     readOnly
                     className="flex-1 bg-transparent text-white outline-none placeholder-white/60 font-mono text-xs py-1.5"
@@ -434,16 +505,24 @@ const AffiliatePopup = ({ isOpen, onClose }) => {
                     className="flex items-center gap-1 px-3 py-2 rounded-md bg-white/10 hover:bg-white/20 text-white text-sm transition-all duration-200 flex-shrink-0 border border-white/30 disabled:opacity-50 disabled:cursor-not-allowed"
                     title="Regenerate code (invalidates current link)"
                   >
-                    <RefreshCw className={isRegenerating ? 'animate-spin' : ''} size={14} />
+                    <RefreshCw
+                      className={isRegenerating ? "animate-spin" : ""}
+                      size={14}
+                    />
                   </button>
                 </div>
-                {userFirstName && userFirstName !== 'User' ? (
+                {userFirstName && userFirstName !== "User" ? (
                   <p className="text-xs text-white/70 text-center">
-                    Your personalized link will show "<span className="font-semibold text-white">{formatFirstName(userFirstName)}</span> invited you to try Axolop" on the landing page
+                    Your personalized link will show "
+                    <span className="font-semibold text-white">
+                      {formatFirstName(userFirstName)}
+                    </span>{" "}
+                    invited you to try Axolop" on the landing page
                   </p>
                 ) : (
                   <p className="text-xs text-white/70 text-center">
-                    Share this link to earn 40% recurring commission on all referrals
+                    Share this link to earn 40% recurring commission on all
+                    referrals
                   </p>
                 )}
               </div>

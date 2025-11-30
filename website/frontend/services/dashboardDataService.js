@@ -1,20 +1,157 @@
 /**
  * Dashboard Data Aggregation Service
  * Connects to all CRM sections and provides real-time data
+ * Now with optional backend caching support via /api/dashboard/summary
+ * FIXED: All queries now filter by authenticated user_id
  */
 
 import { supabase } from "../config/supabaseClient";
 import { startOfMonth, endOfMonth, subMonths, format } from "date-fns";
+import api from "../lib/api";
+import { demoDataService } from "./demoDataService";
 
 export class DashboardDataService {
   constructor() {
     this.cache = new Map();
     this.cacheTimeout = 5 * 60 * 1000; // 5 minutes
+    this.useBackendCache = true; // Use new cached backend endpoint by default
+    this._userId = null;
+    this._dataSourceErrors = new Map(); // Track which data sources have failed
+    this._lastHealthCheck = null;
+  }
+
+  /**
+   * Check if demo agency is currently selected
+   */
+  async isDemoAgencySelected() {
+    try {
+      // Check if demo mode is enabled first
+      const demoModeEnabled = localStorage.getItem('axolop_demo_mode_enabled') === 'true';
+      if (!demoModeEnabled) {
+        return false;
+      }
+      
+      // Get current agency from localStorage
+      const currentAgencyData = localStorage.getItem('axolop_current_agency');
+      if (!currentAgencyData) {
+        return false;
+      }
+      
+      const agency = JSON.parse(currentAgencyData);
+      const isDemo = agency.id === 'demo-agency-virtual';
+      
+      return isDemo;
+    } catch (error) {
+      console.error('Error checking demo agency status:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Track data source errors for debugging
+   */
+  trackDataSourceError(source, error) {
+    const errorInfo = {
+      source,
+      message: error.message || String(error),
+      timestamp: new Date().toISOString(),
+      count: (this._dataSourceErrors.get(source)?.count || 0) + 1,
+    };
+    this._dataSourceErrors.set(source, errorInfo);
+
+    // Log visible warning to console
+    console.warn(`⚠️ [DASHBOARD DATA ERROR] ${source}:`, {
+      error: errorInfo.message,
+      failCount: errorInfo.count,
+      hint: "Check if the table exists in Supabase and has proper RLS policies",
+    });
+  }
+
+  /**
+   * Get current data source health status
+   */
+  getDataSourceHealth() {
+    const errors = {};
+    this._dataSourceErrors.forEach((value, key) => {
+      errors[key] = value;
+    });
+    return {
+      hasErrors: this._dataSourceErrors.size > 0,
+      errors,
+      lastCheck: this._lastHealthCheck,
+    };
+  }
+
+  /**
+   * Clear tracked errors (call after successful data fetch)
+   */
+  clearDataSourceError(source) {
+    this._dataSourceErrors.delete(source);
+  }
+
+  /**
+   * Get the current authenticated user's ID
+   */
+  async getCurrentUserId() {
+    if (this._userId) return this._userId;
+
+    try {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+      if (error) throw error;
+      this._userId = user?.id || null;
+      return this._userId;
+    } catch (error) {
+      console.error("Error getting current user:", error);
+      return null;
+    }
+  }
+
+  /**
+   * Clear the cached user ID (call on logout)
+   */
+  clearUserCache() {
+    this._userId = null;
+  }
+
+  /**
+   * Fetch all dashboard data from cached backend endpoint
+   * This is the preferred method - uses Redis caching for 10 min TTL
+   */
+  async getCachedDashboardSummary(timeRange = "7d") {
+    try {
+      const response = await api.get(
+        `/dashboard/summary?timeRange=${timeRange}`,
+      );
+      if (response.data.success) {
+        console.log("✅ [DASHBOARD] Using cached backend data", {
+          cached: response.data.cached,
+          cacheTtl: response.data.cacheTtl,
+        });
+        return response.data.data;
+      }
+      throw new Error(response.data.error || "Failed to fetch dashboard data");
+    } catch (error) {
+      console.warn(
+        "⚠️ [DASHBOARD] Backend cache failed, falling back to direct queries",
+        error.message,
+      );
+      // Fall back to direct Supabase queries if backend fails
+      return null;
+    }
   }
 
   // ============= SALES METRICS =============
 
   async getSalesMetrics(timeRange = "month") {
+    // Check if demo agency is selected
+    if (await this.isDemoAgencySelected()) {
+      console.log("[DashboardDataService] Using demo sales metrics");
+      return await demoDataService.getSalesMetrics(timeRange);
+    }
+
     const { startDate, endDate } = this.getTimeRange(timeRange);
 
     console.log("📊 [METRICS DEBUG] Fetching sales metrics for:", {
@@ -121,16 +258,24 @@ export class DashboardDataService {
 
   async getDealsData(startDate, endDate) {
     try {
-      // Get both deals and opportunities for comprehensive metrics
+      const userId = await this.getCurrentUserId();
+      if (!userId) {
+        console.warn("No authenticated user for deals data");
+        return this.getEmptyDealsData();
+      }
+
+      // Get both deals and opportunities for comprehensive metrics - filtered by user
       const [dealsResult, opportunitiesResult] = await Promise.all([
         supabase
           .from("deals")
           .select("*")
+          .eq("user_id", userId)
           .gte("created_at", startDate.toISOString())
           .lte("created_at", endDate.toISOString()),
         supabase
           .from("opportunities")
           .select("id, status, value, created_at, closed_at, stage")
+          .eq("user_id", userId)
           .gte("created_at", startDate.toISOString())
           .lte("created_at", endDate.toISOString()),
       ]);
@@ -222,7 +367,7 @@ export class DashboardDataService {
         opportunities: opportunities,
       };
     } catch (error) {
-      console.error("Error fetching deals data:", error);
+      this.trackDataSourceError("deals", error);
       return {
         totalRevenue: 0,
         won: 0,
@@ -232,17 +377,25 @@ export class DashboardDataService {
         historical: [],
         deals: [],
         opportunities: [],
+        _error: true, // Flag to indicate this is error data
       };
     }
   }
 
   async getPipelineData() {
     try {
-      // Get both deals and opportunities in pipeline stages
+      const userId = await this.getCurrentUserId();
+      if (!userId) {
+        console.warn("No authenticated user for pipeline data");
+        return this.getEmptyPipelineData();
+      }
+
+      // Get both deals and opportunities in pipeline stages - filtered by user
       const [dealsResult, opportunitiesResult] = await Promise.all([
         supabase
           .from("deals")
           .select("*")
+          .eq("user_id", userId)
           .in("status", [
             "NEW",
             "QUALIFIED",
@@ -256,6 +409,7 @@ export class DashboardDataService {
         supabase
           .from("opportunities")
           .select("*")
+          .eq("user_id", userId)
           .in("stage", [
             "NEW",
             "QUALIFIED",
@@ -308,7 +462,7 @@ export class DashboardDataService {
         totalCount: deals.length + opportunities.length,
       };
     } catch (error) {
-      console.error("Error fetching pipeline data:", error);
+      this.trackDataSourceError("pipeline", error);
       return {
         totalValue: 0,
         weightedValue: 0,
@@ -317,34 +471,48 @@ export class DashboardDataService {
         dealsCount: 0,
         opportunitiesCount: 0,
         totalCount: 0,
+        _error: true,
       };
     }
   }
 
   async getConversionRates(startDate, endDate) {
     try {
-      console.log("🔄 [CONVERSION DEBUG] Fetching funnel data...");
+      const userId = await this.getCurrentUserId();
+      if (!userId) {
+        console.warn("No authenticated user for conversion data");
+        return this.getEmptyConversionData();
+      }
 
-      // Get the full conversion funnel data
+      console.log(
+        "🔄 [CONVERSION DEBUG] Fetching funnel data for user:",
+        userId,
+      );
+
+      // Get the full conversion funnel data - filtered by user
       const [formSubmissions, leads, opportunities, deals] = await Promise.all([
         supabase
           .from("form_submissions")
           .select("id, converted_to_lead, submitted_at")
+          .eq("user_id", userId)
           .gte("submitted_at", startDate.toISOString())
           .lte("submitted_at", endDate.toISOString()),
         supabase
           .from("leads")
           .select("id, status, created_at")
+          .eq("user_id", userId)
           .gte("created_at", startDate.toISOString())
           .lte("created_at", endDate.toISOString()),
         supabase
           .from("opportunities")
           .select("id, status, stage, created_at, lead_id")
+          .eq("user_id", userId)
           .gte("created_at", startDate.toISOString())
           .lte("created_at", endDate.toISOString()),
         supabase
           .from("deals")
           .select("id, status, created_at")
+          .eq("user_id", userId)
           .gte("created_at", startDate.toISOString())
           .lte("created_at", endDate.toISOString()),
       ]);
@@ -434,7 +602,7 @@ export class DashboardDataService {
         qualified: qualifiedLeads,
       };
     } catch (error) {
-      console.error("❌ [CONVERSION ERROR]", error);
+      this.trackDataSourceError("conversion", error);
       return {
         rate: 0,
         funnel: {
@@ -453,6 +621,7 @@ export class DashboardDataService {
         },
         total: 0,
         qualified: 0,
+        _error: true,
       };
     }
   }
@@ -460,6 +629,12 @@ export class DashboardDataService {
   // ============= MARKETING METRICS =============
 
   async getMarketingMetrics(timeRange = "month") {
+    // Check if demo agency is selected
+    if (await this.isDemoAgencySelected()) {
+      console.log("[DashboardDataService] Using demo marketing metrics");
+      return await demoDataService.getMarketingMetrics(timeRange);
+    }
+
     const { startDate, endDate } = this.getTimeRange(timeRange);
 
     const [campaigns, emails, forms] = await Promise.all([
@@ -493,9 +668,24 @@ export class DashboardDataService {
 
   async getEmailMarketingData(startDate, endDate) {
     try {
+      const userId = await this.getCurrentUserId();
+      if (!userId) {
+        console.warn("No authenticated user for email marketing data");
+        return {
+          sent: 0,
+          delivered: 0,
+          opened: 0,
+          clicked: 0,
+          openRate: 0,
+          clickRate: 0,
+          campaigns: 0,
+        };
+      }
+
       const { data: campaigns, error } = await supabase
         .from("email_campaigns")
         .select("*")
+        .eq("user_id", userId)
         .gte("sent_at", startDate.toISOString())
         .lte("sent_at", endDate.toISOString());
 
@@ -523,7 +713,7 @@ export class DashboardDataService {
         campaigns: campaigns?.length || 0,
       };
     } catch (error) {
-      console.error("Error fetching email marketing data:", error);
+      this.trackDataSourceError("email_campaigns", error);
       return {
         sent: 0,
         delivered: 0,
@@ -532,15 +722,23 @@ export class DashboardDataService {
         openRate: 0,
         clickRate: 0,
         campaigns: 0,
+        _error: true,
       };
     }
   }
 
   async getFormsData(startDate, endDate) {
     try {
+      const userId = await this.getCurrentUserId();
+      if (!userId) {
+        console.warn("No authenticated user for forms data");
+        return { submissions: 0, leads: 0, conversionRate: 0 };
+      }
+
       const { data: submissions, error } = await supabase
         .from("form_submissions")
         .select("*")
+        .eq("user_id", userId)
         .gte("submitted_at", startDate.toISOString())
         .lte("submitted_at", endDate.toISOString());
 
@@ -556,8 +754,8 @@ export class DashboardDataService {
           submissions?.length > 0 ? (leads / submissions.length) * 100 : 0,
       };
     } catch (error) {
-      console.error("Error fetching forms data:", error);
-      return { submissions: 0, leads: 0, conversionRate: 0 };
+      this.trackDataSourceError("form_submissions", error);
+      return { submissions: 0, leads: 0, conversionRate: 0, _error: true };
     }
   }
 
@@ -579,6 +777,12 @@ export class DashboardDataService {
 
   async getFormSubmissionsTrend(startDate, endDate) {
     try {
+      const userId = await this.getCurrentUserId();
+      if (!userId) {
+        console.warn("No authenticated user for form submissions trend");
+        return [];
+      }
+
       // Get submissions grouped by week for the last 6 weeks
       const weeks = [];
       const now = new Date();
@@ -595,6 +799,7 @@ export class DashboardDataService {
         const { data, error } = await supabase
           .from("form_submissions")
           .select("id")
+          .eq("user_id", userId)
           .gte("submitted_at", weekStart.toISOString())
           .lte("submitted_at", weekEnd.toISOString());
 
@@ -608,7 +813,7 @@ export class DashboardDataService {
 
       return weeks;
     } catch (error) {
-      console.error("Error fetching form submissions trend:", error);
+      this.trackDataSourceError("form_submissions_trend", error);
       return [];
     }
   }
@@ -616,23 +821,44 @@ export class DashboardDataService {
   // ============= PROFIT & LOSS =============
 
   async getProfitLossData(timeRange = "month") {
+    // Check if demo agency is selected
+    if (await this.isDemoAgencySelected()) {
+      console.log("[DashboardDataService] Using demo profit/loss data");
+      return await demoDataService.getProfitLossData(timeRange);
+    }
+
     const { startDate, endDate } = this.getTimeRange(timeRange);
 
     try {
-      // Revenue from won deals
+      const userId = await this.getCurrentUserId();
+      if (!userId) {
+        console.warn("No authenticated user for profit/loss data");
+        return {
+          revenue: 0,
+          expenses: 0,
+          netProfit: 0,
+          profitMargin: 0,
+          expensesByCategory: {},
+          monthlyTrend: [],
+        };
+      }
+
+      // Revenue from won deals - filtered by user
       const { data: revenue, error: revenueError } = await supabase
         .from("deals")
         .select("amount, closed_at")
+        .eq("user_id", userId)
         .eq("status", "WON")
         .gte("closed_at", startDate.toISOString())
         .lte("closed_at", endDate.toISOString());
 
       if (revenueError) throw revenueError;
 
-      // Expenses (from expense tracking - to be implemented)
+      // Expenses (from expense tracking - to be implemented) - filtered by user
       const { data: expenses, error: expensesError } = await supabase
         .from("expenses")
         .select("amount, category, date")
+        .eq("user_id", userId)
         .gte("date", startDate.toISOString())
         .lte("date", endDate.toISOString());
 
@@ -653,7 +879,7 @@ export class DashboardDataService {
         monthlyTrend: await this.getMonthlyProfitTrend(),
       };
     } catch (error) {
-      console.error("Error fetching P&L data:", error);
+      this.trackDataSourceError("profit_loss", error);
       return {
         revenue: 0,
         expenses: 0,
@@ -661,6 +887,7 @@ export class DashboardDataService {
         profitMargin: 0,
         expensesByCategory: {},
         monthlyTrend: [],
+        _error: true,
       };
     }
   }
@@ -778,6 +1005,55 @@ export class DashboardDataService {
   }
 
   // ============= HELPER FUNCTIONS =============
+
+  /**
+   * Normalize status/stage field to handle inconsistencies in the database
+   * The database may use 'status' or 'stage' field, and values may be uppercase or lowercase
+   */
+  normalizeStatusStage(item) {
+    // Get the status/stage value from either field
+    const value = item?.status || item?.stage || "";
+    return value.toUpperCase();
+  }
+
+  /**
+   * Check if an item is in a "won" state (handles status vs stage, uppercase vs lowercase)
+   */
+  isWon(item) {
+    const status = this.normalizeStatusStage(item);
+    return status === "WON";
+  }
+
+  /**
+   * Check if an item is in a "lost" state (handles status vs stage, uppercase vs lowercase)
+   */
+  isLost(item) {
+    const status = this.normalizeStatusStage(item);
+    return status === "LOST";
+  }
+
+  /**
+   * Check if an item is in an active pipeline state
+   */
+  isActivePipeline(item) {
+    const status = this.normalizeStatusStage(item);
+    return [
+      "NEW",
+      "QUALIFIED",
+      "PROPOSAL",
+      "NEGOTIATION",
+      "DISCOVERY",
+      "DEMO",
+      "PROPOSAL_SENT",
+    ].includes(status);
+  }
+
+  /**
+   * Check if an item is closed (won or lost)
+   */
+  isClosed(item) {
+    return this.isWon(item) || this.isLost(item);
+  }
 
   /**
    * Calculates stage probability based on historical data
@@ -934,6 +1210,12 @@ export class DashboardDataService {
 
   async getHistoricalDeals() {
     try {
+      const userId = await this.getCurrentUserId();
+      if (!userId) {
+        console.warn("No authenticated user for historical deals");
+        return [];
+      }
+
       const months = [];
       for (let i = 5; i >= 0; i--) {
         const monthStart = startOfMonth(subMonths(new Date(), i));
@@ -942,6 +1224,7 @@ export class DashboardDataService {
         const { data, error } = await supabase
           .from("deals")
           .select("amount, status")
+          .eq("user_id", userId)
           .eq("status", "WON")
           .gte("closed_at", monthStart.toISOString())
           .lte("closed_at", monthEnd.toISOString());
@@ -956,7 +1239,7 @@ export class DashboardDataService {
       }
       return months;
     } catch (error) {
-      console.error("Error fetching historical deals:", error);
+      this.trackDataSourceError("historical_deals", error);
       return [];
     }
   }
@@ -984,9 +1267,16 @@ export class DashboardDataService {
 
   async getCampaignData(startDate, endDate) {
     try {
+      const userId = await this.getCurrentUserId();
+      if (!userId) {
+        console.warn("No authenticated user for campaign data");
+        return { active: 0, total: 0 };
+      }
+
       const { data: campaigns, error } = await supabase
         .from("email_campaigns")
         .select("*")
+        .eq("user_id", userId)
         .gte("created_at", startDate.toISOString())
         .lte("created_at", endDate.toISOString());
 
@@ -998,8 +1288,8 @@ export class DashboardDataService {
 
       return { active, total };
     } catch (error) {
-      console.error("Error fetching campaign data:", error);
-      return { active: 0, total: 0 };
+      this.trackDataSourceError("campaigns", error);
+      return { active: 0, total: 0, _error: true };
     }
   }
 
@@ -1070,6 +1360,55 @@ export class DashboardDataService {
       console.error("Error calculating churn rate:", error);
       return 0;
     }
+  }
+
+  // ============= EMPTY DATA HELPERS =============
+
+  getEmptyDealsData() {
+    return {
+      totalRevenue: 0,
+      won: 0,
+      lost: 0,
+      averageDealSize: 0,
+      avgSalesCycleDays: 0,
+      historical: [],
+      deals: [],
+      opportunities: [],
+    };
+  }
+
+  getEmptyPipelineData() {
+    return {
+      totalValue: 0,
+      weightedValue: 0,
+      byStage: {},
+      deals: [],
+      dealsCount: 0,
+      opportunitiesCount: 0,
+      totalCount: 0,
+    };
+  }
+
+  getEmptyConversionData() {
+    return {
+      rate: 0,
+      funnel: {
+        forms: 0,
+        formsToLeads: 0,
+        formToLeadRate: 0,
+        leads: 0,
+        qualifiedLeads: 0,
+        leadQualificationRate: 0,
+        opportunities: 0,
+        leadToOpportunityRate: 0,
+        deals: 0,
+        wonDeals: 0,
+        opportunityToWinRate: 0,
+        overallConversionRate: 0,
+      },
+      total: 0,
+      qualified: 0,
+    };
   }
 }
 

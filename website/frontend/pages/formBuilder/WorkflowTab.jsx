@@ -65,8 +65,8 @@ function StartNode({ data, selected }) {
       <div className="space-y-2">
         {/* Blue START label */}
         <div className="flex items-center gap-2 mb-3">
-          <Play className="h-4 w-4 text-blue-400" />
-          <span className="text-xs font-bold tracking-wider text-blue-400 uppercase">START</span>
+          <Play className="h-4 w-4 text-[#3F0D28]" />
+          <span className="text-xs font-bold tracking-wider text-[#3F0D28] uppercase">START</span>
         </div>
 
         {/* Form Title */}
@@ -188,7 +188,7 @@ function QuestionNode({ data, selected }) {
             )}
           </div>
           {data.question?.required && (
-            <span className="text-red-500 text-sm flex-shrink-0">*</span>
+            <span className="text-[#3F0D28] text-sm flex-shrink-0">*</span>
           )}
         </div>
 
@@ -206,7 +206,7 @@ function QuestionNode({ data, selected }) {
             </div>
           )}
           {hasValidation && (
-            <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded text-xs font-medium">
+            <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-[#3F0D28] rounded text-xs font-medium">
               <CheckCircle2 className="h-3 w-3" />
               <span>Validated</span>
             </div>
@@ -238,11 +238,11 @@ function EndNode({ data, selected }) {
     icon = <CheckCircle2 className="h-5 w-5 text-green-600" />;
     statusLabel = 'Qualified';
   } else if (isDisqualified) {
-    bgColor = 'bg-red-50 dark:bg-red-900/20';
-    textColor = 'text-red-900 dark:text-red-100';
-    borderColor = 'border-red-500';
-    badgeColor = 'bg-red-500';
-    icon = <XCircle className="h-5 w-5 text-red-600" />;
+    bgColor = 'bg-[#3F0D28]/5 dark:bg-[#3F0D28]/20';
+    textColor = 'text-[#3F0D28] dark:text-[#2a0919]';
+    borderColor = 'border-[#3F0D28]';
+    badgeColor = 'bg-[#3F0D28]';
+    icon = <XCircle className="h-5 w-5 text-[#3F0D28]" />;
     statusLabel = 'Disqualified';
   }
 
@@ -868,15 +868,15 @@ export default function WorkflowTab({
               <h4 className="text-xs font-semibold text-crm-text-secondary uppercase tracking-wider mb-2">Questions</h4>
               <div className="grid grid-cols-5 gap-2">
                 <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-blue-50" onClick={() => addQuestionWithConnection('text', window.__quickAddSourceNodeId)}>
-                  <Type className="w-3 h-3 mr-1 text-blue-600" />
+                  <Type className="w-3 h-3 mr-1 text-[#3F0D28]" />
                   Text
                 </Button>
                 <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-blue-50" onClick={() => addQuestionWithConnection('email', window.__quickAddSourceNodeId)}>
-                  <Mail className="w-3 h-3 mr-1 text-blue-600" />
+                  <Mail className="w-3 h-3 mr-1 text-[#3F0D28]" />
                   Email
                 </Button>
                 <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-blue-50" onClick={() => addQuestionWithConnection('tel', window.__quickAddSourceNodeId)}>
-                  <Phone className="w-3 h-3 mr-1 text-blue-600" />
+                  <Phone className="w-3 h-3 mr-1 text-[#3F0D28]" />
                   Phone
                 </Button>
                 <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-purple-50" onClick={() => addQuestionWithConnection('select', window.__quickAddSourceNodeId)}>
@@ -914,12 +914,12 @@ export default function WorkflowTab({
                   <ThumbsUp className="w-3 h-3 mr-1 text-green-600" />
                   Qualified
                 </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-red-50" onClick={() => addEnding('disqualified')}>
-                  <ThumbsDown className="w-3 h-3 mr-1 text-red-600" />
+                <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-[#3F0D28]/5" onClick={() => addEnding('disqualified')}>
+                  <ThumbsDown className="w-3 h-3 mr-1 text-[#3F0D28]" />
                   Disqualified
                 </Button>
                 <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-blue-50" onClick={() => addEnding('redirect')}>
-                  <ExternalLink className="w-3 h-3 mr-1 text-blue-600" />
+                  <ExternalLink className="w-3 h-3 mr-1 text-[#3F0D28]" />
                   Redirect
                 </Button>
                 <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 hover:bg-purple-50" onClick={() => addEnding('contact')}>

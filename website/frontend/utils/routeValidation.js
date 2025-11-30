@@ -6,54 +6,77 @@
 // Define all valid routes in the application
 export const VALID_ROUTES = {
   public: [
-    '/',
+    "/",
+    "/signin",
+    "/signup",
+    "/forgot-password",
+    "/update-password",
+    "/onboarding",
+    "/about",
+    "/pricing",
+    "/contact",
+    "/help",
+    "/privacy-policy",
   ],
   protected: [
-    '/inbox',
-    '/leads',
-    '/contacts',
-    '/pipeline',
-    '/profile',
-    '/settings',
-    '/settings/account',
-    '/settings/billing',
-    '/settings/organization',
-    '/settings/organization/general',
-    '/settings/organization/team',
-    '/settings/organization/permissions',
-    '/settings/communication',
-    '/settings/communication/email',
-    '/settings/communication/phone',
-    '/settings/communication/dialer',
-    '/settings/communication/outcomes',
-    '/settings/communication/notetaker',
-    '/settings/communication/templates',
-    '/settings/communication/sendas',
-    '/settings/customization',
-    '/settings/customization/fields',
-    '/settings/customization/links',
-    '/settings/customization/scheduling',
-    '/settings/customization/statuses',
-    '/settings/customization/ai',
-    '/settings/integrations',
-    '/settings/integrations/integrations',
-    '/settings/integrations/accounts',
-    '/settings/integrations/developer',
-    '/forms',
-    '/tickets',
-    '/knowledge-base',
-    '/customer-portal',
-    '/support-analytics',
-    '/email-marketing',
+    "/app/home",
+    "/app/inbox",
+    "/app/leads",
+    "/app/contacts",
+    "/app/opportunities",
+    "/app/pipeline",
+    "/app/activities",
+    "/app/conversations",
+    "/app/calls",
+    "/app/calendar",
+    "/app/meetings",
+    "/app/todos",
+    "/app/second-brain",
+    "/app/profile",
+    "/app/email-marketing",
+    "/app/workflows",
+    "/app/forms",
+    "/app/tickets",
+    "/app/knowledge-base",
+    "/app/customer-portal",
+    "/app/support-analytics",
+    "/app/affiliate",
+    "/app/beta-access",
+    "/app/settings",
+    "/app/settings/account",
+    "/app/settings/billing",
+    "/app/settings/agency",
+    "/app/settings/custom-fields",
+    "/app/settings/organization",
+    "/app/settings/organization/general",
+    "/app/settings/organization/team",
+    "/app/settings/organization/permissions",
+    "/app/settings/communication",
+    "/app/settings/communication/email",
+    "/app/settings/communication/phone",
+    "/app/settings/communication/dialer",
+    "/app/settings/communication/outcomes",
+    "/app/settings/communication/notetaker",
+    "/app/settings/communication/templates",
+    "/app/settings/communication/sendas",
+    "/app/settings/customization",
+    "/app/settings/customization/fields",
+    "/app/settings/customization/links",
+    "/app/settings/customization/scheduling",
+    "/app/settings/customization/statuses",
+    "/app/settings/customization/ai",
+    "/app/settings/integrations",
+    "/app/settings/integrations/integrations",
+    "/app/settings/integrations/accounts",
+    "/app/settings/integrations/developer",
   ],
   dynamic: [
-    '/forms/builder/:formId?',
-    '/forms/preview/:formId',
-    '/forms/analytics/:formId',
-    '/forms/integrations/:formId',
-    '/email-marketing/workflows/create',
-    '/email-marketing/workflows/:workflowId',
-    '/email-marketing/campaigns/create',
+    "/app/forms/builder/:formId?",
+    "/app/forms/preview/:formId",
+    "/app/forms/analytics/:formId",
+    "/app/forms/integrations/:formId",
+    "/app/email-marketing/create",
+    "/app/workflows/builder/:workflowId?",
   ],
 };
 
@@ -64,7 +87,7 @@ export const VALID_ROUTES = {
  */
 export function isValidRoute(path) {
   // Remove query params and hash
-  const cleanPath = path.split('?')[0].split('#')[0];
+  const cleanPath = path.split("?")[0].split("#")[0];
 
   // Check exact matches in public and protected routes
   const allStaticRoutes = [...VALID_ROUTES.public, ...VALID_ROUTES.protected];
@@ -75,10 +98,39 @@ export function isValidRoute(path) {
   // Check dynamic routes
   return VALID_ROUTES.dynamic.some((pattern) => {
     const regex = new RegExp(
-      '^' + pattern.replace(/:[^/]+\?/g, '([^/]*)').replace(/:[^/]+/g, '([^/]+)') + '$'
+      "^" +
+        pattern.replace(/:[^/]+\?/g, "([^/]*)").replace(/:[^/]+/g, "([^/]+)") +
+        "$",
     );
     return regex.test(cleanPath);
   });
+}
+
+/**
+ * Validate search result URL
+ * @param {Object} result - Search result with URL
+ * @returns {Object} - Validation result
+ */
+export function validateSearchResultUrl(result) {
+  if (!result || !result.url) {
+    return {
+      valid: false,
+      error: "Missing URL in search result",
+    };
+  }
+
+  // Check if URL is valid using our mappings
+  const isValid = isValidSearchResultUrl(result.url);
+
+  // Additional validation for search-specific requirements
+  const hasRequiredFields = result.title && result.category;
+
+  return {
+    valid: isValid && hasRequiredFields,
+    error:
+      (!isValid && "Invalid URL for search result") ||
+      (!hasRequiredFields && "Missing required fields in search result"),
+  };
 }
 
 /**
@@ -129,7 +181,7 @@ function levenshteinDistance(a, b) {
         matrix[i][j] = Math.min(
           matrix[i - 1][j - 1] + 1,
           matrix[i][j - 1] + 1,
-          matrix[i - 1][j] + 1
+          matrix[i - 1][j] + 1,
         );
       }
     }
@@ -145,15 +197,15 @@ function levenshteinDistance(a, b) {
  * @param {boolean} success - Whether navigation succeeded
  */
 export function logNavigation(from, to, success) {
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === "development") {
     const timestamp = new Date().toISOString();
-    const status = success ? '✅' : '❌';
+    const status = success ? "✅" : "❌";
     console.warn(`[Navigation ${timestamp}] ${status} ${from} → ${to}`);
 
     if (!success) {
       const suggestions = getSuggestedRoutes(to);
       if (suggestions.length > 0) {
-        console.warn('Did you mean:', suggestions);
+        console.warn("Did you mean:", suggestions);
       }
     }
   }
@@ -165,7 +217,7 @@ export function logNavigation(from, to, success) {
  * @returns {{ valid: boolean, path: string, suggestions: string[] }}
  */
 export function validateRoute(path) {
-  const cleanPath = path.split('?')[0].split('#')[0];
+  const cleanPath = path.split("?")[0].split("#")[0];
   const valid = isValidRoute(cleanPath);
   const suggestions = valid ? [] : getSuggestedRoutes(cleanPath);
 

@@ -8,11 +8,11 @@ import {
   TrendingUp,
   Calendar,
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "./components/ui/card";
-import { formatDateRange, getPeriodLabel } from "./lib/utils";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { formatDateRange, getPeriodLabel } from "@/lib/utils";
 import MetricLoadingState, {
   DataFreshnessIndicator,
-} from "./components/ui/metric-loading-state";
+} from "@/components/ui/metric-loading-state";
 
 export default function FullMarketingWidget({
   data = {},
@@ -29,20 +29,21 @@ export default function FullMarketingWidget({
     return formatter ? formatter(value) : value;
   };
 
+  // Branded red color palette for stats
   const stats = [
     {
       label: "Campaigns",
       value: formatValue(data.activeCampaigns),
       icon: Send,
-      color: "text-blue-600 dark:text-blue-400",
-      bg: "bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100/50 dark:border-blue-900/30 backdrop-blur-sm",
+      color: "text-[#3F0D28] dark:text-[#3F0D28]",
+      bg: "bg-neutral-50 dark:bg-neutral-900/20 border border-neutral-200/50 dark:border-neutral-700/50 backdrop-blur-sm",
     },
     {
       label: "Email Opens",
       value: formatValue(data.emailOpens),
       icon: Eye,
-      color: "text-emerald-600 dark:text-emerald-400",
-      bg: "bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100/50 dark:border-emerald-900/30 backdrop-blur-sm",
+      color: "text-[#3F0D28] dark:text-[#3F0D28]",
+      bg: "bg-neutral-50 dark:bg-neutral-900/20 border border-neutral-200/50 dark:border-neutral-700/50 backdrop-blur-sm",
     },
     {
       label: "Click Rate",
@@ -50,15 +51,15 @@ export default function FullMarketingWidget({
         val ? `${val.toFixed(1)}%` : "0%",
       ),
       icon: MousePointerClick,
-      color: "text-amber-600 dark:text-amber-400",
-      bg: "bg-amber-50/50 dark:bg-amber-950/20 border border-amber-100/50 dark:border-amber-900/30 backdrop-blur-sm",
+      color: "text-[#CA4238] dark:text-[#3F0D28]",
+      bg: "bg-neutral-50 dark:bg-neutral-900/20 border border-neutral-200/50 dark:border-neutral-700/50 backdrop-blur-sm",
     },
     {
       label: "Subscribers",
       value: formatValue(data.totalSubscribers),
       icon: Users,
-      color: "text-purple-600 dark:text-purple-400",
-      bg: "bg-purple-50/50 dark:bg-purple-950/20 border border-purple-100/50 dark:border-purple-900/30 backdrop-blur-sm",
+      color: "text-[#3F0D28] dark:text-[#3F0D28]",
+      bg: "bg-neutral-50 dark:bg-neutral-900/20 border border-neutral-200/50 dark:border-neutral-700/50 backdrop-blur-sm",
     },
   ];
 
@@ -87,24 +88,24 @@ export default function FullMarketingWidget({
       transition={{ duration: 0.5 }}
       className="h-full w-full"
     >
-      <Card className="h-full w-full flex flex-col">
+      <Card className="h-full w-full flex flex-col bg-white border border-black/[0.05] shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-all duration-300">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
-                <Mail className="h-5 w-5 text-white" />
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#3F0D28] to-[#3F0D28] flex items-center justify-center shadow-sm">
+                <Mail className="h-4 w-4 text-white" />
               </div>
               <div>
-                <CardTitle className="text-lg">Marketing Performance</CardTitle>
+                <CardTitle className="text-base font-semibold">Marketing Performance</CardTitle>
                 <p className="text-xs text-crm-text-secondary">
                   Campaign metrics & analytics
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50">
-                <Calendar className="h-3 w-3 text-blue-600 dark:text-blue-400" />
-                <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-neutral-50 dark:bg-neutral-900/30 border border-neutral-200 dark:border-neutral-700/50">
+                <Calendar className="h-3 w-3 text-[#3F0D28] dark:text-[#3F0D28]" />
+                <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
                   {getPeriodLabel(timeRange)}
                 </span>
               </div>
@@ -116,10 +117,10 @@ export default function FullMarketingWidget({
               )}
             </div>
           </div>
-          <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+          <div className="mt-2 pt-2 border-t border-black/[0.05]">
             <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-              <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#3F0D28] animate-pulse" />
+              <span className="text-xs text-neutral-500 font-medium">
                 {formatDateRange(timeRange)}
               </span>
             </div>
@@ -139,7 +140,7 @@ export default function FullMarketingWidget({
                       {stat.label}
                     </span>
                   </div>
-                  <p className={`text-xl font-bold ${stat.color}`}>
+                  <p className="text-xl font-bold text-neutral-900 dark:text-white">
                     {stat.value !== null ? (
                       stat.value
                     ) : (
@@ -152,19 +153,19 @@ export default function FullMarketingWidget({
           </div>
 
           {/* Detailed Stats */}
-          <div className="border-t border-crm-border pt-3 space-y-2">
-            <h4 className="text-xs font-semibold text-crm-text-secondary uppercase tracking-wider">
+          <div className="border-t border-black/[0.05] pt-3 space-y-2">
+            <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
               Performance Details
             </h4>
             {details.map((detail, idx) => (
               <div
                 key={idx}
-                className="flex justify-between items-center py-1.5 hover:bg-gray-50 dark:hover:bg-gray-800 px-2 rounded"
+                className="flex justify-between items-center py-1.5 hover:bg-[#FAFAFA] px-2 rounded transition-colors"
               >
-                <span className="text-sm text-crm-text-secondary">
+                <span className="text-sm text-neutral-500">
                   {detail.label}
                 </span>
-                <span className="text-sm font-semibold text-crm-text-primary">
+                <span className="text-sm font-semibold text-neutral-900">
                   {detail.value}
                 </span>
               </div>

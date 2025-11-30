@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Debug Page</title>
+  </head>
+  <body>
+    <h1>Debug Page - Testing Basic HTML</h1>
+    <div id="test-div">Testing...</div>
+
+    <script>
+      console.log("🔍 Basic HTML page loaded");
+      document.getElementById("test-div").innerHTML = "JavaScript is working!";
+
+      // Test if we can fetch the React app
+      fetch("/frontend/main.jsx")
+        .then((response) => response.text())
+        .then((content) => {
+          console.log("✅ Can fetch main.jsx, length:", content.length);
+          document.getElementById("test-div").innerHTML +=
+            "<br>✅ main.jsx accessible";
+        })
+        .catch((error) => {
+          console.error("❌ Cannot fetch main.jsx:", error);
+          document.getElementById("test-div").innerHTML +=
+            "<br>❌ Cannot fetch main.jsx";
+        });
+    </script>
+  </body>
+</html>

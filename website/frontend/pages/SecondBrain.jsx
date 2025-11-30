@@ -9,22 +9,22 @@ const SecondBrain = () => {
           {/* Brain Icon with Orbiting Elements */}
           <div className="relative inline-block mb-8">
             <div className="relative">
-              <Brain className="w-24 h-24 text-[#761B14] mx-auto" />
+              <Brain className="w-24 h-24 text-[#3F0D28] mx-auto" />
 
               {/* Orbiting particles */}
               <div className="absolute inset-0 -m-8">
-                <div className="absolute w-3 h-3 bg-[#761B14] rounded-full animate-orbit-1"
+                <div className="absolute w-3 h-3 bg-[#3F0D28] rounded-full animate-orbit-1"
                      style={{ top: '50%', left: '50%', transformOrigin: '0 0' }} />
-                <div className="absolute w-3 h-3 bg-[#761B14]/70 rounded-full animate-orbit-2"
+                <div className="absolute w-3 h-3 bg-[#3F0D28]/70 rounded-full animate-orbit-2"
                      style={{ top: '50%', left: '50%', transformOrigin: '0 0' }} />
-                <div className="absolute w-3 h-3 bg-[#761B14]/40 rounded-full animate-orbit-3"
+                <div className="absolute w-3 h-3 bg-[#3F0D28]/40 rounded-full animate-orbit-3"
                      style={{ top: '50%', left: '50%', transformOrigin: '0 0' }} />
               </div>
             </div>
           </div>
 
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#761B14]/10 text-[#761B14] mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#3F0D28]/10 text-[#3F0D28] mb-6">
             <Sparkles className="w-4 h-4" />
             <span className="text-sm font-semibold">COMING SOON - BETA Q2 2025</span>
           </div>
@@ -40,7 +40,7 @@ const SecondBrain = () => {
 
           {/* CTA Buttons */}
           <div className="flex gap-4 justify-center mb-16">
-            <button className="px-8 py-3 rounded-lg bg-[#761B14] text-white font-semibold hover:bg-[#651610] transition-colors shadow-lg hover:shadow-xl">
+            <button className="btn-premium-red px-8 py-3 rounded-lg text-white font-semibold transition-colors shadow-lg hover:shadow-xl">
               Join Waitlist
             </button>
             <button className="px-8 py-3 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-lg">
@@ -52,9 +52,9 @@ const SecondBrain = () => {
         {/* Feature Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {/* Feature 1 */}
-          <div className="group p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-[#761B14] hover:-translate-y-1">
-            <div className="w-12 h-12 rounded-lg bg-[#761B14]/10 flex items-center justify-center mb-4 group-hover:bg-[#761B14] transition-colors">
-              <FileText className="w-6 h-6 text-[#761B14] group-hover:text-white transition-colors" />
+          <div className="group p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-[#3F0D28] hover:-translate-y-1">
+            <div className="w-12 h-12 rounded-lg bg-[#3F0D28]/10 flex items-center justify-center mb-4 group-hover:bg-[#3F0D28] transition-colors">
+              <FileText className="w-6 h-6 text-[#3F0D28] group-hover:text-white transition-colors" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
               Rich Documents
@@ -65,9 +65,9 @@ const SecondBrain = () => {
           </div>
 
           {/* Feature 2 */}
-          <div className="group p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-[#761B14] hover:-translate-y-1">
-            <div className="w-12 h-12 rounded-lg bg-[#761B14]/10 flex items-center justify-center mb-4 group-hover:bg-[#761B14] transition-colors">
-              <Link2 className="w-6 h-6 text-[#761B14] group-hover:text-white transition-colors" />
+          <div className="group p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-[#3F0D28] hover:-translate-y-1">
+            <div className="w-12 h-12 rounded-lg bg-[#3F0D28]/10 flex items-center justify-center mb-4 group-hover:bg-[#3F0D28] transition-colors">
+              <Link2 className="w-6 h-6 text-[#3F0D28] group-hover:text-white transition-colors" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
               Bi-Directional Links
@@ -78,9 +78,9 @@ const SecondBrain = () => {
           </div>
 
           {/* Feature 3 */}
-          <div className="group p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-[#761B14] hover:-translate-y-1">
-            <div className="w-12 h-12 rounded-lg bg-[#761B14]/10 flex items-center justify-center mb-4 group-hover:bg-[#761B14] transition-colors">
-              <Network className="w-6 h-6 text-[#761B14] group-hover:text-white transition-colors" />
+          <div className="group p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-[#3F0D28] hover:-translate-y-1">
+            <div className="w-12 h-12 rounded-lg bg-[#3F0D28]/10 flex items-center justify-center mb-4 group-hover:bg-[#3F0D28] transition-colors">
+              <Network className="w-6 h-6 text-[#3F0D28] group-hover:text-white transition-colors" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
               Knowledge Graph
@@ -91,9 +91,9 @@ const SecondBrain = () => {
           </div>
 
           {/* Feature 4 */}
-          <div className="group p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-[#761B14] hover:-translate-y-1">
-            <div className="w-12 h-12 rounded-lg bg-[#761B14]/10 flex items-center justify-center mb-4 group-hover:bg-[#761B14] transition-colors">
-              <Search className="w-6 h-6 text-[#761B14] group-hover:text-white transition-colors" />
+          <div className="group p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-[#3F0D28] hover:-translate-y-1">
+            <div className="w-12 h-12 rounded-lg bg-[#3F0D28]/10 flex items-center justify-center mb-4 group-hover:bg-[#3F0D28] transition-colors">
+              <Search className="w-6 h-6 text-[#3F0D28] group-hover:text-white transition-colors" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
               AI-Powered Search
@@ -104,9 +104,9 @@ const SecondBrain = () => {
           </div>
 
           {/* Feature 5 */}
-          <div className="group p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-[#761B14] hover:-translate-y-1">
-            <div className="w-12 h-12 rounded-lg bg-[#761B14]/10 flex items-center justify-center mb-4 group-hover:bg-[#761B14] transition-colors">
-              <Zap className="w-6 h-6 text-[#761B14] group-hover:text-white transition-colors" />
+          <div className="group p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-[#3F0D28] hover:-translate-y-1">
+            <div className="w-12 h-12 rounded-lg bg-[#3F0D28]/10 flex items-center justify-center mb-4 group-hover:bg-[#3F0D28] transition-colors">
+              <Zap className="w-6 h-6 text-[#3F0D28] group-hover:text-white transition-colors" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
               Databases & Views
@@ -117,9 +117,9 @@ const SecondBrain = () => {
           </div>
 
           {/* Feature 6 */}
-          <div className="group p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-[#761B14] hover:-translate-y-1">
-            <div className="w-12 h-12 rounded-lg bg-[#761B14]/10 flex items-center justify-center mb-4 group-hover:bg-[#761B14] transition-colors">
-              <Sparkles className="w-6 h-6 text-[#761B14] group-hover:text-white transition-colors" />
+          <div className="group p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-[#3F0D28] hover:-translate-y-1">
+            <div className="w-12 h-12 rounded-lg bg-[#3F0D28]/10 flex items-center justify-center mb-4 group-hover:bg-[#3F0D28] transition-colors">
+              <Sparkles className="w-6 h-6 text-[#3F0D28] group-hover:text-white transition-colors" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
               AI Assistant
@@ -131,14 +131,14 @@ const SecondBrain = () => {
         </div>
 
         {/* Why Second Brain */}
-        <div className="max-w-4xl mx-auto mt-20 p-8 rounded-2xl bg-gradient-to-br from-[#761B14]/10 to-[#761B14]/5 border border-[#761B14]/20">
+        <div className="max-w-4xl mx-auto mt-20 p-8 rounded-2xl bg-gradient-to-br from-[#3F0D28]/10 to-[#3F0D28]/5 border border-[#3F0D28]/20">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 text-center">
             Why Built Into Your CRM?
           </h2>
 
           <div className="grid md:grid-cols-2 gap-6">
             <div className="flex gap-4">
-              <div className="w-8 h-8 rounded-full bg-[#761B14] text-white flex items-center justify-center flex-shrink-0 font-bold">
+              <div className="w-8 h-8 rounded-full bg-[#3F0D28] text-white flex items-center justify-center flex-shrink-0 font-bold">
                 1
               </div>
               <div>
@@ -152,7 +152,7 @@ const SecondBrain = () => {
             </div>
 
             <div className="flex gap-4">
-              <div className="w-8 h-8 rounded-full bg-[#761B14] text-white flex items-center justify-center flex-shrink-0 font-bold">
+              <div className="w-8 h-8 rounded-full bg-[#3F0D28] text-white flex items-center justify-center flex-shrink-0 font-bold">
                 2
               </div>
               <div>
@@ -166,7 +166,7 @@ const SecondBrain = () => {
             </div>
 
             <div className="flex gap-4">
-              <div className="w-8 h-8 rounded-full bg-[#761B14] text-white flex items-center justify-center flex-shrink-0 font-bold">
+              <div className="w-8 h-8 rounded-full bg-[#3F0D28] text-white flex items-center justify-center flex-shrink-0 font-bold">
                 3
               </div>
               <div>
@@ -180,7 +180,7 @@ const SecondBrain = () => {
             </div>
 
             <div className="flex gap-4">
-              <div className="w-8 h-8 rounded-full bg-[#761B14] text-white flex items-center justify-center flex-shrink-0 font-bold">
+              <div className="w-8 h-8 rounded-full bg-[#3F0D28] text-white flex items-center justify-center flex-shrink-0 font-bold">
                 4
               </div>
               <div>
@@ -204,10 +204,10 @@ const SecondBrain = () => {
           <div className="space-y-6">
             <div className="flex gap-6">
               <div className="flex flex-col items-center">
-                <div className="w-12 h-12 rounded-full bg-[#761B14] text-white flex items-center justify-center font-bold">
+                <div className="w-12 h-12 rounded-full bg-[#3F0D28] text-white flex items-center justify-center font-bold">
                   Q2
                 </div>
-                <div className="w-0.5 h-full bg-[#761B14]/30 mt-2"></div>
+                <div className="w-0.5 h-full bg-[#3F0D28]/30 mt-2"></div>
               </div>
               <div className="pb-8">
                 <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
@@ -221,10 +221,10 @@ const SecondBrain = () => {
 
             <div className="flex gap-6">
               <div className="flex flex-col items-center">
-                <div className="w-12 h-12 rounded-full bg-[#761B14]/50 text-white flex items-center justify-center font-bold">
+                <div className="w-12 h-12 rounded-full bg-[#3F0D28]/50 text-white flex items-center justify-center font-bold">
                   Q3
                 </div>
-                <div className="w-0.5 h-full bg-[#761B14]/30 mt-2"></div>
+                <div className="w-0.5 h-full bg-[#3F0D28]/30 mt-2"></div>
               </div>
               <div className="pb-8">
                 <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
@@ -238,7 +238,7 @@ const SecondBrain = () => {
 
             <div className="flex gap-6">
               <div className="flex flex-col items-center">
-                <div className="w-12 h-12 rounded-full bg-[#761B14]/30 text-white flex items-center justify-center font-bold">
+                <div className="w-12 h-12 rounded-full bg-[#3F0D28]/30 text-white flex items-center justify-center font-bold">
                   Q4
                 </div>
               </div>
@@ -266,9 +266,9 @@ const SecondBrain = () => {
             <input
               type="email"
               placeholder="Enter your email"
-              className="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#761B14]"
+              className="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3F0D28]"
             />
-            <button className="px-8 py-3 rounded-lg bg-[#761B14] text-white font-semibold hover:bg-[#651610] transition-colors shadow-lg hover:shadow-xl">
+            <button className="btn-premium-red px-8 py-3 rounded-lg text-white font-semibold transition-colors shadow-lg hover:shadow-xl">
               Join
             </button>
           </div>

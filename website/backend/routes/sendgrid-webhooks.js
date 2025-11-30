@@ -1,8 +1,73 @@
 import express from 'express';
+import crypto from 'crypto';
 import EmailService from '../services/email-service.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 const emailService = new EmailService();
+
+/**
+ * Verify SendGrid webhook signature
+ * Uses ECDSA signature verification with SendGrid's public key
+ * @see https://docs.sendgrid.com/for-developers/tracking-events/getting-started-event-webhook-security-features
+ */
+const verifySendGridSignature = (req, res, next) => {
+  // Skip verification in development mode (optional - remove in production)
+  if (process.env.NODE_ENV === 'development' && process.env.SKIP_WEBHOOK_VERIFICATION === 'true') {
+    console.warn('SendGrid webhook verification skipped in development mode');
+    return next();
+  }
+
+  const publicKey = process.env.SENDGRID_WEBHOOK_PUBLIC_KEY;
+
+  // If no public key configured, log warning but allow (for backwards compatibility)
+  if (!publicKey) {
+    console.warn('SendGrid webhook public key not configured. Set SENDGRID_WEBHOOK_PUBLIC_KEY env var for security.');
+    return next();
+  }
+
+  const signature = req.headers['x-twilio-email-event-webhook-signature'];
+  const timestamp = req.headers['x-twilio-email-event-webhook-timestamp'];
+
+  if (!signature || !timestamp) {
+    console.warn('SendGrid webhook missing signature or timestamp headers');
+    return res.status(401).json({
+      success: false,
+      error: 'Missing webhook signature'
+    });
+  }
+
+  try {
+    // Create the payload string (timestamp + payload)
+    const payload = timestamp + JSON.stringify(req.body);
+
+    // Verify the signature using ECDSA
+    const verifier = crypto.createVerify('sha256');
+    verifier.update(payload);
+
+    const isValid = verifier.verify(
+      { key: publicKey, format: 'pem' },
+      signature,
+      'base64'
+    );
+
+    if (!isValid) {
+      console.warn('Invalid SendGrid webhook signature');
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid webhook signature'
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error('SendGrid signature verification error:', error);
+    return res.status(401).json({
+      success: false,
+      error: 'Signature verification failed'
+    });
+  }
+};
 
 /**
  * SendGrid Webhook Routes
@@ -24,9 +89,9 @@ const emailService = new EmailService();
 /**
  * @route POST /api/sendgrid/webhook
  * @desc Process SendGrid webhook events
- * @access Public (SendGrid only)
+ * @access Public (SendGrid only - verified by signature)
  */
-router.post('/webhook', async (req, res) => {
+router.post('/webhook', verifySendGridSignature, async (req, res) => {
   try {
     const events = req.body;
 
@@ -65,7 +130,7 @@ router.post('/webhook', async (req, res) => {
  * @desc Get SendGrid email statistics
  * @access Private
  */
-router.get('/stats', async (req, res) => {
+router.get('/stats', protect, async (req, res) => {
   try {
     const { startDate, endDate, aggregatedBy } = req.query;
 
@@ -90,7 +155,7 @@ router.get('/stats', async (req, res) => {
  * @desc Get suppression lists (bounces, unsubscribes, etc.)
  * @access Private
  */
-router.get('/suppressions', async (req, res) => {
+router.get('/suppressions', protect, async (req, res) => {
   try {
     const suppressions = await emailService.getSuppressionLists();
     res.json(suppressions);
@@ -108,7 +173,7 @@ router.get('/suppressions', async (req, res) => {
  * @desc Sync suppression lists to Supabase
  * @access Private
  */
-router.post('/suppressions/sync', async (req, res) => {
+router.post('/suppressions/sync', protect, async (req, res) => {
   try {
     const result = await emailService.syncSuppressionLists();
     res.json(result);
@@ -126,7 +191,7 @@ router.post('/suppressions/sync', async (req, res) => {
  * @desc Sync contact to SendGrid
  * @access Private
  */
-router.post('/contacts/sync', async (req, res) => {
+router.post('/contacts/sync', protect, async (req, res) => {
   try {
     const { contact } = req.body;
 
@@ -153,7 +218,7 @@ router.post('/contacts/sync', async (req, res) => {
  * @desc Sync multiple contacts to SendGrid
  * @access Private
  */
-router.post('/contacts/bulk-sync', async (req, res) => {
+router.post('/contacts/bulk-sync', protect, async (req, res) => {
   try {
     const { contacts } = req.body;
 
@@ -180,7 +245,7 @@ router.post('/contacts/bulk-sync', async (req, res) => {
  * @desc Create email template in SendGrid
  * @access Private
  */
-router.post('/templates', async (req, res) => {
+router.post('/templates', protect, async (req, res) => {
   try {
     const { name, subject, htmlContent, textContent } = req.body;
 

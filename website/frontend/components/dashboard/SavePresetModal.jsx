@@ -17,26 +17,31 @@ export default function SavePresetModal({ isOpen, onClose, onSave, currentPreset
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleSave = async () => {
     if (!name.trim()) return;
 
     setLoading(true);
+    setError(null);
     try {
       await onSave(name.trim(), description.trim());
       setName('');
       setDescription('');
       onClose();
-    } catch (error) {
-      console.error('Error saving preset:', error);
-    } finally {
+    } catch (err) {
+      console.error('Error saving preset:', err);
+      setError('Failed to save preset. Please try again.');
       setLoading(false);
+      return; // Don't close modal on error
     }
+    setLoading(false);
   };
 
   const handleClose = () => {
     setName('');
     setDescription('');
+    setError(null);
     onClose();
   };
 
@@ -45,7 +50,7 @@ export default function SavePresetModal({ isOpen, onClose, onSave, currentPreset
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Save className="h-5 w-5 text-[#761B14]" />
+            <Save className="h-5 w-5 text-[#3F0D28]" />
             Save Dashboard Preset
           </DialogTitle>
           <DialogDescription>
@@ -82,10 +87,16 @@ export default function SavePresetModal({ isOpen, onClose, onSave, currentPreset
           </div>
 
           {currentPresetName && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-sm text-red-800">
+            <div className="bg-neutral-50 border border-neutral-200 rounded-lg p-3">
+              <p className="text-sm text-neutral-700">
                 <span className="font-medium">Based on:</span> {currentPresetName}
               </p>
+            </div>
+          )}
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
         </motion.div>

@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Supabase Auth Test</title>
+  </head>
+  <body>
+    <h1>Supabase Authentication Test</h1>
+    <div id="status">Loading...</div>
+    <div id="user-info"></div>
+    <div id="env-vars"></div>
+
+    <script type="module">
+      // Test environment variables
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+      document.getElementById("env-vars").innerHTML = `
+            <h3>Environment Variables:</h3>
+            <p>VITE_SUPABASE_URL: ${supabaseUrl ? "SET" : "NOT SET"}</p>
+            <p>VITE_SUPABASE_ANON_KEY: ${supabaseAnonKey ? "SET" : "NOT SET"}</p>
+        `;
+
+      if (!supabaseUrl || !supabaseAnonKey) {
+        document.getElementById("status").innerHTML =
+          '<p style="color: red;">❌ Supabase environment variables not set</p>';
+        return;
+      }
+
+      // Import and test Supabase
+      import { createClient } from "@supabase/supabase-js";
+
+      const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+        auth: {
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: true,
+          storage: window.localStorage,
+          flowType: "pkce",
+        },
+      });
+
+      async function testAuth() {
+        try {
+          document.getElementById("status").innerHTML =
+            "<p>🔄 Testing Supabase connection...</p>";
+
+          // Test 1: Get current session
+          const {
+            data: { session },
+            error,
+          } = await supabase.auth.getSession();
+
+          if (error) {
+            document.getElementById("status").innerHTML =
+              `<p style="color: red;">❌ Session error: ${error.message}</p>`;
+            return;
+          }
+
+          if (session) {
+            document.getElementById("status").innerHTML =
+              '<p style="color: green;">✅ Session found!</p>';
+            document.getElementById("user-info").innerHTML = `
+                        <h3>User Info:</h3>
+                        <p>ID: ${session.user.id}</p>
+                        <p>Email: ${session.user.email}</p>
+                        <p>Expires: ${new Date(session.expires_at * 1000).toLocaleString()}</p>
+                        <p>Access Token (first 20 chars): ${session.access_token.substring(0, 20)}...</p>
+                    `;
+          } else {
+            document.getElementById("status").innerHTML =
+              '<p style="color: orange;">⚠️ No active session</p>';
+            document.getElementById("user-info").innerHTML =
+              "<p>Please sign in to test authentication</p>";
+          }
+
+          // Test 2: Test API call with session
+          if (session) {
+            const response = await fetch("/api/v1/forms", {
+              headers: {
+                Authorization: `Bearer ${session.access_token}`,
+                "Content-Type": "application/json",
+              },
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              console.log("API Response:", data);
+              document.getElementById("user-info").innerHTML +=
+                `<p style="color: green;">✅ API call successful! Found ${data.length} forms</p>`;
+            } else {
+              const error = await response.json();
+              console.error("API Error:", error);
+              document.getElementById("user-info").innerHTML +=
+                `<p style="color: red;">❌ API call failed: ${error.message}</p>`;
+            }
+          }
+        } catch (error) {
+          console.error("Test error:", error);
+          document.getElementById("status").innerHTML =
+            `<p style="color: red;">❌ Test failed: ${error.message}</p>`;
+        }
+      }
+
+      // Listen for auth changes
+      supabase.auth.onAuthStateChange((event, session) => {
+        console.log("Auth state change:", event, session);
+        if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+          testAuth();
+        }
+      });
+
+      // Run test
+      testAuth();
+    </script>
+  </body>
+</html>

@@ -44,6 +44,9 @@ const Calls = () => {
   const loadTodayStats = async () => {
     try {
       const response = await fetch('/api/calls/stats/today');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
       setTodayStats(data);
     } catch (error) {
@@ -61,6 +64,9 @@ const Calls = () => {
       });
 
       const response = await fetch(`/api/calls?${queryParams}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
       setCalls(data);
     } catch (error) {
@@ -74,6 +80,9 @@ const Calls = () => {
   const loadCallQueue = async () => {
     try {
       const response = await fetch('/api/call-queue/items?status=pending&limit=20');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
       setCallQueue(data);
     } catch (error) {
@@ -85,6 +94,9 @@ const Calls = () => {
   const handleGetNextCall = async () => {
     try {
       const response = await fetch('/api/call-queue/next');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const queueItem = await response.json();
 
       if (!queueItem) {
@@ -96,7 +108,10 @@ const Calls = () => {
       const scriptResponse = await fetch(
         `/api/sales-scripts/recommended?leadId=${queueItem.lead_id}&scenario=default`
       );
-      const script = await scriptResponse.json();
+      if (!scriptResponse.ok) {
+        // console.warn$1
+      }
+      const script = scriptResponse.ok ? await scriptResponse.json() : null;
 
       setCurrentQueueItem(queueItem);
       setCurrentLead(queueItem.lead);
@@ -146,7 +161,7 @@ const Calls = () => {
   const getDispositionColor = (disposition) => {
     const colors = {
       interested: 'bg-green-100 text-green-800',
-      not_interested: 'bg-red-100 text-red-800',
+      not_interested: 'bg-[#3F0D28]/10 text-[#3F0D28]',
       callback: 'bg-blue-100 text-blue-800',
       voicemail: 'bg-yellow-100 text-yellow-800',
       no_answer: 'bg-gray-100 text-gray-800',
@@ -174,7 +189,7 @@ const Calls = () => {
           {canCreate() && (
             <button
               onClick={handleGetNextCall}
-              className="px-6 py-3 bg-[#761B14] text-white rounded-lg hover:bg-[#5a1410] flex items-center space-x-2 shadow-lg transform hover:scale-105 transition-all"
+              className="btn-premium-red px-6 py-3 text-white rounded-lg flex items-center space-x-2 transform hover:scale-105 transition-all"
             >
               <Play size={20} />
               <span className="font-semibold">Next Call</span>
@@ -199,7 +214,7 @@ const Calls = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Answered</p>
-                  <p className="text-2xl font-bold text-green-600">{todayStats.answered_calls}</p>
+                  <p className="text-2xl font-bold text-emerald-700">{todayStats.answered_calls}</p>
                 </div>
                 <CheckCircle className="text-green-400" size={24} />
               </div>
@@ -209,11 +224,11 @@ const Calls = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Talk Time</p>
-                  <p className="text-2xl font-bold text-blue-600">
+                  <p className="text-2xl font-bold text-[#3F0D28]">
                     {todayStats.total_talk_time_minutes}m
                   </p>
                 </div>
-                <Clock className="text-blue-400" size={24} />
+                <Clock className="text-[#3F0D28]" size={24} />
               </div>
             </div>
 
@@ -221,7 +236,7 @@ const Calls = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Interested</p>
-                  <p className="text-2xl font-bold text-green-600">{todayStats.interested_count}</p>
+                  <p className="text-2xl font-bold text-emerald-700">{todayStats.interested_count}</p>
                 </div>
                 <User className="text-green-400" size={24} />
               </div>
@@ -231,9 +246,9 @@ const Calls = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Callbacks</p>
-                  <p className="text-2xl font-bold text-blue-600">{todayStats.callback_count}</p>
+                  <p className="text-2xl font-bold text-[#3F0D28]">{todayStats.callback_count}</p>
                 </div>
-                <Calendar className="text-blue-400" size={24} />
+                <Calendar className="text-[#3F0D28]" size={24} />
               </div>
             </div>
           </div>
@@ -245,7 +260,7 @@ const Calls = () => {
             onClick={() => setActiveView('dialer')}
             className={`px-4 py-2 font-medium transition-colors ${
               activeView === 'dialer'
-                ? 'text-[#761B14] border-b-2 border-[#761B14]'
+                ? 'text-[#3F0D28] border-b-2 border-[#3F0D28]'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -256,7 +271,7 @@ const Calls = () => {
             onClick={() => setActiveView('queue')}
             className={`px-4 py-2 font-medium transition-colors ${
               activeView === 'queue'
-                ? 'text-[#761B14] border-b-2 border-[#761B14]'
+                ? 'text-[#3F0D28] border-b-2 border-[#3F0D28]'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -267,7 +282,7 @@ const Calls = () => {
             onClick={() => setActiveView('history')}
             className={`px-4 py-2 font-medium transition-colors ${
               activeView === 'history'
-                ? 'text-[#761B14] border-b-2 border-[#761B14]'
+                ? 'text-[#3F0D28] border-b-2 border-[#3F0D28]'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -278,7 +293,7 @@ const Calls = () => {
             onClick={() => setActiveView('analytics')}
             className={`px-4 py-2 font-medium transition-colors ${
               activeView === 'analytics'
-                ? 'text-[#761B14] border-b-2 border-[#761B14]'
+                ? 'text-[#3F0D28] border-b-2 border-[#3F0D28]'
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -315,7 +330,7 @@ const Calls = () => {
                   </p>
                   <button
                     onClick={handleGetNextCall}
-                    className="px-6 py-3 bg-[#761B14] text-white rounded-lg hover:bg-[#5a1410] inline-flex items-center space-x-2"
+                    className="btn-premium-red px-6 py-3 text-white rounded-lg inline-flex items-center space-x-2"
                   >
                     <Play size={20} />
                     <span>Start Calling</span>
@@ -358,7 +373,7 @@ const Calls = () => {
                             Attempts: {item.attempts}/{item.max_attempts}
                           </p>
                           {item.priority > 0 && (
-                            <span className="inline-block mt-1 px-2 py-1 bg-red-100 text-red-800 text-xs rounded">
+                            <span className="inline-block mt-1 px-2 py-1 bg-[#3F0D28]/10 text-[#3F0D28] text-xs rounded">
                               Priority
                             </span>
                           )}
@@ -391,12 +406,12 @@ const Calls = () => {
                   <input
                     type="text"
                     placeholder="Search calls..."
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#761B14] focus:border-transparent"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3F0D28] focus:border-transparent"
                     value={filters.searchTerm}
                     onChange={(e) => setFilters({ ...filters, searchTerm: e.target.value })}
                   />
                   <select
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#761B14] focus:border-transparent"
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3F0D28] focus:border-transparent"
                     value={filters.disposition}
                     onChange={(e) => setFilters({ ...filters, disposition: e.target.value })}
                   >
@@ -447,7 +462,7 @@ const Calls = () => {
 
                         <div className="flex items-center space-x-2">
                           {call.has_recording && (
-                            <button className="p-2 text-blue-600 hover:bg-blue-50 rounded">
+                            <button className="p-2 text-[#3F0D28] hover:bg-blue-50 rounded">
                               <Play size={16} />
                             </button>
                           )}
@@ -481,7 +496,7 @@ const Calls = () => {
           {/* Today's Meetings/Callbacks */}
           <div className="bg-white rounded-lg border border-gray-200 p-4">
             <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
-              <Calendar size={18} className="mr-2 text-[#761B14]" />
+              <Calendar size={18} className="mr-2 text-[#3F0D28]" />
               Today's Callbacks
             </h3>
             <div className="space-y-3">
@@ -510,9 +525,8 @@ const Calls = () => {
 
           {/* Sales Script Preview */}
           {currentScript && (
-            <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-lg border border-red-200 p-4">
-              <h3 className="font-semibold text-gray-900 mb-2 flex items-center">
-                <span className="w-2 h-2 bg-red-500 rounded-full mr-2" />
+            <div className="bg-gradient-to-br from-[#3F0D28]/5 to-[#2a0919]/10 rounded-lg border border-[#3F0D28]/20 p-4">
+              <h3 className="font-semibold text-gray-900 mb-2">
                 Active Script
               </h3>
               <p className="text-sm text-gray-700 font-medium mb-2">

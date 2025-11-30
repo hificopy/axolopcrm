@@ -69,7 +69,7 @@ export default function CreateBookingDialog({ open, onOpenChange, onSave, initia
     slug: '',
     description: '',
     internalNote: '',
-    color: '#761B14',
+    color: '#3F0D28',
 
     // Location
     locationType: 'phone',
@@ -127,7 +127,7 @@ export default function CreateBookingDialog({ open, onOpenChange, onSave, initia
 
     // Customization
     theme: 'light',
-    brandColorPrimary: '#761B14',
+    brandColorPrimary: '#3F0D28',
     brandColorSecondary: '#4a0f0a',
     useGradient: true,
     schedulerBackground: '#FFFFFF',
@@ -157,7 +157,7 @@ export default function CreateBookingDialog({ open, onOpenChange, onSave, initia
           description: initialData.description || '',
           duration: initialData.duration || 30,
           locationType: initialData.location_type || initialData.locationType || 'phone',
-          color: initialData.color || '#761B14',
+          color: initialData.color || '#3F0D28',
           isActive: initialData.is_active ?? true,
           hosts: initialData.hosts || [],
           primaryQuestions: initialData.primary_questions || initialData.primaryQuestions || defaultFormData.primaryQuestions,
@@ -1045,7 +1045,7 @@ export default function CreateBookingDialog({ open, onOpenChange, onSave, initia
                         />
                       </div>
 
-                      <div className="flex items-center justify-between p-4 border-2 border-blue-200 rounded-lg bg-blue-50">
+                      <div className="flex items-center justify-between p-4 border-2 border-gray-200 rounded-lg bg-blue-50">
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <Label className="text-sm font-semibold text-blue-900">Sequential Questions (Recommended)</Label>
@@ -1057,7 +1057,7 @@ export default function CreateBookingDialog({ open, onOpenChange, onSave, initia
                             Enable Typeform-style one-question-at-a-time flow for better engagement and higher completion rates.
                             Questions appear progressively with smooth animations, reducing cognitive load and form abandonment.
                           </p>
-                          <p className="text-xs text-blue-600 font-medium">
+                          <p className="text-xs text-[#3F0D28] font-medium">
                             When disabled: All questions appear at once (standard form layout)
                           </p>
                         </div>
@@ -1095,9 +1095,9 @@ export default function CreateBookingDialog({ open, onOpenChange, onSave, initia
                     {formData.workflowEnabled && (
                       <div className="space-y-4">
                         {/* Workflow Info */}
-                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="p-4 bg-blue-50 border border-gray-200 rounded-lg">
                           <div className="flex items-start gap-3">
-                            <Sparkles className="h-5 w-5 text-blue-600 mt-0.5" />
+                            <Sparkles className="h-5 w-5 text-[#3F0D28] mt-0.5" />
                             <div className="flex-1">
                               <p className="text-sm font-medium text-blue-900 mb-1">Workflow Integration</p>
                               <p className="text-xs text-blue-700 mb-3">
@@ -1212,7 +1212,7 @@ export default function CreateBookingDialog({ open, onOpenChange, onSave, initia
                     {/* Email Reminders */}
                     <div className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center gap-3">
-                        <Bell className="h-6 w-6 text-blue-600" />
+                        <Bell className="h-6 w-6 text-[#3F0D28]" />
                         <div>
                           <Label className="text-sm">Email Reminders</Label>
                           <p className="text-xs text-gray-500">
@@ -1606,7 +1606,7 @@ export default function CreateBookingDialog({ open, onOpenChange, onSave, initia
                           <Label>Company logo</Label>
                           <div className="mt-2 border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-blue-400 transition-colors">
                             <Upload className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-                            <p className="text-sm text-blue-600 font-medium">Click to upload</p>
+                            <p className="text-sm text-[#3F0D28] font-medium">Click to upload</p>
                             <p className="text-xs text-gray-500 mt-1">PNG or JPG (max size 5MB)</p>
                           </div>
                         </div>

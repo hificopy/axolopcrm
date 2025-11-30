@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from "react";
 import {
   Search,
   Plus,
@@ -13,19 +13,30 @@ import {
   ChevronDown,
   ChevronRight,
   X,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+  Download,
+  Upload,
+  FileText,
+  Users,
+  Target,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { Checkbox } from '@/components/ui/checkbox';
-import TableRow from './TableRow';
-import GroupHeader from './GroupHeader';
-import { cn } from '@/lib/utils';
-import './MondayTable.css';
+} from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import TableRow from "./TableRow";
+import GroupHeader from "./GroupHeader";
+import { cn } from "@/lib/utils";
+import {
+  useContextMenu,
+  createMenuItem,
+  createDivider,
+  createHeader,
+} from "@/components/ui/ContextMenuProvider";
+import "./MondayTable.css";
 
 /**
  * Production-ready Monday.com table - 100% complete
@@ -44,10 +55,13 @@ export default function MondayTable({
   onDelete,
   onArchive,
   onBulkDelete,
-  searchPlaceholder = 'Search',
-  newItemLabel = 'New item',
-  addRowLabel = '+ Add',
-  className = '',
+  onExport,
+  onImport,
+  contextMenuConfig,
+  searchPlaceholder = "Search",
+  newItemLabel = "New item",
+  addRowLabel = "+ Add",
+  className = "",
   enableSearch = true,
   enableGroups = true,
   enableBulkActions = true,
@@ -57,16 +71,68 @@ export default function MondayTable({
   defaultCollapsed = false,
 }) {
   // State
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
-  const [collapsedGroups, setCollapsedGroups] = useState(new Set(defaultCollapsed ? ['all'] : []));
+  const [collapsedGroups, setCollapsedGroups] = useState(() => {
+    // Load collapsed groups from localStorage
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("monday-table-collapsed-groups");
+      if (saved) {
+        try {
+          return new Set(JSON.parse(saved));
+        } catch (e) {
+          console.warn(
+            "Failed to parse collapsed groups from localStorage:",
+            e,
+          );
+        }
+      }
+    }
+    return new Set(defaultCollapsed ? ["all"] : []);
+  });
   const [selectedRows, setSelectedRows] = useState(new Set());
   const [sortColumn, setSortColumn] = useState(null);
-  const [sortDirection, setSortDirection] = useState('asc');
+  const [sortDirection, setSortDirection] = useState("asc");
   const [editingPlaceholder, setEditingPlaceholder] = useState(null);
-  const [hiddenColumns, setHiddenColumns] = useState(new Set());
+  const [hiddenColumns, setHiddenColumns] = useState(() => {
+    // Load hidden columns from localStorage
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("monday-table-hidden-columns");
+      if (saved) {
+        try {
+          return new Set(JSON.parse(saved));
+        } catch (e) {
+          console.warn("Failed to parse hidden columns from localStorage:", e);
+        }
+      }
+    }
+    return new Set();
+  });
   const [activeFilters, setActiveFilters] = useState({});
-  const [groupByField, setGroupByField] = useState(groups ? 'default' : null);
+  const [groupByField, setGroupByField] = useState(groups ? "default" : null);
+
+  // Context menu hook
+  const { showContextMenu } = useContextMenu();
+
+  // Save collapsed groups to localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(
+        "monday-table-collapsed-groups",
+        JSON.stringify(Array.from(collapsedGroups)),
+      );
+    }
+  }, [collapsedGroups]);
+
+  // Save hidden columns to localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(
+        "monday-table-hidden-columns",
+        JSON.stringify(Array.from(hiddenColumns)),
+      );
+    }
+  }, [hiddenColumns]);
 
   // Toggle group collapse with smooth animation
   const toggleGroup = (groupKey) => {
@@ -83,7 +149,7 @@ export default function MondayTable({
 
   // Collapse/Expand all groups
   const collapseAll = () => {
-    const allKeys = groupedData.map(g => g.key);
+    const allKeys = groupedData.map((g) => g.key);
     setCollapsedGroups(new Set(allKeys));
   };
 
@@ -154,7 +220,7 @@ export default function MondayTable({
 
     // Apply column filters
     Object.entries(activeFilters).forEach(([columnKey, filterValue]) => {
-      if (filterValue && filterValue !== 'all') {
+      if (filterValue && filterValue !== "all") {
         result = result.filter((row) => row[columnKey] === filterValue);
       }
     });
@@ -174,31 +240,33 @@ export default function MondayTable({
       if (bVal == null) return -1;
 
       const comparison = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
-      return sortDirection === 'asc' ? comparison : -comparison;
+      return sortDirection === "asc" ? comparison : -comparison;
     });
   }, [filteredData, sortColumn, sortDirection]);
 
   // Group data
   const groupedData = useMemo(() => {
     if (!enableGroups || !groups) {
-      return [{ key: 'all', label: 'All Items', items: sortedData, color: '#808080' }];
+      return [
+        { key: "all", label: "All Items", items: sortedData, color: "#808080" },
+      ];
     }
 
     // Array of group definitions (predefined groups)
     return groups.map((group) => ({
       ...group,
       items: sortedData.filter((item) => group.filter(item)),
-      color: group.color || '#808080',
+      color: group.color || "#808080",
     }));
   }, [sortedData, groups, enableGroups]);
 
   // Handle column sort
   const handleSort = (columnKey) => {
     if (sortColumn === columnKey) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
       setSortColumn(columnKey);
-      setSortDirection('asc');
+      setSortDirection("asc");
     }
   };
 
@@ -207,7 +275,7 @@ export default function MondayTable({
     if (selectedRows.size === 0) return;
 
     const confirmed = window.confirm(
-      `Delete ${selectedRows.size} item${selectedRows.size > 1 ? 's' : ''}?`
+      `Delete ${selectedRows.size} item${selectedRows.size > 1 ? "s" : ""}?`,
     );
 
     if (confirmed) {
@@ -217,7 +285,12 @@ export default function MondayTable({
   };
 
   // Handle placeholder row edit
-  const handlePlaceholderEdit = async (groupKey, groupLabel, columnKey, value) => {
+  const handlePlaceholderEdit = async (
+    groupKey,
+    groupLabel,
+    columnKey,
+    value,
+  ) => {
     if (!value || !value.trim()) return;
 
     setEditingPlaceholder(null);
@@ -241,17 +314,73 @@ export default function MondayTable({
     return Array.from(values);
   };
 
-  const allSelected = selectedRows.size > 0 && selectedRows.size === filteredData.length;
-  const someSelected = selectedRows.size > 0 && selectedRows.size < filteredData.length;
+  const allSelected =
+    selectedRows.size > 0 && selectedRows.size === filteredData.length;
+  const someSelected =
+    selectedRows.size > 0 && selectedRows.size < filteredData.length;
+
+  // Context menu handler for new item button
+  const handleNewItemContextMenu = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const newItemMenuItems = [
+      createHeader("Quick Actions"),
+      createMenuItem({
+        key: "new-lead",
+        label: `New ${newItemLabel}`,
+        icon: Plus,
+        action: onAddItem,
+        shortcut: "N",
+      }),
+      createDivider(),
+      createMenuItem({
+        key: "import",
+        label: "Import Data",
+        description: "Import from CSV or Excel",
+        icon: Upload,
+        action: onImport,
+        shortcut: "I",
+      }),
+      createMenuItem({
+        key: "export",
+        label: "Export Data",
+        description: "Export to CSV",
+        icon: Download,
+        action: onExport,
+        shortcut: "E",
+      }),
+      createDivider(),
+      createMenuItem({
+        key: "templates",
+        label: "Templates",
+        description: "Create from template",
+        icon: FileText,
+        action: () => {
+          // Template functionality
+        },
+        badge: "Coming Soon",
+        badgeVariant: "info",
+      }),
+    ];
+
+    showContextMenu({
+      items: newItemMenuItems,
+      position: { x: e.clientX, y: e.clientY },
+    });
+  };
 
   return (
-    <div className={cn('monday-table', className)}>
+    <div className={cn("monday-table", className)}>
       {/* Monday.com-style Toolbar */}
       <div className="flex items-center gap-2 mb-4 pb-4 border-b border-gray-200 flex-wrap">
         {/* New Item Button */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button className="bg-[#0073ea] hover:bg-[#0060b9] text-white font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition-all">
+            <Button
+              className="bg-gradient-to-r from-[#3F0D28] to-[#3F0D28] hover:from-[#8B2318] hover:to-[#A84A3F] text-white font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition-all"
+              onContextMenu={handleNewItemContextMenu}
+            >
               {newItemLabel}
               <ChevronDown className="h-4 w-4" />
             </Button>
@@ -284,7 +413,7 @@ export default function MondayTable({
                 />
                 {searchQuery && (
                   <button
-                    onClick={() => setSearchQuery('')}
+                    onClick={() => setSearchQuery("")}
                     className="text-gray-400 hover:text-gray-600"
                   >
                     <X className="h-4 w-4" />
@@ -293,7 +422,7 @@ export default function MondayTable({
                 <button
                   onClick={() => {
                     setSearchOpen(false);
-                    setSearchQuery('');
+                    setSearchQuery("");
                   }}
                   className="text-gray-400 hover:text-gray-600"
                 >
@@ -355,7 +484,9 @@ export default function MondayTable({
             <div className="space-y-3">
               <div className="font-semibold text-sm">Filters</div>
               {columns
-                .filter((col) => col.type === 'status' || col.type === 'priority')
+                .filter(
+                  (col) => col.type === "status" || col.type === "priority",
+                )
                 .map((col) => {
                   const uniqueValues = getUniqueValues(col.key);
                   if (uniqueValues.length === 0) return null;
@@ -366,7 +497,7 @@ export default function MondayTable({
                         {col.label}
                       </div>
                       <select
-                        value={activeFilters[col.key] || 'all'}
+                        value={activeFilters[col.key] || "all"}
                         onChange={(e) =>
                           setActiveFilters((prev) => ({
                             ...prev,
@@ -388,7 +519,7 @@ export default function MondayTable({
               {Object.keys(activeFilters).length > 0 && (
                 <button
                   onClick={() => setActiveFilters({})}
-                  className="text-sm text-[#0073ea] hover:underline"
+                  className="text-sm text-[#3F0D28] hover:underline"
                 >
                   Clear all filters
                 </button>
@@ -416,14 +547,14 @@ export default function MondayTable({
                   key={col.key}
                   onClick={() => handleSort(col.key)}
                   className={cn(
-                    'w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded-md transition-colors flex items-center justify-between',
-                    sortColumn === col.key && 'bg-blue-50 text-[#0073ea]'
+                    "w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded-md transition-colors flex items-center justify-between",
+                    sortColumn === col.key && "bg-[#3F0D28]/10 text-[#3F0D28]",
                   )}
                 >
                   <span>{col.label}</span>
                   {sortColumn === col.key && (
                     <span className="text-xs">
-                      {sortDirection === 'asc' ? '↑' : '↓'}
+                      {sortDirection === "asc" ? "↑" : "↓"}
                     </span>
                   )}
                 </button>
@@ -432,9 +563,9 @@ export default function MondayTable({
                 <button
                   onClick={() => {
                     setSortColumn(null);
-                    setSortDirection('asc');
+                    setSortDirection("asc");
                   }}
-                  className="w-full text-sm text-[#0073ea] hover:underline text-left px-3 py-1"
+                  className="w-full text-sm text-[#3F0D28] hover:underline text-left px-3 py-1"
                 >
                   Clear sort
                 </button>
@@ -456,7 +587,9 @@ export default function MondayTable({
           </PopoverTrigger>
           <PopoverContent className="w-56 p-3" align="start">
             <div className="space-y-2">
-              <div className="font-semibold text-sm mb-3">Show/Hide Columns</div>
+              <div className="font-semibold text-sm mb-3">
+                Show/Hide Columns
+              </div>
               {columns.map((col) => (
                 <label
                   key={col.key}
@@ -472,7 +605,7 @@ export default function MondayTable({
               {hiddenColumns.size > 0 && (
                 <button
                   onClick={showAllColumns}
-                  className="text-sm text-[#0073ea] hover:underline w-full text-left px-2 pt-2"
+                  className="text-sm text-[#3F0D28] hover:underline w-full text-left px-2 pt-2"
                 >
                   Show all
                 </button>
@@ -496,7 +629,7 @@ export default function MondayTable({
             <PopoverContent className="w-56 p-3" align="start">
               <div className="space-y-2">
                 <div className="font-semibold text-sm mb-3">Group by</div>
-                <button className="w-full text-left px-3 py-2 text-sm bg-blue-50 text-[#0073ea] rounded-md">
+                <button className="w-full text-left px-3 py-2 text-sm bg-[#3F0D28]/10 text-[#3F0D28] rounded-md">
                   Current grouping ✓
                 </button>
                 <button className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded-md text-gray-500">
@@ -541,12 +674,27 @@ export default function MondayTable({
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-48 p-2" align="end">
-            <button className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded-md">
-              Export as CSV
-            </button>
-            <button className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded-md">
-              Export as Excel
-            </button>
+            {onExport && (
+              <button
+                onClick={onExport}
+                className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded-md flex items-center gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Export
+              </button>
+            )}
+            {onImport && (
+              <button
+                onClick={onImport}
+                className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded-md flex items-center gap-2"
+              >
+                <Upload className="h-4 w-4" />
+                Import
+              </button>
+            )}
+            {(onExport || onImport) && (
+              <div className="border-t border-gray-200 my-1" />
+            )}
             <button className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 rounded-md">
               Table settings
             </button>
@@ -555,8 +703,10 @@ export default function MondayTable({
 
         {/* Bulk Actions Toolbar */}
         {enableBulkActions && selectedRows.size > 0 && (
-          <div className="flex items-center gap-2 px-4 py-2 bg-[#761B14] text-white rounded-lg shadow-lg ml-auto animate-in slide-in-from-top-2 duration-200">
-            <span className="text-sm font-semibold">{selectedRows.size} selected</span>
+          <div className="flex items-center gap-2 px-4 py-2 bg-[#3F0D28] text-white rounded-lg shadow-lg ml-auto animate-in slide-in-from-top-2 duration-200">
+            <span className="text-sm font-semibold">
+              {selectedRows.size} selected
+            </span>
             <div className="w-px h-4 bg-white/30" />
             <Button
               variant="ghost"
@@ -582,7 +732,8 @@ export default function MondayTable({
       {/* Search Results Count */}
       {searchQuery && (
         <div className="mb-3 text-sm text-gray-600">
-          {filteredData.length} result{filteredData.length !== 1 ? 's' : ''} found
+          {filteredData.length} result{filteredData.length !== 1 ? "s" : ""}{" "}
+          found
         </div>
       )}
 
@@ -597,17 +748,21 @@ export default function MondayTable({
                 <button
                   onClick={selectAll}
                   className={cn(
-                    'w-4 h-4 rounded border-2 flex items-center justify-center transition-all',
-                    'hover:border-[#761B14]',
+                    "w-4 h-4 rounded border-2 flex items-center justify-center transition-all",
+                    "hover:border-[#3F0D28]",
                     allSelected
-                      ? 'bg-[#761B14] border-[#761B14]'
+                      ? "bg-[#3F0D28] border-[#3F0D28]"
                       : someSelected
-                      ? 'bg-[#761B14] border-[#761B14]'
-                      : 'border-gray-400 bg-white'
+                        ? "bg-[#3F0D28] border-[#3F0D28]"
+                        : "border-gray-400 bg-white",
                   )}
                 >
-                  {allSelected && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
-                  {someSelected && !allSelected && <div className="w-2 h-0.5 bg-white rounded" />}
+                  {allSelected && (
+                    <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                  )}
+                  {someSelected && !allSelected && (
+                    <div className="w-2 h-0.5 bg-white rounded" />
+                  )}
                 </button>
               </div>
             )}
@@ -617,9 +772,11 @@ export default function MondayTable({
               <div
                 key={column.key}
                 className={cn(
-                  'flex items-center px-4 py-3.5 text-xs font-bold text-gray-700 uppercase tracking-wide border-r border-gray-300',
-                  'cursor-pointer hover:bg-gray-200 transition-colors group',
-                  column.width ? `w-[${column.width}px] flex-shrink-0` : 'flex-1 min-w-[120px]'
+                  "flex items-center px-4 py-3.5 text-xs font-bold text-gray-700 uppercase tracking-wide border-r border-gray-300",
+                  "cursor-pointer hover:bg-gray-200 transition-colors group",
+                  column.width
+                    ? `w-[${column.width}px] flex-shrink-0`
+                    : "flex-1 min-w-[120px]",
                 )}
                 style={column.width ? { width: column.width } : {}}
                 onClick={() => handleSort(column.key)}
@@ -628,8 +785,8 @@ export default function MondayTable({
                 {sortColumn === column.key && (
                   <ArrowUpDown
                     className={cn(
-                      'h-3.5 w-3.5 ml-1.5 transition-transform',
-                      sortDirection === 'desc' && 'rotate-180'
+                      "h-3.5 w-3.5 ml-1.5 transition-transform",
+                      sortDirection === "desc" && "rotate-180",
                     )}
                   />
                 )}
@@ -648,9 +805,13 @@ export default function MondayTable({
               <div className="text-gray-300 mb-3">
                 <Search className="h-16 w-16 mx-auto mb-4" />
               </div>
-              <p className="text-xl font-semibold text-gray-700 mb-2">No items found</p>
+              <p className="text-xl font-semibold text-gray-700 mb-2">
+                No items found
+              </p>
               <p className="text-sm text-gray-500">
-                {searchQuery ? 'Try adjusting your search' : 'Get started by adding your first item'}
+                {searchQuery
+                  ? "Try adjusting your search"
+                  : "Get started by adding your first item"}
               </p>
             </div>
           ) : (
@@ -668,45 +829,53 @@ export default function MondayTable({
                     ) : (
                       <ChevronDown className="h-4 w-4 text-gray-600 mr-2 transition-transform" />
                     )}
-                    <span className="font-bold text-sm text-gray-800">{group.label}</span>
+                    <span className="font-bold text-sm text-gray-800">
+                      {group.label}
+                    </span>
                     <span className="ml-2 text-xs text-gray-500 font-medium">
-                      {group.items.length} {group.items.length === 1 ? 'item' : 'items'}
+                      {group.items.length}{" "}
+                      {group.items.length === 1 ? "item" : "items"}
                     </span>
                   </div>
                 )}
 
                 {/* Status Summary Bar */}
-                {enableGroups && !collapsedGroups.has(group.key) && group.items.length > 0 && (
-                  <div className="h-1.5 flex">
-                    {(() => {
-                      const statusCounts = group.items.reduce((acc, item) => {
-                        const status = item.status || 'Unknown';
-                        acc[status] = (acc[status] || 0) + 1;
-                        return acc;
-                      }, {});
+                {enableGroups &&
+                  !collapsedGroups.has(group.key) &&
+                  group.items.length > 0 && (
+                    <div className="h-1.5 flex">
+                      {(() => {
+                        const statusCounts = group.items.reduce((acc, item) => {
+                          const status = item.status || "Unknown";
+                          acc[status] = (acc[status] || 0) + 1;
+                          return acc;
+                        }, {});
 
-                      const statusColors = {
-                        Done: '#00c875',
-                        Completed: '#00c875',
-                        'Working on it': '#fdab3d',
-                        'In Progress': '#fdab3d',
-                        Stuck: '#e44258',
-                        'Not Started': '#c4c4c4',
-                      };
+                        const statusColors = {
+                          Done: "#00c875",
+                          Completed: "#00c875",
+                          "Working on it": "#fdab3d",
+                          "In Progress": "#fdab3d",
+                          Stuck: "#e44258",
+                          "Not Started": "#c4c4c4",
+                        };
 
-                      return Object.entries(statusCounts).map(([status, count]) => (
-                        <div
-                          key={status}
-                          style={{
-                            width: `${(count / group.items.length) * 100}%`,
-                            backgroundColor: statusColors[status] || '#c4c4c4',
-                          }}
-                          title={`${status}: ${count}`}
-                        />
-                      ));
-                    })()}
-                  </div>
-                )}
+                        return Object.entries(statusCounts).map(
+                          ([status, count]) => (
+                            <div
+                              key={status}
+                              style={{
+                                width: `${(count / group.items.length) * 100}%`,
+                                backgroundColor:
+                                  statusColors[status] || "#c4c4c4",
+                              }}
+                              title={`${status}: ${count}`}
+                            />
+                          ),
+                        );
+                      })()}
+                    </div>
+                  )}
 
                 {/* Group Rows */}
                 {!collapsedGroups.has(group.key) && (
@@ -725,76 +894,104 @@ export default function MondayTable({
                         selected={selectedRows.has(row.id)}
                         onSelect={toggleRowSelection}
                         showCheckbox={enableBulkActions}
+                        contextMenuConfig={contextMenuConfig}
                       />
                     ))}
 
                     {/* Placeholder Rows */}
-                    {enablePlaceholderRows && group.items.length < placeholderRowCount && (
-                      <>
-                        {Array.from({ length: placeholderRowCount - group.items.length }).map((_, index) => {
-                          const placeholderId = `${group.key}-placeholder-${index}`;
+                    {enablePlaceholderRows &&
+                      group.items.length < placeholderRowCount && (
+                        <>
+                          {Array.from({
+                            length: placeholderRowCount - group.items.length,
+                          }).map((_, index) => {
+                            const placeholderId = `${group.key}-placeholder-${index}`;
 
-                          return (
-                            <div
-                              key={placeholderId}
-                              className="flex items-stretch border-b border-gray-100 hover:bg-blue-50/30 transition-colors group"
-                            >
-                              {/* Checkbox placeholder */}
-                              {enableBulkActions && (
-                                <div className="flex items-center justify-center px-3 border-r border-gray-200">
-                                  <div className="w-4 h-4 rounded border-2 border-gray-200 bg-gray-50"></div>
-                                </div>
-                              )}
+                            return (
+                              <div
+                                key={placeholderId}
+                                className="flex items-stretch border-b border-gray-100 hover:bg-blue-50/30 transition-colors group"
+                              >
+                                {/* Checkbox placeholder */}
+                                {enableBulkActions && (
+                                  <div className="flex items-center justify-center px-3 border-r border-gray-200">
+                                    <div className="w-4 h-4 rounded border-2 border-gray-200 bg-gray-50"></div>
+                                  </div>
+                                )}
 
-                              {/* Editable cells */}
-                              {visibleColumns.map((column) => (
-                                <div
-                                  key={column.key}
-                                  className="flex items-center px-4 py-3 border-r border-gray-200"
-                                  style={column.width ? { width: column.width } : { flex: 1, minWidth: 120 }}
-                                >
-                                  {column.editable && column.type === 'text' ? (
-                                    <input
-                                      type="text"
-                                      placeholder="Type to add item..."
-                                      className="w-full bg-transparent border-none outline-none text-sm text-gray-400 placeholder-gray-300 focus:text-gray-900 focus:placeholder-gray-400"
-                                      onFocus={() => setEditingPlaceholder(placeholderId)}
-                                      onBlur={(e) => {
-                                        if (e.target.value.trim()) {
-                                          handlePlaceholderEdit(group.key, group.label, column.key, e.target.value);
-                                          e.target.value = '';
+                                {/* Editable cells */}
+                                {visibleColumns.map((column) => (
+                                  <div
+                                    key={column.key}
+                                    className="flex items-center px-4 py-3 border-r border-gray-200"
+                                    style={
+                                      column.width
+                                        ? { width: column.width }
+                                        : { flex: 1, minWidth: 120 }
+                                    }
+                                  >
+                                    {column.editable &&
+                                    column.type === "text" ? (
+                                      <input
+                                        type="text"
+                                        placeholder="Type to add item..."
+                                        className="w-full bg-transparent border-none outline-none text-sm text-gray-400 placeholder-gray-300 focus:text-gray-900 focus:placeholder-gray-400"
+                                        onFocus={() =>
+                                          setEditingPlaceholder(placeholderId)
                                         }
-                                      }}
-                                      onKeyDown={(e) => {
-                                        if (e.key === 'Enter' && e.target.value.trim()) {
-                                          handlePlaceholderEdit(group.key, group.label, column.key, e.target.value);
-                                          e.target.value = '';
-                                          e.target.blur();
-                                        } else if (e.key === 'Escape') {
-                                          e.target.value = '';
-                                          e.target.blur();
-                                        }
-                                      }}
-                                    />
-                                  ) : (
-                                    <span className="text-sm text-gray-300">—</span>
-                                  )}
-                                </div>
-                              ))}
+                                        onBlur={(e) => {
+                                          if (e.target.value.trim()) {
+                                            handlePlaceholderEdit(
+                                              group.key,
+                                              group.label,
+                                              column.key,
+                                              e.target.value,
+                                            );
+                                            e.target.value = "";
+                                          }
+                                        }}
+                                        onKeyDown={(e) => {
+                                          if (
+                                            e.key === "Enter" &&
+                                            e.target.value.trim()
+                                          ) {
+                                            handlePlaceholderEdit(
+                                              group.key,
+                                              group.label,
+                                              column.key,
+                                              e.target.value,
+                                            );
+                                            e.target.value = "";
+                                            e.target.blur();
+                                          } else if (e.key === "Escape") {
+                                            e.target.value = "";
+                                            e.target.blur();
+                                          }
+                                        }}
+                                      />
+                                    ) : (
+                                      <span className="text-sm text-gray-300">
+                                        —
+                                      </span>
+                                    )}
+                                  </div>
+                                ))}
 
-                              {/* Actions placeholder */}
-                              <div className="w-10 flex-shrink-0" />
-                            </div>
-                          );
-                        })}
-                      </>
-                    )}
+                                {/* Actions placeholder */}
+                                <div className="w-10 flex-shrink-0" />
+                              </div>
+                            );
+                          })}
+                        </>
+                      )}
 
                     {/* Add Row Button */}
                     {enableAddRow && onAddItemToGroup && (
                       <div className="flex items-center px-4 py-2.5 hover:bg-blue-50/50 transition-colors border-t border-gray-100">
                         <button
-                          onClick={() => onAddItemToGroup(group.key, group.label)}
+                          onClick={() =>
+                            onAddItemToGroup(group.key, group.label)
+                          }
                           className="flex items-center gap-2 text-sm text-gray-500 hover:text-[#0073ea] transition-colors font-medium"
                         >
                           <Plus className="h-4 w-4" />

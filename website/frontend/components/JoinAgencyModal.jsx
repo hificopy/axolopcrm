@@ -10,7 +10,7 @@ import {
   UserPlus,
 } from "lucide-react";
 import { useAgency } from "../hooks/useAgency";
-import { supabase } from "../../config/supabaseClient";
+import { supabase } from "@/config/supabaseClient";
 
 export default function JoinAgencyModal({ isOpen, onClose, onSuccess }) {
   const { refreshAgencies, selectAgency } = useAgency();
@@ -191,16 +191,22 @@ export default function JoinAgencyModal({ isOpen, onClose, onSuccess }) {
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-md bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
+      <div
+        className="relative w-full max-w-md rounded-2xl border border-gray-700 shadow-2xl overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #000000 100%)",
+        }}
+      >
         {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#3F0D28]/5 via-transparent to-[#5a1a3a]/5 pointer-events-none" />
 
         <div className="relative z-10">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-white/10">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 ring-1 ring-purple-500/30">
-                <UserPlus className="h-5 w-5 text-purple-400" />
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#3F0D28]/20 to-[#5a1a3a]/20 ring-1 ring-[#3F0D28]/30">
+                <UserPlus className="h-5 w-5 text-[#3F0D28]" />
               </div>
               <div>
                 <h2 className="text-xl font-bold text-white">Join Agency</h2>
@@ -240,13 +246,13 @@ export default function JoinAgencyModal({ isOpen, onClose, onSuccess }) {
                   onChange={handleInputChange}
                   onPaste={handlePaste}
                   placeholder="axolop.com/invite/agency/CODE or just CODE"
-                  className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all pr-24"
+                  className="w-full bg-gray-800/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3F0D28]/50 focus:border-[#3F0D28]/50 transition-all pr-24"
                   disabled={loading}
                 />
                 <button
                   onClick={handleValidate}
                   disabled={validating || loading || !inviteUrl.trim()}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-md bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-md bg-[#3F0D28]/20 hover:bg-[#3F0D28]/30 text-[#3F0D28] text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {validating ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -255,7 +261,7 @@ export default function JoinAgencyModal({ isOpen, onClose, onSuccess }) {
                   )}
                 </button>
               </div>
-              <p className="text-xs text-gray-500 mt-1.5">
+              <p className="text-xs text-gray-400 mt-1.5">
                 Paste the invite link shared with you or just the 8-character
                 code
               </p>
@@ -288,7 +294,7 @@ export default function JoinAgencyModal({ isOpen, onClose, onSuccess }) {
                     </h3>
                     <p className="text-sm text-gray-400">
                       You'll join as:{" "}
-                      <span className="text-purple-400 font-medium capitalize">
+                      <span className="text-[#3F0D28] font-medium capitalize">
                         {agencyPreview.role}
                       </span>
                     </p>
@@ -322,7 +328,7 @@ export default function JoinAgencyModal({ isOpen, onClose, onSuccess }) {
             <button
               onClick={handleJoin}
               disabled={loading || !agencyPreview}
-              className="flex-1 px-4 py-3 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-400 hover:to-blue-400 text-white font-bold transition-all shadow-lg hover:shadow-purple-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 px-4 py-3 rounded-lg bg-gradient-to-r from-[#3F0D28] to-[#5a1a3a] hover:from-[#5a1a3a] hover:to-[#a13328] text-white font-bold transition-all shadow-lg hover:shadow-[#3F0D28]/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>

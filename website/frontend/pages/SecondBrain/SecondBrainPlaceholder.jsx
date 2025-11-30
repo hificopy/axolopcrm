@@ -2,7 +2,7 @@ import { useParams, useLocation } from 'react-router-dom';
 import { Database, Network, FileText, Construction } from 'lucide-react';
 
 const categoryColors = {
-  logic: { bg: '#761B14', text: '#761B14' },
+  logic: { bg: '#3F0D28', text: '#3F0D28' },
   maps: { bg: '#8b5cf6', text: '#8b5cf6' },
   notes: { bg: '#14b8a6', text: '#14b8a6' },
 };
@@ -340,7 +340,7 @@ export default function SecondBrainPlaceholder() {
           )}
 
           {/* CRM Integration Note */}
-          <div className="mt-8 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl border-2 border-blue-200 p-6">
+          <div className="mt-8 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl border-2 border-gray-200 p-6">
             <div className="flex items-start gap-3">
               <span className="text-2xl">🔗</span>
               <div>

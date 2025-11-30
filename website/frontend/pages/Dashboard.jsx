@@ -1,4 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { motion } from "framer-motion";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import RGL from "react-grid-layout";
 const { Responsive, WidthProvider } = RGL;
 import {
@@ -16,6 +18,8 @@ import {
   File,
   ArrowLeftRight,
   ArrowUpDown,
+  MoreVertical,
+  Calendar,
 } from "lucide-react";
 import html2pdf from "html2pdf.js";
 import { Button } from "../components/ui/button";
@@ -27,16 +31,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
 import { useToast } from "../components/ui/use-toast";
 import { formatDateRange, getPeriodLabel } from "../lib/utils";
 import { useSupabase } from "../context/SupabaseContext";
 import { useAgency } from "../hooks/useAgency";
+import { useDemoMode } from "../contexts/DemoModeContext";
+import TrialActivationModal from "../components/TrialActivationModal";
+import { usePersistentState } from "../hooks/usePersistentState";
 import ViewOnlyBadge from "../components/ui/view-only-badge";
-import {
-  FullPageSkeleton,
-  DashboardWidgetSkeleton,
-  StatsCardSkeleton,
-} from "../components/ui/skeletons";
+import { FullPageSkeleton } from "../components/ui/skeletons";
+import { CRMMenuConfigs } from "../components/ui/ContextMenuProvider";
 
 // Dashboard widgets
 import RevenueChart from "../components/dashboard/RevenueChart";
@@ -49,15 +61,16 @@ import FullSalesWidget from "../components/dashboard/FullSalesWidget";
 import FullMarketingWidget from "../components/dashboard/FullMarketingWidget";
 
 // Services and configs
-import enhancedDashboardDataService from "./services/enhanced-dashboard-data-service";
-import dashboardPresetService from "./services/dashboardPresetService";
+import dashboardPresetService from "@/services/dashboardPresetService";
+import enhancedDashboardDataService from "@/services/enhanced-dashboard-data-service";
+import { demoDataService } from "@/services/demoDataService";
 import {
   DASHBOARD_PRESETS,
   getPreset,
   getPresetList,
-} from "./config/dashboardPresets";
-import SavePresetModal from "../components/dashboard/SavePresetModal";
-import WidgetSelector from "../components/dashboard/WidgetSelector";
+} from "@/config/dashboardPresets";
+import SavePresetModal from "@/components/dashboard/SavePresetModal";
+import WidgetSelector from "@/components/dashboard/WidgetSelector";
 
 // CSS for react-grid-layout
 import "react-grid-layout/css/styles.css";
@@ -84,10 +97,51 @@ const WIDGET_COMPONENTS = {
 
 // Icon mapping for MetricCard
 const METRIC_ICONS = {
+  // Sales & Revenue
   "Total Revenue": DollarSign,
+  MRR: TrendingUp,
+  "Avg. Deal Size": DollarSign,
+  "Win Rate": TrendingUp,
+  "Sales Velocity": TrendingUp,
+  "Pipeline Value": TrendingUp,
   "Active Deals": TrendingUp,
+
+  // Lead Management
   "New Leads": Users,
+  "Active Leads": Users,
+  "Top Lead Source": LayoutGrid,
+  "Qualification Rate": Percent,
+  "Hot Leads": Users,
   "Conversion Rate": Percent,
+
+  // Marketing
+  "Active Campaigns": Sparkles,
+  "Open Rate": Percent,
+  CTR: Percent,
+  "Form Conv. Rate": Percent,
+  "Total Subscribers": Users,
+  "Engagement Rate": Percent,
+
+  // Tasks & Productivity
+  "Due Today": LayoutGrid,
+  Overdue: LayoutGrid,
+  Completed: LayoutGrid,
+  Activity: LayoutGrid,
+  "Team Score": Users,
+
+  // Calendar & Meetings
+  Upcoming: LayoutGrid,
+  "This Week": LayoutGrid,
+  "No-Show Rate": Percent,
+  "Calls Today": LayoutGrid,
+
+  // Financial
+  "Net Profit": DollarSign,
+  "Active Clients": Users,
+  "Customer LTV": DollarSign,
+  "Active Accounts": Users,
+
+  // Legacy mappings
   "Active Listings": LayoutGrid,
   "Scheduled Showings": Users,
   "Pending Closings": DollarSign,
@@ -97,62 +151,14 @@ const METRIC_ICONS = {
   "Team Listings": LayoutGrid,
   "Avg. Commission": DollarSign,
   "Annual Recurring Revenue": DollarSign,
-  "Active Accounts": Users,
   "Churn Rate": Percent,
-  "Customer LTV": DollarSign,
-  "Active Clients": Users,
   "Running Campaigns": Sparkles,
   "Retainer Revenue": DollarSign,
   "Client Retention": Percent,
-  "Total Subscribers": Users,
-  "Engagement Rate": Percent,
   "Active Sponsorships": Sparkles,
-  "Avg. Deal Size": DollarSign,
   "Total Orders": LayoutGrid,
   "Average Order Value": DollarSign,
   "Cart Abandonment": Percent,
-};
-
-// Helper function to fill empty space by expanding widgets
-const fillEmptySpace = (layout, totalCols, lockedDimensions = {}) => {
-  if (!layout || layout.length === 0) return layout;
-
-  // ONLY fill horizontal space (width) - let vertical compacting handle height naturally
-  // Group widgets by row (y position)
-  const rows = {};
-  layout.forEach((item) => {
-    if (!rows[item.y]) rows[item.y] = [];
-    rows[item.y].push(item);
-  });
-
-  // Expand widgets in each row to fill all columns
-  Object.keys(rows).forEach((y) => {
-    const rowWidgets = rows[y].sort((a, b) => a.x - b.x);
-    const totalUsed = rowWidgets.reduce((sum, w) => sum + w.w, 0);
-
-    // If row doesn't use full width, expand unlocked widgets
-    if (totalUsed < totalCols) {
-      const unlockedWidgets = rowWidgets.filter(
-        (w) => !lockedDimensions[w.i]?.width,
-      );
-      if (unlockedWidgets.length > 0) {
-        const extraSpace = totalCols - totalUsed;
-        const spacePerWidget = extraSpace / unlockedWidgets.length;
-
-        unlockedWidgets.forEach((widget) => {
-          widget.w += Math.floor(spacePerWidget);
-        });
-
-        // Give remaining columns to last widget
-        const newTotal = rowWidgets.reduce((sum, w) => sum + w.w, 0);
-        if (newTotal < totalCols) {
-          unlockedWidgets[unlockedWidgets.length - 1].w += totalCols - newTotal;
-        }
-      }
-    }
-  });
-
-  return layout;
 };
 
 // Helper function to generate responsive layouts
@@ -216,22 +222,69 @@ const generateResponsiveLayouts = (baseLayout, lockedDimensions = {}) => {
 };
 
 export default function Dashboard() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, loading: userLoading, supabase } = useSupabase();
+  const { user, loading: userLoading } = useSupabase();
   const { isReadOnly, canEdit } = useAgency();
-  const [currentPreset, setCurrentPreset] = useState("default");
+  const { isDemoMode } = useDemoMode();
+
+  // Persistent state - survives navigation but clears on logout
+  const [currentPreset, setCurrentPreset] = usePersistentState(
+    "dashboard_preset",
+    "default",
+  );
+  const [timeRange, setTimeRange] = usePersistentState(
+    "dashboard_timeRange",
+    "month",
+  );
+
+  // Regular state
   const [layout, setLayout] = useState([]);
   const [savedLayout, setSavedLayout] = useState([]); // Store layout before editing
   const [customCount, setCustomCount] = useState(0);
   const [isEditMode, setIsEditMode] = useState(false);
   const [dashboardData, setDashboardData] = useState({});
   const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState("month");
+  const [dataError, setDataError] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [customPresets, setCustomPresets] = useState([]);
   const [showWidgetSelector, setShowWidgetSelector] = useState(false);
+  const [showDiscardModal, setShowDiscardModal] = useState(false);
+  const [showTrialModal, setShowTrialModal] = useState(false);
+  const [showWelcomeToast, setShowWelcomeToast] = useState(false);
+
   // Track locked dimensions separately: { widgetId: { width: boolean, height: boolean } }
   const [lockedDimensions, setLockedDimensions] = useState({});
+
+  // Handle onboarding complete - show welcome message
+  useEffect(() => {
+    const onboardingComplete = searchParams.get("onboarding");
+    const trialPending = searchParams.get("trial");
+
+    if (onboardingComplete === "complete" && !showWelcomeToast) {
+      // Show welcome toast
+      setTimeout(() => {
+        toast({
+          title: "Welcome to Axolop CRM! 🎉",
+          description: "Your workspace is ready. Start exploring your dashboard!",
+          duration: 5000,
+        });
+        setShowWelcomeToast(true);
+
+        // Show trial activation modal if needed
+        if (trialPending === "pending") {
+          setTimeout(() => {
+            setShowTrialModal(true);
+          }, 1000);
+        }
+      }, 500);
+
+      // Clean up URL
+      navigate("/app/home", { replace: true });
+    }
+  }, [searchParams, toast, navigate, showWelcomeToast]);
 
   // Helper function to get and format first name
   const getFormattedFirstName = () => {
@@ -251,20 +304,76 @@ export default function Dashboard() {
     return firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
   };
 
-  // Load dashboard data function
+  // Load dashboard data function with optimization
   const loadDashboardData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const allMetrics =
-        await enhancedDashboardDataService.getAllMetrics(timeRange);
+    if (!user && !isDemoMode) {
+      console.warn("No user logged in, skipping dashboard data load");
+      return;
+    }
 
+    setLoading(true);
+    setDataError(null);
+
+    try {
+      // CRITICAL: Check if demo mode and use demo data
+      if (isDemoMode) {
+        console.log("[Dashboard] Using demo data service");
+        const demoData = demoDataService.getDashboardData(timeRange);
+        setDashboardData(demoData);
+        setRetryCount(0);
+        setLoading(false);
+        return;
+      }
+
+      // Otherwise use real API
+      const allMetrics = await enhancedDashboardDataService.getAllMetrics(
+        timeRange,
+        "all",
+      );
       setDashboardData(allMetrics);
+      setRetryCount(0); // Reset retry count on success
     } catch (error) {
       console.error("Error loading dashboard data:", error);
+
+      // Provide specific error messages based on error type
+      let errorMessage = "Failed to load dashboard data. Please try again.";
+
+      if (error.message?.includes("Unauthorized") || error.status === 401) {
+        errorMessage = "Authentication required. Please sign in again.";
+      } else if (error.message?.includes("Forbidden") || error.status === 403) {
+        errorMessage = "You don't have permission to view this data.";
+      } else if (
+        error.message?.includes("Network") ||
+        error.code === "NETWORK_ERROR"
+      ) {
+        errorMessage =
+          "Network connection issue. Please check your internet connection.";
+      } else if (error.message?.includes("timeout")) {
+        errorMessage = "Request timed out. Please try again.";
+      } else if (error.message?.includes("500")) {
+        errorMessage = "Server error. Please try again in a few moments.";
+      } else if (error.message) {
+        errorMessage = `Error: ${error.message}`;
+      }
+
+      setDataError(errorMessage);
     } finally {
       setLoading(false);
     }
-  }, [timeRange]);
+  }, [timeRange, user, isDemoMode]);
+
+  // Retry function for error handling with exponential backoff
+  const handleRetry = useCallback(() => {
+    setDataError(null);
+
+    // Calculate delay with exponential backoff (1s, 2s, 4s, 8s, max 10s)
+    const delay = Math.min(1000 * Math.pow(2, retryCount), 10000);
+
+    setTimeout(() => {
+      setRetryCount((prev) => prev + 1);
+      loadDashboardData();
+    }, delay);
+  }, [loadDashboardData, retryCount]);
 
   // Load dashboard data on mount and when timeRange changes
   useEffect(() => {
@@ -355,8 +464,8 @@ export default function Dashboard() {
       });
       return;
     }
-    // Save current layout before entering edit mode
-    setSavedLayout(JSON.parse(JSON.stringify(layout))); // Deep copy
+    // Save current layout before entering edit mode using structuredClone for better performance
+    setSavedLayout(structuredClone(layout));
     setIsEditMode(true);
   };
 
@@ -368,50 +477,109 @@ export default function Dashboard() {
       JSON.stringify(layout) !== JSON.stringify(savedLayout);
 
     if (hasUnsavedChanges) {
-      // Show confirmation before discarding changes
-      const confirmDiscard = window.confirm(
-        "You have unsaved changes. Are you sure you want to exit without saving?",
-      );
-
-      if (!confirmDiscard) {
-        return; // User cancelled, stay in edit mode
-      }
-
-      // Restore saved layout
-      setLayout(savedLayout);
-      setSavedLayout([]);
-
-      toast({
-        title: "Changes Discarded",
-        description: "Layout changes were not saved.",
-      });
-    } else if (savedLayout.length > 0) {
-      // Clear saved layout even if no changes
-      setSavedLayout([]);
+      // Show custom modal instead of browser confirm
+      setShowDiscardModal(true);
+      return;
     }
 
+    // No changes, just exit
+    if (savedLayout.length > 0) {
+      setSavedLayout([]);
+    }
     setIsEditMode(false);
   };
 
-  // Handle layout change (drag/resize)
-  const handleLayoutChange = (newLayout) => {
-    if (isEditMode) {
-      // Only update the layout if it's actually changed to prevent unnecessary re-renders
+  // Handle discard changes confirmation from modal
+  const handleDiscardChanges = () => {
+    setLayout(savedLayout);
+    setSavedLayout([]);
+    setIsEditMode(false);
+    setShowDiscardModal(false);
+    toast({
+      title: "Changes Discarded",
+      description: "Layout changes were not saved.",
+    });
+  };
+
+  // Deep comparison utility for layout changes
+  const deepEqual = useCallback((obj1, obj2) => {
+    if (obj1 === obj2) return true;
+    if (obj1 == null || obj2 == null) return false;
+    if (typeof obj1 !== typeof obj2) return false;
+
+    if (typeof obj1 !== "object") return obj1 === obj2;
+
+    const keys1 = Object.keys(obj1);
+    const keys2 = Object.keys(obj2);
+
+    if (keys1.length !== keys2.length) return false;
+
+    for (let key of keys1) {
+      if (!keys2.includes(key)) return false;
+      if (!deepEqual(obj1[key], obj2[key])) return false;
+    }
+
+    return true;
+  }, []);
+
+  // Helper to validate layout items
+  const isValidLayoutItem = useCallback((item) => {
+    return (
+      item &&
+      typeof item.i === "string" &&
+      typeof item.x === "number" &&
+      typeof item.y === "number" &&
+      typeof item.w === "number" &&
+      typeof item.h === "number" &&
+      item.w > 0 &&
+      item.h > 0
+    );
+  }, []);
+
+  // Handle layout change (drag/resize) with optimized comparison and validation
+  const handleLayoutChange = useCallback(
+    (newLayout) => {
+      if (!isEditMode) return;
+
+      // Validate new layout - filter out invalid items
+      const validLayout = newLayout.filter(isValidLayoutItem);
+
+      // If validation removed all items, don't update
+      if (validLayout.length === 0) {
+        console.warn(
+          "[Dashboard] handleLayoutChange: No valid items in new layout",
+        );
+        return;
+      }
+
       setLayout((prevLayout) => {
-        // Compare the new layout with the previous one
-        if (JSON.stringify(prevLayout) !== JSON.stringify(newLayout)) {
+        // Preserve component and props from previous layout
+        const mergedLayout = validLayout.map((newItem) => {
+          const prevItem = prevLayout.find((p) => p.i === newItem.i);
+          if (prevItem) {
+            return {
+              ...newItem,
+              component: prevItem.component,
+              props: prevItem.props,
+            };
+          }
+          return newItem;
+        });
+
+        // Use deep comparison instead of expensive JSON.stringify
+        if (!deepEqual(prevLayout, mergedLayout)) {
           // Update preset to custom if it's not already
           if (!currentPreset.startsWith("custom-")) {
-            const newCustomId = `custom-${customCount + 1}`;
-            setCustomCount(customCount + 1);
+            const newCustomId = `custom-${Date.now()}`;
             setCurrentPreset(newCustomId);
           }
-          return newLayout;
+          return mergedLayout;
         }
         return prevLayout; // No change, return previous layout
       });
-    }
-  };
+    },
+    [isEditMode, currentPreset, deepEqual, isValidLayoutItem],
+  );
 
   // Load custom presets
   useEffect(() => {
@@ -599,6 +767,8 @@ export default function Dashboard() {
 
   // Generate export content (shared between HTML and PDF)
   const generateExportContent = (forPDF = false) => {
+    // Define currentPresetName locally to ensure it's always available
+    const currentPresetName = getCurrentPresetName();
     const exportDate = new Date().toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
@@ -628,7 +798,7 @@ export default function Dashboard() {
       padding: ${forPDF ? "1.5rem" : "2rem"};
       margin-bottom: ${forPDF ? "1.5rem" : "2rem"};
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-      border-left: 4px solid #761B14;
+      border-left: 4px solid #3F0D28;
       ${forPDF ? "page-break-inside: avoid;" : ""}
     }
     .header h1 {
@@ -662,7 +832,7 @@ export default function Dashboard() {
     .header .meta-value {
       font-size: 1rem;
       font-weight: 600;
-      color: #761B14;
+      color: #3F0D28;
       margin-top: 0.25rem;
     }
     .stats-grid {
@@ -726,7 +896,7 @@ export default function Dashboard() {
       margin-bottom: 1.5rem;
       color: #1a1a1a;
       padding-bottom: 0.75rem;
-      border-bottom: 2px solid #761B14;
+      border-bottom: 2px solid #3F0D28;
     }
     .data-grid {
       display: grid;
@@ -737,7 +907,7 @@ export default function Dashboard() {
       padding: 1rem;
       background: #f9fafb;
       border-radius: 8px;
-      border-left: 3px solid #761B14;
+      border-left: 3px solid #3F0D28;
       ${forPDF ? "page-break-inside: avoid;" : ""}
     }
     .data-item-label {
@@ -776,7 +946,7 @@ export default function Dashboard() {
 </head>
 <body>
   <div class="header">
-    <h1>📊 Dashboard Report</h1>
+    <h1>Dashboard Report</h1>
     <p class="subtitle">Business Analytics & Performance Metrics</p>
     <div class="meta">
       <div class="meta-item">
@@ -818,7 +988,7 @@ export default function Dashboard() {
   </div>
 
   <div class="data-section">
-    <h2>📧 Marketing Metrics</h2>
+    <h2>Marketing Metrics</h2>
     <div class="data-grid">
       <div class="data-item">
         <div class="data-item-label">Active Campaigns</div>
@@ -840,7 +1010,7 @@ export default function Dashboard() {
   </div>
 
   <div class="data-section">
-    <h2>💰 Sales Performance</h2>
+    <h2>Sales Performance</h2>
     <div class="data-grid">
       <div class="data-item">
         <div class="data-item-label">Average Deal Size</div>
@@ -862,7 +1032,7 @@ export default function Dashboard() {
   </div>
 
   <div class="footer">
-    <p>🤖 Generated with Axolop CRM | ${exportDate}</p>
+    <p>Generated with Axolop CRM | ${exportDate}</p>
     <p style="margin-top: 0.5rem; font-size: 0.75rem;">This report contains confidential business data. Handle with care.</p>
   </div>
 </body>
@@ -997,6 +1167,68 @@ export default function Dashboard() {
     }
   };
 
+  // Memoized widget data mapping to prevent unnecessary recalculations
+  const widgetDataMap = useMemo(() => {
+    const map = {};
+
+    // Pre-calculate all widget data to avoid repeated calculations
+    map.RevenueChart = {
+      data: dashboardData.sales?.revenueByPeriod || [],
+      title: "Revenue Overview",
+      timeRange,
+    };
+
+    map.ProfitMarginWidget = {
+      data: dashboardData.profitLoss || {},
+    };
+
+    map.ConversionFunnelWidget = {
+      data: {
+        leads: dashboardData.sales?.totalLeads || 0,
+        qualified: dashboardData.sales?.qualifiedLeads || 0,
+        won: dashboardData.sales?.dealsWon || 0,
+      },
+    };
+
+    map.EmailMarketingWidget = {
+      data: dashboardData.marketing || {},
+    };
+
+    map.FormSubmissionsWidget = {
+      data: dashboardData.forms || {},
+    };
+
+    map.FullSalesWidget = {
+      data: {
+        totalRevenue: dashboardData.sales?.totalRevenue || 0,
+        activeDeals: dashboardData.sales?.activeDeals || 0,
+        newLeads: dashboardData.sales?.newLeads || 0,
+        conversionRate: dashboardData.sales?.conversionRate || 0,
+        avgDealSize: dashboardData.sales?.avgDealSize || 0,
+        winRate: dashboardData.sales?.winRate || 0,
+        avgSalesCycle: dashboardData.sales?.avgSalesCycle || "0 days",
+        pipelineValue: dashboardData.sales?.pipelineValue || 0,
+      },
+      timeRange,
+    };
+
+    map.FullMarketingWidget = {
+      data: {
+        activeCampaigns: dashboardData.marketing?.activeCampaigns || 0,
+        emailOpens: dashboardData.marketing?.emailOpens || 0,
+        clickRate: dashboardData.marketing?.clickRate || 0,
+        totalSubscribers: dashboardData.marketing?.totalSubscribers || 0,
+        engagementRate: dashboardData.marketing?.engagementRate || 0,
+        unsubscribeRate: dashboardData.marketing?.unsubscribeRate || 0,
+        avgOpenRate: dashboardData.marketing?.avgOpenRate || 0,
+        newSubscribers: dashboardData.marketing?.newSubscribers || 0,
+      },
+      timeRange,
+    };
+
+    return map;
+  }, [dashboardData, timeRange]);
+
   // Memoized widget rendering to prevent unnecessary re-renders
   const renderWidget = useCallback(
     (widget) => {
@@ -1008,119 +1240,107 @@ export default function Dashboard() {
         return null;
       }
 
-      // Prepare widget data based on component type
-      let widgetData = {};
+      // Use pre-calculated widget data
+      let widgetData = widgetDataMap[widget.component] || {};
       let widgetProps = widget.props || {};
 
-      switch (widget.component) {
-        case "RevenueChart":
-          widgetData = {
-            data: dashboardData.sales?.revenueByPeriod || [],
-            title: widgetProps.title || "Revenue Overview",
-            timeRange,
-          };
-          break;
+      // Special handling for MetricCard
+      if (widget.component === "MetricCard") {
+        const icon = METRIC_ICONS[widgetProps.title] || DollarSign;
+        const value = getMetricValue(widgetProps.title);
+        const trend = getMetricTrend(widgetProps.title);
 
-        case "ProfitMarginWidget":
-          widgetData = {
-            data: dashboardData.profitLoss || {},
-          };
-          break;
-
-        case "ConversionFunnelWidget":
-          widgetData = {
-            data: {
-              leads: dashboardData.sales?.totalLeads || 0,
-              qualified: dashboardData.sales?.qualifiedLeads || 0,
-              won: dashboardData.sales?.dealsWon || 0,
-            },
-          };
-          break;
-
-        case "EmailMarketingWidget":
-          widgetData = {
-            data: dashboardData.marketing || {},
-          };
-          break;
-
-        case "FormSubmissionsWidget":
-          widgetData = {
-            data: dashboardData.forms || {},
-          };
-          break;
-
-        case "MetricCard": {
-          const icon = METRIC_ICONS[widgetProps.title] || DollarSign;
-          const value = getMetricValue(widgetProps.title);
-          const trend = getMetricTrend(widgetProps.title);
-
-          widgetData = {
-            title: widgetProps.title,
-            value,
-            icon,
-            color: widgetProps.color || "blue",
-            trend: trend.direction,
-            trendValue: trend.value,
-            subtitle: widgetProps.subtitle,
-            additionalInfo: widgetProps.additionalInfo,
-          };
-          break;
-        }
-
-        case "FullSalesWidget":
-          widgetData = {
-            data: {
-              totalRevenue: dashboardData.sales?.totalRevenue || 0,
-              activeDeals: dashboardData.sales?.activeDeals || 0,
-              newLeads: dashboardData.sales?.newLeads || 0,
-              conversionRate: dashboardData.sales?.conversionRate || 0,
-              avgDealSize: dashboardData.sales?.avgDealSize || 0,
-              winRate: dashboardData.sales?.winRate || 0,
-              avgSalesCycle: dashboardData.sales?.avgSalesCycle || "0 days",
-              pipelineValue: dashboardData.sales?.pipelineValue || 0,
-            },
-            timeRange,
-          };
-          break;
-
-        case "FullMarketingWidget":
-          widgetData = {
-            data: {
-              activeCampaigns: dashboardData.marketing?.activeCampaigns || 0,
-              emailOpens: dashboardData.marketing?.emailOpens || 0,
-              clickRate: dashboardData.marketing?.clickRate || 0,
-              totalSubscribers: dashboardData.marketing?.totalSubscribers || 0,
-              engagementRate: dashboardData.marketing?.engagementRate || 0,
-              unsubscribeRate: dashboardData.marketing?.unsubscribeRate || 0,
-              avgOpenRate: dashboardData.marketing?.avgOpenRate || 0,
-              newSubscribers: dashboardData.marketing?.newSubscribers || 0,
-            },
-            timeRange,
-          };
-          break;
-
-        default:
-          return null;
+        widgetData = {
+          title: widgetProps.title,
+          value,
+          icon,
+          color: widgetProps.color || "blue",
+          trend: trend.direction,
+          trendValue: trend.value,
+          subtitle: widgetProps.subtitle,
+          additionalInfo: widgetProps.additionalInfo,
+        };
       }
 
       return <Component {...widgetData} {...widgetProps} />;
     },
-    [dashboardData, timeRange],
-  ); // Add dependencies that affect widget rendering
+    [widgetDataMap],
+  ); // Only depends on pre-calculated data map
 
   // Get metric value for MetricCard
   const getMetricValue = (title) => {
     const { sales, marketing, profitLoss, forms } = dashboardData;
 
     const metricMap = {
+      // Sales & Revenue
       "Total Revenue": sales?.totalRevenue
         ? `$${(sales.totalRevenue / 1000).toFixed(0)}k`
         : "$0",
+      MRR: sales?.mrr ? `$${(sales.mrr / 1000).toFixed(0)}k` : "$0",
+      "Avg. Deal Size": sales?.avgDealSize
+        ? `$${(sales.avgDealSize / 1000).toFixed(0)}k`
+        : "$0",
+      "Win Rate": sales?.winRate ? `${sales.winRate.toFixed(1)}%` : "0%",
+      "Sales Velocity": sales?.avgSalesCycle
+        ? `${sales.avgSalesCycle} days`
+        : "0 days",
+      "Pipeline Value": sales?.pipelineValue
+        ? `$${(sales.pipelineValue / 1000).toFixed(0)}k`
+        : "$0",
       "Active Deals": sales?.activeDeals || 0,
+
+      // Lead Management
       "New Leads": sales?.newLeads || 0,
+      "Active Leads": sales?.activeLeads || sales?.newLeads || 0,
+      "Top Lead Source": sales?.topLeadSource || "Website",
+      "Qualification Rate": sales?.qualificationRate
+        ? `${sales.qualificationRate.toFixed(1)}%`
+        : "0%",
+      "Hot Leads": sales?.hotLeads || 0,
       "Conversion Rate": sales?.conversionRate
         ? `${sales.conversionRate.toFixed(1)}%`
         : "0%",
+
+      // Marketing
+      "Active Campaigns": marketing?.activeCampaigns || 0,
+      "Open Rate": marketing?.openRate
+        ? `${marketing.openRate.toFixed(1)}%`
+        : "0%",
+      CTR: marketing?.clickRate ? `${marketing.clickRate.toFixed(1)}%` : "0%",
+      "Form Conv. Rate": forms?.conversionRate
+        ? `${forms.conversionRate.toFixed(1)}%`
+        : "0%",
+      "Total Subscribers": marketing?.totalSubscribers || 0,
+      "Engagement Rate": marketing?.engagementRate
+        ? `${marketing.engagementRate.toFixed(1)}%`
+        : "0%",
+
+      // Tasks & Productivity
+      "Due Today": sales?.tasksDueToday || 0,
+      Overdue: sales?.overdueTask || 0,
+      Completed: sales?.tasksCompleted || 0,
+      Activity: sales?.recentActivity || 0,
+      "Team Score": sales?.teamScore ? `${sales.teamScore}%` : "0%",
+
+      // Calendar & Meetings
+      Upcoming: sales?.upcomingMeetings || 0,
+      "This Week": sales?.meetingsThisWeek || 0,
+      "No-Show Rate": sales?.noShowRate
+        ? `${sales.noShowRate.toFixed(1)}%`
+        : "0%",
+      "Calls Today": sales?.callsToday || 0,
+
+      // Financial
+      "Net Profit": profitLoss?.netProfit
+        ? `$${(profitLoss.netProfit / 1000).toFixed(0)}k`
+        : "$0",
+      "Active Clients": sales?.activeClients || 0,
+      "Customer LTV": sales?.customerLTV
+        ? `$${(sales.customerLTV / 1000).toFixed(0)}k`
+        : "$0",
+      "Active Accounts": sales?.activeAccounts || 0,
+
+      // Legacy mappings
       "Active Listings": sales?.activeListings || 0,
       "Scheduled Showings": sales?.scheduledShowings || 0,
       "Pending Closings": sales?.pendingClosings || 0,
@@ -1138,12 +1358,7 @@ export default function Dashboard() {
       "Annual Recurring Revenue": sales?.arr
         ? `$${(sales.arr / 1000000).toFixed(1)}M`
         : "$0",
-      "Active Accounts": sales?.activeAccounts || 0,
       "Churn Rate": sales?.churnRate ? `${sales.churnRate.toFixed(1)}%` : "0%",
-      "Customer LTV": sales?.customerLTV
-        ? `$${(sales.customerLTV / 1000).toFixed(0)}k`
-        : "$0",
-      "Active Clients": sales?.activeClients || 0,
       "Running Campaigns": marketing?.activeCampaigns || 0,
       "Retainer Revenue": sales?.retainerRevenue
         ? `$${(sales.retainerRevenue / 1000).toFixed(0)}k`
@@ -1151,14 +1366,7 @@ export default function Dashboard() {
       "Client Retention": sales?.clientRetention
         ? `${sales.clientRetention.toFixed(1)}%`
         : "0%",
-      "Total Subscribers": marketing?.totalSubscribers || 0,
-      "Engagement Rate": marketing?.engagementRate
-        ? `${marketing.engagementRate.toFixed(1)}%`
-        : "0%",
       "Active Sponsorships": sales?.activeSponsorships || 0,
-      "Avg. Deal Size": sales?.avgDealSize
-        ? `$${(sales.avgDealSize / 1000).toFixed(0)}k`
-        : "$0",
       "Total Orders": sales?.totalOrders || 0,
       "Average Order Value": sales?.aov ? `$${sales.aov.toFixed(0)}` : "$0",
       "Cart Abandonment": sales?.cartAbandonment
@@ -1170,7 +1378,7 @@ export default function Dashboard() {
   };
 
   // Get metric trend
-  const getMetricTrend = (title) => {
+  const getMetricTrend = (_title) => {
     const trend = dashboardData.sales?.trend;
     if (!trend || typeof trend !== "object") {
       return { direction: "neutral", value: "0%" };
@@ -1189,12 +1397,73 @@ export default function Dashboard() {
   // Get current preset name
   const getCurrentPresetName = () => {
     if (currentPreset.startsWith("custom-")) {
-      const customId = currentPreset.replace("custom-", "");
-      const customPreset = customPresets.find((p) => p.id === customId);
-      return customPreset ? customPreset.name : `Custom Layout`;
+      const customPresetId = currentPreset.replace("custom-", "");
+      const customPreset = customPresets.find((p) => p.id === customPresetId);
+      return customPreset?.name || "Custom Preset";
     }
-    return DASHBOARD_PRESETS[currentPreset]?.name || "Default";
+    const preset = getPreset(currentPreset);
+    return preset?.name || "Default Layout";
   };
+
+  // Widget context menu handlers
+  const handleWidgetEdit = (widget) => {
+    toast({
+      title: "Edit Widget",
+      description: `Editing ${widget.component} widget.`,
+    });
+  };
+
+  const handleWidgetDuplicate = (widget) => {
+    const newWidget = {
+      ...widget,
+      i: `${widget.i}-copy-${Date.now()}`,
+      x: widget.x + 1,
+      y: widget.y + 1,
+    };
+
+    setLayout((prevLayout) => [...prevLayout, newWidget]);
+
+    toast({
+      title: "Widget Duplicated",
+      description: `Widget has been duplicated.`,
+    });
+  };
+
+  const handleWidgetRemove = (widget) => {
+    setLayout((prevLayout) => prevLayout.filter((w) => w.i !== widget.i));
+
+    toast({
+      title: "Widget Removed",
+      description: `Widget has been removed from dashboard.`,
+    });
+  };
+
+  const handleWidgetRefresh = (widget) => {
+    toast({
+      title: "Refreshing Widget",
+      description: `Refreshing ${widget.component} widget data...`,
+    });
+
+    // Trigger data refresh
+    loadDashboardData();
+  };
+
+  const handleWidgetExport = (widget) => {
+    toast({
+      title: "Export Widget Data",
+      description: `Exporting data for ${widget.component} widget.`,
+    });
+  };
+
+  // Context menu configuration for widgets
+  const widgetContextMenuConfig = (widget) =>
+    CRMMenuConfigs.widget(widget, {
+      onEdit: () => handleWidgetEdit(widget),
+      onDuplicate: () => handleWidgetDuplicate(widget),
+      onRemove: () => handleWidgetRemove(widget),
+      onRefresh: () => handleWidgetRefresh(widget),
+      onExport: () => handleWidgetExport(widget),
+    });
 
   const currentPresetName = getCurrentPresetName();
 
@@ -1208,254 +1477,234 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="h-full flex flex-col crm-page-wrapper bg-neutral-50">
+    <div className="h-full flex flex-col crm-page-wrapper bg-white">
       {/* Page Header */}
-      <div className="relative bg-white/80 backdrop-blur-xl border-b border-neutral-200/50 px-4 sm:px-6 py-8">
-        <div className="relative flex flex-col gap-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-            <div className="flex-1">
-              <div className="flex items-center gap-4 mb-3 flex-wrap">
-                <h1 className="text-display text-neutral-900">
-                  Hey there
-                  {getFormattedFirstName() && `, ${getFormattedFirstName()}`}!
-                </h1>
-                {isReadOnly() && <ViewOnlyBadge />}
-                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#761B14]/10 to-[#9A392D]/10 border border-[#761B14]/20">
-                  <div className="w-2 h-2 rounded-full bg-[#761B14] animate-pulse" />
-                  <span className="text-caption font-bold text-[#761B14]">
-                    {getPeriodLabel(timeRange)}
-                  </span>
-                </div>
-              </div>
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-neutral-100 border border-neutral-200">
-                  <Settings className="h-4 w-4 text-neutral-500" />
-                  <span className="text-body font-medium text-neutral-700">
-                    {currentPresetName}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-info/10 border border-info/20">
-                  <TrendingUp className="h-4 w-4 text-info" />
-                  <span className="text-body font-semibold text-info">
-                    {formatDateRange(timeRange)}
-                  </span>
-                </div>
-                {isEditMode && (
-                  <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-warning/10 border border-warning/20">
-                    <Sparkles className="h-4 w-4 text-warning" />
-                    <span className="text-body font-medium text-warning">
-                      Edit Mode
-                    </span>
-                  </div>
-                )}
-              </div>
+      <div className="relative bg-white px-6 sm:px-8 py-6">
+        <div className="relative flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
+              <h1 className="text-display text-neutral-900">
+                Hey there
+                {getFormattedFirstName() && `, ${getFormattedFirstName()}`}!
+              </h1>
+              {isReadOnly() && <ViewOnlyBadge />}
             </div>
-          </div>
 
-          <div className="crm-button-group overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 sm:pb-0">
-            {/* Time Range Selector */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="default" className="gap-2">
-                  <Settings className="h-4 w-4" />
-                  <span className="capitalize">{timeRange}</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Time Range</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setTimeRange("week")}>
-                  This Week
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTimeRange("month")}>
-                  This Month
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTimeRange("quarter")}>
-                  This Quarter
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTimeRange("year")}>
-                  This Year
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Preset Selector */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="default"
-                  className="gap-2 hover:bg-[#761B14]/5 transition-colors"
-                >
-                  <LayoutGrid className="h-4 w-4" />
-                  <span>Presets</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-72 shadow-lg border-gray-200"
-              >
-                <DropdownMenuLabel className="text-sm font-semibold text-gray-900 px-3 py-2">
-                  Dashboard Presets
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {presetList.map((preset) => (
-                  <DropdownMenuItem
-                    key={preset.id}
-                    onClick={() => handlePresetChange(preset.id)}
-                    className={`flex flex-col items-start px-3 py-3 cursor-pointer transition-all hover:bg-[#761B14]/5 ${
-                      currentPreset === preset.id
-                        ? "bg-[#761B14]/10 border-l-2 border-[#761B14]"
-                        : ""
-                    }`}
+            {/* Dashboard Actions Dropdown */}
+            <div className="absolute top-1/2 -translate-y-1/2 right-6 sm:right-8">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2 h-8 w-8 p-0 hover:bg-[#3F0D28]/10 transition-colors"
+                    aria-label="Dashboard options"
                   >
-                    <div className="flex items-center gap-2 w-full mb-1">
-                      <LayoutGrid className="h-3.5 w-3.5 text-[#761B14]" />
-                      <span className="font-semibold text-sm">
-                        {preset.name}
-                      </span>
-                    </div>
-                    <span className="text-xs text-gray-600 ml-5">
-                      {preset.description}
-                    </span>
-                  </DropdownMenuItem>
-                ))}
-                {customPresets.length > 0 && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuLabel className="text-sm font-semibold text-gray-900 px-3 py-2 flex items-center gap-2">
-                      <Sparkles className="h-3.5 w-3.5 text-[#761B14]" />
-                      My Custom Presets
-                    </DropdownMenuLabel>
-                    {customPresets.map((preset) => (
-                      <DropdownMenuItem
-                        key={preset.id}
-                        onClick={() =>
-                          handlePresetChange(`custom-${preset.id}`)
-                        }
-                        className={`flex flex-col items-start px-3 py-3 cursor-pointer transition-all hover:bg-[#761B14]/5 ${
-                          currentPreset === `custom-${preset.id}`
-                            ? "bg-[#761B14]/10 border-l-2 border-[#761B14]"
-                            : ""
-                        }`}
-                      >
-                        <div className="flex items-center gap-2 w-full mb-1">
-                          <Users className="h-3.5 w-3.5 text-[#761B14]" />
-                          <span className="font-semibold text-sm">
-                            {preset.name}
-                          </span>
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="w-56 shadow-lg border-gray-200 bg-white"
+                >
+                  {/* Time Range Submenu */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="w-full">
+                      <DropdownMenuItem className="flex items-center justify-between cursor-pointer">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          <span>Time Range</span>
                         </div>
-                        {preset.description && (
+                        <span className="text-sm text-gray-500 capitalize">
+                          {timeRange}
+                        </span>
+                      </DropdownMenuItem>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-40 bg-white">
+                      <DropdownMenuItem onClick={() => setTimeRange("week")}>
+                        This Week
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setTimeRange("month")}>
+                        This Month
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setTimeRange("quarter")}>
+                        This Quarter
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setTimeRange("year")}>
+                        This Year
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  {/* Presets Submenu */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="w-full">
+                      <DropdownMenuItem className="flex items-center justify-between cursor-pointer">
+                        <div className="flex items-center gap-2">
+                          <LayoutGrid className="h-4 w-4" />
+                          <span>Presets</span>
+                        </div>
+                      </DropdownMenuItem>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="end"
+                      className="w-72 shadow-lg border-gray-200 bg-white"
+                    >
+                      <DropdownMenuLabel className="text-sm font-semibold text-gray-900 px-3 py-2">
+                        Dashboard Presets
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {presetList.map((preset) => (
+                        <DropdownMenuItem
+                          key={preset.id}
+                          onClick={() => handlePresetChange(preset.id)}
+                          className={`flex flex-col items-start px-3 py-3 cursor-pointer transition-all hover:bg-[#3F0D28]/5 ${
+                            currentPreset === preset.id
+                              ? "bg-[#3F0D28]/10 border-l-2 border-[#3F0D28]"
+                              : ""
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 w-full mb-1">
+                            <LayoutGrid className="h-3.5 w-3.5 text-[#3F0D28]" />
+                            <span className="font-semibold text-sm">
+                              {preset.name}
+                            </span>
+                          </div>
                           <span className="text-xs text-gray-600 ml-5">
                             {preset.description}
                           </span>
-                        )}
+                        </DropdownMenuItem>
+                      ))}
+                      {customPresets.length > 0 && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuLabel className="text-sm font-semibold text-gray-900 px-3 py-2 flex items-center gap-2">
+                            <Sparkles className="h-3.5 w-3.5 text-[#3F0D28]" />
+                            My Custom Presets
+                          </DropdownMenuLabel>
+                          {customPresets.map((preset) => (
+                            <DropdownMenuItem
+                              key={preset.id}
+                              onClick={() =>
+                                handlePresetChange(`custom-${preset.id}`)
+                              }
+                              className={`flex flex-col items-start px-3 py-3 cursor-pointer transition-all hover:bg-[#3F0D28]/5 ${
+                                currentPreset === `custom-${preset.id}`
+                                  ? "bg-[#3F0D28]/10 border-l-2 border-[#3F0D28]"
+                                  : ""
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 w-full mb-1">
+                                <Users className="h-3.5 w-3.5 text-[#3F0D28]" />
+                                <span className="font-semibold text-sm">
+                                  {preset.name}
+                                </span>
+                              </div>
+                              {preset.description && (
+                                <span className="text-xs text-gray-600 ml-5">
+                                  {preset.description}
+                                </span>
+                              )}
+                            </DropdownMenuItem>
+                          ))}
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  <DropdownMenuSeparator />
+
+                  {/* Edit/Save Options */}
+                  {canEdit() && (
+                    <>
+                      {isEditMode ? (
+                        <>
+                          <DropdownMenuItem
+                            onClick={() => setShowWidgetSelector(true)}
+                            className="gap-2"
+                          >
+                            <Sparkles className="h-4 w-4" />
+                            <span>Add Widget</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={handleSavePreset}
+                            className="gap-2"
+                          >
+                            <Save className="h-4 w-4" />
+                            <span>Save Layout</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={handleExitEditMode}
+                            className="gap-2"
+                          >
+                            <X className="h-4 w-4" />
+                            <span>Exit Edit Mode</span>
+                          </DropdownMenuItem>
+                        </>
+                      ) : (
+                        <DropdownMenuItem
+                          onClick={handleEnterEditMode}
+                          className="gap-2"
+                        >
+                          <Settings className="h-4 w-4" />
+                          <span>Edit Layout</span>
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
+
+                  {/* Export Options */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="w-full">
+                      <DropdownMenuItem className="flex items-center justify-between cursor-pointer">
+                        <div className="flex items-center gap-2">
+                          <Download className="h-4 w-4" />
+                          <span>Export</span>
+                        </div>
                       </DropdownMenuItem>
-                    ))}
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Edit/Save Toggle */}
-            {canEdit() && (
-              <>
-                {isEditMode ? (
-                  <>
-                    <Button
-                      variant="outline"
-                      size="default"
-                      className="gap-2 whitespace-nowrap flex-shrink-0"
-                      onClick={() => setShowWidgetSelector(true)}
-                    >
-                      <Sparkles className="h-4 w-4" />
-                      <span className="hidden sm:inline">Add Widget</span>
-                      <span className="sm:hidden">Add</span>
-                    </Button>
-                    <Button
-                      variant="accent"
-                      size="default"
-                      className="gap-2 whitespace-nowrap flex-shrink-0"
-                      onClick={handleSavePreset}
-                    >
-                      <Save className="h-4 w-4" />
-                      <span className="hidden sm:inline">Save Layout</span>
-                      <span className="sm:hidden">Save</span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="default"
-                      className="gap-2 whitespace-nowrap flex-shrink-0"
-                      onClick={handleExitEditMode}
-                    >
-                      <X className="h-4 w-4" />
-                      <span className="hidden sm:inline">Exit Edit</span>
-                      <span className="sm:hidden">Exit</span>
-                    </Button>
-                  </>
-                ) : (
-                  <Button
-                    variant="outline"
-                    size="default"
-                    className="gap-2 whitespace-nowrap flex-shrink-0"
-                    onClick={handleEnterEditMode}
-                  >
-                    <Settings className="h-4 w-4" />
-                    <span className="hidden sm:inline">Edit Layout</span>
-                    <span className="sm:hidden">Edit</span>
-                  </Button>
-                )}
-              </>
-            )}
-
-            {/* Export Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="default"
-                  className="gap-2 whitespace-nowrap flex-shrink-0"
-                >
-                  <Download className="h-4 w-4" />
-                  <span className="hidden sm:inline">Export</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Export Dashboard</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleExportHTML} className="gap-2">
-                  <FileText className="h-4 w-4" />
-                  <div className="flex flex-col">
-                    <span className="font-medium">Export as HTML</span>
-                    <span className="text-xs text-crm-text-secondary">
-                      Interactive web document
-                    </span>
-                  </div>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleExportPDF} className="gap-2">
-                  <File className="h-4 w-4" />
-                  <div className="flex flex-col">
-                    <span className="font-medium">Export as PDF</span>
-                    <span className="text-xs text-crm-text-secondary">
-                      Print-ready document
-                    </span>
-                  </div>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem
+                        onClick={handleExportHTML}
+                        className="gap-2"
+                      >
+                        <FileText className="h-4 w-4" />
+                        <div className="flex flex-col">
+                          <span className="font-medium">Export as HTML</span>
+                          <span className="text-xs text-gray-500">
+                            Interactive web document
+                          </span>
+                        </div>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={handleExportPDF}
+                        className="gap-2"
+                      >
+                        <File className="h-4 w-4" />
+                        <div className="flex flex-col">
+                          <span className="font-medium">Export as PDF</span>
+                          <span className="text-xs text-gray-500">
+                            Print-ready document
+                          </span>
+                        </div>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Edit Mode Banner */}
       {isEditMode && (
-        <div className="bg-[#761B14] text-white px-4 py-3 text-sm flex items-center justify-between shadow-md">
+        <div className="bg-[#3F0D28] text-white px-4 py-3 text-sm flex items-center justify-between shadow-md">
           <div className="flex items-center gap-3 flex-1">
             <Settings className="h-5 w-5 animate-pulse" />
             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-              <span className="font-semibold text-base">
-                ✏️ Edit Mode Active
-              </span>
+              <span className="font-semibold text-base">Edit Mode Active</span>
               <span className="hidden sm:inline text-white/90 text-xs">
                 • Drag widgets to rearrange • Resize from corners • Click X to
                 remove
@@ -1487,12 +1736,88 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Hero Metrics Section */}
+      <div className="bg-white px-6 sm:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Total Revenue */}
+          <div className="bg-white rounded-2xl border border-black/[0.06] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)] transition-shadow">
+            <p className="text-sm font-medium text-neutral-500 mb-1">
+              Total Revenue
+            </p>
+            <p className="text-3xl sm:text-4xl font-bold text-neutral-900 tracking-tight">
+              ${((dashboardData.sales?.totalRevenue || 0) / 1000).toFixed(1)}k
+            </p>
+            <p className="text-sm text-neutral-400 mt-1">
+              ${((dashboardData.sales?.allTimeRevenue || 0) / 1000).toFixed(0)}k
+              All Time
+            </p>
+          </div>
+          {/* Active Leads */}
+          <div className="bg-white rounded-2xl border border-black/[0.06] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)] transition-shadow">
+            <p className="text-sm font-medium text-neutral-500 mb-1">
+              Active Leads
+            </p>
+            <p className="text-3xl sm:text-4xl font-bold text-neutral-900 tracking-tight">
+              {dashboardData.sales?.activeDeals || 0}
+            </p>
+            <p className="text-sm text-neutral-400 mt-1">
+              {dashboardData.sales?.allTimeLeads || 0} All Time
+            </p>
+          </div>
+          {/* Conversion Rate */}
+          <div className="bg-white rounded-2xl border border-black/[0.06] p-6 shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)] transition-shadow">
+            <p className="text-sm font-medium text-neutral-500 mb-1">
+              Conversion Rate
+            </p>
+            <p className="text-3xl sm:text-4xl font-bold text-neutral-900 tracking-tight">
+              {(dashboardData.sales?.conversionRate || 0).toFixed(1)}%
+            </p>
+            <p className="text-sm text-neutral-400 mt-1">
+              {dashboardData.sales?.allTimeDealsWon || 0} Won All Time
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Dashboard Grid */}
-      <div className="flex-1 overflow-x-hidden overflow-y-auto bg-neutral-50">
-        <div className="p-6 sm:p-8 max-w-full">
+      <div className="flex-1 overflow-x-hidden overflow-y-auto bg-white">
+        <div className="px-6 sm:px-8 py-4 max-w-full">
+          {/* Data Loading Error Message */}
+          {dataError && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 flex items-center gap-3">
+              <div className="flex-shrink-0">
+                <svg
+                  className="h-5 w-5 text-red-400"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-red-800">{dataError}</p>
+                {retryCount > 0 && (
+                  <p className="text-xs text-red-600 mt-1">
+                    Retry attempt {retryCount}...
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={handleRetry}
+                className="flex-shrink-0 text-sm font-medium text-red-600 hover:text-red-500 underline"
+              >
+                {retryCount > 0 ? `Retry (${retryCount})` : "Retry"}
+              </button>
+            </div>
+          )}
+
           {layout.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-96 text-center bg-white/80 backdrop-blur-xl rounded-3xl border-2 border-dashed border-neutral-300 shadow-sm">
-              <LayoutGrid className="h-20 w-20 text-[#761B14]/30 mb-6" />
+              <LayoutGrid className="h-20 w-20 text-[#3F0D28]/30 mb-6" />
               <h3 className="text-headline text-neutral-900 mb-4">
                 No Widgets Yet
               </h3>
@@ -1509,10 +1834,6 @@ export default function Dashboard() {
                 Start Editing
               </Button>
             </div>
-          ) : layout.length === 0 ? (
-            <div className="flex items-center justify-center h-64">
-              <p className="text-gray-500">Loading widgets...</p>
-            </div>
           ) : (
             <ResponsiveGridLayout
               className="layout"
@@ -1522,33 +1843,12 @@ export default function Dashboard() {
               rowHeight={100}
               isDraggable={isEditMode}
               isResizable={isEditMode}
-              onLayoutChange={(currentLayout, allLayouts) => {
-                // Only update if user is actively dragging/resizing in edit mode
-                if (isEditMode && allLayouts && allLayouts.lg) {
-                  setLayout((prevLayout) =>
-                    prevLayout.map((widget) => {
-                      const updated = allLayouts.lg.find(
-                        (l) => l.i === widget.i,
-                      );
-                      if (updated) {
-                        return {
-                          ...widget,
-                          x: updated.x,
-                          y: updated.y,
-                          w: updated.w,
-                          h: updated.h,
-                        };
-                      }
-                      return widget;
-                    }),
-                  );
-                }
-              }}
+              onLayoutChange={handleLayoutChange}
               draggableHandle=".drag-handle"
-              compactType="vertical"
+              compactType={null}
               preventCollision={true}
               margin={[16, 16]}
-              containerPadding={[20, 20]}
+              containerPadding={[0, 0]}
               useCSSTransforms={false}
               transformScale={1}
             >
@@ -1562,14 +1862,32 @@ export default function Dashboard() {
                     delay: index * 0.05,
                     ease: [0.4, 0, 0.2, 1],
                   }}
-                  className={`dashboard-widget card-crm-premium ${
+                  className={`dashboard-widget bg-white rounded-2xl border border-black/[0.06] ${
                     isEditMode
-                      ? "hover:shadow-xl hover:scale-[1.02] ring-2 ring-[#761B14]/20 hover:ring-[#761B14]/40"
-                      : "shadow-sm hover:shadow-md hover:border-[#761B14]/20"
+                      ? "shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:shadow-lg hover:scale-[1.01] ring-2 ring-[#3F0D28]/20 hover:ring-[#3F0D28]/40"
+                      : "shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)]"
                   }`}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const items = widgetContextMenuConfig(widget);
+
+                    // Use the global context menu
+                    import("@/components/ui/ContextMenuProvider").then(
+                      ({ useContextMenu }) => {
+                        const { showContextMenu } = useContextMenu();
+                        showContextMenu({
+                          items,
+                          position: { x: e.clientX, y: e.clientY },
+                          data: widget,
+                        });
+                      },
+                    );
+                  }}
                 >
                   {isEditMode && (
-                    <div className="drag-handle absolute -top-1 left-0 right-0 h-8 bg-[#761B14] rounded-t-xl cursor-move flex items-center justify-between px-3 z-20 shadow-lg hover:bg-[#6b1a12] transition-all duration-300">
+                    <div className="drag-handle absolute -top-1 left-0 right-0 h-8 bg-[#3F0D28] rounded-t-xl cursor-move flex items-center justify-between px-3 z-20 shadow-lg hover:bg-[#6b1a12] transition-all duration-300">
                       <div className="text-xs text-white font-semibold flex items-center gap-1.5">
                         <LayoutGrid className="h-3 w-3" />
                         <span className="hidden sm:inline">⋮⋮ Drag</span>
@@ -1629,7 +1947,7 @@ export default function Dashboard() {
                             e.stopPropagation();
                             handleRemoveWidget(widget.i);
                           }}
-                          className="text-white hover:text-red-200 transition-all duration-200 p-1 rounded hover:bg-white/20 ml-0.5"
+                          className="text-white hover:text-[#CA4238] transition-all duration-200 p-1 rounded hover:bg-white/20 ml-0.5"
                           aria-label="Remove widget"
                         >
                           <X className="h-3.5 w-3.5" />
@@ -1671,6 +1989,46 @@ export default function Dashboard() {
         onClose={() => setShowWidgetSelector(false)}
         onAddWidget={handleAddWidget}
       />
+
+      {/* Discard Changes Confirmation Modal */}
+      <Dialog open={showDiscardModal} onOpenChange={setShowDiscardModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Unsaved Changes</DialogTitle>
+            <DialogDescription>
+              You have unsaved changes to your dashboard layout. Are you sure
+              you want to exit without saving?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setShowDiscardModal(false)}
+            >
+              Keep Editing
+            </Button>
+            <Button variant="destructive" onClick={handleDiscardChanges}>
+              Discard Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Trial Activation Modal - shown after onboarding */}
+      {showTrialModal && (
+        <TrialActivationModal
+          selectedPlan={localStorage.getItem("selected_plan") || "build"}
+          onClose={() => setShowTrialModal(false)}
+          onActivate={() => {
+            setShowTrialModal(false);
+            toast({
+              title: "Trial Activated!",
+              description: "Enjoy 14 days of full access to all features.",
+              duration: 3000,
+            });
+          }}
+        />
+      )}
     </div>
   );
 }

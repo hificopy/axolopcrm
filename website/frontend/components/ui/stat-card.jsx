@@ -33,10 +33,10 @@ const StatCard = React.forwardRef(({
       hover: 'group-hover:bg-amber-200 dark:group-hover:bg-amber-900'
     },
     accent: {
-      bg: 'bg-[#761B14]/10 dark:bg-[#761B14]/20',
-      text: 'text-[#761B14] dark:text-[#d4463c]',
-      border: 'border-[#761B14]/20 dark:border-[#761B14]/40',
-      hover: 'group-hover:bg-[#761B14]/15 dark:group-hover:bg-[#761B14]/30'
+      bg: 'bg-[#3F0D28]/10 dark:bg-[#3F0D28]/20',
+      text: 'text-[#3F0D28] dark:text-gray-300',
+      border: 'border-[#3F0D28]/20 dark:border-[#3F0D28]/40',
+      hover: 'group-hover:bg-[#3F0D28]/15 dark:group-hover:bg-[#3F0D28]/30'
     },
     gray: {
       bg: 'bg-gray-100 dark:bg-gray-800',
@@ -64,11 +64,11 @@ const StatCard = React.forwardRef(({
 
         // Light mode shadows
         "shadow-[0_2px_8px_rgba(0,0,0,0.04),_0_1px_2px_rgba(0,0,0,0.02)]",
-        "hover:shadow-[0_8px_24px_rgba(123,28,20,0.08),_0_4px_8px_rgba(123,28,20,0.04)]",
+        "hover:shadow-[0_8px_24px_rgba(74,21,21,0.08),_0_4px_8px_rgba(74,21,21,0.04)]",
 
         // Dark mode glow
         "dark:shadow-[0_4px_16px_rgba(0,0,0,0.4)]",
-        "dark:hover:shadow-[0_8px_32px_rgba(212,70,60,0.15),_0_4px_16px_rgba(0,0,0,0.5)]",
+        "dark:hover:shadow-[0_8px_32px_rgba(74,21,21,0.15),_0_4px_16px_rgba(0,0,0,0.5)]",
 
         // Glass effect
         "dark:backdrop-blur-xl dark:bg-opacity-80",
@@ -102,7 +102,7 @@ const StatCard = React.forwardRef(({
       <div className="flex items-baseline justify-between">
         <div className={cn(
           "text-3xl font-bold text-gray-900 dark:text-white transition-colors duration-300",
-          color === 'accent' && "group-hover:text-[#761B14]"
+          color === 'accent' && "group-hover:text-[#3F0D28]"
         )}>
           {value}
         </div>
@@ -110,7 +110,7 @@ const StatCard = React.forwardRef(({
         {trend && trendValue && (
           <div className={cn(
             "flex items-center gap-1 text-xs font-medium",
-            trend === 'up' ? 'text-emerald-600' : 'text-red-600'
+            trend === 'up' ? 'text-[#1A777B]' : 'text-[#CA4238]'
           )}>
             {trend === 'up' ? '↑' : '↓'} {trendValue}
           </div>

@@ -1,18 +1,18 @@
-import { useState } from 'react';
-import { Copy, Check, Code, ExternalLink, Maximize2 } from 'lucide-react';
+import { useState } from "react";
+import { Copy, Check, Code, ExternalLink, Maximize2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from './ui/dialog';
-import { Button } from './ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Label } from './ui/label';
-import { Input } from './ui/input';
-import { Badge } from './ui/badge';
-import { useToast } from './ui/use-toast';
+} from "./ui/dialog";
+import { Button } from "./ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { Badge } from "./ui/badge";
+import { useToast } from "./ui/use-toast";
 
 /**
  * FormEmbedModal - Show different ways to embed/share form
@@ -25,8 +25,8 @@ import { useToast } from './ui/use-toast';
 export default function FormEmbedModal({ open, onOpenChange, form }) {
   const { toast } = useToast();
   const [copiedItem, setCopiedItem] = useState(null);
-  const [iframeWidth, setIframeWidth] = useState('100%');
-  const [iframeHeight, setIframeHeight] = useState('800px');
+  const [iframeWidth, setIframeWidth] = useState("100%");
+  const [iframeHeight, setIframeHeight] = useState("800px");
 
   if (!form) return null;
 
@@ -154,7 +154,7 @@ export default function FormEmbedModal({ open, onOpenChange, form }) {
 
 <!-- Add this button where you want it to appear -->
 <button id="axolop-form-btn" style="
-  background: linear-gradient(135deg, #761B14 0%, #9A392D 100%);
+  background: linear-gradient(135deg, #3F0D28 0%, #3F0D28 100%);
   color: white;
   border: none;
   padding: 12px 24px;
@@ -175,15 +175,15 @@ onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
       await navigator.clipboard.writeText(text);
       setCopiedItem(itemName);
       toast({
-        title: 'Copied!',
+        title: "Copied!",
         description: `${itemName} copied to clipboard`,
       });
       setTimeout(() => setCopiedItem(null), 2000);
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to copy to clipboard',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to copy to clipboard",
+        variant: "destructive",
       });
     }
   };
@@ -193,7 +193,7 @@ onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Code className="h-5 w-5 text-[#761B14]" />
+            <Code className="h-5 w-5 text-[#3F0D28]" />
             Share & Embed: {form.name}
           </DialogTitle>
           <DialogDescription>
@@ -220,23 +220,20 @@ onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
           {/* Direct Link */}
           <TabsContent value="link" className="space-y-4">
             <div>
-              <Label className="text-sm font-medium text-gray-700 mb-2 block">
+              <Label className="text-sm font-medium text-gray-800 mb-2 block">
                 Direct Form Link
               </Label>
               <p className="text-sm text-gray-600 mb-3">
-                Share this link directly with your audience via email, social media, or any platform.
+                Share this link directly with your audience via email, social
+                media, or any platform.
               </p>
               <div className="flex gap-2">
-                <Input
-                  value={formUrl}
-                  readOnly
-                  className="font-mono text-sm"
-                />
+                <Input value={formUrl} readOnly className="font-mono text-sm" />
                 <Button
-                  onClick={() => copyToClipboard(formUrl, 'Direct link')}
+                  onClick={() => copyToClipboard(formUrl, "Direct link")}
                   className="gap-2 shrink-0"
                 >
-                  {copiedItem === 'Direct link' ? (
+                  {copiedItem === "Direct link" ? (
                     <Check className="h-4 w-4" />
                   ) : (
                     <Copy className="h-4 w-4" />
@@ -246,7 +243,7 @@ onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
               </div>
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="bg-blue-50 border border-gray-200 rounded-lg p-4">
               <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
                 <ExternalLink className="h-4 w-4" />
                 Best for:
@@ -268,7 +265,7 @@ onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
               </Label>
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <Label className="text-xs text-gray-600">Width</Label>
+                  <Label className="text-xs text-gray-700">Width</Label>
                   <Input
                     value={iframeWidth}
                     onChange={(e) => setIframeWidth(e.target.value)}
@@ -277,7 +274,7 @@ onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
                   />
                 </div>
                 <div>
-                  <Label className="text-xs text-gray-600">Height</Label>
+                  <Label className="text-xs text-gray-700">Height</Label>
                   <Input
                     value={iframeHeight}
                     onChange={(e) => setIframeHeight(e.target.value)}
@@ -292,19 +289,20 @@ onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
               <Label className="text-sm font-medium text-gray-700 mb-2 block">
                 Embed Code
               </Label>
-              <p className="text-sm text-gray-600 mb-3">
-                Copy and paste this code into your website's HTML where you want the form to appear.
+              <p className="text-sm text-gray-700 mb-3">
+                Copy and paste this code into your website's HTML where you want
+                the form to appear.
               </p>
               <div className="relative">
                 <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-xs font-mono">
                   {iframeCode}
                 </pre>
                 <Button
-                  onClick={() => copyToClipboard(iframeCode, 'Iframe code')}
+                  onClick={() => copyToClipboard(iframeCode, "Iframe code")}
                   size="sm"
                   className="absolute top-2 right-2 gap-2"
                 >
-                  {copiedItem === 'Iframe code' ? (
+                  {copiedItem === "Iframe code" ? (
                     <Check className="h-3 w-3" />
                   ) : (
                     <Copy className="h-3 w-3" />
@@ -334,20 +332,22 @@ onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
               <Label className="text-sm font-medium text-gray-700 mb-2 block">
                 Pop-up Widget Code
               </Label>
-              <p className="text-sm text-gray-600 mb-3">
-                Add this code before the closing <code className="bg-gray-100 px-1 rounded">&lt;/body&gt;</code> tag.
-                The form will open in a beautiful modal when users click the button.
+              <p className="text-sm text-gray-700 mb-3">
+                Add this code before the closing{" "}
+                <code className="bg-gray-100 px-1 rounded">&lt;/body&gt;</code>{" "}
+                tag. The form will open in a beautiful modal when users click
+                the button.
               </p>
               <div className="relative">
                 <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-xs font-mono max-h-96">
                   {popupCode}
                 </pre>
                 <Button
-                  onClick={() => copyToClipboard(popupCode, 'Popup code')}
+                  onClick={() => copyToClipboard(popupCode, "Popup code")}
                   size="sm"
                   className="absolute top-2 right-2 gap-2"
                 >
-                  {copiedItem === 'Popup code' ? (
+                  {copiedItem === "Popup code" ? (
                     <Check className="h-3 w-3" />
                   ) : (
                     <Copy className="h-3 w-3" />
@@ -370,7 +370,8 @@ onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
               </ul>
               <div className="mt-3 pt-3 border-t border-purple-200">
                 <p className="text-xs text-purple-700">
-                  <strong>Customization:</strong> You can customize the button text, colors, and selector in the code above.
+                  <strong>Customization:</strong> You can customize the button
+                  text, colors, and selector in the code above.
                 </p>
               </div>
             </div>
@@ -380,14 +381,19 @@ onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';"
         <div className="mt-6 pt-4 border-t">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Badge variant={form.status === 'active' ? 'default' : 'secondary'}>
-                {form.status === 'active' ? 'Active' : 'Inactive'}
+              <Badge
+                variant={form.status === "active" ? "default" : "secondary"}
+              >
+                {form.status === "active" ? "Active" : "Inactive"}
               </Badge>
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-700">
                 {form.responses || 0} responses
               </span>
             </div>
-            <Button variant="outline" onClick={() => window.open(formUrl, '_blank')}>
+            <Button
+              variant="outline"
+              onClick={() => window.open(formUrl, "_blank")}
+            >
               <ExternalLink className="h-4 w-4 mr-2" />
               Open Preview
             </Button>

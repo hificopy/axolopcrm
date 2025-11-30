@@ -94,7 +94,9 @@ export default function PersonalizeMenuDialog({
 
   useEffect(() => {
     if (isOpen) {
-      setSelectedButtons([...activeButtons]);
+      // Ensure activeButtons is always an array
+      const buttons = Array.isArray(activeButtons) ? activeButtons : ["quick-search", "help"];
+      setSelectedButtons([...buttons]);
     }
   }, [isOpen, activeButtons]);
 
@@ -277,7 +279,7 @@ export default function PersonalizeMenuDialog({
           </div>
 
           <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-            <p className="text-sm text-blue-400">
+            <p className="text-sm text-[#3F0D28]">
               <strong>Note:</strong> These settings are personal to you and won't affect other users in your agency. You can select up to 12 buttons for the More menu, but only 4 can be pinned to the header at once.
             </p>
           </div>

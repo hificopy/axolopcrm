@@ -10,12 +10,26 @@ const router = express.Router();
 
 /**
  * GET /api/v1/agencies/:agencyId/members
- * Get all members of an agency
+ * Get all members of an agency with pagination support
+ * Query params:
+ *  - page: Page number (default: 1)
+ *  - limit: Items per page (default: 50, max: 100)
+ *  - search: Search by email or name
+ *  - role: Filter by role
+ *  - status: Filter by invitation_status
  */
 router.get('/:agencyId/members', authenticateUser, async (req, res) => {
   try {
     const userId = req.user.id;
     const agencyId = req.params.agencyId;
+
+    // Parse pagination params
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 50));
+    const offset = (page - 1) * limit;
+    const search = req.query.search?.trim().toLowerCase();
+    const roleFilter = req.query.role;
+    const statusFilter = req.query.status || 'active';
 
     // Check if user is a member of this agency
     const { data: membership, error: memberError } = await supabaseServer
@@ -33,8 +47,8 @@ router.get('/:agencyId/members', authenticateUser, async (req, res) => {
       });
     }
 
-    // Get all members with user details
-    const { data: members, error } = await supabaseServer
+    // Build query for members
+    let query = supabaseServer
       .from('agency_members')
       .select(`
         *,
@@ -43,9 +57,23 @@ router.get('/:agencyId/members', authenticateUser, async (req, res) => {
           email,
           raw_user_meta_data
         )
-      `)
-      .eq('agency_id', agencyId)
-      .order('created_at', { ascending: false });
+      `, { count: 'exact' })
+      .eq('agency_id', agencyId);
+
+    // Apply filters
+    if (statusFilter) {
+      query = query.eq('invitation_status', statusFilter);
+    }
+    if (roleFilter) {
+      query = query.eq('role', roleFilter);
+    }
+
+    // Apply pagination and ordering
+    query = query
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    const { data: members, error, count } = await query;
 
     if (error) {
       console.error('Error fetching agency members:', error);
@@ -56,22 +84,42 @@ router.get('/:agencyId/members', authenticateUser, async (req, res) => {
     }
 
     // Format response
-    const formattedMembers = members.map(member => ({
+    let formattedMembers = members.map(member => ({
       id: member.id,
       user_id: member.user_id,
       email: member.user?.email,
       name: member.user?.raw_user_meta_data?.name || member.user?.raw_user_meta_data?.full_name,
       profile_picture: member.user?.raw_user_meta_data?.avatar_url || member.user?.raw_user_meta_data?.picture,
       role: member.role,
+      member_type: member.member_type,
       permissions: member.permissions,
       invitation_status: member.invitation_status,
       joined_at: member.joined_at,
       invited_at: member.invited_at
     }));
 
+    // Apply search filter (client-side for user metadata)
+    if (search) {
+      formattedMembers = formattedMembers.filter(member =>
+        member.email?.toLowerCase().includes(search) ||
+        member.name?.toLowerCase().includes(search)
+      );
+    }
+
+    const totalCount = count || 0;
+    const totalPages = Math.ceil(totalCount / limit);
+
     res.json({
       success: true,
-      data: formattedMembers
+      data: formattedMembers,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1
+      }
     });
   } catch (error) {
     console.error('Get agency members error:', error);

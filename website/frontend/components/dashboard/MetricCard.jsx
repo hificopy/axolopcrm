@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown, Sparkles } from "lucide-react";
-import { Card, CardContent } from "./components/ui/card";
-import MetricLoadingState from "./components/ui/metric-loading-state";
+import { Card, CardContent } from "@/components/ui/card";
+import MetricLoadingState from "@/components/ui/metric-loading-state";
 
 export default function MetricCard({
   title,
@@ -19,45 +19,16 @@ export default function MetricCard({
   syncStatus = null,
   showSyncIcon = false,
 }) {
-  const colorClasses = {
-    blue: {
-      bg: "bg-gradient-to-br from-blue-500 to-blue-600",
-      text: "text-blue-600 dark:text-blue-400",
-      lightBg: "bg-blue-50 dark:bg-blue-950/30",
-      ring: "ring-blue-500/20",
-      glow: "shadow-blue-500/20",
-    },
-    green: {
-      bg: "bg-gradient-to-br from-emerald-500 to-emerald-600",
-      text: "text-emerald-600 dark:text-emerald-400",
-      lightBg: "bg-emerald-50 dark:bg-emerald-950/30",
-      ring: "ring-emerald-500/20",
-      glow: "shadow-emerald-500/20",
-    },
-    yellow: {
-      bg: "bg-gradient-to-br from-amber-500 to-amber-600",
-      text: "text-amber-600 dark:text-amber-400",
-      lightBg: "bg-amber-50 dark:bg-amber-950/30",
-      ring: "ring-amber-500/20",
-      glow: "shadow-amber-500/20",
-    },
-    accent: {
-      bg: "bg-gradient-to-br from-[#761B14] to-[#9A392D]",
-      text: "text-[#761B14] dark:text-[#d4463c]",
-      lightBg: "bg-red-50 dark:bg-red-950/30",
-      ring: "ring-[#761B14]/20",
-      glow: "shadow-[#761B14]/20",
-    },
-    gray: {
-      bg: "bg-gradient-to-br from-gray-600 to-gray-700",
-      text: "text-gray-600 dark:text-gray-400",
-      lightBg: "bg-gray-50 dark:bg-gray-950/30",
-      ring: "ring-gray-500/20",
-      glow: "shadow-gray-500/20",
-    },
+  // Standardized color scheme - branded red accents only
+  const colors = {
+    // Icon badge always uses branded red
+    bg: "bg-gradient-to-br from-[#3F0D28] to-[#3F0D28]",
+    // Text uses neutral colors for readability
+    text: "text-neutral-900 dark:text-neutral-100",
+    lightBg: "bg-neutral-50 dark:bg-neutral-950/30",
+    ring: "ring-[#3F0D28]/20",
+    glow: "shadow-[#3F0D28]/20",
   };
-
-  const colors = colorClasses[color] || colorClasses.blue;
   const isPositiveTrend = trend === "up";
 
   return (
@@ -68,14 +39,7 @@ export default function MetricCard({
       whileHover={{ y: -4, scale: 1.02, transition: { duration: 0.2 } }}
       className="h-full w-full"
     >
-      <Card
-        className={`h-full w-full overflow-hidden hover:${colors.ring} transition-all duration-300 hover:shadow-xl hover:${colors.glow} relative group`}
-      >
-        {/* Animated background gradient on hover */}
-        <div
-          className={`absolute inset-0 ${colors.lightBg} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
-        />
-
+      <Card className="h-full w-full overflow-hidden bg-white border border-black/[0.05] shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-all duration-300 relative">
         <CardContent className="p-6 h-full flex flex-col justify-center relative z-10">
           {/* Icon Badge - Floating top right */}
           <motion.div
@@ -122,8 +86,8 @@ export default function MetricCard({
               transition={{ delay: delay + 0.3 }}
               className={`flex items-center justify-center gap-2 text-sm font-semibold px-3 py-2 rounded-lg ${
                 isPositiveTrend
-                  ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400"
-                  : "bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400"
+                  ? "bg-[#1A777B]/10 text-[#1A777B]"
+                  : "bg-[#CA4238]/10 text-[#CA4238]"
               }`}
             >
               {isPositiveTrend ? (
@@ -167,11 +131,6 @@ export default function MetricCard({
             </motion.div>
           )}
         </CardContent>
-
-        {/* Decorative corner accent */}
-        <div
-          className={`absolute bottom-0 left-0 w-20 h-20 ${colors.bg} opacity-10 blur-2xl rounded-full -mb-10 -ml-10`}
-        />
       </Card>
     </motion.div>
   );

@@ -32,7 +32,7 @@ const SEO = ({
       <meta name="keywords" content={keywords} />
       <meta name="author" content={author} />
       <meta name="robots" content="index, follow" />
-      <meta name="theme-color" content="#761B14" />
+      <meta name="theme-color" content="#3F0D28" />
       
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={type} />

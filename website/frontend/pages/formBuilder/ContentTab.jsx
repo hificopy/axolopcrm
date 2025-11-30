@@ -210,7 +210,7 @@ export default function ContentTab({ form, setForm, questions, setQuestions, onQ
                           <span className="font-medium">
                             Question {questions.findIndex(q => q.id === selectedQuestion.id) + 1}
                           </span>
-                          {selectedQuestion.required && <span className="text-red-500">*</span>}
+                          {selectedQuestion.required && <span className="text-[#3F0D28]">*</span>}
                         </div>
                       </div>
 
@@ -261,7 +261,7 @@ export default function ContentTab({ form, setForm, questions, setQuestions, onQ
                             <div className="flex-1">
                               <h2 className="text-base font-semibold text-crm-text-primary">
                                 {question.title}
-                                {question.required && <span className="text-red-500 ml-1">*</span>}
+                                {question.required && <span className="text-[#3F0D28] ml-1">*</span>}
                               </h2>
                             </div>
                           </div>
@@ -390,7 +390,7 @@ export default function ContentTab({ form, setForm, questions, setQuestions, onQ
                       <div className="flex flex-col items-center gap-1">
                         <Icon className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
                         {hasConditionalLogic && (
-                          <GitBranch className="h-3 w-3 text-red-600" title="Has conditional logic" />
+                          <GitBranch className="h-3 w-3 text-[#3F0D28]" title="Has conditional logic" />
                         )}
                         {question.lead_scoring_enabled && (
                           <Target className="h-3 w-3 text-green-600" title="Lead scoring enabled" />
@@ -402,7 +402,7 @@ export default function ContentTab({ form, setForm, questions, setQuestions, onQ
                         </div>
                         <div className="text-xs text-crm-text-secondary">
                           <span className="capitalize">{questionType?.name || question.type}</span>
-                          {question.required && <span className="text-red-500"> *</span>}
+                          {question.required && <span className="text-[#3F0D28]"> *</span>}
                         </div>
                       </div>
                       <Button

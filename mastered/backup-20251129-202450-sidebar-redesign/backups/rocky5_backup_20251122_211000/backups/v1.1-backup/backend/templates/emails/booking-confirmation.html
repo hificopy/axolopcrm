@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        .header {
+            background: linear-gradient(135deg, {{brandColorPrimary}} 0%, {{brandColorSecondary}} 100%);
+            color: #ffffff;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .booking-card {
+            background-color: #f8f9fa;
+            border-left: 4px solid {{brandColorPrimary}};
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+        .booking-detail {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+        }
+        .booking-detail-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            color: {{brandColorPrimary}};
+        }
+        .booking-detail-label {
+            font-weight: 600;
+            color: #666;
+            margin-right: 8px;
+        }
+        .booking-detail-value {
+            color: #333;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 14px 32px;
+            background: {{brandColorPrimary}};
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .cta-button:hover {
+            opacity: 0.9;
+        }
+        .action-links {
+            margin: 30px 0;
+            text-align: center;
+        }
+        .action-links a {
+            color: {{brandColorPrimary}};
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 14px;
+        }
+        .calendar-links {
+            margin: 25px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .calendar-links h3 {
+            margin-top: 0;
+            font-size: 16px;
+            color: #333;
+        }
+        .calendar-link-item {
+            display: inline-block;
+            margin: 8px 10px 8px 0;
+            padding: 8px 16px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        .footer a {
+            color: {{brandColorPrimary}};
+            text-decoration: none;
+        }
+        .divider {
+            height: 1px;
+            background-color: #e0e0e0;
+            margin: 30px 0;
+        }
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 30px 20px;
+            }
+            .header {
+                padding: 30px 20px;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>✓ Your Meeting is Confirmed</h1>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <p>Hi {{name}},</p>
+
+            <p>Great news! Your meeting has been confirmed. We're looking forward to speaking with you.</p>
+
+            <!-- Booking Details Card -->
+            <div class="booking-card">
+                <div class="booking-detail">
+                    <span class="booking-detail-icon">📅</span>
+                    <span class="booking-detail-label">Event:</span>
+                    <span class="booking-detail-value">{{eventName}}</span>
+                </div>
+                <div class="booking-detail">
+                    <span class="booking-detail-icon">🕐</span>
+                    <span class="booking-detail-label">When:</span>
+                    <span class="booking-detail-value">{{formattedDate}} at {{formattedTime}}</span>
+                </div>
+                <div class="booking-detail">
+                    <span class="booking-detail-icon">⏱️</span>
+                    <span class="booking-detail-label">Duration:</span>
+                    <span class="booking-detail-value">{{duration}} minutes</span>
+                </div>
+                <div class="booking-detail">
+                    <span class="booking-detail-icon">🌍</span>
+                    <span class="booking-detail-label">Timezone:</span>
+                    <span class="booking-detail-value">{{timezone}}</span>
+                </div>
+                {{#if location}}
+                <div class="booking-detail">
+                    <span class="booking-detail-icon">📍</span>
+                    <span class="booking-detail-label">Location:</span>
+                    <span class="booking-detail-value">{{location}}</span>
+                </div>
+                {{/if}}
+                {{#if hostName}}
+                <div class="booking-detail">
+                    <span class="booking-detail-icon">👤</span>
+                    <span class="booking-detail-label">Host:</span>
+                    <span class="booking-detail-value">{{hostName}}</span>
+                </div>
+                {{/if}}
+            </div>
+
+            <!-- Add to Calendar -->
+            <div class="calendar-links">
+                <h3>Add to Calendar:</h3>
+                <a href="{{googleCalendarLink}}" class="calendar-link-item">Google Calendar</a>
+                <a href="{{outlookCalendarLink}}" class="calendar-link-item">Outlook</a>
+                <a href="{{icsDownloadLink}}" class="calendar-link-item">Download .ics</a>
+            </div>
+
+            {{#if description}}
+            <div class="divider"></div>
+            <h3>What to Expect:</h3>
+            <p>{{description}}</p>
+            {{/if}}
+
+            {{#if confirmationMessage}}
+            <div class="divider"></div>
+            <p>{{confirmationMessage}}</p>
+            {{/if}}
+
+            <!-- Action Links -->
+            <div class="action-links">
+                <a href="{{rescheduleLink}}">Reschedule</a>
+                <span style="color: #ddd;">|</span>
+                <a href="{{cancelLink}}">Cancel Meeting</a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>This email was sent to {{email}} because you scheduled a meeting with us.</p>
+            <p>
+                <a href="{{companyWebsite}}">{{companyName}}</a>
+            </p>
+            <p style="font-size: 12px; color: #999; margin-top: 20px;">
+                Powered by Axolop CRM
+            </p>
+        </div>
+    </div>
+</body>
+</html>

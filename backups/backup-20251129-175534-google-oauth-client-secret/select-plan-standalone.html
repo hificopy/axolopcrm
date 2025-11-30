@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Select Plan - Axolop CRM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        background: #0f0510;
+        min-height: 100vh;
+      }
+      .gradient-bg {
+        background: linear-gradient(135deg, #e92c92 0%, #ff6b4a 100%);
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px rgba(233, 44, 146, 0.3);
+      }
+    </style>
+  </head>
+  <body class="text-white">
+    <!-- Navigation -->
+    <nav class="px-4 sm:px-6 lg:px-8 py-6">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <a href="/" class="flex items-center gap-3">
+          <img
+            src="/axolop-black-transparent.png"
+            alt="Axolop CRM"
+            class="h-8 w-auto"
+          />
+          <span class="text-xl font-bold">Axolop CRM</span>
+        </a>
+        <a
+          href="/app/home"
+          class="text-sm text-gray-400 hover:text-white transition-colors"
+        >
+          Skip to Dashboard
+        </a>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-16 pb-12 overflow-hidden">
+      <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#E92C92]/20 border border-[#E92C92]/30 mb-8"
+        >
+          <svg
+            class="w-4 h-4 text-[#E92C92]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 10V3L4 14h7v7l9-11h-7z"
+            ></path>
+          </svg>
+          <span class="text-sm font-medium text-[#E92C92]"
+            >14-Day Free Trial • No Credit Card Required</span
+          >
+        </div>
+
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+          Select Your Plan
+        </h1>
+        <p class="text-xl text-gray-400 max-w-2xl mx-auto text-center mb-3">
+          Start your 14-day free trial. Cancel anytime.
+        </p>
+        <p class="text-sm text-gray-500 mb-12">
+          No hidden fees • No setup costs • Full access to all features
+        </p>
+
+        <!-- Billing toggle -->
+        <div class="flex items-center justify-center gap-8">
+          <button
+            onclick="setBilling(false)"
+            id="monthlyBtn"
+            class="text-sm font-medium transition-all duration-300 px-4 py-2 rounded-lg cursor-pointer text-gray-400 hover:text-gray-300"
+          >
+            Monthly
+          </button>
+
+          <button
+            onclick="toggleBilling()"
+            class="relative w-16 h-8 rounded-full transition-all duration-300 active:scale-95 gradient-bg border-2 border-white/20 shadow-lg shadow-[#E92C92]/30"
+          >
+            <div
+              id="toggleBtn"
+              class="absolute top-1 w-6 h-6 rounded-full bg-white transition-all duration-300 shadow-lg left-[calc(100%-1.75rem)]"
+            ></div>
+          </button>
+
+          <button
+            onclick="setBilling(true)"
+            id="yearlyBtn"
+            class="text-sm font-bold transition-all duration-300 px-4 py-2 rounded-lg cursor-pointer text-white"
+          >
+            Yearly
+            <span
+              class="ml-3 px-3 py-1 rounded-full font-bold transition-all duration-300 bg-white text-[#E92C92] shadow-lg"
+            >
+              Save 20%
+            </span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing Cards -->
+    <section class="pb-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid gap-8 grid-cols-1 md:grid-cols-3">
+          <!-- Sales Plan -->
+          <div
+            class="relative p-8 rounded-3xl flex flex-col transition-all duration-300 card-hover bg-white/[0.02] border border-gray-800/50 hover:border-[#E92C92]/30 hover:shadow-md"
+          >
+            <div class="text-center mb-8">
+              <svg
+                class="w-8 h-8 mx-auto mb-4 text-[#E92C92]"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                ></path>
+              </svg>
+              <h3 class="text-2xl font-bold text-white mb-2">Sales</h3>
+              <p class="text-gray-400 mb-6">
+                For solo operators getting started
+              </p>
+
+              <div class="flex items-baseline justify-center gap-2">
+                <span class="text-6xl font-bold text-white" id="sales-price"
+                  >$54</span
+                >
+                <span class="text-gray-400 text-lg">/mo</span>
+              </div>
+              <div class="text-sm text-gray-500 mt-1">
+                $648 billed annually
+                <div class="text-sm font-medium text-[#EBB207]">
+                  Save 19% vs monthly
+                </div>
+              </div>
+            </div>
+
+            <button
+              onclick="selectPlan('sales')"
+              class="block w-full py-4 rounded-xl text-center font-semibold transition-all duration-300 gradient-bg hover:from-[#5B1046] hover:to-[#ff7b5a] shadow-lg hover:shadow-[#E92C92]/50 text-white flex items-center justify-center gap-2"
+            >
+              Select Plan
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                ></path>
+              </svg>
+            </button>
+
+            <div class="flex-1 pt-8 border-t border-gray-800/50">
+              <p
+                class="text-xs uppercase tracking-wider text-gray-500 font-semibold mb-4"
+              >
+                What's included
+              </p>
+              <ul class="space-y-3">
+                <li class="flex items-start gap-3">
+                  <svg
+                    class="w-5 h-5 flex-shrink-0 mt-0.5 text-[#1A777B]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span class="text-sm text-gray-300">Full CRM Features</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <svg
+                    class="w-5 h-5 flex-shrink-0 mt-0.5 text-[#1A777B]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span class="text-sm text-gray-300">Lead Management</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <svg
+                    class="w-5 h-5 flex-shrink-0 mt-0.5 text-[#1A777B]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span class="text-sm text-gray-300"
+                    >Basic Forms (5 forms)</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Build Plan -->
+          <div
+            class="relative p-8 rounded-3xl flex flex-col transition-all duration-300 card-hover bg-gradient-to-br from-[#E92C92]/30 via-[#E92C92]/20 border-2 border-[#E92C92] shadow-lg hover:shadow-[#E92C92]/40"
+          >
+            <div class="absolute -top-4 left-1/2 -translate-x-1/2">
+              <span
+                class="px-3 py-1 bg-[#E92C92] text-white text-xs font-semibold rounded-full"
+                >Most Popular</span
+              >
+            </div>
+
+            <div class="text-center mb-8">
+              <svg
+                class="w-8 h-8 mx-auto mb-4 text-[#E92C92]"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                ></path>
+              </svg>
+              <h3 class="text-2xl font-bold text-white mb-2">Build</h3>
+              <p class="text-gray-400 mb-6">For growing teams</p>
+
+              <div class="flex items-baseline justify-center gap-2">
+                <span class="text-6xl font-bold text-white" id="build-price"
+                  >$149</span
+                >
+                <span class="text-gray-400 text-lg">/mo</span>
+              </div>
+              <div class="text-sm text-gray-500 mt-1">
+                $1,788 billed annually
+                <div class="text-sm font-medium text-[#EBB207]">
+                  Save 20% vs monthly
+                </div>
+              </div>
+            </div>
+
+            <button
+              onclick="selectPlan('build')"
+              class="block w-full py-4 rounded-xl text-center font-semibold transition-all duration-300 gradient-bg hover:from-[#5B1046] hover:to-[#ff7b5a] shadow-lg hover:shadow-[#E92C92]/50 text-white flex items-center justify-center gap-2"
+            >
+              Select Plan
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                ></path>
+              </svg>
+            </button>
+
+            <div class="flex-1 pt-8 border-t border-gray-800/50">
+              <p
+                class="text-xs uppercase tracking-wider text-gray-500 font-semibold mb-4"
+              >
+                What's included
+              </p>
+              <ul class="space-y-3">
+                <li class="flex items-start gap-3">
+                  <svg
+                    class="w-5 h-5 flex-shrink-0 mt-0.5 text-[#1A777B]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span class="text-sm text-gray-300">Everything in Sales</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <svg
+                    class="w-5 h-5 flex-shrink-0 mt-0.5 text-[#1A777B]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span class="text-sm text-gray-300"
+                    >Advanced Forms (Unlimited)</span
+                  >
+                </li>
+                <li class="flex items-start gap-3">
+                  <svg
+                    class="w-5 h-5 flex-shrink-0 mt-0.5 text-[#1A777B]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span class="text-sm text-gray-300">AI Lead Scoring</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Scale Plan -->
+          <div
+            class="relative p-8 rounded-3xl flex flex-col transition-all duration-300 card-hover bg-white/[0.02] border border-gray-800/50 hover:border-[#E92C92]/30 hover:shadow-md"
+          >
+            <div class="text-center mb-8">
+              <svg
+                class="w-8 h-8 mx-auto mb-4 text-[#E92C92]"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                ></path>
+              </svg>
+              <h3 class="text-2xl font-bold text-white mb-2">Scale</h3>
+              <p class="text-gray-400 mb-6">For agencies at scale</p>
+
+              <div class="flex items-baseline justify-center gap-2">
+                <span class="text-6xl font-bold text-white" id="scale-price"
+                  >$279</span
+                >
+                <span class="text-gray-400 text-lg">/mo</span>
+              </div>
+              <div class="text-sm text-gray-500 mt-1">
+                $3,348 billed annually
+                <div class="text-sm font-medium text-[#EBB207]">
+                  Save 20% vs monthly
+                </div>
+              </div>
+            </div>
+
+            <button
+              onclick="selectPlan('scale')"
+              class="block w-full py-4 rounded-xl text-center font-semibold transition-all duration-300 gradient-bg hover:from-[#5B1046] hover:to-[#ff7b5a] shadow-lg hover:shadow-[#E92C92]/50 text-white flex items-center justify-center gap-2"
+            >
+              Select Plan
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                ></path>
+              </svg>
+            </button>
+
+            <div class="flex-1 pt-8 border-t border-gray-800/50">
+              <p
+                class="text-xs uppercase tracking-wider text-gray-500 font-semibold mb-4"
+              >
+                What's included
+              </p>
+              <ul class="space-y-3">
+                <li class="flex items-start gap-3">
+                  <svg
+                    class="w-5 h-5 flex-shrink-0 mt-0.5 text-[#1A777B]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span class="text-sm text-gray-300">Everything in Build</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <svg
+                    class="w-5 h-5 flex-shrink-0 mt-0.5 text-[#1A777B]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span class="text-sm text-gray-300">Full AI Features</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <svg
+                    class="w-5 h-5 flex-shrink-0 mt-0.5 text-[#1A777B]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span class="text-sm text-gray-300"
+                    >API Access & White Label</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer note -->
+    <section class="pb-12">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <p class="text-gray-500 text-sm">
+          All plans include a 14-day free trial. No credit card required to
+          start. Cancel anytime during the trial with no charges.
+        </p>
+      </div>
+    </section>
+
+    <script>
+      let isYearly = true;
+
+      const prices = {
+        sales: { monthly: 67, yearly: 54 },
+        build: { monthly: 187, yearly: 149 },
+        scale: { monthly: 349, yearly: 279 },
+      };
+
+      function updatePrices() {
+        document.getElementById("sales-price").textContent =
+          "$" + prices.sales[isYearly ? "yearly" : "monthly"];
+        document.getElementById("build-price").textContent =
+          "$" + prices.build[isYearly ? "yearly" : "monthly"];
+        document.getElementById("scale-price").textContent =
+          "$" + prices.scale[isYearly ? "yearly" : "monthly"];
+      }
+
+      function setBilling(yearly) {
+        isYearly = yearly;
+        updateToggle();
+        updatePrices();
+      }
+
+      function toggleBilling() {
+        isYearly = !isYearly;
+        updateToggle();
+        updatePrices();
+      }
+
+      function updateToggle() {
+        const toggleBtn = document.getElementById("toggleBtn");
+        const monthlyBtn = document.getElementById("monthlyBtn");
+        const yearlyBtn = document.getElementById("yearlyBtn");
+
+        if (isYearly) {
+          toggleBtn.style.left = "calc(100% - 1.75rem)";
+          monthlyBtn.className =
+            "text-sm font-medium transition-all duration-300 px-4 py-2 rounded-lg cursor-pointer text-gray-400 hover:text-gray-300";
+          yearlyBtn.className =
+            "text-sm font-bold transition-all duration-300 px-4 py-2 rounded-lg cursor-pointer text-white";
+        } else {
+          toggleBtn.style.left = "4px";
+          monthlyBtn.className =
+            "text-sm font-bold transition-all duration-300 px-4 py-2 rounded-lg cursor-pointer text-white";
+          yearlyBtn.className =
+            "text-sm font-medium transition-all duration-300 px-4 py-2 rounded-lg cursor-pointer text-gray-400 hover:text-gray-300";
+        }
+      }
+
+      function selectPlan(plan) {
+        // For now, just show an alert
+        alert(
+          `Selected ${plan} plan (${isYearly ? "yearly" : "monthly"} billing)!\\n\\nThis will redirect to Stripe checkout when integrated.`,
+        );
+
+        // TODO: Integrate with actual Stripe checkout
+        // window.location.href = `/api/v1/stripe/create-trial-checkout?plan=${plan}&billing=${isYearly ? 'yearly' : 'monthly'}`;
+      }
+
+      // Initialize
+      updatePrices();
+    </script>
+  </body>
+</html>

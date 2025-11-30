@@ -33,13 +33,13 @@ export default function ShareTab({ form, setForm }) {
   // Determine if form is published
   const isPublished = form.is_published && form.published_slug;
 
-  // Generate URLs
+  // Generate URLs - using /f/ prefix to avoid routing conflicts
   const publishedUrl = isPublished && form.published_slug
-    ? `${window.location.origin}/${form.user_agency_alias || 'agency'}/${form.published_slug}`
+    ? `${window.location.origin}/f/${form.user_agency_alias || 'agency'}/${form.published_slug}`
     : null;
 
   const previewUrl = form.id && form.id !== 'new-form'
-    ? `${window.location.origin}/forms/preview/${form.id}`
+    ? `${window.location.origin}/app/forms/preview/${form.id}`
     : 'Save the form first to get a shareable link';
 
   const embedCode = form.id && form.id !== 'new-form'
@@ -256,12 +256,12 @@ export default function ShareTab({ form, setForm }) {
         </div>
 
         {/* Publishing Section */}
-        <Card className="border-2 border-blue-200 bg-blue-50/50">
+        <Card className="border-2 border-gray-200 bg-blue-50/50">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-100 rounded-lg">
-                  <Rocket className="h-5 w-5 text-blue-600" />
+                  <Rocket className="h-5 w-5 text-[#3F0D28]" />
                 </div>
                 <div>
                   <CardTitle>Publish Form</CardTitle>
@@ -282,7 +282,7 @@ export default function ShareTab({ form, setForm }) {
           </CardHeader>
           <CardContent className="space-y-4">
             {publishError && (
-              <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              <div className="flex items-center gap-2 p-3 bg-[#3F0D28]/5 border border-[#3F0D28]/20 rounded-lg text-[#3F0D28] text-sm">
                 <AlertCircle className="h-4 w-4 flex-shrink-0" />
                 <span>{publishError}</span>
               </div>
@@ -373,7 +373,7 @@ export default function ShareTab({ form, setForm }) {
                   <Button
                     onClick={handlePublish}
                     disabled={publishing || form.id === 'new-form'}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="bg-[#3F0D28] hover:bg-[#5a1a3a]"
                   >
                     {publishing ? 'Publishing...' : `Republish (v${(form.published_version || 0) + 1})`}
                   </Button>
@@ -388,7 +388,7 @@ export default function ShareTab({ form, setForm }) {
                 <Button
                   onClick={handlePublish}
                   disabled={publishing || form.id === 'new-form'}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-[#3F0D28] hover:bg-[#5a1a3a]"
                 >
                   {publishing ? 'Publishing...' : 'Publish Form'}
                 </Button>

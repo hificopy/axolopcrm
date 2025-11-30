@@ -197,9 +197,9 @@ export const FullPageSkeleton = ({ title = "Loading..." }) => (
   <div className="h-full min-h-screen flex items-center justify-center pt-[150px] p-6 bg-white">
     <div className="text-center max-w-md w-full">
       <div className="relative mb-8">
-        <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-[#761B14] mx-auto"></div>
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-[#3F0D28] mx-auto"></div>
         <div className="absolute inset-0 animate-pulse">
-          <div className="rounded-full h-16 w-16 border-4 border-[#761B14]/20 mx-auto"></div>
+          <div className="rounded-full h-16 w-16 border-4 border-[#3F0D28]/20 mx-auto"></div>
         </div>
       </div>
       
@@ -214,7 +214,7 @@ export const FullPageSkeleton = ({ title = "Loading..." }) => (
       {/* Progress indicator */}
       <div className="mt-8">
         <div className="w-full bg-gray-200 rounded-full h-2">
-          <div className="bg-gradient-to-r from-[#761B14] to-[#9A392D] h-2 rounded-full animate-pulse" style={{ width: '70%' }}></div>
+          <div className="bg-gradient-to-r from-[#3F0D28] to-[#5a1a3a] h-2 rounded-full animate-pulse" style={{ width: '70%' }}></div>
         </div>
         <p className="text-sm text-gray-500 mt-2">Almost there...</p>
       </div>
@@ -228,12 +228,12 @@ export const ProgressBar = ({ progress = 0, stage = "Processing...", showPercent
     <div className="flex justify-between items-center mb-3">
       <span className="text-sm font-medium text-gray-700">{stage}</span>
       {showPercentage && (
-        <span className="text-sm font-semibold text-[#761B14]">{Math.round(progress)}%</span>
+        <span className="text-sm font-semibold text-[#3F0D28]">{Math.round(progress)}%</span>
       )}
     </div>
     <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-      <div 
-        className="bg-gradient-to-r from-[#761B14] to-[#9A392D] h-3 rounded-full transition-all duration-500 ease-out relative"
+      <div
+        className="bg-gradient-to-r from-[#3F0D28] to-[#5a1a3a] h-3 rounded-full transition-all duration-500 ease-out relative"
         style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
       >
         <div className="absolute inset-0 bg-white/20 animate-pulse"></div>

@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useSupabase } from '../context/SupabaseContext';
+import { useState, useEffect, useCallback } from "react";
+import { useSupabase } from "../context/SupabaseContext";
 
 /**
  * Custom hook to manage user preferences stored in Supabase
@@ -13,7 +13,7 @@ export const useUserPreferences = () => {
   const [error, setError] = useState(null);
 
   // Base API URL
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
   /**
    * Fetch user preferences from Supabase
@@ -27,18 +27,18 @@ export const useUserPreferences = () => {
 
       const response = await fetch(`${API_URL}/user-preferences`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
-      if (!response.ok) throw new Error('Failed to fetch preferences');
+      if (!response.ok) throw new Error("Failed to fetch preferences");
 
       const result = await response.json();
       setPreferences(result.data);
       setError(null);
     } catch (err) {
-      console.error('Error fetching preferences:', err);
+      console.error("Error fetching preferences:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -56,17 +56,17 @@ export const useUserPreferences = () => {
 
       const response = await fetch(`${API_URL}/user-preferences/settings`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
-      if (!response.ok) throw new Error('Failed to fetch settings');
+      if (!response.ok) throw new Error("Failed to fetch settings");
 
       const result = await response.json();
       setSettings(result.data);
     } catch (err) {
-      console.error('Error fetching settings:', err);
+      console.error("Error fetching settings:", err);
       setError(err.message);
     }
   }, [user, API_URL, getAuthToken]);
@@ -74,90 +74,85 @@ export const useUserPreferences = () => {
   /**
    * Update a specific preference
    */
-  const updatePreference = useCallback(async (key, value) => {
-    if (!user) return;
+  const updatePreference = useCallback(
+    async (key, value) => {
+      if (!user) return;
 
-    try {
-      const token = await getAuthToken();
+      try {
+        const token = await getAuthToken();
 
-      const response = await fetch(`${API_URL}/user-preferences`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ key, value })
-      });
+        const response = await fetch(`${API_URL}/user-preferences`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ key, value }),
+        });
 
-      if (!response.ok) throw new Error('Failed to update preference');
+        if (!response.ok) throw new Error("Failed to update preference");
 
-      const result = await response.json();
-      setPreferences(result.data);
-      return result.data;
-    } catch (err) {
-      console.error('Error updating preference:', err);
-      setError(err.message);
-      throw err;
-    }
-  }, [user, API_URL, getAuthToken]);
+        const result = await response.json();
+        setPreferences(result.data);
+        return result.data;
+      } catch (err) {
+        console.error("Error updating preference:", err);
+        setError(err.message);
+        throw err;
+      }
+    },
+    [user, API_URL, getAuthToken],
+  );
 
   /**
    * Update user settings (theme, notifications, etc.)
    */
-  const updateSettings = useCallback(async (newSettings) => {
-    if (!user) return;
+  const updateSettings = useCallback(
+    async (newSettings) => {
+      if (!user) return;
 
-    try {
-      const token = await getAuthToken();
+      try {
+        const token = await getAuthToken();
 
-      const response = await fetch(`${API_URL}/user-preferences/settings`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(newSettings)
-      });
+        const response = await fetch(`${API_URL}/user-preferences/settings`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newSettings),
+        });
 
-      if (!response.ok) throw new Error('Failed to update settings');
+        if (!response.ok) throw new Error("Failed to update settings");
 
-      const result = await response.json();
-      setSettings(result.data);
-      return result.data;
-    } catch (err) {
-      console.error('Error updating settings:', err);
-      setError(err.message);
-      throw err;
-    }
-  }, [user, API_URL, getAuthToken]);
+        const result = await response.json();
+        setSettings(result.data);
+        return result.data;
+      } catch (err) {
+        console.error("Error updating settings:", err);
+        setError(err.message);
+        throw err;
+      }
+    },
+    [user, API_URL, getAuthToken],
+  );
 
   /**
    * Get theme preference
    */
   const getTheme = useCallback(() => {
-    return settings?.theme || 'system';
+    return settings?.theme || "system";
   }, [settings]);
 
   /**
    * Set theme preference
    */
-  const setTheme = useCallback(async (theme) => {
-    return updateSettings({ theme });
-  }, [updateSettings]);
-
-  /**
-   * Get Kate onboarding completion status
-   */
-  const getKateOnboardingCompleted = useCallback(() => {
-    return preferences?.kate_onboarding_completed || false;
-  }, [preferences]);
-
-  /**
-   * Mark Kate onboarding as complete
-   */
-  const completeKateOnboarding = useCallback(async () => {
-    return updatePreference('kate_onboarding_completed', true);
-  }, [updatePreference]);
+  const setTheme = useCallback(
+    async (theme) => {
+      return updateSettings({ theme });
+    },
+    [updateSettings],
+  );
 
   /**
    * Get dashboard layout
@@ -169,9 +164,12 @@ export const useUserPreferences = () => {
   /**
    * Update dashboard layout
    */
-  const updateDashboardLayout = useCallback(async (layout) => {
-    return updatePreference('dashboard_layout', layout);
-  }, [updatePreference]);
+  const updateDashboardLayout = useCallback(
+    async (layout) => {
+      return updatePreference("dashboard_layout", layout);
+    },
+    [updatePreference],
+  );
 
   // Fetch preferences and settings on mount
   useEffect(() => {
@@ -190,14 +188,12 @@ export const useUserPreferences = () => {
     updateSettings,
     getTheme,
     setTheme,
-    getKateOnboardingCompleted,
-    completeKateOnboarding,
     getDashboardLayout,
     updateDashboardLayout,
     refetch: () => {
       fetchPreferences();
       fetchSettings();
-    }
+    },
   };
 };
 
@@ -211,7 +207,7 @@ export const useUserTodos = () => {
   const [error, setError] = useState(null);
 
   // Base API URL
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
   /**
    * Fetch todos from Supabase
@@ -225,18 +221,18 @@ export const useUserTodos = () => {
 
       const response = await fetch(`${API_URL}/user-preferences/todos`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
-      if (!response.ok) throw new Error('Failed to fetch todos');
+      if (!response.ok) throw new Error("Failed to fetch todos");
 
       const result = await response.json();
       setTodos(result.data || []);
       setError(null);
     } catch (err) {
-      console.error('Error fetching todos:', err);
+      console.error("Error fetching todos:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -246,118 +242,139 @@ export const useUserTodos = () => {
   /**
    * Create a new todo
    */
-  const createTodo = useCallback(async (todoData) => {
-    if (!user) return;
+  const createTodo = useCallback(
+    async (todoData) => {
+      if (!user) return;
 
-    try {
-      const token = await getAuthToken();
+      try {
+        const token = await getAuthToken();
 
-      const response = await fetch(`${API_URL}/user-preferences/todos`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(todoData)
-      });
+        const response = await fetch(`${API_URL}/user-preferences/todos`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(todoData),
+        });
 
-      if (!response.ok) throw new Error('Failed to create todo');
+        if (!response.ok) throw new Error("Failed to create todo");
 
-      const result = await response.json();
-      setTodos([...todos, result.data]);
-      return result.data;
-    } catch (err) {
-      console.error('Error creating todo:', err);
-      setError(err.message);
-      throw err;
-    }
-  }, [user, todos, API_URL, getAuthToken]);
+        const result = await response.json();
+        setTodos([...todos, result.data]);
+        return result.data;
+      } catch (err) {
+        console.error("Error creating todo:", err);
+        setError(err.message);
+        throw err;
+      }
+    },
+    [user, todos, API_URL, getAuthToken],
+  );
 
   /**
    * Update a todo
    */
-  const updateTodo = useCallback(async (todoId, updates) => {
-    if (!user) return;
+  const updateTodo = useCallback(
+    async (todoId, updates) => {
+      if (!user) return;
 
-    try {
-      const token = await getAuthToken();
+      try {
+        const token = await getAuthToken();
 
-      const response = await fetch(`${API_URL}/user-preferences/todos/${todoId}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(updates)
-      });
+        const response = await fetch(
+          `${API_URL}/user-preferences/todos/${todoId}`,
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(updates),
+          },
+        );
 
-      if (!response.ok) throw new Error('Failed to update todo');
+        if (!response.ok) throw new Error("Failed to update todo");
 
-      const result = await response.json();
-      setTodos(todos.map(t => t.id === todoId ? result.data : t));
-      return result.data;
-    } catch (err) {
-      console.error('Error updating todo:', err);
-      setError(err.message);
-      throw err;
-    }
-  }, [user, todos, API_URL, getAuthToken]);
+        const result = await response.json();
+        setTodos(todos.map((t) => (t.id === todoId ? result.data : t)));
+        return result.data;
+      } catch (err) {
+        console.error("Error updating todo:", err);
+        setError(err.message);
+        throw err;
+      }
+    },
+    [user, todos, API_URL, getAuthToken],
+  );
 
   /**
    * Delete a todo
    */
-  const deleteTodo = useCallback(async (todoId) => {
-    if (!user) return;
+  const deleteTodo = useCallback(
+    async (todoId) => {
+      if (!user) return;
 
-    try {
-      const token = await getAuthToken();
+      try {
+        const token = await getAuthToken();
 
-      const response = await fetch(`${API_URL}/user-preferences/todos/${todoId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+        const response = await fetch(
+          `${API_URL}/user-preferences/todos/${todoId}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
 
-      if (!response.ok) throw new Error('Failed to delete todo');
+        if (!response.ok) throw new Error("Failed to delete todo");
 
-      setTodos(todos.filter(t => t.id !== todoId));
-    } catch (err) {
-      console.error('Error deleting todo:', err);
-      setError(err.message);
-      throw err;
-    }
-  }, [user, todos, API_URL, getAuthToken]);
+        setTodos(todos.filter((t) => t.id !== todoId));
+      } catch (err) {
+        console.error("Error deleting todo:", err);
+        setError(err.message);
+        throw err;
+      }
+    },
+    [user, todos, API_URL, getAuthToken],
+  );
 
   /**
    * Toggle todo completion
    */
-  const toggleTodo = useCallback(async (todoId) => {
-    if (!user) return;
+  const toggleTodo = useCallback(
+    async (todoId) => {
+      if (!user) return;
 
-    try {
-      const token = await getAuthToken();
+      try {
+        const token = await getAuthToken();
 
-      const response = await fetch(`${API_URL}/user-preferences/todos/${todoId}/toggle`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+        const response = await fetch(
+          `${API_URL}/user-preferences/todos/${todoId}/toggle`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
 
-      if (!response.ok) throw new Error('Failed to toggle todo');
+        if (!response.ok) throw new Error("Failed to toggle todo");
 
-      const result = await response.json();
-      setTodos(todos.map(t => t.id === todoId ? result.data : t));
-      return result.data;
-    } catch (err) {
-      console.error('Error toggling todo:', err);
-      setError(err.message);
-      throw err;
-    }
-  }, [user, todos, API_URL, getAuthToken]);
+        const result = await response.json();
+        setTodos(todos.map((t) => (t.id === todoId ? result.data : t)));
+        return result.data;
+      } catch (err) {
+        console.error("Error toggling todo:", err);
+        setError(err.message);
+        throw err;
+      }
+    },
+    [user, todos, API_URL, getAuthToken],
+  );
 
   // Fetch todos on mount
   useEffect(() => {
@@ -374,6 +391,6 @@ export const useUserTodos = () => {
     updateTodo,
     deleteTodo,
     toggleTodo,
-    refetch: fetchTodos
+    refetch: fetchTodos,
   };
 };

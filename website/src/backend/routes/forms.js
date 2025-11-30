@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import FormCampaignIntegrationService from '../services/form-campaign-integration-service.js';
 import { authenticateUser } from '../middleware/auth.js';
 import { extractAgencyContext, requireEditPermissions } from '../middleware/agency-access.js';
-import { generateUniqueSlug, validateSlug } from '../utils/slug.js';
+import { generateUniqueSlug, isValidSlug } from '../utils/slug.js';
 
 // Create Supabase client directly (bypasses config issue)
 const supabaseServer = createClient(

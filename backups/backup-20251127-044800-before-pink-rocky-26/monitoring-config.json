@@ -1,0 +1,26 @@
+{
+  "performance": {
+    "enabled": true,
+    "trackAPITimes": true,
+    "trackDatabaseQueries": true,
+    "trackFrontendMetrics": true,
+    "alertThresholds": {
+      "apiResponseTime": 1000,
+      "databaseQueryTime": 500,
+      "frontendLoadTime": 3000,
+      "errorRate": 0.05
+    }
+  },
+  "security": {
+    "enabled": true,
+    "trackFailedLogins": true,
+    "trackSuspiciousActivity": true,
+    "alertOnUnauthorizedAccess": true
+  },
+  "analytics": {
+    "enabled": true,
+    "trackUserActions": true,
+    "trackFeatureUsage": true,
+    "trackPerformanceMetrics": true
+  }
+}

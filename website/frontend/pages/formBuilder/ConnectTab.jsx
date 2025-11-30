@@ -167,7 +167,7 @@ export default function ConnectTab({ form }) { // Removed setForm as it's no lon
   }
 
   if (error) {
-    return <div className="h-full min-h-screen flex items-center justify-center text-red-500 pt-[150px]">Error loading integrations: ${error.message}</div>;
+    return <div className="h-full min-h-screen flex items-center justify-center text-[#3F0D28] pt-[150px]">Error loading integrations: ${error.message}</div>;
   }
 
   const getIntegrationState = (typeId) => integrations.find(int => int.integration_type === typeId) || integrationTypes.find(type => type.id === typeId);
@@ -242,8 +242,8 @@ export default function ConnectTab({ form }) { // Removed setForm as it's no lon
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <Mail className="h-5 w-5 text-red-600" />
+                <div className="p-2 bg-[#3F0D28]/10 rounded-lg">
+                  <Mail className="h-5 w-5 text-[#3F0D28]" />
                 </div>
                 <div>
                   <CardTitle>Email Notifications</CardTitle>

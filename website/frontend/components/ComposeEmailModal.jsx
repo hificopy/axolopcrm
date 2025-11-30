@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
-import api from './lib/api';
+import api from '@/lib/api';
 
 const ComposeEmailModal = ({ isOpen, onClose, onEmailSent, initialTo = '', initialSubject = '', initialBody = '' }) => {
   const [to, setTo] = useState(initialTo);
@@ -32,7 +32,7 @@ const ComposeEmailModal = ({ isOpen, onClose, onEmailSent, initialTo = '', initi
 
     setIsSending(true);
     try {
-      await api.post('/api/inbox/send', { to, subject, body });
+      await api.post('/inbox/send', { to, subject, body });
       toast({
         title: 'Success',
         description: 'Email sent successfully!',

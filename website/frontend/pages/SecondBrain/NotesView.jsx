@@ -278,7 +278,7 @@ const NotesView = () => {
         {!selectedNote && (
           <button
             onClick={handleCreateNote}
-            className="absolute top-4 right-4 z-10 flex items-center gap-2 px-4 py-2 bg-[#761B14] hover:bg-[#651610] text-white rounded-lg transition-colors shadow-lg"
+            className="btn-premium-red absolute top-4 right-4 z-10 flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors"
           >
             <Plus className="w-4 h-4" />
             <span className="font-medium">New Note</span>
@@ -337,7 +337,7 @@ const NotesView = () => {
               <div className="flex-1 w-full overflow-y-auto p-8 bg-gray-50 dark:bg-gray-900">
                 {loading ? (
                   <div className="flex items-center justify-center h-64">
-                    <FileText className="w-12 h-12 text-[#761B14] animate-pulse" />
+                    <FileText className="w-12 h-12 text-[#3F0D28] animate-pulse" />
                   </div>
                 ) : notes.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-64">
@@ -346,7 +346,7 @@ const NotesView = () => {
                     <p className="text-gray-600 dark:text-gray-400 mb-6">Create your first note to get started</p>
                     <button
                       onClick={handleCreateNote}
-                      className="px-6 py-3 bg-[#761B14] hover:bg-[#651610] text-white rounded-lg transition-colors"
+                      className="btn-premium-red px-6 py-3 text-white rounded-lg transition-colors"
                     >
                       Create Note
                     </button>
@@ -360,7 +360,7 @@ const NotesView = () => {
                           onClick={() => handleSelectNote(note)}
                           className="flex items-center gap-4 p-4 bg-white dark:bg-gray-800/30 hover:bg-gray-50 dark:hover:bg-gray-800/50 border border-gray-200 dark:border-gray-700/50 hover:border-gray-300 dark:hover:border-gray-600 rounded-lg transition-all text-left group shadow-sm"
                         >
-                          <FileText className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-[#761B14] transition-colors" />
+                          <FileText className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-[#3F0D28] transition-colors" />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
                               {note.icon && <span>{note.icon}</span>}

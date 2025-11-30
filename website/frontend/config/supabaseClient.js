@@ -1,10 +1,14 @@
-import { createClient } from '@supabase/supabase-js';
+/**
+ * Supabase Client Export
+ *
+ * This file re-exports the Supabase client from the singleton service.
+ * This maintains backward compatibility with components that import from this location.
+ */
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+import supabaseSingleton from "../services/supabase-singleton";
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase URL or Anon Key is missing. Please check your .env file.');
-}
+// Export the supabase client from the singleton
+export const supabase = supabaseSingleton.getClient();
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Also export the singleton instance for advanced usage
+export default supabaseSingleton;

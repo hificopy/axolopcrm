@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   User, Download, Zap, Code, Trash2, Archive, Settings,
-  Users, LogOut, HelpCircle, Palette, ArrowUpCircle, Bell, Building, ChevronDown, SlidersHorizontal, Lock, UserPlus
+  Users, LogOut, HelpCircle, Palette, ArrowUpCircle, Bell, Building, ChevronDown, SlidersHorizontal, Lock, UserPlus, Eye
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -15,18 +15,81 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useSupabase } from '../context/SupabaseContext';
+import { useSupabase } from '@/context/SupabaseContext';
 import { useAgency } from '@/hooks/useAgency';
-import { useTheme } from './contexts/ThemeContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useDemoMode } from '@/contexts/DemoModeContext';
+import { clearPersistentState } from '@/hooks/usePersistentState';
 import InviteMemberModal from './InviteMemberModal';
+import EnhancedLeadImportModal from './EnhancedLeadImportModal';
 
 export default function UserProfileMenu({ trigger }) {
   const navigate = useNavigate();
   const { user, signOut } = useSupabase();
-  const { currentAgency, isAdmin } = useAgency();
+  const { currentAgency, isAdmin, refreshAgencies, selectAgency, agencies } = useAgency();
   const { theme, setTheme } = useTheme();
+  const { isDemoMode, enableDemoMode, disableDemoMode } = useDemoMode();
   const [notificationStatus, setNotificationStatus] = useState('off');
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+
+  // Handle demo mode toggle with proper agency switching
+  const handleDemoModeToggle = async () => {
+    console.log('[UserProfileMenu] Demo mode toggle clicked. Current state:', isDemoMode);
+
+    if (isDemoMode) {
+      // Turning demo mode OFF
+      console.log('[UserProfileMenu] Disabling demo mode');
+
+      // Find first real agency (not demo) to switch to
+      const realAgencies = agencies.filter(a =>
+        a.id !== 'demo-agency-virtual' &&
+        a.agency_id !== 'demo-agency-virtual'
+      );
+
+      console.log('[UserProfileMenu] Real agencies available:', realAgencies.length);
+
+      if (realAgencies.length > 0) {
+        // Switch to first real agency FIRST
+        console.log('[UserProfileMenu] Switching to real agency:', realAgencies[0].name);
+        await selectAgency(realAgencies[0].id || realAgencies[0].agency_id);
+
+        // Wait for agency switch to complete
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
+
+      // NOW disable demo mode
+      disableDemoMode();
+
+      // Wait for localStorage to update
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      // Refresh agencies to remove demo agency from list
+      await refreshAgencies();
+
+      console.log('[UserProfileMenu] Demo mode disabled successfully');
+    } else {
+      // Turning demo mode ON
+      console.log('[UserProfileMenu] Enabling demo mode');
+
+      // Enable demo mode first
+      enableDemoMode();
+
+      // Wait for localStorage to update
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      // Refresh agencies to add demo agency to list
+      await refreshAgencies();
+
+      // Wait for agencies to refresh
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      // Switch to demo agency
+      await selectAgency('demo-agency-virtual');
+
+      console.log('[UserProfileMenu] Demo mode enabled, switched to demo agency');
+    }
+  };
 
   // Get user info
   const userName = user?.user_metadata?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
@@ -55,6 +118,9 @@ export default function UserProfileMenu({ trigger }) {
   const subscriptionTier = getSubscriptionTier();
 
   const handleLogout = async () => {
+    // Clear all persistent state (presets, filters, etc.) before logout
+    clearPersistentState();
+
     await signOut();
     navigate('/signin');
   };
@@ -66,9 +132,14 @@ export default function UserProfileMenu({ trigger }) {
         {trigger}
       </DropdownMenuTrigger>
       
-      <DropdownMenuContent 
-        align="end" 
-        className="w-72 bg-[#1a1d24] border-gray-700 text-white p-0"
+      <DropdownMenuContent
+        align="end"
+        side="bottom"
+        sideOffset={0}
+        className="w-72 max-h-[calc(100vh-100px)] overflow-y-auto border-gray-700 text-white p-0 z-[9999]"
+        style={{
+          background: 'linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #000000 100%)'
+        }}
       >
         {/* Header with User Avatar and Info */}
         <div className="flex items-center gap-3 p-4 border-b border-gray-700">
@@ -79,8 +150,8 @@ export default function UserProfileMenu({ trigger }) {
               className="h-10 w-10 rounded-full object-cover"
             />
           ) : (
-            <div className="h-10 w-10 bg-[#ffed00] rounded-full flex items-center justify-center">
-              <span className="text-black font-bold text-sm">
+            <div className="h-10 w-10 bg-[#E92C92] rounded-full flex items-center justify-center shadow-lg shadow-[#E92C92]/20">
+              <span className="text-white font-bold text-sm">
                 {userName.charAt(0).toUpperCase()}
               </span>
             </div>
@@ -149,7 +220,7 @@ export default function UserProfileMenu({ trigger }) {
           )}
 
           <DropdownMenuItem
-            onClick={() => navigate('/app/import')}
+            onClick={() => setShowImportModal(true)}
             className="px-4 py-2.5 cursor-pointer hover:bg-white/5 focus:bg-white/5"
           >
             <Download className="h-4 w-4 mr-3 text-white" />
@@ -174,28 +245,46 @@ export default function UserProfileMenu({ trigger }) {
           </div>
 
           <DropdownMenuItem
-            onClick={() => navigate('/app/developers')}
+            onClick={() => navigate('/app/settings/integrations/developer')}
             className="px-4 py-2.5 cursor-pointer hover:bg-white/5 focus:bg-white/5"
           >
             <Code className="h-4 w-4 mr-3 text-white" />
             <span className="text-white">Developers</span>
           </DropdownMenuItem>
 
-          <DropdownMenuItem
-            onClick={() => navigate('/app/trash')}
-            className="px-4 py-2.5 cursor-pointer hover:bg-white/5 focus:bg-white/5"
-          >
-            <Trash2 className="h-4 w-4 mr-3 text-white" />
-            <span className="text-white">Trash</span>
-          </DropdownMenuItem>
+          <div className="relative group">
+            <DropdownMenuItem
+              disabled
+              className="px-4 py-2.5 cursor-not-allowed opacity-50 relative"
+            >
+              <Trash2 className="h-4 w-4 mr-3 text-gray-400" />
+              <span className="text-gray-400">Trash</span>
+              <Lock className="h-3 w-3 ml-auto text-gray-400" />
+              {/* Tooltip */}
+              <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-[99999]">
+                <div className="bg-black text-white text-xs px-3 py-2 rounded-md shadow-2xl whitespace-nowrap border border-white/20">
+                  Coming in V1.1
+                </div>
+              </div>
+            </DropdownMenuItem>
+          </div>
 
-          <DropdownMenuItem
-            onClick={() => navigate('/app/archive')}
-            className="px-4 py-2.5 cursor-pointer hover:bg-white/5 focus:bg-white/5"
-          >
-            <Archive className="h-4 w-4 mr-3 text-white" />
-            <span className="text-white">Archive</span>
-          </DropdownMenuItem>
+          <div className="relative group">
+            <DropdownMenuItem
+              disabled
+              className="px-4 py-2.5 cursor-not-allowed opacity-50 relative"
+            >
+              <Archive className="h-4 w-4 mr-3 text-gray-400" />
+              <span className="text-gray-400">Archive</span>
+              <Lock className="h-3 w-3 ml-auto text-gray-400" />
+              {/* Tooltip */}
+              <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-[99999]">
+                <div className="bg-black text-white text-xs px-3 py-2 rounded-md shadow-2xl whitespace-nowrap border border-white/20">
+                  Coming in V1.1
+                </div>
+              </div>
+            </DropdownMenuItem>
+          </div>
 
           <DropdownMenuItem
             onClick={() => navigate('/app/settings')}
@@ -231,12 +320,30 @@ export default function UserProfileMenu({ trigger }) {
           </div>
 
           <DropdownMenuItem
-            onClick={() => navigate('/app/settings/all')}
+            onClick={() => navigate('/app/settings')}
             className="px-4 py-2.5 cursor-pointer hover:bg-white/5 focus:bg-white/5"
           >
             <SlidersHorizontal className="h-4 w-4 mr-3 text-white" />
             <span className="text-white">All Settings</span>
           </DropdownMenuItem>
+
+          {/* Demo Mode Toggle - God Mode Only */}
+          {subscriptionTier === 'God' && (
+            <DropdownMenuItem
+              onClick={handleDemoModeToggle}
+              className="px-4 py-2.5 cursor-pointer hover:bg-white/5 focus:bg-white/5"
+            >
+              <Eye className="h-4 w-4 mr-3 text-white" />
+              <span className="text-white">Demo Mode</span>
+              <span className={`ml-auto text-xs px-2 py-0.5 rounded-full ${
+                isDemoMode
+                  ? 'bg-purple-500/20 text-purple-300'
+                  : 'bg-gray-700 text-gray-400'
+              }`}>
+                {isDemoMode ? 'On' : 'Off'}
+              </span>
+            </DropdownMenuItem>
+          )}
 
           <DropdownMenuItem
             onClick={handleLogout}
@@ -261,7 +368,12 @@ export default function UserProfileMenu({ trigger }) {
               <span className="text-white">Do not disturb</span>
               <span className="ml-auto text-xs text-gray-400 capitalize">{notificationStatus}</span>
             </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent className="bg-[#1a1d24] border-gray-700 text-white">
+            <DropdownMenuSubContent
+              className="border-gray-700 text-white"
+              style={{
+                background: 'linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #000000 100%)'
+              }}
+            >
               <DropdownMenuItem
                 onClick={() => setNotificationStatus('off')}
                 className="px-4 py-2 cursor-pointer hover:bg-white/5"
@@ -283,7 +395,7 @@ export default function UserProfileMenu({ trigger }) {
         {/* Additional Options */}
         <div className="py-2">
           <DropdownMenuItem
-            onClick={() => navigate('/app/help')}
+            onClick={() => navigate('/help')}
             className="px-4 py-2.5 cursor-pointer hover:bg-white/5 focus:bg-white/5"
           >
             <HelpCircle className="h-4 w-4 mr-3 text-white" />
@@ -295,7 +407,12 @@ export default function UserProfileMenu({ trigger }) {
               <Palette className="h-4 w-4 mr-3 text-white" />
               <span className="text-white">Change theme</span>
             </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent className="bg-[#1a1d24] border-gray-700 text-white">
+            <DropdownMenuSubContent
+              className="border-gray-700 text-white"
+              style={{
+                background: 'linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #000000 100%)'
+              }}
+            >
               <DropdownMenuItem
                 onClick={() => setTheme('light')}
                 className="px-4 py-2 cursor-pointer hover:bg-white/5"
@@ -318,7 +435,7 @@ export default function UserProfileMenu({ trigger }) {
           </DropdownMenuSub>
 
           <DropdownMenuItem
-            onClick={() => navigate('/app/upgrade')}
+            onClick={() => navigate('/app/settings/billing')}
             className="px-4 py-2.5 cursor-pointer hover:bg-white/5 focus:bg-white/5"
           >
             <ArrowUpCircle className="h-4 w-4 mr-3 text-white" />
@@ -335,6 +452,16 @@ export default function UserProfileMenu({ trigger }) {
       onSuccess={() => {
         // Modal will refresh agency context automatically
         console.log('Member invited successfully');
+      }}
+    />
+
+    {/* Import Modal */}
+    <EnhancedLeadImportModal
+      isOpen={showImportModal}
+      onClose={() => setShowImportModal(false)}
+      onSuccess={() => {
+        console.log('Data imported successfully');
+        setShowImportModal(false);
       }}
     />
   </>

@@ -166,13 +166,13 @@ const ConditionNode = ({ data, selected }) => {
           <Badge variant="outline" className="text-xs bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300">
             True
           </Badge>
-          <Badge variant="outline" className="text-xs bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300">
+          <Badge variant="outline" className="text-xs bg-[#3F0D28]/10 dark:bg-[#3F0D28]/20 text-[#3F0D28] dark:text-[#2a0919]">
             False
           </Badge>
         </div>
       </div>
       <Handle type="source" position={Position.Bottom} id="true" style={{ left: '30%' }} className="w-3 h-3 bg-green-500" />
-      <Handle type="source" position={Position.Bottom} id="false" style={{ left: '70%' }} className="w-3 h-3 bg-red-500" />
+      <Handle type="source" position={Position.Bottom} id="false" style={{ left: '70%' }} className="w-3 h-3 bg-[#3F0D28]" />
     </div>
   );
 };

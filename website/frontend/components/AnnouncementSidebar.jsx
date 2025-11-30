@@ -69,7 +69,7 @@ export default function AnnouncementSidebar({ isOpen, onClose }) {
                 className={`p-4 rounded-lg border ${
                   announcement.read 
                     ? 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700' 
-                    : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800/50'
+                    : 'bg-blue-50 dark:bg-blue-900/20 border-gray-200 dark:border-blue-800/50'
                 }`}
               >
                 <div className="flex items-start justify-between">
@@ -77,7 +77,7 @@ export default function AnnouncementSidebar({ isOpen, onClose }) {
                     <div className="flex items-center gap-2">
                       <h3 className="font-medium text-gray-900 dark:text-white">{announcement.title}</h3>
                       {!announcement.read && (
-                        <span className="h-2 w-2 bg-[#761B14] rounded-full flex-shrink-0"></span>
+                        <span className="h-2 w-2 bg-[#3F0D28] rounded-full flex-shrink-0"></span>
                       )}
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{announcement.date}</p>

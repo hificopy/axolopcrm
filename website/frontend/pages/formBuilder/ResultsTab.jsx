@@ -105,8 +105,8 @@ export default function ResultsTab({ form }) {
                   <p className="text-sm text-crm-text-secondary">Total Views</p>
                   <p className="text-2xl font-bold text-crm-text-primary mt-1">{stats.totalViews.toLocaleString()}</p>
                 </div>
-                <div className="p-3 bg-red-100 rounded-lg">
-                  <Eye className="h-6 w-6 text-red-600" />
+                <div className="p-3 bg-[#3F0D28]/10 rounded-lg">
+                  <Eye className="h-6 w-6 text-[#3F0D28]" />
                 </div>
               </div>
               <div className="flex items-center gap-1 mt-2 text-xs">
@@ -150,7 +150,7 @@ export default function ResultsTab({ form }) {
               <div className="flex items-center gap-1 mt-2 text-xs">
                 <span className="text-green-600">{stats.qualifiedLeads} qualified</span>
                 <span className="text-crm-text-secondary">•</span>
-                <span className="text-red-600">{stats.disqualifiedLeads} disqualified</span>
+                <span className="text-[#3F0D28]">{stats.disqualifiedLeads} disqualified</span>
               </div>
             </CardContent>
           </Card>
@@ -235,13 +235,13 @@ export default function ResultsTab({ form }) {
                   <div className="flex items-center gap-4">
                     <div className={`p-2 rounded-lg ${
                       submission.status === 'qualified' ? 'bg-green-100' :
-                      submission.status === 'disqualified' ? 'bg-red-100' :
+                      submission.status === 'disqualified' ? 'bg-[#3F0D28]/10' :
                       'bg-gray-100'
                     }`}>
                       {submission.status === 'qualified' ? (
                         <CheckCircle2 className="h-5 w-5 text-green-600" />
                       ) : submission.status === 'disqualified' ? (
-                        <XCircle className="h-5 w-5 text-red-600" />
+                        <XCircle className="h-5 w-5 text-[#3F0D28]" />
                       ) : (
                         <AlertCircle className="h-5 w-5 text-gray-600" />
                       )}
@@ -258,7 +258,7 @@ export default function ResultsTab({ form }) {
                       <div className={`text-sm font-semibold ${
                         submission.leadScore >= 70 ? 'text-green-600' :
                         submission.leadScore >= 40 ? 'text-yellow-600' :
-                        'text-red-600'
+                        'text-[#3F0D28]'
                       }`}>
                         {submission.leadScore}
                       </div>

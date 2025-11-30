@@ -31,9 +31,9 @@ import ViewOnlyBadge from "../components/ui/view-only-badge";
 
 const ACTIVITY_TYPES = {
   CALL: { icon: Phone, label: "Call", color: "bg-blue-500" },
-  EMAIL: { icon: Mail, label: "Email", color: "bg-green-500" },
+  EMAIL: { icon: Mail, label: "Email", color: "bg-[#1A777B]" },
   MEETING: { icon: Calendar, label: "Meeting", color: "bg-purple-500" },
-  TASK: { icon: CheckSquare, label: "Task", color: "bg-orange-500" },
+  TASK: { icon: CheckSquare, label: "Task", color: "bg-[#EBB207]" },
   NOTE: { icon: MessageSquare, label: "Note", color: "bg-gray-500" },
   VIDEO_CALL: { icon: Video, label: "Video Call", color: "bg-indigo-500" },
   OTHER: { icon: FileText, label: "Other", color: "bg-gray-400" },
@@ -211,7 +211,6 @@ export default function Activities() {
             <div className="flex items-center gap-3">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
                 Activities
-                <span className="ml-3 text-[#761B14]">●</span>
               </h1>
               {isReadOnly() && <ViewOnlyBadge />}
             </div>
@@ -236,7 +235,7 @@ export default function Activities() {
               <Button
                 variant="default"
                 size="default"
-                className="gap-2 bg-[#761B14] hover:bg-[#6b1a12]"
+                className="gap-2 btn-premium-red"
               >
                 <Plus className="h-4 w-4" />
                 <span>New Activity</span>
@@ -263,16 +262,16 @@ export default function Activities() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-5 border border-emerald-200 shadow-md hover:shadow-lg transition-all duration-300">
+          <div className="bg-gradient-to-br from-[#1A777B]/5 to-[#1A777B]/10 rounded-xl p-5 border border-[#1A777B]/20 shadow-md hover:shadow-lg transition-all duration-300">
             <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-primary-green/10">
-                <CheckSquare className="h-5 w-5 text-primary-green" />
+              <div className="p-2 rounded-lg bg-[#1A777B]/10">
+                <CheckSquare className="h-5 w-5 text-[#1A777B]" />
               </div>
               <div>
-                <div className="text-xs font-semibold text-emerald-700 uppercase tracking-wide">
+                <div className="text-xs font-semibold text-[#1A777B] uppercase tracking-wide">
                   Completed
                 </div>
-                <div className="text-3xl font-bold text-emerald-600 mt-1">
+                <div className="text-3xl font-bold text-neutral-900 dark:text-white mt-1">
                   {stats.completedActivities}
                 </div>
               </div>
@@ -295,16 +294,16 @@ export default function Activities() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-5 border border-[#761B14]/30 shadow-md hover:shadow-lg transition-all duration-300">
+          <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-5 border border-[#3F0D28]/30 shadow-md hover:shadow-lg transition-all duration-300">
             <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-[#761B14]/10">
-                <Calendar className="h-5 w-5 text-[#761B14]" />
+              <div className="p-2 rounded-lg bg-[#3F0D28]/10">
+                <Calendar className="h-5 w-5 text-[#3F0D28]" />
               </div>
               <div>
-                <div className="text-xs font-semibold text-[#761B14] uppercase tracking-wide">
+                <div className="text-xs font-semibold text-[#3F0D28] uppercase tracking-wide">
                   Today
                 </div>
-                <div className="text-3xl font-bold text-[#761B14] mt-1">
+                <div className="text-3xl font-bold text-[#3F0D28] mt-1">
                   {stats.todayActivities}
                 </div>
               </div>
@@ -325,7 +324,7 @@ export default function Activities() {
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#761B14]"
+            className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3F0D28]"
           >
             <option value="ALL">All Types</option>
             <option value="CALL">Calls</option>
@@ -338,7 +337,7 @@ export default function Activities() {
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#761B14]"
+            className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3F0D28]"
           >
             <option value="ALL">All Status</option>
             <option value="PENDING">Pending</option>
@@ -353,12 +352,12 @@ export default function Activities() {
       <div className="flex-1 overflow-auto p-4 sm:p-6 bg-gray-50">
         {loading ? (
           <div className="flex flex-col items-center justify-center h-full">
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-[#761B14] mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-[#3F0D28] mb-4"></div>
             <p className="text-gray-600 font-medium">Loading activities...</p>
           </div>
         ) : filteredActivities.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <FileText className="h-16 w-16 text-[#761B14]/30 mb-4" />
+            <FileText className="h-16 w-16 text-[#3F0D28]/30 mb-4" />
             <h3 className="text-xl font-bold text-gray-900 mb-2">
               No activities found
             </h3>
@@ -371,7 +370,7 @@ export default function Activities() {
               <Button
                 variant="default"
                 size="default"
-                className="gap-2 bg-[#761B14] hover:bg-[#6b1a12]"
+                className="gap-2 btn-premium-red"
               >
                 <Plus className="h-4 w-4" />
                 <span>Add Your First Activity</span>

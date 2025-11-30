@@ -204,7 +204,7 @@ const SalesDashboard = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4 lg:space-x-8">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-[#3F0D28] rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold">A</span>
               </div>
               <span className="font-semibold text-lg lg:text-xl">
@@ -212,7 +212,7 @@ const SalesDashboard = () => {
               </span>
             </div>
             <nav className="hidden lg:flex space-x-6">
-              <a href="#" className="text-blue-600 font-medium">
+              <a href="#" className="text-[#3F0D28] font-medium">
                 Dashboard
               </a>
               <a href="#" className="text-gray-600 hover:text-gray-900">
@@ -244,7 +244,7 @@ const SalesDashboard = () => {
               <input
                 type="text"
                 placeholder="Search..."
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3F0D28]"
               />
             </div>
             <button className="relative p-2 text-gray-600 hover:text-gray-900">
@@ -266,7 +266,7 @@ const SalesDashboard = () => {
           <div className="grid grid-cols-2 lg:flex lg:items-center lg:space-x-8 gap-4 lg:gap-0">
             <div>
               <div className="flex items-center space-x-2">
-                <DollarSign className="w-4 h-4 lg:w-5 lg:h-5 text-green-600" />
+                <DollarSign className="w-4 h-4 lg:w-5 lg:h-5 text-emerald-700" />
                 <span className="text-lg lg:text-2xl font-bold">
                   ${totalValue.toLocaleString()}
                 </span>
@@ -345,7 +345,7 @@ const SalesDashboard = () => {
                         <span className="text-sm text-gray-600">
                           {deals[stage].length} deals
                         </span>
-                        <span className="text-sm font-semibold text-green-600">
+                        <span className="text-sm font-semibold text-emerald-700">
                           ${calculateStageTotal(deals[stage]).toLocaleString()}
                         </span>
                       </div>
@@ -377,7 +377,7 @@ const SalesDashboard = () => {
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-lg font-bold text-green-600">
+                            <span className="text-lg font-bold text-emerald-700">
                               ${deal.value.toLocaleString()}
                             </span>
                             <div className="flex space-x-1">
@@ -416,7 +416,7 @@ const SalesDashboard = () => {
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
                 <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                  <Phone className="w-4 h-4 text-green-600" />
+                  <Phone className="w-4 h-4 text-emerald-700" />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm text-gray-900">Call with Sarah Chen</p>
@@ -460,7 +460,7 @@ const SalesDashboard = () => {
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-sm text-gray-600">Target vs Actual</span>
-                <span className="text-sm font-semibold text-green-600">
+                <span className="text-sm font-semibold text-emerald-700">
                   75%
                 </span>
               </div>
@@ -502,7 +502,7 @@ const SalesDashboard = () => {
                   <p className="text-sm font-semibold">John Doe</p>
                   <p className="text-xs text-gray-500">12 deals</p>
                 </div>
-                <span className="text-sm font-bold text-green-600">$45K</span>
+                <span className="text-sm font-bold text-emerald-700">$45K</span>
               </div>
               <div className="flex items-center space-x-3">
                 <span className="text-lg font-bold text-gray-400">🥈</span>
@@ -513,7 +513,7 @@ const SalesDashboard = () => {
                   <p className="text-sm font-semibold">Alice Smith</p>
                   <p className="text-xs text-gray-500">10 deals</p>
                 </div>
-                <span className="text-sm font-bold text-green-600">$38K</span>
+                <span className="text-sm font-bold text-emerald-700">$38K</span>
               </div>
               <div className="flex items-center space-x-3">
                 <span className="text-lg font-bold text-orange-600">🥉</span>
@@ -524,7 +524,7 @@ const SalesDashboard = () => {
                   <p className="text-sm font-semibold">Bob Johnson</p>
                   <p className="text-xs text-gray-500">8 deals</p>
                 </div>
-                <span className="text-sm font-bold text-green-600">$32K</span>
+                <span className="text-sm font-bold text-emerald-700">$32K</span>
               </div>
             </div>
           </div>

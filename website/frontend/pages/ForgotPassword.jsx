@@ -51,7 +51,7 @@ const ForgotPassword = () => {
             </p>
             <Link
               to="/signin"
-              className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
+              className="inline-flex items-center gap-2 text-[#3F0D28] hover:text-[#5a1a3a] transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Sign In
@@ -80,9 +80,9 @@ const ForgotPassword = () => {
         <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl shadow-2xl p-8">
           {/* Error Message */}
           {error && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-200">{error}</p>
+            <div className="mb-6 p-4 bg-[#3F0D28]/10 border border-[#3F0D28]/50 rounded-lg flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-[#3F0D28] flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-[#CA4238]">{error}</p>
             </div>
           )}
 
@@ -104,7 +104,7 @@ const ForgotPassword = () => {
                     setError('');
                   }}
                   required
-                  className="w-full pl-11 pr-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full pl-11 pr-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3F0D28] focus:border-transparent transition-all"
                   placeholder="you@example.com"
                 />
               </div>
@@ -114,7 +114,12 @@ const ForgotPassword = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/30"
+              className="w-full text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                background: 'linear-gradient(180deg, #5a1a3a 0%, #3F0D28 30%, #2a0919 70%, #4a1530 100%)',
+                boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.2)',
+                border: '1px solid rgba(90, 26, 58, 0.5)',
+              }}
             >
               {loading ? (
                 <>

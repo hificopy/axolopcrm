@@ -1,0 +1,177 @@
+import { motion } from "framer-motion";
+import {
+  Mail,
+  Users,
+  MousePointerClick,
+  Send,
+  Eye,
+  TrendingUp,
+  Calendar,
+} from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { formatDateRange, getPeriodLabel } from "@/lib/utils";
+import MetricLoadingState, {
+  DataFreshnessIndicator,
+} from "@/components/ui/metric-loading-state";
+
+export default function FullMarketingWidget({
+  data = {},
+  timeRange = "month",
+}) {
+  // Check if data is reliable
+  const isReliable = data?._metadata?.isReliable !== false;
+  const shouldShowLoading = data?._metadata?.shouldShowLoading === true;
+
+  const formatValue = (value, formatter) => {
+    if (shouldShowLoading || !isReliable) {
+      return null; // Will show loading state
+    }
+    return formatter ? formatter(value) : value;
+  };
+
+  const stats = [
+    {
+      label: "Campaigns",
+      value: formatValue(data.activeCampaigns),
+      icon: Send,
+      color: "text-blue-600 dark:text-blue-400",
+      bg: "bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100/50 dark:border-blue-900/30 backdrop-blur-sm",
+    },
+    {
+      label: "Email Opens",
+      value: formatValue(data.emailOpens),
+      icon: Eye,
+      color: "text-emerald-600 dark:text-emerald-400",
+      bg: "bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100/50 dark:border-emerald-900/30 backdrop-blur-sm",
+    },
+    {
+      label: "Click Rate",
+      value: formatValue(data.clickRate, (val) =>
+        val ? `${val.toFixed(1)}%` : "0%",
+      ),
+      icon: MousePointerClick,
+      color: "text-amber-600 dark:text-amber-400",
+      bg: "bg-amber-50/50 dark:bg-amber-950/20 border border-amber-100/50 dark:border-amber-900/30 backdrop-blur-sm",
+    },
+    {
+      label: "Subscribers",
+      value: formatValue(data.totalSubscribers),
+      icon: Users,
+      color: "text-purple-600 dark:text-purple-400",
+      bg: "bg-purple-50/50 dark:bg-purple-950/20 border border-purple-100/50 dark:border-purple-900/30 backdrop-blur-sm",
+    },
+  ];
+
+  const details = [
+    {
+      label: "Engagement Rate",
+      value: data.engagementRate ? `${data.engagementRate.toFixed(1)}%` : "0%",
+    },
+    {
+      label: "Unsubscribe Rate",
+      value: data.unsubscribeRate
+        ? `${data.unsubscribeRate.toFixed(2)}%`
+        : "0%",
+    },
+    {
+      label: "Avg. Open Rate",
+      value: data.avgOpenRate ? `${data.avgOpenRate.toFixed(1)}%` : "0%",
+    },
+    { label: "New Subscribers", value: data.newSubscribers || "0" },
+  ];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="h-full w-full"
+    >
+      <Card className="h-full w-full flex flex-col bg-white border border-black/[0.05] shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition-all duration-300">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                <Mail className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">Marketing Performance</CardTitle>
+                <p className="text-xs text-crm-text-secondary">
+                  Campaign metrics & analytics
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50">
+                <Calendar className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">
+                  {getPeriodLabel(timeRange)}
+                </span>
+              </div>
+              {data?._metadata?.lastValidated && (
+                <DataFreshnessIndicator
+                  lastUpdated={data._metadata.lastValidated}
+                  className="text-xs"
+                />
+              )}
+            </div>
+          </div>
+          <div className="mt-2 pt-2 border-t border-black/[0.05]">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#761B14] animate-pulse" />
+              <span className="text-xs text-neutral-500 font-medium">
+                {formatDateRange(timeRange)}
+              </span>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="flex-1 space-y-4">
+          {/* Key Metrics Grid */}
+          <div className="grid grid-cols-2 gap-3">
+            {stats.map((stat, idx) => {
+              const Icon = stat.icon;
+              return (
+                <div key={idx} className={`${stat.bg} rounded-lg p-3`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Icon className={`h-4 w-4 ${stat.color}`} />
+                    <span className="text-xs text-crm-text-secondary">
+                      {stat.label}
+                    </span>
+                  </div>
+                  <p className={`text-xl font-bold ${stat.color}`}>
+                    {stat.value !== null ? (
+                      stat.value
+                    ) : (
+                      <MetricLoadingState size="text-xl" showIcon={false} />
+                    )}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Detailed Stats */}
+          <div className="border-t border-black/[0.05] pt-3 space-y-2">
+            <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+              Performance Details
+            </h4>
+            {details.map((detail, idx) => (
+              <div
+                key={idx}
+                className="flex justify-between items-center py-1.5 hover:bg-[#FAFAFA] px-2 rounded transition-colors"
+              >
+                <span className="text-sm text-neutral-500">
+                  {detail.label}
+                </span>
+                <span className="text-sm font-semibold text-neutral-900">
+                  {detail.value}
+                </span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}

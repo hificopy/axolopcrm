@@ -38,7 +38,7 @@ export function InfoTooltip({
           'inline-flex items-center justify-center rounded-full',
           'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300',
           'transition-colors duration-200',
-          'focus:outline-none focus:ring-2 focus:ring-[#761B14] focus:ring-offset-2 dark:focus:ring-offset-gray-900',
+          'focus:outline-none focus:ring-2 focus:ring-[#3F0D28] focus:ring-offset-2 dark:focus:ring-offset-gray-900',
           className
         )}
         onClick={(e) => e.preventDefault()} // Prevent any form submission
