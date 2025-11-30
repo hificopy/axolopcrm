@@ -47,27 +47,51 @@ import {
 // Icon mapping for features
 const getFeatureIcon = (featureId) => {
   const iconMap = {
-    "communication.phone": Phone,
-    "communication.dialer": Phone,
-    "communication.outcomes": Target,
-    "communication.notetaker": MessageSquare,
-    "communication.email": Mail,
-    "communication.templates": Mail,
-    "communication.sendAs": Mail,
-    "customization.aiKnowledge": Brain,
-    "account.appearance": Sparkles,
-    "account.twoFactor": Shield,
-    "account.calendarSync": Calendar,
-    "billing.usage": BarChart3,
-    "userMenu.importData": Download,
-    "userMenu.automations": Zap,
-    "userMenu.trash": Archive,
-    "userMenu.archive": Archive,
-    "v12.teams": Users,
-    "v12.mobile": Smartphone,
-    "v12.analytics": BarChart3,
-    "secondBrain.chat": Bot,
-    "secondBrain.tasks": CheckSquare,
+    // Released features
+    "released.leadManagement": Target,
+    "released.pipeline": BarChart3,
+    "released.contacts": Users,
+    "released.customFields": Grid,
+    "released.formBuilder": Grid,
+    "released.calendar": Calendar,
+    "released.agencySelector": Users,
+    "released.dataImport": Download,
+    "released.systemCleanup": Zap,
+    // V1.4 - Communication
+    "v14.emailIntegration": Mail,
+    "v14.emailTemplates": Mail,
+    "v14.emailTracking": Target,
+    "v14.bulkEmail": Mail,
+    // V1.5 - Automation
+    "v15.workflowBuilder": Zap,
+    "v15.emailSequences": Mail,
+    "v15.taskAutomation": CheckSquare,
+    "v15.webhooks": Zap,
+    // V1.6 - Analytics
+    "v16.advancedAnalytics": BarChart3,
+    "v16.customReports": BarChart3,
+    "v16.goalTracking": Target,
+    "v16.exportReports": Download,
+    // V1.7 - AI
+    "v17.aiAssistant": Bot,
+    "v17.aiLeadScoring": Brain,
+    "v17.aiEmailWriter": Bot,
+    "v17.aiInsights": Brain,
+    // V1.8 - Calling
+    "v18.phoneSystem": Phone,
+    "v18.powerDialer": Phone,
+    "v18.smsMessaging": MessageSquare,
+    "v18.callAnalytics": BarChart3,
+    // V2.0 - Major
+    "v20.mobileApp": Smartphone,
+    "v20.teamCollaboration": Users,
+    "v20.advancedPermissions": Shield,
+    "v20.whiteLabel": Sparkles,
+    // Future
+    "future.marketplace": Grid,
+    "future.aiNotetaker": Bot,
+    "future.proposals": Target,
+    "future.customerPortal": Users,
   };
   return iconMap[featureId] || Zap;
 };
@@ -500,10 +524,9 @@ export default function Roadmap() {
                 transform: "translateY(30px)",
               }}
             >
-              We're shipping new features weekly to help agencies save
-              $1,375/month by replacing 10+ tools with one unified platform. No
-              more waiting for quarterly updates - innovation delivered every
-              Monday.
+              One main feature every month, plus weekly enhancements and fixes.
+              We're building the CRM agencies actually need - shaped by your feedback.
+              Currently on V1.3 with Email Integration dropping in December.
             </p>
 
             <div className="flex items-center justify-center gap-8 flex-wrap">
@@ -636,31 +659,46 @@ export default function Roadmap() {
 
         {viewMode === "version" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {Object.entries(featuresByVersion).map(([version, features]) => (
-              <div key={version} className="bg-gray-900/50 backdrop-blur-xl rounded-xl p-6 border border-gray-700/50">
-                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${
-                    version === 'V1.0' ? 'bg-green-900/30' :
-                    version === 'V1.1' ? 'bg-[#E92C92]/20' :
-                    'bg-[#E92C92]/20'
-                  }`}>
-                    {version === 'V1.0' ? (
-                      <Check className="h-5 w-5 text-green-400" />
-                    ) : version === 'V1.1' ? (
-                      <Rocket className="h-5 w-5 text-[#E92C92]" />
-                    ) : (
-                      <Clock className="h-5 w-5 text-[#E92C92]" />
+            {Object.entries(featuresByVersion).map(([version, features]) => {
+              const isReleased = ['V1.0', 'V1.1', 'V1.2', 'V1.3'].includes(version);
+              const isCurrent = version === 'V1.3';
+              const isNext = version === 'V1.4';
+              return (
+                <div key={version} className={`bg-gray-900/50 backdrop-blur-xl rounded-xl p-6 border ${isCurrent ? 'border-[#E92C92]/50' : 'border-gray-700/50'}`}>
+                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${
+                      isReleased ? 'bg-green-900/30' :
+                      isNext ? 'bg-[#E92C92]/30' :
+                      'bg-[#E92C92]/20'
+                    }`}>
+                      {isReleased ? (
+                        <Check className="h-5 w-5 text-green-400" />
+                      ) : isNext ? (
+                        <Rocket className="h-5 w-5 text-[#E92C92]" />
+                      ) : (
+                        <Clock className="h-5 w-5 text-[#E92C92]" />
+                      )}
+                    </div>
+                    {version}
+                    {isCurrent && (
+                      <span className="px-2 py-0.5 bg-[#E92C92] text-white text-xs font-bold rounded-full">
+                        CURRENT
+                      </span>
                     )}
+                    {isNext && (
+                      <span className="px-2 py-0.5 bg-[#E92C92]/30 text-[#E92C92] text-xs font-bold rounded-full">
+                        NEXT
+                      </span>
+                    )}
+                  </h3>
+                  <div className="space-y-3">
+                    {features.map((feature) => (
+                      <FeatureCard key={feature.id} feature={feature} />
+                    ))}
                   </div>
-                  {version}
-                </h3>
-                <div className="space-y-3">
-                  {features.map((feature) => (
-                    <FeatureCard key={feature.id} feature={feature} />
-                  ))}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
